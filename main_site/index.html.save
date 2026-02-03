@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIST EconAI Lab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        /* KAIST Blue 컬러 정의 */
+        .text-kaist { color: #004191; }
+        .bg-kaist { background-color: #004191; }
+        .btn-kaist { background-color: #004191; color: white; }
+        .btn-kaist:hover { background-color: #002d65; color: white; }
+
+        /* 네비게이션 바 스타일 */
+        .navbar-brand {
+            font-weight: 700;
+            color: #004191 !important;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            font-weight: 500;
+            color: #333 !important;
+            margin-left: 15px;
+        }
+        .nav-link:hover { color: #004191 !important; }
+
+        /* 메인 배너 (Hero Section) 스타일 */
+        .hero-section {
+            /* 나중에 여기에 야간조도 지도 이미지를 배경으로 넣을 예정 */
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://source.unsplash.com/1600x900/?satellite,earth,night');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 150px 0;
+            text-align: center;
+        }
+        
+        /* 섹션 공통 스타일 */
+        .section-title {
+            font-weight: 700;
+            color: #004191;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">KAIST EconAI Lab</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            MEMBERS
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Professor</a></li>
+                            <li><a class="dropdown-item" href="#">Students</a></li>
+                            <li><a class="dropdown-item" href="#">Alumni</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item"><a class="nav-link" href="#">RESEARCH</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">PUBLICATIONS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">PROJECTS</a></li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="boardDropdown" role="button" data-bs-toggle="dropdown">
+                            BOARD
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">News</a></li>
+                            <li><a class="dropdown-item" href="#">Media</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item"><a class="nav-link" href="#">CONTACT</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Economic Analysis with AI</h1>
+            <p class="lead mb-4">Uncovering economic insights using satellite imagery, machine learning, and LLMs.</p>
+            <a href="#" class="btn btn-kaist btn-lg px-4">View Research Projects</a>
+        </div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <h2 class="section-title text-center">Latest News</h2>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">홈페이지 개설</h5>
+                            <p class="card-text text-muted">2026.01.08</p>
+                            <p class="card-text">EconAI 연구실 공식 홈페이지 오픈</p>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </section>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-1 fw-bold text-kaist">KAIST School of Business and Technology Management</p>
+            <p class="text-muted small">Daejeon, Republic of Korea | © 2026 EconAI Lab. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

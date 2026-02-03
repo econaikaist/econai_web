@@ -1,0 +1,12 @@
+# SSL 인증서 (절대 공개 금지)
+nginx/ssl/
+*.crt
+*.key
+*.pem
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# 로그 파일 등
+*.log

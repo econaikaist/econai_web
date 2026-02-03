@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web_server:
+    container_name: econai_web
+    image: nginx:latest
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # 1. 설정 파일 연결 (내컴퓨터 : 도커내부)
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      # 2. 인증서 폴더 연결 (여기가 핵심!)
+      - ./nginx/ssl:/etc/nginx/ssl
+      # 3. 웹사이트 폴더 연결 (main_site 사용)
+      - ./main_site:/usr/share/nginx/html
