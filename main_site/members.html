@@ -145,12 +145,23 @@
             background: var(--kaist-blue);
             color: #fff;
         }
-
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px; /* 아이템 간 간격 */
+            border-radius: 8px !important;
+            overflow: hidden;
+        }
+        
+        .accordion-button {
+            background-color: #f1f3f5; /* 닫혀있을 때 회색 배경 */
+            color: #333; /* 글자색 검정 */
+            font-weight: 700; /* 글자 굵게 */
+        }
         /* 인턴십 아코디언 스타일 커스텀 */
         .accordion-button:not(.collapsed) {
-            color: var(--kaist-blue);
-            background-color: #f8f9fa;
-            font-weight: bold;
+            background-color: #e9ecef; /* 열렸을 때 조금 더 진한 회색 */
+            color: var(--kaist-blue); /* 열렸을 때 글자색 파랑 */
+            box-shadow: none; /* 파란 테두리 제거 */
         }
         .accordion-button {
             font-weight: 600;
@@ -159,19 +170,36 @@
         .intern-list { margin: 0; padding-left: 20px; line-height: 1.8; color: var(--text-gray); }
 
         /* 졸업생 리스트 */
+        /* .alumni-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        } */
+
         .alumni-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            color: var(--text-gray);
-            line-height: 2;
         }
+
         .alumni-list li {
-            border-bottom: 1px solid #f1f3f5;
-            padding: 8px 0;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee; /* 회색 줄 */
+            font-size: 1rem;
+            color: #555;
         }
-        .alumni-list li:last-child { border-bottom: none; }
-        .alumni-list strong { color: var(--kaist-blue); font-weight: 600; }
+
+        .alumni-list li:last-child {
+            border-bottom: none; /* 마지막 줄은 선 없애기 */
+        }
+
+        .alumni-list strong {
+            color: var(--kaist-blue);
+            font-weight: 700;
+            margin-right: 5px;
+        }
 
         /* 모바일 반응형 */
         @media (max-width: 768px) {
@@ -211,9 +239,9 @@
         <section>
             <div class="members-grid">
                 <div class="member-card">
-                    <img src="https://via.placeholder.com/150x200?text=Professor" alt="Professor" class="member-photo">
+                    <img src="img/basic_profile.png" alt="Professor" class="member-photo">
                     <div class="member-info">
-                        <h3 class="member-name">Name | 이름</h3>
+                        <h3 class="member-name">Jihee Kim | 김지희</h3>
                         <p class="member-role">Professor</p>
                         <p class="member-keywords">Office : 연락처 또는 연구실 위치</p>
                     </div>
@@ -230,21 +258,9 @@
             <h3 class="members-category-title">Ph.D. Candidates</h3>
             <div class="members-grid">
                 <div class="member-card">
-                    <img src="https://via.placeholder.com/150x200?text=Student" alt="Student" class="member-photo">
+                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
                     <div class="member-info">
-                        <h3 class="member-name">Name | 이름</h3>
-                        <p class="member-role">Ph.D. Candidate</p>
-                        <p class="member-keywords">Research Keyword 1, Keyword 2</p>
-                    </div>
-                    <div class="member-links">
-                        <a href="#" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="member-link-btn"><i class="fas fa-envelope"></i></a>
-                    </div>
-                </div>
-                <div class="member-card">
-                    <img src="https://via.placeholder.com/150x200?text=Student" alt="Student" class="member-photo">
-                    <div class="member-info">
-                        <h3 class="member-name">Name | 이름</h3>
+                        <h3 class="member-name">Hyoshin Kim | 김효신</h3>
                         <p class="member-role">Ph.D. Candidate</p>
                         <p class="member-keywords">Research Keyword 1, Keyword 2</p>
                     </div>
@@ -260,7 +276,7 @@
             <h3 class="members-category-title">Ph.D. Students</h3>
             <div class="members-grid">
                 <div class="member-card">
-                    <img src="https://via.placeholder.com/150x200?text=Student" alt="Student" class="member-photo">
+                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
                     <div class="member-info">
                         <h3 class="member-name">Name | 이름</h3>
                         <p class="member-role">Ph.D. Student</p>
@@ -278,9 +294,45 @@
             <h3 class="members-category-title">Master's Students</h3>
             <div class="members-grid">
                 <div class="member-card">
-                    <img src="https://via.placeholder.com/150x200?text=Student" alt="Student" class="member-photo">
+                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
                     <div class="member-info">
-                        <h3 class="member-name">Name | 이름</h3>
+                        <h3 class="member-name">Hyeok Yun | 윤혁</h3>
+                        <p class="member-role">Master's Student</p>
+                        <p class="member-keywords">Research Keyword 1, Keyword 2</p>
+                    </div>
+                    <div class="member-links">
+                        <a href="#" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="member-link-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
+                    <div class="member-info">
+                        <h3 class="member-name">Donggyu Lee | 이동규</h3>
+                        <p class="member-role">Master's Student</p>
+                        <p class="member-keywords">Research Keyword 1, Keyword 2</p>
+                    </div>
+                    <div class="member-links">
+                        <a href="#" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="member-link-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
+                    <div class="member-info">
+                        <h3 class="member-name">Jungwon Kim | 김정원</h3>
+                        <p class="member-role">Master's Student</p>
+                        <p class="member-keywords">Research Keyword 1, Keyword 2</p>
+                    </div>
+                    <div class="member-links">
+                        <a href="#" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="member-link-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="member-card">
+                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
+                    <div class="member-info">
+                        <h3 class="member-name">Chaemin Jang | 장채민</h3>
                         <p class="member-role">Master's Student</p>
                         <p class="member-keywords">Research Keyword 1, Keyword 2</p>
                     </div>
@@ -296,17 +348,17 @@
             <h3 class="members-category-title">Lab Internship</h3>
             
             <div class="accordion" id="internshipAccordion">
+                
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="heading2026">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2026" aria-expanded="true" aria-controls="collapse2026">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2026" aria-expanded="false" aria-controls="collapse2026">
                             Winter 2026
                         </button>
                     </h2>
-                    <div id="collapse2026" class="accordion-collapse collapse show" aria-labelledby="heading2026" data-bs-parent="#internshipAccordion">
+                    <div id="collapse2026" class="accordion-collapse collapse" aria-labelledby="heading2026" data-bs-parent="#internshipAccordion">
                         <div class="accordion-body">
                             <ul class="intern-list">
-                                <li>Hyeonseo Park</li>
-                                <li>Geonwoo Lee</li>
+                                <li>Woojin Park</li>
                             </ul>
                         </div>
                     </div>
@@ -321,28 +373,29 @@
                     <div id="collapse2025" class="accordion-collapse collapse" aria-labelledby="heading2025" data-bs-parent="#internshipAccordion">
                         <div class="accordion-body">
                             <ul class="intern-list">
-                                <li>Joonsung Kwon*</li>
-                                <li>Sung-su Park</li>
-                                <li>Jaeeun Seo*</li>
-                                <li>Gaeun Ji</li>
+                                <li>Hyunwoo Oh</li>
                             </ul>
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
 
         <section>
             <h3 class="members-category-title">Alumni</h3>
-            <div class="card border-0 shadow-sm p-4">
+            
                 <ul class="alumni-list">
                     <li><strong>Byungwoo Kim</strong> — SK Hynix</li>
                     <li><strong>Sejin Kim</strong> — National Police Agency</li>
                     <li><strong>Yunsu Kim</strong> — Samsung Electronics</li>
                     <li><strong>Ji Hong Min</strong> — Hanwha Ocean</li>
                     <li><strong>Jeongjin Park</strong> — LG CNS</li>
+                    <li><strong>Sungwook Son</strong> — Intel</li>
+                    <li><strong>Seonggu Shin</strong> — IBM</li>
+                    <li><strong>Sojeong Yeon</strong> — <em>First Position not specified</em></li>
+                    <li><strong>Seungju Lee</strong> — Panirois</li>
                 </ul>
-            </div>
         </section>
 
     </main>
