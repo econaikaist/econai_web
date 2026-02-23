@@ -5,22 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KAIST EconAI Lab</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
         }
         /* KAIST Blue 컬러 정의 */
-        .text-kaist { color: #004191; }
-        .bg-kaist { background-color: #004191; }
-        .btn-kaist { background-color: #004191; color: white; }
+        :root {
+            --kaist-blue: #004191;
+        }
+        .text-kaist { color: var(--kaist-blue); }
+        .bg-kaist { background-color: var(--kaist-blue); }
+        .btn-kaist { background-color: var(--kaist-blue); color: white; }
         .btn-kaist:hover { background-color: #002d65; color: white; }
 
         /* 네비게이션 바 스타일 */
         .navbar-brand {
             font-weight: 700;
-            color: #004191 !important;
+            color: var(--kaist-blue) !important;
             font-size: 1.5rem;
         }
         .nav-link {
@@ -28,12 +31,13 @@
             color: #333 !important;
             margin-left: 15px;
         }
-        .nav-link:hover { color: #004191 !important; }
+        .nav-link:hover { color: var(--kaist-blue) !important; }
 
-        /* 메인 배너 (Hero Section) 스타일 */
+
+
+        /* 메인 배너 (Hero Section) */
         .hero-section {
-            /* 나중에 여기에 야간조도 지도 이미지를 배경으로 넣을 예정 */
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('banner.png');
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('banner.png');
             background-size: cover;
             background-position: center;
             color: white;
@@ -41,13 +45,54 @@
             text-align: center;
         }
         
-        /* 섹션 공통 스타일 */
-        .section-title {
+        /* 뉴스 리스트 스타일 */
+        .news-header-title {
+            font-weight: 800;
+            color: var(--kaist-blue);
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+        .news-header-subtitle {
+            color: #555;
+            font-size: 1rem;
+            margin-bottom: 50px;
+        }
+
+        .news-item {
+            border-bottom: 1px solid #f1f3f5;
+            padding: 15px 0;
+        }
+
+        .news-date {
             font-weight: 700;
-            color: #004191;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .news-content {
+            color: #444;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* 숨겨진 뉴스 아이템용 클래스 */
+        .news-hidden {
+            display: none;
+        }
+        
+        /* Show more 링크 스타일 */
+        .show-more-link {
+            display: inline-block;
+            margin-top: 20px;
+            font-weight: 600;
+            color: var(--kaist-blue);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .show-more-link:hover {
+            text-decoration: underline;
+            color: #002d65;
         }
     </style>
 </head>
@@ -55,39 +100,21 @@
 
     <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#">Economic Progress and AI Research Group</a>
+            <a class="navbar-brand" href="#">KAIST EconAI Lab</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     
-                    <!-- <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            MEMBERS
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="https://jiheekim.net/" target="_blank">Professor</a></li>
-                            <li><a class="dropdown-item" href="#">Students</a></li>
-                            <li><a class="dropdown-item" href="#">Alumni</a></li>
-                        </ul>
-                    </li> -->
-                    <li class="nav-item"><a class="nav-link" href="members.html">MEMBERS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">RESEARCH</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">PUBLICATIONS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">PROJECTS</a></li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="boardDropdown" role="button" data-bs-toggle="dropdown">
-                            BOARD
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">News</a></li>
-                            <li><a class="dropdown-item" href="#">Media</a></li>
-                        </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="members.html">MEMBERS</a>
                     </li>
 
-                    <li class="nav-item"><a class="nav-link" href="#">CONTACT</a></li>
+                    <li class="nav-item"><a class="nav-link" href="research.html">RESEARCH</a></li>
+                    <li class="nav-item"><a class="nav-link" href="publications.html">PUBLICATIONS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html">PROJECTS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">CONTACT</a></li>
                 </ul>
             </div>
         </div>
@@ -101,42 +128,63 @@
         </div>
     </header>
 
-    <section class="py-5">
+    <section class="py-5 bg-white">
         <div class="container">
-            <h2 class="section-title text-center">Latest News</h2>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold">홈페이지 개설</h5>
-                            <p class="card-text text-muted">2026.01.08</p>
-                            <p class="card-text">EconAI 연구실 공식 홈페이지 오픈</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold">보안 적용</h5>
-                            <p class="card-text text-muted">2026.01.14</p>
-                            <p class="card-text">홈페이지 SSL 보안 적용</p>
-                            <p class="card-text">교수님 개별 홈페이지 연결</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title fw-bold">깃 허브 연동</h5>
-                            <p class="card-text text-muted">2026.02.14</p>
-                            <p class="card-text">서버와 깃 허브 연동</p>
-                            <p class="card-text">Collaborator 초대</p>
-                        </div>
-                    </div>
-                </div>
+            
+            <div class="text-center">
+                <h2 class="news-header-title">KAIST EconAI Lab</h2>
+                <p class="news-header-subtitle">KAIST 경제 및 인공지능 연구실 방문을 환영합니다!</p>
             </div>
+
+            <div class="news-list" id="newsList">
+                
+                <div class="news-item row align-items-center">
+                    <div class="col-md-2 col-3 news-date">Feb 2026</div>
+                    <div class="col-md-10 col-9 news-content">
+                        연구실 서버 GitHub 연동 및 배포 시스템 구축
+                    </div>
+                </div>
+
+                <div class="news-item row align-items-center">
+                    <div class="col-md-2 col-3 news-date">Jan 2026</div>
+                    <div class="col-md-10 col-9 news-content">
+                        EconAI 연구실 공식 홈페이지 (econai.kaist.ac.kr) 오픈
+                    </div>
+                </div>
+
+                <div class="news-item row align-items-center">
+                    <div class="col-md-2 col-3 news-date">Jan 2026</div>
+                    <div class="col-md-10 col-9 news-content">
+                        홈페이지 SSL 보안 인증서 적용
+                    </div>
+                </div>
+
+                <div class="news-item row align-items-center">
+                    <div class="col-md-2 col-3 news-date">Jan 2026</div>
+                    <div class="col-md-10 col-9 news-content">
+                        교수님 개별 홈페이지 연결 및 멤버 페이지 업데이트
+                    </div>
+                </div>
+
+                <div class="news-item row align-items-center news-toggle-item news-hidden">
+                    <div class="col-md-2 col-3 news-date">Dec 2025</div>
+                    <div class="col-md-10 col-9 news-content">
+                        연구실 GPU 서버 환경 구축 완료
+                    </div>
+                </div>
+
+                <div class="news-item row align-items-center news-toggle-item news-hidden">
+                    <div class="col-md-2 col-3 news-date">Dec 2025</div>
+                    <div class="col-md-10 col-9 news-content">
+                        연구실 내부 네트워크 구성 및 보안 설정 완료
+                    </div>
+                </div>
+
+            </div>
+            <div class="text-start">
+                <a href="#" class="show-more-link" id="showMoreBtn">show more...</a>
+            </div>
+
         </div>
     </section>
 
@@ -148,5 +196,28 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.getElementById('showMoreBtn').addEventListener('click', function(e) {
+            e.preventDefault(); 
+            
+            const toggleItems = document.querySelectorAll('.news-toggle-item');
+            const isHidden = toggleItems[0].classList.contains('news-hidden');
+
+            if (isHidden) {
+                toggleItems.forEach(function(item) {
+                    item.classList.remove('news-hidden');
+                    item.style.display = 'flex'; 
+                });
+                this.textContent = 'show less...';
+            } else {
+                toggleItems.forEach(function(item) {
+                    item.classList.add('news-hidden');
+                    item.style.display = 'none';
+                });
+                this.textContent = 'show more...';
+            }
+        });
+    </script>
 </body>
 </html>
