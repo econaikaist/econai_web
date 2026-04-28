@@ -1,256 +1,18 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Members - KAIST EconAI Lab</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        :root {
-            --kaist-blue: #004191;
-            --text-gray: #555;
-            --bg-light: #f8f9fa;
-            --border-color: #eee;
-        }
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            font-size: 0.95rem;
-            padding-top: 80px;
-        }
-
-        /* 네비게이션 바 */
-        .navbar-brand {
-            font-weight: 700;
-            color: var(--kaist-blue) !important;
-            font-size: 1.5rem;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            color: #333 !important;
-            margin-left: 15px;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: var(--kaist-blue) !important;
-        }
-
-        /* 페이지 헤더 */
-        .page-header {
-            text-align: center;
-            padding: 50px 0 30px;
-        }
-
-        .page-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--kaist-blue);
-            margin-bottom: 8px;
-        }
-
-        .page-subtitle {
-            color: var(--text-gray);
-            font-size: 0.95rem;
-        }
-
-        /* 멤버 섹션 공통 */
-        .members-section {
-            padding-bottom: 60px;
-            max-width: 1000px;
-        }
-
-        .members-category-title {
-            font-weight: 700;
-            color: var(--kaist-blue);
-            font-size: 1.15rem;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #e9ecef;
-            margin-top: 55px;
-            margin-bottom: 20px;
-        }
-
-        /* 카드 그리드 */
-        .members-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .member-card {
-            display: flex;
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            position: relative;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .member-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .member-photo {
-            width: 110px;
-            height: 145px;
-            border-radius: 8px;
-            object-fit: cover;
-            margin-right: 18px;
-            background-color: #f1f3f5;
-            flex-shrink: 0;
-        }
-
-        .member-info {
-            flex: 1;
-            padding-bottom: 35px; /* prevent text overlap with absolute links */
-            word-break: break-word; /* ensure long exact text wraps */
-        }
-
-        .prof-card {
-            grid-column: 1 / -1; /* spans full width on desktop */
-        }
-
-        .member-name {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--kaist-blue);
-            margin-bottom: 4px;
-        }
-
-        .member-role {
-            font-size: 0.85rem;
-            color: #222;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .member-keywords {
-            font-size: 0.82rem;
-            color: var(--text-gray);
-            line-height: 1.5;
-        }
-
-        /* 링크 아이콘 */
-        .member-links {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            display: flex;
-            gap: 6px;
-        }
-
-        .member-link-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            background: #f1f3f5;
-            border-radius: 6px;
-            color: var(--kaist-blue);
-            text-decoration: none;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-
-        .member-link-btn:hover {
-            background: var(--kaist-blue);
-            color: #fff;
-        }
-
-        /* 인턴십 아코디언 */
-        .accordion-item {
-            border: 1px solid var(--border-color);
-            margin-bottom: 10px;
-            border-radius: 8px !important;
-            overflow: hidden;
-        }
-
-        .accordion-button {
-            background-color: #f1f3f5;
-            color: #333;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .accordion-button:not(.collapsed) {
-            background-color: #e9ecef;
-            color: var(--kaist-blue);
-            box-shadow: none;
-        }
-
-        .intern-list {
-            margin: 0;
-            padding-left: 20px;
-            line-height: 1.8;
-            color: var(--text-gray);
-            font-size: 0.9rem;
-        }
-
-        /* 졸업생 리스트 */
-        .alumni-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .alumni-list li {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        .alumni-list li:last-child {
-            border-bottom: none;
-        }
-
-        .alumni-list strong {
-            color: var(--kaist-blue);
-            font-weight: 700;
-            margin-right: 5px;
-        }
-
-        /* 모바일 반응형 */
-        @media (max-width: 768px) {
-            .members-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .member-card {
-                flex-direction: column;
-            }
-
-            .member-photo {
-                width: 100%;
-                height: 220px;
-                margin: 0 0 15px 0;
-            }
-
-            .member-links {
-                position: static;
-                justify-content: flex-end;
-                margin-top: 15px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html">KAIST EconAI Lab</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand" href="index.html"><img src="img/EconAI@KAIST.svg" alt="KAIST EconAI Lab" class="brand-logo"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -265,195 +27,169 @@
         </div>
     </nav>
 
-    <main class="container members-section">
-        <div class="page-header">
-            <h1 class="page-title">Members</h1>
-            <p class="page-subtitle">연구실 구성원</p>
-        </div>
-
-        <section>
-            <div class="members-grid">
-                <div class="member-card prof-card">
-                    <img src="img/prof_jihee.jpg" alt="Professor" class="member-photo">
-                    <div class="member-info">
-                        <h3 class="member-name">Jihee Kim | 김지희</h3>
-                        <p class="member-role">Professor</p>
-                        <p class="member-keywords">
-                            <i class="fas fa-envelope fa-fw"></i> jiheekim@kaist.ac.kr<br>
-                            <i class="fas fa-phone fa-fw"></i> +82-42-350-4915<br>
-                            <i class="fas fa-map-marker-alt fa-fw"></i> KAIST Bldg. N5 #2108, 291 Daehak-ro, Yuseong-gu, Daejeon, 34141, South Korea
-                        </p>
-                    </div>
-                    <div class="member-links">
-                        <a href="https://jiheekim.net/" target="_blank" class="member-link-btn"><i
-                                class="fas fa-home"></i></a>
-                        <a href="https://www.linkedin.com/in/jihee/" target="_blank" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="mailto:jiheekim@kaist.ac.kr" class="member-link-btn"><i class="fas fa-envelope"></i></a>
-                    </div>
-                </div>
+    <main>
+        <header class="page-header">
+            <div class="container">
+                <h1 class="page-title">Members</h1>
+                <p class="page-subtitle">Researchers and students working on economics, artificial intelligence, data science, and social systems.</p>
             </div>
-        </section>
+        </header>
 
-        <section>
-            <h3 class="members-category-title">Ph.D. Students</h3>
-            <div class="members-grid">
-                <div class="member-card">
-                    <img src="img/profile_hyoshin.png" alt="Student" class="member-photo">
-                    <div class="member-info">
-                        <h3 class="member-name">Hyoshin Kim | 김효신</h3>
-                        <p class="member-role">Ph.D. Student</p>
-                        <p class="member-keywords">Social and Policy Implications of AI</p>
-                    </div>
-                    <div class="member-links">
-                        <a href="https://kim-hyoshin.github.io/" target="_blank" class="member-link-btn"><i
-                                class="fas fa-home"></i></a>
-                        <a href="https://www.linkedin.com/in/hyoshin-kim-00040817/" target="_blank" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="mailto:hyoshin.kim@kaist.ac.kr" class="member-link-btn"><i class="fas fa-envelope"></i></a>
-                    </div>
+        <section class="section-band">
+            <div class="container members-section">
+                <h2 class="members-category-title">Faculty</h2>
+                <div class="members-grid">
+                    <article class="member-card prof-card">
+                        <img src="img/prof_jihee.jpg" alt="Jihee Kim" class="member-photo">
+                        <div class="member-info">
+                            <h3 class="member-name">Jihee Kim | 김지희</h3>
+                            <p class="member-role">Professor</p>
+                            <p class="member-keywords">
+                                <i class="fas fa-envelope fa-fw"></i> jiheekim@kaist.ac.kr<br>
+                                <i class="fas fa-phone fa-fw"></i> +82-42-350-4915<br>
+                                <i class="fas fa-map-marker-alt fa-fw"></i> KAIST Bldg. N5 #2108, 291 Daehak-ro, Yuseong-gu, Daejeon, 34141, South Korea
+                            </p>
+                        </div>
+                        <div class="member-links">
+                            <a href="https://jiheekim.net/" target="_blank" class="member-link-btn" aria-label="Website"><i class="fas fa-home"></i></a>
+                            <a href="https://www.linkedin.com/in/jihee/" target="_blank" class="member-link-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="mailto:jiheekim@kaist.ac.kr" class="member-link-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </article>
                 </div>
-            </div>
-        </section>
 
-        <section>
-            <h3 class="members-category-title">Master's Students</h3>
-            <div class="members-grid">
-                <div class="member-card">
-                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
-                    <div class="member-info">
-                        <h3 class="member-name">Hyeok Yun | 윤혁</h3>
-                        <p class="member-role">Master's Student</p>
-                        <p class="member-keywords">Research Keyword 1, Keyword 2</p>
-                    </div>
-                    <div class="member-links">
-                        <a href="#" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="member-link-btn"><i class="fas fa-envelope"></i></a>
-                    </div>
+                <h2 class="members-category-title">Ph.D. Students</h2>
+                <div class="members-grid">
+                    <article class="member-card">
+                        <img src="img/profile_hyoshin.png" alt="Hyoshin Kim" class="member-photo">
+                        <div class="member-info">
+                            <h3 class="member-name">Hyoshin Kim | 김효신</h3>
+                            <p class="member-role">Ph.D. Student</p>
+                            <p class="member-keywords">Social and Policy Implications of AI</p>
+                        </div>
+                        <div class="member-links">
+                            <a href="https://kim-hyoshin.github.io/" target="_blank" class="member-link-btn" aria-label="Website"><i class="fas fa-home"></i></a>
+                            <a href="https://www.linkedin.com/in/hyoshin-kim-00040817/" target="_blank" class="member-link-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="mailto:hyoshin.kim@kaist.ac.kr" class="member-link-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </article>
                 </div>
-                <div class="member-card">
-                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
-                    <div class="member-info">
-                        <h3 class="member-name">Donggyu Lee | 이동규</h3>
-                        <p class="member-role">Master's Student</p>
-                        <p class="member-keywords">Research Keyword 1, Keyword 2</p>
-                    </div>
-                    <div class="member-links">
-                        <a href="#" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="member-link-btn"><i class="fas fa-envelope"></i></a>
-                    </div>
-                </div>
-                <div class="member-card">
-                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
-                    <div class="member-info">
-                        <h3 class="member-name">Jungwon Kim | 김정원</h3>
-                        <p class="member-role">Master's Student</p>
-                        <p class="member-keywords">Research Keyword 1, Keyword 2</p>
-                    </div>
-                    <div class="member-links">
-                        <a href="#" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="member-link-btn"><i class="fas fa-envelope"></i></a>
-                    </div>
-                </div>
-                <div class="member-card">
-                    <img src="img/basic_profile.png" alt="Student" class="member-photo">
-                    <div class="member-info">
-                        <h3 class="member-name">Chaemin Jang | 장채민</h3>
-                        <p class="member-role">Master's Student</p>
-                        <p class="member-keywords">Research Keyword 1, Keyword 2</p>
-                    </div>
-                    <div class="member-links">
-                        <a href="#" class="member-link-btn"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="member-link-btn"><i class="fas fa-envelope"></i></a>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <section>
-            <h3 class="members-category-title">Lab Internship</h3>
+                <h2 class="members-category-title">Master's Students</h2>
+                <div class="members-grid">
+                    <article class="member-card">
+                        <img src="img/basic_profile.png" alt="Hyeok Yun" class="member-photo">
+                        <div class="member-info">
+                            <h3 class="member-name">Hyeok Yun | 윤혁</h3>
+                            <p class="member-role">Master's Student</p>
+                            <p class="member-keywords">Research interests to be updated.</p>
+                        </div>
+                        <div class="member-links">
+                            <a href="#" class="member-link-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="member-link-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </article>
+                    <article class="member-card">
+                        <img src="img/basic_profile.png" alt="Donggyu Lee" class="member-photo">
+                        <div class="member-info">
+                            <h3 class="member-name">Donggyu Lee | 이동규</h3>
+                            <p class="member-role">Master's Student</p>
+                            <p class="member-keywords">Research interests to be updated.</p>
+                        </div>
+                        <div class="member-links">
+                            <a href="#" class="member-link-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="member-link-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </article>
+                    <article class="member-card">
+                        <img src="img/basic_profile.png" alt="Jungwon Kim" class="member-photo">
+                        <div class="member-info">
+                            <h3 class="member-name">Jungwon Kim | 김정원</h3>
+                            <p class="member-role">Master's Student</p>
+                            <p class="member-keywords">Research interests to be updated.</p>
+                        </div>
+                        <div class="member-links">
+                            <a href="#" class="member-link-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="member-link-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </article>
+                    <article class="member-card">
+                        <img src="img/basic_profile.png" alt="Chaemin Jang" class="member-photo">
+                        <div class="member-info">
+                            <h3 class="member-name">Chaemin Jang | 장채민</h3>
+                            <p class="member-role">Master's Student</p>
+                            <p class="member-keywords">Research interests to be updated.</p>
+                        </div>
+                        <div class="member-links">
+                            <a href="#" class="member-link-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" class="member-link-btn" aria-label="Email"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </article>
+                </div>
 
-            <div class="accordion" id="internshipAccordion">
-
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingSpring2026">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseSpring2026" aria-expanded="false"
-                            aria-controls="collapseSpring2026">
-                            Spring 2026
-                        </button>
-                    </h2>
-                    <div id="collapseSpring2026" class="accordion-collapse collapse" aria-labelledby="headingSpring2026"
-                        data-bs-parent="#internshipAccordion">
-                        <div class="accordion-body">
-                            <ul class="intern-list">
-                                <li>Junsik Min</li>
-                            </ul>
+                <h2 class="members-category-title">Lab Internship</h2>
+                <div class="accordion" id="internshipAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSpring2026">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSpring2026" aria-expanded="false" aria-controls="collapseSpring2026">Spring 2026</button>
+                        </h2>
+                        <div id="collapseSpring2026" class="accordion-collapse collapse" aria-labelledby="headingSpring2026" data-bs-parent="#internshipAccordion">
+                            <div class="accordion-body">
+                                <ul class="intern-list">
+                                    <li>Junsik Min</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading2026">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2026" aria-expanded="false" aria-controls="collapse2026">Winter 2026</button>
+                        </h2>
+                        <div id="collapse2026" class="accordion-collapse collapse" aria-labelledby="heading2026" data-bs-parent="#internshipAccordion">
+                            <div class="accordion-body">
+                                <ul class="intern-list">
+                                    <li>Woojin Park</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading2025">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2025" aria-expanded="false" aria-controls="collapse2025">Fall 2025</button>
+                        </h2>
+                        <div id="collapse2025" class="accordion-collapse collapse" aria-labelledby="heading2025" data-bs-parent="#internshipAccordion">
+                            <div class="accordion-body">
+                                <ul class="intern-list">
+                                    <li>Hyunwoo Oh</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading2026">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapse2026" aria-expanded="false" aria-controls="collapse2026">
-                            Winter 2026
-                        </button>
-                    </h2>
-                    <div id="collapse2026" class="accordion-collapse collapse" aria-labelledby="heading2026"
-                        data-bs-parent="#internshipAccordion">
-                        <div class="accordion-body">
-                            <ul class="intern-list">
-                                <li>Woojin Park</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading2025">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapse2025" aria-expanded="false" aria-controls="collapse2025">
-                            Fall 2025
-                        </button>
-                    </h2>
-                    <div id="collapse2025" class="accordion-collapse collapse" aria-labelledby="heading2025"
-                        data-bs-parent="#internshipAccordion">
-                        <div class="accordion-body">
-                            <ul class="intern-list">
-                                <li>Hyunwoo Oh</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
+                <h2 class="members-category-title">Alumni</h2>
+                <ul class="alumni-list">
+                    <li><strong>Byungwoo Kim</strong> — SK Hynix</li>
+                    <li><strong>Sejin Kim</strong> — National Police Agency</li>
+                    <li><strong>Yunsu Kim</strong> — Samsung Electronics</li>
+                    <li><strong>Ji Hong Min</strong> — Hanwha Ocean</li>
+                    <li><strong>Jeongjin Park</strong> — LG CNS</li>
+                    <li><strong>Sungwook Son</strong> — Intel</li>
+                    <li><strong>Seonggu Shin</strong> — IBM</li>
+                    <li><strong>Sojeong Yeon</strong> — Position to be updated</li>
+                    <li><strong>Seungju Lee</strong> — Panirois</li>
+                </ul>
             </div>
         </section>
-
-        <section>
-            <h3 class="members-category-title">Alumni</h3>
-
-            <ul class="alumni-list">
-                <li><strong>Byungwoo Kim</strong> — SK Hynix</li>
-                <li><strong>Sejin Kim</strong> — National Police Agency</li>
-                <li><strong>Yunsu Kim</strong> — Samsung Electronics</li>
-                <li><strong>Ji Hong Min</strong> — Hanwha Ocean</li>
-                <li><strong>Jeongjin Park</strong> — LG CNS</li>
-                <li><strong>Sungwook Son</strong> — Intel</li>
-                <li><strong>Seonggu Shin</strong> — IBM</li>
-                <li><strong>Sojeong Yeon</strong> — <em>First Position not specified</em></li>
-                <li><strong>Seungju Lee</strong> — Panirois</li>
-            </ul>
-        </section>
-
     </main>
 
-    <footer class="bg-light py-4 mt-5">
+    <footer class="footer py-4">
         <div class="container text-center">
             <p class="mb-1 fw-bold text-kaist">KAIST School of Business and Technology Management</p>
-            <p class="text-muted small">Daejeon, Republic of Korea | © 2026 EconAI Lab. All Rights Reserved.</p>
+            <p class="text-muted small mb-0">Daejeon, Republic of Korea | © 2026 EconAI Lab. All Rights Reserved.</p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>
