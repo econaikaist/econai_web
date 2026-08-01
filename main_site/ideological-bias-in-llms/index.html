@@ -23,6 +23,7 @@
     <meta name="twitter:image" content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png">
 
     <link rel="icon" href="../img/Logo_blue.svg" type="image/svg+xml">
+    <link rel="preload" as="image" href="assets/paper-overview.webp" type="image/webp" fetchpriority="high">
     <link rel="stylesheet" href="styles.css">
 
     <script type="application/ld+json">
@@ -61,8 +62,7 @@
             </a>
             <nav class="section-nav" aria-label="Paper sections">
                 <a href="#motivation">Motivation</a>
-                <a href="#benchmark">Benchmark</a>
-                <a href="#findings">Findings</a>
+                <a href="#findings">Main results</a>
             </nav>
             <a class="nav-paper-link" href="assets/paper.pdf" target="_blank" rel="noopener">Read paper <span aria-hidden="true">↗</span></a>
         </div>
@@ -112,53 +112,12 @@
                 </div>
             </div>
 
-            <div class="hero-visual" role="img" aria-label="A minimum wage increase can imply different employment effects under intervention-oriented and market-oriented economic mechanisms">
-                <div class="query-card">
-                    <span class="query-treatment">Minimum wage <strong>↑</strong></span>
-                    <span class="query-arrow" aria-hidden="true">→</span>
-                    <span class="query-outcome">Employment <strong>?</strong></span>
-                </div>
-                <div class="branch-stem" aria-hidden="true"></div>
-                <div class="mechanism-grid">
-                    <article class="mechanism-card intervention-card">
-                        <span class="mechanism-label">Intervention-oriented</span>
-                        <span class="mechanism-cause">Worker spending ↑</span>
-                        <span class="mechanism-flow" aria-hidden="true">↓</span>
-                        <strong class="mechanism-result">Employment ↑ / stable</strong>
-                    </article>
-                    <article class="mechanism-card market-card">
-                        <span class="mechanism-label">Market-oriented</span>
-                        <span class="mechanism-cause">Labor costs ↑</span>
-                        <span class="mechanism-flow" aria-hidden="true">↓</span>
-                        <strong class="mechanism-result">Employment ↓</strong>
-                    </article>
-                </div>
-                <div class="visual-footer">
-                    <span class="llm-node">LLM</span>
-                    <span>Which causal sign will the model choose?</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="metric-band" aria-label="Study at a glance">
-            <dl class="metric-grid section-shell">
-                <div class="metric">
-                    <dt>10,490</dt>
-                    <dd>empirically grounded causal triplets</dd>
-                </div>
-                <div class="metric">
-                    <dt>1,056 → 898</dt>
-                    <dd>candidate-contested → analysis cases <span>(10.1% → 8.6%)</span></dd>
-                </div>
-                <div class="metric">
-                    <dt>20</dt>
-                    <dd>state-of-the-art LLMs evaluated</dd>
-                </div>
-                <div class="metric metric-highlight">
-                    <dt>18 / 20</dt>
-                    <dd>more accurate on intervention-truth cases</dd>
-                </div>
-            </dl>
+            <a class="hero-figure" href="assets/paper-overview.pdf" target="_blank" rel="noopener" aria-label="Open the original Figure 1 from the paper">
+                <picture>
+                    <source srcset="assets/paper-overview.webp" type="image/webp">
+                    <img src="assets/paper-overview.png" width="1024" height="524" fetchpriority="high" decoding="async" alt="Figure 1 from the paper: an economic query about minimum wage and employment branches into intervention-oriented and market-oriented reasoning and produces asymmetric predictions.">
+                </picture>
+            </a>
         </section>
 
         <section id="motivation" class="content-section section-shell" aria-labelledby="motivation-heading">
@@ -167,105 +126,40 @@
                 <h2 id="motivation-heading">Do LLMs exhibit systematic ideological bias when reasoning about economic causal effects?</h2>
                 <p>LLMs are increasingly deployed in economic reporting, policy evaluation, and corporate decision support, where predicting causal directions correctly is essential. Yet a single intervention can trigger competing mechanisms whose relative magnitudes are debated along ideological lines.</p>
             </div>
-
-            <div class="lens-flow" role="group" aria-label="Limitations of existing evaluations and the paper's direction-aware setting">
-                <article class="lens-card lens-muted">
-                    <span class="lens-number">Bias evaluations</span>
-                    <h3>Expressed preferences</h3>
-                    <p>Survey-style instruments probe stated opinions, not causal relationships grounded in empirical evidence.</p>
-                </article>
-                <span class="flow-arrow" aria-hidden="true">→</span>
-                <article class="lens-card lens-active">
-                    <span class="lens-number">Causal benchmarks</span>
-                    <h3>A single expectation</h3>
-                    <p>Existing benchmarks typically assume one expected direction and overlook competing economic frameworks.</p>
-                </article>
-                <span class="flow-arrow" aria-hidden="true">→</span>
-                <article class="lens-card lens-result">
-                    <span class="lens-number">Our setting</span>
-                    <h3>Competing mechanisms</h3>
-                    <p>We test whether LLM reliability differs across ideologically contested causal directions.</p>
-                </article>
-            </div>
-        </section>
-
-        <section id="benchmark" class="content-section section-tint" aria-labelledby="benchmark-heading">
-            <div class="section-shell">
-                <div class="section-heading">
-                    <span class="section-index">02 · Building the benchmark</span>
-                    <h2 id="benchmark-heading">From published evidence to a direction-aware test</h2>
-                    <p>A compact pipeline turns EconCausal into a controlled test of ideological asymmetry.</p>
-                </div>
-
-                <ol class="pipeline">
-                    <li class="pipeline-step">
-                        <span class="step-number">1</span>
-                        <strong>10,490</strong>
-                        <span>EconCausal triplets</span>
-                        <small>Context, treatment, outcome, and empirical sign</small>
-                    </li>
-                    <li class="pipeline-step">
-                        <span class="step-number">2</span>
-                        <strong>1,056</strong>
-                        <span>candidate-contested triplets</span>
-                        <small>Intervention and market expectations diverge</small>
-                    </li>
-                    <li class="pipeline-step pipeline-focus">
-                        <span class="step-number">3</span>
-                        <strong>751</strong>
-                        <span>direction-aligned cases</span>
-                        <small><b>436</b> intervention-truth · <b>315</b> market-truth</small>
-                    </li>
-                    <li class="pipeline-step">
-                        <span class="step-number">4</span>
-                        <strong>20 LLMs</strong>
-                        <span>evaluated</span>
-                        <small>Accuracy gap + directional error bias</small>
-                    </li>
-                </ol>
-
-                <p class="sample-provenance"><strong>Metric scopes:</strong> aggregate contested accuracy uses 898 ideology-sensitive cases (751 direction-aligned + 147 sensitive-neither); direction-aware accuracy and error metrics use the 751 direction-aligned cases.</p>
-
-                <div class="validation-strip">
-                    <div class="validation-icon" aria-hidden="true">✓</div>
-                    <div>
-                        <strong>Expert validation</strong>
-                        <span>Two economics professors reviewed 126 balanced cases: 93.60% / 98.35% accuracy and 93.33% inter-rater agreement.</span>
-                    </div>
-                </div>
-            </div>
         </section>
 
         <section id="findings" class="content-section section-shell" aria-labelledby="findings-heading">
             <div class="section-heading centered-heading">
                 <span class="section-index">03 · Main findings</span>
-                <h2 id="findings-heading">One benchmark. Three reliability failures.</h2>
-                <p>The problem is not only lower accuracy. Performance changes with the ideological direction of the empirically supported answer.</p>
+                <h2 id="findings-heading">One benchmark. Two directional failures.</h2>
+                <p>Across 20 LLMs, both accuracy and error patterns systematically favor intervention-oriented expectations.</p>
             </div>
 
             <div class="finding-grid">
-                <article class="finding-card">
+                <article id="benchmark" class="finding-card benchmark-card" aria-labelledby="benchmark-heading">
+                    <span class="card-index">02 · Building the benchmark</span>
                     <div class="finding-title-row">
-                        <h3>Contested cases are harder</h3>
+                        <h3 id="benchmark-heading">From EconCausal to contested cases</h3>
                     </div>
-                    <p>Every evaluated model performs worse on ideology-sensitive items.</p>
-                    <small class="finding-scope">Scope: 898 sensitive vs. 9,592 non-sensitive triplets</small>
-                    <div class="bar-chart" role="img" aria-label="Across 898 ideology-sensitive and 9,592 non-sensitive triplets, closed models score 74.5 percent on non-sensitive and 61.3 percent on sensitive cases. Open models score 63.8 and 52.5 percent.">
-                        <div class="chart-group">
-                            <span class="group-label">Closed models</span>
-                            <div class="bar-label"><span>Non-contested</span><strong>74.5%</strong></div>
-                            <div class="bar-track"><span class="bar neutral-bar" style="--bar-width: 74.5%"></span></div>
-                            <div class="bar-label"><span>Contested</span><strong>61.3%</strong></div>
-                            <div class="bar-track"><span class="bar contested-bar" style="--bar-width: 61.3%"></span></div>
+                    <p>We start from empirically grounded treatment–outcome relationships and isolate cases where intervention-oriented and market-oriented frameworks predict different causal signs.</p>
+                    <dl class="benchmark-data">
+                        <div>
+                            <dt>10,490</dt>
+                            <dd>EconCausal triplets from top economics and finance journals</dd>
                         </div>
-                        <div class="chart-group">
-                            <span class="group-label">Open models</span>
-                            <div class="bar-label"><span>Non-contested</span><strong>63.8%</strong></div>
-                            <div class="bar-track"><span class="bar neutral-bar" style="--bar-width: 63.8%"></span></div>
-                            <div class="bar-label"><span>Contested</span><strong>52.5%</strong></div>
-                            <div class="bar-track"><span class="bar contested-bar" style="--bar-width: 52.5%"></span></div>
+                        <div>
+                            <dt>1,056</dt>
+                            <dd>ideology-contested candidates</dd>
                         </div>
-                    </div>
+                        <div>
+                            <dt>751</dt>
+                            <dd>direction-aligned cases: 436 intervention-truth + 315 market-truth</dd>
+                        </div>
+                        <div>
+                            <dt>20</dt>
+                            <dd>state-of-the-art LLMs evaluated</dd>
+                        </div>
+                    </dl>
                 </article>
 
                 <article class="finding-card finding-card-featured">
