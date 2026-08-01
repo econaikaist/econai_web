@@ -11,7 +11,7 @@
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="KAIST EconAI Lab">
     <meta property="og:title" content="Ideological Bias in LLMs' Economic Causal Reasoning">
-    <meta property="og:description" content="When economic mechanisms disagree, LLM reliability tilts. Accepted at COLM 2026.">
+    <meta property="og:description" content="A direction-aware evaluation of ideological asymmetry in economic causal reasoning across 20 LLMs. Accepted at COLM 2026.">
     <meta property="og:url" content="https://econai.kaist.ac.kr/ideological-bias-in-llms/">
     <meta property="og:image" content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png">
     <meta property="og:image:width" content="1200">
@@ -73,12 +73,9 @@
             <div class="hero-copy">
                 <div class="eyebrow-row">
                     <span class="venue-badge"><span class="badge-dot" aria-hidden="true"></span>Accepted at COLM 2026</span>
-                    <span class="paper-type">Research paper</span>
                 </div>
 
                 <h1 id="paper-title">Ideological Bias in LLMs' Economic Causal Reasoning</h1>
-                <p class="hero-lede">When economic mechanisms disagree, <strong>LLM reliability tilts.</strong></p>
-                <p class="hero-summary">We test whether language models reason equally well when empirically supported economic effects align with intervention-oriented versus market-oriented expectations.</p>
 
                 <p class="authors">
                     <a href="https://donggyu-lee1.github.io" target="_blank" rel="noopener"><strong>Donggyu Lee</strong></a><sup>1</sup>,
@@ -112,12 +109,15 @@
                 </div>
             </div>
 
-            <a class="hero-figure" href="assets/paper-overview.pdf" target="_blank" rel="noopener" aria-label="Open the original Figure 1 from the paper">
-                <picture>
-                    <source srcset="assets/paper-overview.webp" type="image/webp">
-                    <img src="assets/paper-overview.png" width="1024" height="524" fetchpriority="high" decoding="async" alt="Figure 1 from the paper: an economic query about minimum wage and employment branches into intervention-oriented and market-oriented reasoning and produces asymmetric predictions.">
-                </picture>
-            </a>
+            <figure class="hero-paper-figure">
+                <a class="hero-figure" href="assets/paper-overview.pdf" target="_blank" rel="noopener" aria-label="Open the original Figure 1 from the paper">
+                    <picture>
+                        <source srcset="assets/paper-overview.webp" type="image/webp">
+                        <img src="assets/paper-overview.png" width="1024" height="524" fetchpriority="high" decoding="async" alt="Figure 1 from the paper: an economic query about minimum wage and employment branches into intervention-oriented and market-oriented reasoning and produces asymmetric predictions.">
+                    </picture>
+                </a>
+                <figcaption><strong>Figure 1.</strong> The same minimum-wage question supports competing causal pathways: higher worker spending may sustain employment, while higher business costs and automation may reduce it.</figcaption>
+            </figure>
         </section>
 
         <section id="motivation" class="content-section section-shell" aria-labelledby="motivation-heading">
@@ -130,34 +130,33 @@
 
         <section id="findings" class="content-section section-shell" aria-labelledby="findings-heading">
             <div class="section-heading centered-heading">
-                <span class="section-index">03 · Main findings</span>
+                <span class="section-index">02 · Main findings</span>
                 <h2 id="findings-heading">One benchmark. Two directional failures.</h2>
                 <p>Across 20 LLMs, both accuracy and error patterns systematically favor intervention-oriented expectations.</p>
             </div>
 
             <div class="finding-grid">
                 <article id="benchmark" class="finding-card benchmark-card" aria-labelledby="benchmark-heading">
-                    <span class="card-index">02 · Building the benchmark</span>
                     <div class="finding-title-row">
-                        <h3 id="benchmark-heading">From EconCausal to contested cases</h3>
+                        <h3 id="benchmark-heading">Built from published economic evidence</h3>
                     </div>
-                    <p>We start from empirically grounded treatment–outcome relationships and isolate cases where intervention-oriented and market-oriented frameworks predict different causal signs.</p>
+                    <p>EconCausal contains 10,490 treatment–outcome relationships extracted from empirical studies in top economics and finance journals, each with its observed effect direction. Four LLMs, blinded to that result, predict the direction expected from intervention- and market-oriented perspectives. This yields 1,056 disagreements; the main analysis uses the 751 whose observed direction matches one expectation.</p>
                     <dl class="benchmark-data">
                         <div>
                             <dt>10,490</dt>
-                            <dd>EconCausal triplets from top economics and finance journals</dd>
+                            <dd>evidence-backed causal relationships</dd>
                         </div>
                         <div>
                             <dt>1,056</dt>
-                            <dd>ideology-contested candidates</dd>
+                            <dd>cases where the two perspectives expect opposite directions</dd>
                         </div>
                         <div>
                             <dt>751</dt>
-                            <dd>direction-aligned cases: 436 intervention-truth + 315 market-truth</dd>
+                            <dd>cases used for directional accuracy analysis</dd>
                         </div>
                         <div>
                             <dt>20</dt>
-                            <dd>state-of-the-art LLMs evaluated</dd>
+                            <dd>LLMs evaluated</dd>
                         </div>
                     </dl>
                 </article>
@@ -229,7 +228,7 @@
         <section class="content-section section-shell" aria-labelledby="subfields-heading">
             <div class="section-heading split-heading">
                 <div>
-                    <span class="section-index">04 · Where is it strongest?</span>
+                    <span class="section-index">03 · Where is it strongest?</span>
                     <h2 id="subfields-heading">The asymmetry is concentrated, not uniform.</h2>
                 </div>
                 <p>Intervention-truth accuracy is higher in six of seven economic subfields. Healthcare and welfare show the largest gaps; taxation slightly reverses.</p>
@@ -278,33 +277,42 @@
         <section class="content-section section-tint" aria-labelledby="prompting-heading">
             <div class="section-shell prompting-layout">
                 <div class="section-heading compact-heading">
-                    <span class="section-index">05 · Can one example fix it?</span>
-                    <h2 id="prompting-heading">One-shot prompting moves answers—but does not reliably remove the asymmetry.</h2>
-                    <p>The mitigation test is deliberately simple: prepend one intervention-oriented or market-oriented demonstration, then re-evaluate the same targets.</p>
+                    <span class="section-index">04 · One-shot prompting</span>
+                    <h2 id="prompting-heading">A single example does not reliably steer answers.</h2>
+                    <p>We prepend one semantically similar example whose answer points in the correct ideological direction, then compare each model with its no-example baseline.</p>
                 </div>
 
-                <div class="prompt-diagram" role="group" aria-label="One in-context example produces stronger congruent effects on intervention targets but weaker family-dependent effects on market targets">
-                    <div class="prompt-input">
-                        <span>1 example</span>
-                        <strong>Intervention-Ex</strong>
-                        <em>or</em>
-                        <strong>Market-Ex</strong>
+                <figure class="steering-figure">
+                    <div class="steering-chart" role="img" aria-label="Across 20 models, an intervention-oriented example changes aligned responses on intervention-truth cases by minus 2.8 percentage points, while a market-oriented example changes aligned responses on market-truth cases by minus 4.6 percentage points, compared with no example.">
+                        <div class="steering-axis-title">Change from no-example baseline (percentage points)</div>
+                        <div class="steering-axis" aria-hidden="true">
+                            <span>−5</span>
+                            <span>−2.5</span>
+                            <span>0 pp</span>
+                        </div>
+                        <div class="steering-row">
+                            <div class="steering-row-label">
+                                <strong>Intervention example</strong>
+                                <span>on intervention-truth cases</span>
+                            </div>
+                            <div class="steering-track" aria-hidden="true">
+                                <span class="steering-bar intervention-steering" style="--bar-width: 56%"></span>
+                            </div>
+                            <strong class="steering-value intervention-value">−2.8</strong>
+                        </div>
+                        <div class="steering-row">
+                            <div class="steering-row-label">
+                                <strong>Market example</strong>
+                                <span>on market-truth cases</span>
+                            </div>
+                            <div class="steering-track" aria-hidden="true">
+                                <span class="steering-bar market-steering" style="--bar-width: 92%"></span>
+                            </div>
+                            <strong class="steering-value market-value">−4.6</strong>
+                        </div>
                     </div>
-                    <div class="prompt-arrow" aria-hidden="true">→</div>
-                    <div class="prompt-results">
-                        <article>
-                            <span>Intervention-truth targets</span>
-                            <strong>17 / 20</strong>
-                            <p>models do better with the congruent intervention example</p>
-                        </article>
-                        <article>
-                            <span>Market-truth targets</span>
-                            <strong>Family-dependent</strong>
-                            <p>effects become weaker and less stable</p>
-                        </article>
-                    </div>
-                </div>
-                <p class="scope-note"><strong>Scope:</strong> this result concerns one-shot examples; it does not rule out stronger multi-shot, system-prompt, or training-based mitigation.</p>
+                    <figcaption>Change in correct-direction responses from the no-example baseline (20-model mean). Negative bars indicate that the matched example moved answers away from the expected direction.</figcaption>
+                </figure>
             </div>
         </section>
 
