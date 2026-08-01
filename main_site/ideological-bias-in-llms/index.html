@@ -276,42 +276,165 @@
 
         <section class="content-section section-tint" aria-labelledby="prompting-heading">
             <div class="section-shell prompting-layout">
-                <div class="section-heading compact-heading">
+                <div class="section-heading centered-heading">
                     <span class="section-index">04 · One-shot prompting</span>
-                    <h2 id="prompting-heading">A single example does not reliably steer answers.</h2>
-                    <p>We prepend one semantically similar example whose answer points in the correct ideological direction, then compare each model with its no-example baseline.</p>
+                    <h2 id="prompting-heading">One-shot effects differ across model families.</h2>
+                    <p>For each family, we retain the model with the highest contested-case accuracy and show all four prompting conditions for both target directions.</p>
                 </div>
 
-                <figure class="steering-figure">
-                    <div class="steering-chart" role="img" aria-label="Across 20 models, an intervention-oriented example changes aligned responses on intervention-truth cases by minus 2.8 percentage points, while a market-oriented example changes aligned responses on market-truth cases by minus 4.6 percentage points, compared with no example.">
-                        <div class="steering-axis-title">Change from no-example baseline (percentage points)</div>
-                        <div class="steering-axis" aria-hidden="true">
-                            <span>−5</span>
-                            <span>−2.5</span>
-                            <span>0 pp</span>
-                        </div>
-                        <div class="steering-row">
-                            <div class="steering-row-label">
-                                <strong>Intervention example</strong>
-                                <span>on intervention-truth cases</span>
-                            </div>
-                            <div class="steering-track" aria-hidden="true">
-                                <span class="steering-bar intervention-steering" style="--bar-width: 56%"></span>
-                            </div>
-                            <strong class="steering-value intervention-value">−2.8</strong>
-                        </div>
-                        <div class="steering-row">
-                            <div class="steering-row-label">
-                                <strong>Market example</strong>
-                                <span>on market-truth cases</span>
-                            </div>
-                            <div class="steering-track" aria-hidden="true">
-                                <span class="steering-bar market-steering" style="--bar-width: 92%"></span>
-                            </div>
-                            <strong class="steering-value market-value">−4.6</strong>
-                        </div>
+                <figure class="icl-family-figure">
+                    <div class="icl-legend" role="list" aria-label="Prompting conditions">
+                        <span role="listitem"><i class="none-swatch" aria-hidden="true"></i>No example</span>
+                        <span role="listitem"><i class="noncontested-swatch" aria-hidden="true"></i>Non-contested example</span>
+                        <span role="listitem"><i class="intervention-swatch" aria-hidden="true"></i>Intervention example</span>
+                        <span role="listitem"><i class="market-swatch" aria-hidden="true"></i>Market example</span>
                     </div>
-                    <figcaption>Change in correct-direction responses from the no-example baseline (20-model mean). Negative bars indicate that the matched example moved answers away from the expected direction.</figcaption>
+
+                    <section class="icl-target-panel" aria-labelledby="intervention-target-heading">
+                        <div class="icl-target-heading">
+                            <div>
+                                <span>Target group</span>
+                                <h3 id="intervention-target-heading">Intervention-truth targets</h3>
+                            </div>
+                            <strong>Accuracy (%)</strong>
+                        </div>
+
+                        <div class="icl-model-grid">
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>OpenAI</span><strong>GPT-5.2</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 73.9%"></i></div><strong>73.9</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 69.1%"></i></div><strong>69.1</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 72.7%"></i></div><strong>72.7</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 63.3%"></i></div><strong>63.3</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Claude</span><strong>Opus 4.6</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 67.7%"></i></div><strong>67.7</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 82.0%"></i></div><strong>82.0</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 77.6%"></i></div><strong>77.6</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 70.9%"></i></div><strong>70.9</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Gemini</span><strong>3 Flash</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 82.6%"></i></div><strong>82.6</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 87.5%"></i></div><strong>87.5</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 83.9%"></i></div><strong>83.9</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 80.4%"></i></div><strong>80.4</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Grok</span><strong>4-1 Fast</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 79.6%"></i></div><strong>79.6</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 77.3%"></i></div><strong>77.3</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 76.2%"></i></div><strong>76.2</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 66.5%"></i></div><strong>66.5</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Llama</span><strong>3.3-70B</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 76.6%"></i></div><strong>76.6</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 54.4%"></i></div><strong>54.4</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 55.2%"></i></div><strong>55.2</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 67.7%"></i></div><strong>67.7</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Qwen</span><strong>3-8B</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 77.5%"></i></div><strong>77.5</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 64.5%"></i></div><strong>64.5</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 62.2%"></i></div><strong>62.2</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 61.4%"></i></div><strong>61.4</strong></div>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="icl-target-panel" aria-labelledby="market-target-heading">
+                        <div class="icl-target-heading">
+                            <div>
+                                <span>Target group</span>
+                                <h3 id="market-target-heading">Market-truth targets</h3>
+                            </div>
+                            <strong>Accuracy (%)</strong>
+                        </div>
+
+                        <div class="icl-model-grid">
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>OpenAI</span><strong>GPT-5.2</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 63.2%"></i></div><strong>63.2</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 59.8%"></i></div><strong>59.8</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 68.1%"></i></div><strong>68.1</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 66.4%"></i></div><strong>66.4</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Claude</span><strong>Opus 4.6</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 68.3%"></i></div><strong>68.3</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 82.5%"></i></div><strong>82.5</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 80.0%"></i></div><strong>80.0</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 68.8%"></i></div><strong>68.8</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Gemini</span><strong>3 Flash</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 81.6%"></i></div><strong>81.6</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 90.9%"></i></div><strong>90.9</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 91.1%"></i></div><strong>91.1</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 87.2%"></i></div><strong>87.2</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Grok</span><strong>4-1 Fast</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 74.9%"></i></div><strong>74.9</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 65.6%"></i></div><strong>65.6</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 74.1%"></i></div><strong>74.1</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 73.6%"></i></div><strong>73.6</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Llama</span><strong>3.3-70B</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 56.2%"></i></div><strong>56.2</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 61.2%"></i></div><strong>61.2</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 62.2%"></i></div><strong>62.2</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 68.0%"></i></div><strong>68.0</strong></div>
+                                </div>
+                            </article>
+
+                            <article class="icl-model-group">
+                                <div class="icl-model-label"><span>Qwen</span><strong>3-8B</strong></div>
+                                <div class="icl-bars">
+                                    <div class="icl-bar-slot"><span class="icl-condition">None</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar none-bar" style="--score: 55.9%"></i></div><strong>55.9</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">NC</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar noncontested-bar" style="--score: 61.6%"></i></div><strong>61.6</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">I-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar intervention-bar" style="--score: 65.2%"></i></div><strong>65.2</strong></div>
+                                    <div class="icl-bar-slot"><span class="icl-condition">M-Ex</span><div class="icl-bar-track" aria-hidden="true"><i class="icl-bar market-bar" style="--score: 64.0%"></i></div><strong>64.0</strong></div>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <figcaption>Accuracy (%). The representative is the model with the highest contested-case accuracy within each family. NC denotes a non-contested example; I-Ex and M-Ex denote intervention- and market-oriented examples. Matched sample sizes vary by condition.</figcaption>
                 </figure>
             </div>
         </section>
