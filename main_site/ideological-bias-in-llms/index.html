@@ -60,10 +60,9 @@
                 <img src="../img/EconAI@KAIST.svg" alt="KAIST EconAI Lab" width="260" height="64">
             </a>
             <nav class="section-nav" aria-label="Paper sections">
-                <a href="#question">Question</a>
+                <a href="#motivation">Motivation</a>
                 <a href="#benchmark">Benchmark</a>
                 <a href="#findings">Findings</a>
-                <a href="#takeaway">Takeaway</a>
             </nav>
             <a class="nav-paper-link" href="assets/paper.pdf" target="_blank" rel="noopener">Read paper <span aria-hidden="true">↗</span></a>
         </div>
@@ -115,7 +114,6 @@
 
             <div class="hero-visual" role="img" aria-label="A minimum wage increase can imply different employment effects under intervention-oriented and market-oriented economic mechanisms">
                 <div class="query-card">
-                    <span class="visual-kicker">Same economic question</span>
                     <span class="query-treatment">Minimum wage <strong>↑</strong></span>
                     <span class="query-arrow" aria-hidden="true">→</span>
                     <span class="query-outcome">Employment <strong>?</strong></span>
@@ -163,30 +161,30 @@
             </dl>
         </section>
 
-        <section id="question" class="content-section section-shell" aria-labelledby="question-heading">
+        <section id="motivation" class="content-section section-shell" aria-labelledby="motivation-heading">
             <div class="section-heading centered-heading">
-                <span class="section-index">01 · The question</span>
-                <h2 id="question-heading">Not what a model says it believes.<br>Where its reasoning becomes less reliable.</h2>
-                <p>Political-compass tests measure expressed preferences. We instead compare model predictions against causal signs supported by empirical studies.</p>
+                <span class="section-index">01 · Economic causal reasoning</span>
+                <h2 id="motivation-heading">Do LLMs exhibit systematic ideological bias when reasoning about economic causal effects?</h2>
+                <p>LLMs are increasingly deployed in economic reporting, policy evaluation, and corporate decision support, where predicting causal directions correctly is essential. Yet a single intervention can trigger competing mechanisms whose relative magnitudes are debated along ideological lines.</p>
             </div>
 
-            <div class="lens-flow" role="group" aria-label="From opinion-level bias to direction-aware reasoning evaluation">
+            <div class="lens-flow" role="group" aria-label="Limitations of existing evaluations and the paper's direction-aware setting">
                 <article class="lens-card lens-muted">
-                    <span class="lens-number">Typical probe</span>
-                    <h3>“What do you think?”</h3>
-                    <p>Survey-style questions reveal stated political positions.</p>
+                    <span class="lens-number">Bias evaluations</span>
+                    <h3>Expressed preferences</h3>
+                    <p>Survey-style instruments probe stated opinions, not causal relationships grounded in empirical evidence.</p>
                 </article>
                 <span class="flow-arrow" aria-hidden="true">→</span>
                 <article class="lens-card lens-active">
-                    <span class="lens-number">Our probe</span>
-                    <h3>“Which effect occurred?”</h3>
-                    <p>Context + treatment + outcome, scored against empirical evidence.</p>
+                    <span class="lens-number">Causal benchmarks</span>
+                    <h3>A single expectation</h3>
+                    <p>Existing benchmarks typically assume one expected direction and overlook competing economic frameworks.</p>
                 </article>
                 <span class="flow-arrow" aria-hidden="true">→</span>
                 <article class="lens-card lens-result">
-                    <span class="lens-number">What it reveals</span>
-                    <h3>Directional reliability</h3>
-                    <p>Whether accuracy and errors differ across contested directions.</p>
+                    <span class="lens-number">Our setting</span>
+                    <h3>Competing mechanisms</h3>
+                    <p>We test whether LLM reliability differs across ideologically contested causal directions.</p>
                 </article>
             </div>
         </section>
@@ -208,30 +206,18 @@
                     </li>
                     <li class="pipeline-step">
                         <span class="step-number">2</span>
-                        <strong>4 families</strong>
-                        <span>assign expected signs</span>
-                        <small>GPT, Claude, Qwen, and Grok; blinded to the result</small>
-                    </li>
-                    <li class="pipeline-step">
-                        <span class="step-number">3</span>
                         <strong>1,056</strong>
                         <span>candidate-contested triplets</span>
                         <small>Intervention and market expectations diverge</small>
                     </li>
-                    <li class="pipeline-step">
-                        <span class="step-number">4</span>
-                        <strong>898</strong>
-                        <span>ideology-sensitive cases</span>
-                        <small>Used for contested vs. non-contested accuracy</small>
-                    </li>
                     <li class="pipeline-step pipeline-focus">
-                        <span class="step-number">5</span>
+                        <span class="step-number">3</span>
                         <strong>751</strong>
                         <span>direction-aligned cases</span>
                         <small><b>436</b> intervention-truth · <b>315</b> market-truth</small>
                     </li>
                     <li class="pipeline-step">
-                        <span class="step-number">6</span>
+                        <span class="step-number">4</span>
                         <strong>20 LLMs</strong>
                         <span>evaluated</span>
                         <small>Accuracy gap + directional error bias</small>
@@ -260,7 +246,6 @@
             <div class="finding-grid">
                 <article class="finding-card">
                     <div class="finding-title-row">
-                        <span class="finding-number">01</span>
                         <h3>Contested cases are harder</h3>
                     </div>
                     <p>Every evaluated model performs worse on ideology-sensitive items.</p>
@@ -285,7 +270,6 @@
 
                 <article class="finding-card finding-card-featured">
                     <div class="finding-title-row">
-                        <span class="finding-number">02</span>
                         <h3>Accuracy is asymmetric</h3>
                     </div>
                     <p>Models are more accurate when empirical truth aligns with intervention-oriented expectations.</p>
@@ -294,14 +278,14 @@
                         <div class="paired-group">
                             <div class="paired-heading"><span>Closed</span><strong>+9.7 pp</strong></div>
                             <div class="paired-bars">
-                                <div class="vertical-bar intervention-fill" style="--bar-height: 72.9%"><span>72.9</span><small>Intervention</small></div>
+                                <div class="vertical-bar intervention-fill" style="--bar-height: 72.9%"><span>72.9</span><small>Interv.</small></div>
                                 <div class="vertical-bar market-fill" style="--bar-height: 63.1%"><span>63.1</span><small>Market</small></div>
                             </div>
                         </div>
                         <div class="paired-group">
                             <div class="paired-heading"><span>Open</span><strong>+15.1 pp</strong></div>
                             <div class="paired-bars">
-                                <div class="vertical-bar intervention-fill" style="--bar-height: 67.3%"><span>67.3</span><small>Intervention</small></div>
+                                <div class="vertical-bar intervention-fill" style="--bar-height: 67.3%"><span>67.3</span><small>Interv.</small></div>
                                 <div class="vertical-bar market-fill" style="--bar-height: 52.2%"><span>52.2</span><small>Market</small></div>
                             </div>
                         </div>
@@ -310,7 +294,6 @@
 
                 <article class="finding-card">
                     <div class="finding-title-row">
-                        <span class="finding-number">03</span>
                         <h3>Errors tilt, too</h3>
                     </div>
                     <p>Incorrect predictions disproportionately align with intervention-oriented expectations.</p>
@@ -344,50 +327,15 @@
                 </div>
                 <a class="figure-image-link" href="assets/model-accuracy.svg" target="_blank" rel="noopener">
                     <img src="assets/model-accuracy.svg" width="1400" height="1036" loading="lazy" alt="Scatterplot of intervention-truth accuracy against market-truth accuracy for 20 language models. Eighteen points lie above the equal-accuracy line.">
-                    <span class="expand-hint">Tap to expand <span aria-hidden="true">↗</span></span>
+                    <span class="expand-hint">Open full model chart <span aria-hidden="true">↗</span></span>
                 </a>
             </article>
-        </section>
-
-        <section class="content-section section-dark" aria-labelledby="robustness-heading">
-            <div class="section-shell robustness-layout">
-                <div class="robustness-copy">
-                    <span class="section-index light-index">04 · Robustness</span>
-                    <h2 id="robustness-heading">The gap survives difficulty matching.</h2>
-                    <p>We match intervention-truth and market-truth items one-to-one within theme × difficulty cells, using 287 cases per side.</p>
-                    <div class="regression-note">
-                        <span>Fixed-effects regression</span>
-                        <strong>β = 0.476 · z = 4.66 · p &lt; .001</strong>
-                        <small>about 61% higher odds on intervention-truth items</small>
-                    </div>
-                </div>
-
-                <div class="gap-comparison" role="img" aria-label="The 20-model mean accuracy gap changes from 11.5 percentage points before matching to 10.6 points after matching">
-                    <div class="gap-state">
-                        <div class="gap-state-heading"><span>Before matching</span><strong>+11.5 pp</strong></div>
-                        <div class="gap-pair">
-                            <div><span>Intervention-truth</span><strong>70.9%</strong></div>
-                            <div><span>Market-truth</span><strong>59.3%</strong></div>
-                        </div>
-                        <div class="gap-track"><span class="gap-market" style="--bar-width:59.3%"></span><span class="gap-intervention" style="--bar-width:70.9%"></span></div>
-                    </div>
-                    <div class="gap-arrow" aria-hidden="true">→</div>
-                    <div class="gap-state gap-state-highlight">
-                        <div class="gap-state-heading"><span>After matching</span><strong>+10.6 pp</strong></div>
-                        <div class="gap-pair">
-                            <div><span>Intervention-truth</span><strong>68.6%</strong></div>
-                            <div><span>Market-truth</span><strong>58.0%</strong></div>
-                        </div>
-                        <div class="gap-track"><span class="gap-market" style="--bar-width:58%"></span><span class="gap-intervention" style="--bar-width:68.6%"></span></div>
-                    </div>
-                </div>
-            </div>
         </section>
 
         <section class="content-section section-shell" aria-labelledby="subfields-heading">
             <div class="section-heading split-heading">
                 <div>
-                    <span class="section-index">05 · Where is it strongest?</span>
+                    <span class="section-index">04 · Where is it strongest?</span>
                     <h2 id="subfields-heading">The asymmetry is concentrated, not uniform.</h2>
                 </div>
                 <p>Intervention-truth accuracy is higher in six of seven economic subfields. Healthcare and welfare show the largest gaps; taxation slightly reverses.</p>
@@ -436,7 +384,7 @@
         <section class="content-section section-tint" aria-labelledby="prompting-heading">
             <div class="section-shell prompting-layout">
                 <div class="section-heading compact-heading">
-                    <span class="section-index">06 · Can one example fix it?</span>
+                    <span class="section-index">05 · Can one example fix it?</span>
                     <h2 id="prompting-heading">One-shot prompting moves answers—but does not reliably remove the asymmetry.</h2>
                     <p>The mitigation test is deliberately simple: prepend one intervention-oriented or market-oriented demonstration, then re-evaluate the same targets.</p>
                 </div>
@@ -464,43 +412,6 @@
                 </div>
                 <p class="scope-note"><strong>Scope:</strong> this result concerns one-shot examples; it does not rule out stronger multi-shot, system-prompt, or training-based mitigation.</p>
             </div>
-        </section>
-
-        <section id="takeaway" class="content-section section-shell" aria-labelledby="takeaway-heading">
-            <div class="takeaway-card">
-                <div class="takeaway-copy">
-                    <span class="section-index">07 · Why it matters</span>
-                    <h2 id="takeaway-heading">Average accuracy can hide directional failure.</h2>
-                    <p>For policy analysis, economic reporting, and decision support, evaluate not only whether a model is correct—but whether its reliability changes across contested directions.</p>
-                    <ul class="diagnostic-pills" aria-label="Recommended direction-aware diagnostics">
-                        <li>Accuracy<sub>intervention</sub></li>
-                        <li>Accuracy<sub>market</sub></li>
-                        <li>Accuracy gap</li>
-                        <li>Directional error bias</li>
-                    </ul>
-                </div>
-                <div class="takeaway-visual" aria-hidden="true">
-                    <div class="aggregate-score">
-                        <span>Aggregate score</span>
-                        <strong>Looks fine</strong>
-                    </div>
-                    <div class="hidden-split">
-                        <div><i class="intervention-fill"></i><span>One direction</span></div>
-                        <div><i class="market-fill"></i><span>Other direction</span></div>
-                    </div>
-                    <span class="reveal-label">Split the metric to reveal the gap</span>
-                </div>
-            </div>
-
-            <details class="caveats">
-                <summary>Caveats &amp; open questions <span aria-hidden="true">+</span></summary>
-                <div class="caveat-grid">
-                    <p><strong>Labels.</strong> Four LLM families construct the ideology-conditioned labels; human validation covers a balanced 126-case sample.</p>
-                    <p><strong>Evidence distribution.</strong> Topic, publication, and context selection in the empirical literature may shape the benchmark's ground-truth distribution.</p>
-                    <p><strong>Mechanism.</strong> Proprietary training pipelines prevent cleanly separating pretraining, alignment, and family-specific post-training effects.</p>
-                    <p><strong>Reasoning vs. recall.</strong> Future work should distinguish paper-specific retrieval from mechanism-based causal reasoning.</p>
-                </div>
-            </details>
         </section>
 
         <section id="citation" class="content-section citation-section" aria-labelledby="citation-heading">
@@ -534,13 +445,8 @@
             </div>
         </section>
 
-        <section class="connect-section" aria-labelledby="connect-heading">
+        <section class="connect-section" aria-label="Contact Donggyu Lee">
             <div class="section-shell connect-card">
-                <div>
-                    <span class="section-index">Meet the first author</span>
-                    <h2 id="connect-heading">Let's talk at COLM.</h2>
-                    <p>Interested in LLM evaluation, causal reasoning, or AI for economics? Donggyu is an M.S. student in Data Science at KAIST and would be glad to connect.</p>
-                </div>
                 <div class="connect-actions">
                     <a class="button button-primary" href="mailto:donggyu.lee@kaist.ac.kr">Email Donggyu</a>
                     <a class="button button-secondary" href="https://donggyu-lee1.github.io" target="_blank" rel="noopener">Personal site <span aria-hidden="true">↗</span></a>
