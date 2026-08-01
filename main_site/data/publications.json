@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "last_verified": "2026-08-01",
-  "expected_count": 31,
+  "expected_count": 32,
   "expected_category_counts": {
     "published-accepted": 25,
-    "preprints": 4,
+    "preprints": 5,
     "extended-abstracts": 2
   },
   "scope": "Curated publications authored by Jihee Kim, with current EconAI Lab members highlighted on the rendered page.",
@@ -305,6 +305,17 @@
       "url": "https://arxiv.org/abs/2604.27540",
       "arxiv": "2604.27540",
       "source_url": "https://export.arxiv.org/api/query?id_list=2604.27540"
+    },
+    {
+      "id": "jang-2026-instruction-tuned-language-models",
+      "title": "Instruction-Tuned Language Models Cannot Sample from Distributions They Can Describe",
+      "authors": ["Chaemin Jang", "Dongman Lee", "Jihee Kim"],
+      "year": 2026,
+      "venue": "arXiv preprint",
+      "status": "preprint",
+      "url": "https://arxiv.org/abs/2607.25292",
+      "arxiv": "2607.25292",
+      "source_url": "https://export.arxiv.org/api/query?id_list=2607.25292"
     },
     {
       "id": "lee-2025-econcausal",
