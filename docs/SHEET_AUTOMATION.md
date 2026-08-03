@@ -1,20 +1,39 @@
-# Google Sheet to GitHub Pages automation
+# Google Sheet to KAIST server automation
 
 ## Architecture
 
 The production path is:
 
-`Google Sheet (content) → GitHub Actions (build and validation) → GitHub Pages (hosting) → econai.kaist.ac.kr (CNAME)`
+`Google Sheet + GitHub main → school-server systemd timer → build and validation → versioned release → Docker Nginx`
 
-The KAIST web server is not part of this path. KAIST's authoritative DNS remains responsible only for resolving `econai.kaist.ac.kr` to GitHub Pages.
+The existing `https://econai.kaist.ac.kr` URL, KAIST DNS A record, TLS certificate,
+and school server stay unchanged. GitHub Pages, a CNAME change, an inbound webhook,
+and Google Apps Script are not used.
 
-The deploy workflow runs whenever `main` changes, four times per hour at minutes 07, 22, 37, and 52, and on manual or `repository_dispatch` requests. A Sheet edit therefore appears automatically after the next scheduled run and GitHub's queue/deploy time. Scheduled runs can be delayed; use **Actions → Deploy Sheet-driven site to GitHub Pages → Run workflow** when an immediate refresh matters.
+Every five minutes the server:
+
+1. refreshes a dedicated, unprivileged checkout of GitHub `main`;
+2. downloads the three Sheet tabs;
+3. builds and validates the complete static site in staging;
+4. compares the result with the current release; and
+5. atomically switches Nginx's `current` symlink only when content changed.
+
+If GitHub is temporarily unavailable, the last downloaded source is used so Sheet
+updates can continue. If the Sheet download, schema validation, build, or site
+validation fails, the current production release is not touched. Runs are serialized
+with a file lock, and the last five releases are retained for rollback.
+
+The publisher runs as `econai-publisher`, which has no login shell, sudo access, or
+Docker-group membership. It can write only its managed Git checkout and
+`/srv/econai-site`. Nginx mounts the release directory, configuration, and TLS files
+read-only.
 
 ## Sheet contract
 
 Sheet ID: `14pRbiM3ubsGT1DsBZdLF9xSHmSntwBRSkAUYbyrr6xM`
 
-Keep the three tab names and header names exact. Rows with an unchecked `publish` cell are omitted.
+Keep the three tab names and header names exact. Rows with an unchecked `publish`
+cell are omitted.
 
 ### Publications
 
@@ -29,7 +48,9 @@ Keep the three tab names and header names exact. Rows with an unchecked `publish
 | `project_url` | Optional lab project page |
 | `highlight` | Optional award or presentation label |
 
-The site groups papers by year and sorts every year by `date` descending. Title links replace redundant Paper buttons. The home page automatically uses the first three rows after date sorting.
+The site groups papers by year and sorts every year by `date` descending. Title
+links replace redundant Paper buttons. The home page automatically uses the first
+three rows after date sorting.
 
 ### Research
 
@@ -39,7 +60,10 @@ The site groups papers by year and sorts every year by `date` descending. Title 
 | `title` | Research area title |
 | `summary` | One concise area description |
 
-The first three published rows become the home-page Research Focus cards. `main_site/data/site_catalog.json` adds stable questions, short home descriptions, and two representative publications/figures for the current three areas. If an area title changes, update the matching catalog key in the same PR.
+The first three published rows become the home-page Research Focus cards.
+`main_site/data/site_catalog.json` adds stable questions, short home descriptions,
+and two representative publications/figures for the current three areas. If an
+area title changes, update the matching catalog key in the same PR.
 
 ### Projects
 
@@ -49,32 +73,69 @@ The first three published rows become the home-page Research Focus cards. `main_
 | `title` | Project title |
 | `summary` | One concise project description |
 
-New project rows work with only these three fields and default to Ongoing. `main_site/data/site_catalog.json` optionally supplies status, period, area, and a link for recurring/current projects, keeping the Sheet short.
+New project rows work with only these three fields and default to Ongoing.
+`main_site/data/site_catalog.json` optionally supplies status, period, area, and a
+link for recurring/current projects, keeping the Sheet short.
 
 ## Safety behavior
 
-The build aborts without replacing production when a required column, title, summary, author, venue, date, HTTPS paper link, selected publication, or local figure is invalid. It also refuses to publish fewer than 20 publication rows, preventing an accidental mass deletion from replacing the live list. The generated site is then checked for row counts, duplicate HTML IDs, and broken local links/assets before upload.
+The build rejects missing columns, duplicate or blank titles, malformed dates,
+unsafe publication URLs, broken selected-publication references, broken local
+assets, duplicate HTML IDs, and any symlink in the generated site. It also refuses
+to publish fewer than 20 publication rows, preventing an accidental mass deletion
+from replacing the live list.
 
-The Sheet content is intentionally public, but edit access must not be public. Before enabling the deployment workflow, change Google sharing from **Anyone with the link: Editor** to **Viewer**, then grant Editor only to named lab Google accounts. The GitHub workflow needs anonymous view access, not anonymous edit access.
+The generated release is never written into the Git checkout or the live Nginx
+directory. The source checkout and immutable releases are separate, and the
+`current` symlink is replaced atomically on the same filesystem.
 
-## One-time GitHub Pages and DNS cutover
+## One-time server installation
 
-These actions require an `econaikaist` owner/repository admin and KAIST DNS administrator:
+After this change is merged and `/srv/econai_web` is updated, run:
 
-1. In the `econaikaist` account Pages settings, add and verify `econai.kaist.ac.kr`; keep GitHub's TXT record in KAIST DNS.
-2. In `econaikaist/econai_web` → **Settings → Pages**, select **GitHub Actions** as the publishing source and set the custom domain to `econai.kaist.ac.kr`.
-3. Only after GitHub accepts that custom domain, replace the current DNS record with `econai.kaist.ac.kr. CNAME econaikaist.github.io.`
-4. Verify the site and all existing paths, then enable **Enforce HTTPS**. DNS/certificate propagation can take up to 24 hours.
+```bash
+cd /srv/econai_web
+sudo ./deploy/install_server_publisher.sh
+```
 
-GitHub Actions-based Pages does not require a committed `CNAME` file; the custom domain lives in the repository Pages settings.
+The installer creates the unprivileged publisher account and directories, installs
+the systemd units and root-owned publisher entrypoint, creates the first validated
+release, recreates the existing Nginx container with the read-only release mount,
+and enables the timer. It does not change DNS, the public URL, or TLS certificates.
+
+## Operations
+
+```bash
+# Timer and last run
+systemctl status econai-sheet-publisher.timer
+systemctl status econai-sheet-publisher.service
+
+# Trigger an immediate refresh after editing the Sheet
+sudo systemctl start econai-sheet-publisher.service
+
+# Review recent publisher output or failures
+journalctl -u econai-sheet-publisher.service -n 100 --no-pager
+
+# Inspect the last successful/no-change result
+cat /srv/econai-site/state/status.json
+```
+
+To roll back, point `/srv/econai-site/current` to one of the retained directories
+under `/srv/econai-site/releases` using a temporary relative symlink and atomic
+rename. Do not replace `current` with a real directory.
 
 ## Local verification
 
 ```bash
 python3 -m unittest discover -s tests -v
-python3 scripts/build_sheet_site.py --output-dir /tmp/econai-site
-python3 scripts/validate_site.py /tmp/econai-site
-python3 -m http.server 8895 --directory /tmp/econai-site
+python3 scripts/build_sheet_site.py --output-dir /tmp/econai-site-build
+python3 scripts/validate_site.py /tmp/econai-site-build
+python3 scripts/sync_server_site.py \
+  --source-repo . \
+  --deploy-root /tmp/econai-site-releases
+python3 -m http.server 8895 \
+  --directory /tmp/econai-site-releases/current
 ```
 
-Open `http://127.0.0.1:8895/index.html`, `research.html`, `projects.html`, and `publications.html`.
+Open `http://127.0.0.1:8895/index.html`, `research.html`, `projects.html`, and
+`publications.html`.

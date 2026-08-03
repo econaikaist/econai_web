@@ -7,6 +7,19 @@ on:
       - "main_site/**"
       - "scripts/**"
       - "tests/**"
+      - "deploy/**"
+      - "docker-compose.yml"
+      - "nginx/conf.d/**"
+  push:
+    branches: [main]
+    paths:
+      - "main_site/**"
+      - "scripts/**"
+      - "tests/**"
+      - "deploy/**"
+      - "docker-compose.yml"
+      - "nginx/conf.d/**"
+  workflow_dispatch:
 
 permissions:
   contents: read

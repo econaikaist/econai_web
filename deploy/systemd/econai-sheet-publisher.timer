@@ -1,0 +1,12 @@
+[Unit]
+Description=Poll Google Sheet and GitHub for EconAI website updates
+
+[Timer]
+OnCalendar=*-*-* *:0/5:00
+AccuracySec=10s
+RandomizedDelaySec=20s
+Persistent=true
+Unit=econai-sheet-publisher.service
+
+[Install]
+WantedBy=timers.target

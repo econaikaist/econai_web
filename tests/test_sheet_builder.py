@@ -91,6 +91,22 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertEqual(result.count("<!-- START -->"), 1)
             self.assertEqual(result.count("<!-- END -->"), 1)
 
+    def test_output_symlink_is_rejected_without_touching_target(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            source = root / "source"
+            target = root / "target"
+            source.mkdir()
+            target.mkdir()
+            (source / "index.html").write_text("source", encoding="utf-8")
+            (target / "keep.txt").write_text("keep", encoding="utf-8")
+            output = root / "output"
+            output.symlink_to(target, target_is_directory=True)
+
+            with self.assertRaisesRegex(builder.SheetBuildError, "symlink output"):
+                builder._safe_prepare_output(source, output)
+            self.assertEqual((target / "keep.txt").read_text(encoding="utf-8"), "keep")
+
 
 if __name__ == "__main__":
     unittest.main()

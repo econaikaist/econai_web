@@ -86,6 +86,11 @@ def validate(site_dir: Path) -> List[str]:
         return [f"invalid or missing {metadata_path}: {exc}"]
 
     expected_counts = metadata.get("published_rows", {})
+    for candidate in site_dir.rglob("*"):
+        if candidate.is_symlink():
+            errors.append(
+                f"generated site must not contain symlinks: {candidate.relative_to(site_dir)}"
+            )
     for name in ("Publications", "Research", "Projects"):
         if not isinstance(expected_counts.get(name), int) or expected_counts[name] < 1:
             errors.append(f"sheet-build.json has invalid count for {name}")
@@ -144,7 +149,7 @@ def validate(site_dir: Path) -> List[str]:
                     f"{html_path.relative_to(site_dir)}: broken local {attribute}={value!r}"
                 )
 
-    for required in ("site.css", "banner.png", "img/EconAI@KAIST.svg", ".nojekyll"):
+    for required in ("site.css", "banner.png", "img/EconAI@KAIST.svg"):
         if not (site_dir / required).exists():
             errors.append(f"missing required static asset: {required}")
     return errors

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build the static EconAI website from the lab's public Google Sheet.
+"""Build the static EconAI website from the lab's Google Sheet.
 
-The source HTML remains a complete, browsable fallback. During a GitHub Pages
-build this script copies ``main_site`` to ``_site``, reads the three Sheet tabs,
+The source HTML remains a complete, browsable fallback. During a build this
+script copies ``main_site`` to a staging directory, reads the three Sheet tabs,
 and replaces only explicitly marked content blocks.
 
 No Google API key is required: the Sheet must be viewable by anyone with the
@@ -596,6 +596,11 @@ def _replace_block(path: Path, start_marker: str, end_marker: str, block: str) -
 
 
 def _safe_prepare_output(source_dir: Path, output_dir: Path) -> None:
+    if output_dir.is_symlink():
+        raise SheetBuildError(f"refusing symlink output directory: {output_dir}")
+    for candidate in source_dir.rglob("*"):
+        if candidate.is_symlink():
+            raise SheetBuildError(f"refusing symlink in source site: {candidate}")
     source = source_dir.resolve()
     output = output_dir.resolve()
     if output in {Path("/").resolve(), REPOSITORY_ROOT.resolve(), source}:
@@ -669,9 +674,6 @@ def build_site(
         json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
-    (output_dir / ".nojekyll").touch()
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Build the EconAI static site from Google Sheet tabs."
