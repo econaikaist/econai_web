@@ -20,10 +20,9 @@ import html
 import json
 import re
 import sys
-from collections import Counter
 from datetime import date
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Dict, List, Sequence, Tuple
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -32,42 +31,30 @@ HTML_PATH = REPOSITORY_ROOT / "main_site" / "publications.html"
 START_MARKER = "        <!-- PUBLICATIONS:START -->"
 END_MARKER = "        <!-- PUBLICATIONS:END -->"
 
-CATEGORY_CONFIG: Sequence[Tuple[str, str, str, Tuple[str, ...]]] = (
-    (
-        "published-accepted",
-        "Published & Accepted",
-        "Peer-reviewed publications and papers accepted for publication.",
-        ("published", "accepted"),
-    ),
-    (
-        "preprints",
-        "Preprints",
-        "Public manuscripts that have not yet been listed with a final venue.",
-        ("preprint",),
-    ),
-    (
-        "extended-abstracts",
-        "Extended Abstracts",
-        "Peer-reviewed extended abstracts, kept separate from full papers.",
-        ("extended_abstract",),
-    ),
-)
-
-STATUS_LABELS = {
-    "published": "Published",
-    "accepted": "Accepted",
-    "preprint": "Preprint",
-    "extended_abstract": "Extended Abstract",
+REQUIRED_FIELDS = {
+    "id",
+    "title",
+    "authors",
+    "year",
+    "sort_date",
+    "date_basis",
+    "venue",
+    "url",
+    "source_url",
 }
-STATUS_CATEGORY = {
-    status: category_index
-    for category_index, (_, _, _, statuses) in enumerate(CATEGORY_CONFIG)
-    for status in statuses
-}
-REQUIRED_FIELDS = {"id", "title", "authors", "year", "venue", "status", "url", "source_url"}
 DOI_PATTERN = re.compile(r"^10\.\d{4,9}/\S+$")
 ARXIV_PATTERN = re.compile(r"^\d{4}\.\d{4,5}$")
 ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+SORT_DATE_PATTERN = re.compile(r"^\d{4}(?:-\d{2}(?:-\d{2})?)?$")
+VENUE_HIGHLIGHT_PATTERN = re.compile(
+    r"\((?=[^()]*[A-Za-z])[^()]*(?:19|20)\d{2}\)"
+)
+DATE_BASES = {
+    "crossref_published",
+    "arxiv_latest_version",
+    "journal_issue",
+}
+DISTINCTION_KINDS = {"award", "presentation"}
 
 
 class PublicationDataError(ValueError):
@@ -78,10 +65,39 @@ def _normalise_title(title: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", title.casefold())
 
 
-def _sort_key(publication: Dict[str, Any]) -> Tuple[int, int, str, str]:
+def _parse_sort_date(value: Any, publication_id: str) -> Tuple[int, int, int]:
+    if not isinstance(value, str) or not SORT_DATE_PATTERN.fullmatch(value):
+        raise PublicationDataError(
+            f"{publication_id}: sort_date must be YYYY, YYYY-MM, or YYYY-MM-DD"
+        )
+
+    parts = [int(part) for part in value.split("-")]
+    year = parts[0]
+    month = parts[1] if len(parts) >= 2 else 0
+    day = parts[2] if len(parts) == 3 else 0
+    if len(parts) >= 2 and month == 0:
+        raise PublicationDataError(
+            f"{publication_id}: sort_date month must be between 01 and 12"
+        )
+    if len(parts) == 3 and day == 0:
+        raise PublicationDataError(
+            f"{publication_id}: sort_date day must be a valid calendar day"
+        )
+    try:
+        date(year, month or 1, day or 1)
+    except ValueError as exc:
+        raise PublicationDataError(
+            f"{publication_id}: invalid sort_date {value!r}"
+        ) from exc
+    return year, month, day
+
+
+def _sort_key(publication: Dict[str, Any]) -> Tuple[int, int, int, str, str]:
+    year, month, day = _parse_sort_date(publication["sort_date"], publication["id"])
     return (
-        STATUS_CATEGORY[publication["status"]],
-        -publication["year"],
+        -year,
+        -month,
+        -day,
         publication["title"].casefold(),
         publication["id"],
     )
@@ -100,8 +116,12 @@ def load_and_validate_data() -> Dict[str, Any]:
     except json.JSONDecodeError as exc:
         raise PublicationDataError(f"invalid JSON in {DATA_PATH}: {exc}") from exc
 
-    if data.get("schema_version") != 1:
-        raise PublicationDataError("schema_version must be 1")
+    if data.get("schema_version") != 4:
+        raise PublicationDataError("schema_version must be 4")
+    if "expected_category_counts" in data:
+        raise PublicationDataError("category counts are not used by the chronological list")
+    _require_non_empty_string(data.get("date_policy"), "date_policy", "dataset")
+    _require_non_empty_string(data.get("link_policy"), "link_policy", "dataset")
 
     try:
         date.fromisoformat(data["last_verified"])
@@ -155,12 +175,66 @@ def load_and_validate_data() -> Dict[str, Any]:
             if not publication[field].startswith("https://"):
                 raise PublicationDataError(f"{publication_id}: {field} must use HTTPS")
 
-        if publication["status"] not in STATUS_LABELS:
+        for field in ("paper_url", "pdf_url", "venue_url"):
+            value = publication.get(field)
+            if value is None:
+                continue
+            _require_non_empty_string(value, field, publication_id)
+            if not value.startswith("https://"):
+                raise PublicationDataError(f"{publication_id}: {field} must use HTTPS")
+        if "pdf_url" in publication and not publication["pdf_url"].casefold().endswith(".pdf"):
+            raise PublicationDataError(f"{publication_id}: pdf_url must point to a PDF")
+
+        venue_url = publication.get("venue_url")
+        venue_link_label = publication.get("venue_link_label")
+        if (venue_url is None) != (venue_link_label is None):
             raise PublicationDataError(
-                f"{publication_id}: unsupported status {publication['status']!r}"
+                f"{publication_id}: venue_url and venue_link_label must be provided together"
+            )
+        if venue_link_label is not None:
+            _require_non_empty_string(
+                venue_link_label, "venue_link_label", publication_id
+            )
+
+        distinction = publication.get("distinction")
+        if distinction is not None:
+            if not isinstance(distinction, dict):
+                raise PublicationDataError(
+                    f"{publication_id}: distinction must be an object"
+                )
+            expected_distinction_fields = {"label", "kind", "source_url"}
+            if set(distinction) != expected_distinction_fields:
+                raise PublicationDataError(
+                    f"{publication_id}: distinction must contain exactly label, kind, and source_url"
+                )
+            for field in expected_distinction_fields:
+                _require_non_empty_string(
+                    distinction[field], f"distinction.{field}", publication_id
+                )
+            if distinction["kind"] not in DISTINCTION_KINDS:
+                raise PublicationDataError(
+                    f"{publication_id}: unsupported distinction kind {distinction['kind']!r}"
+                )
+            if not distinction["source_url"].startswith("https://"):
+                raise PublicationDataError(
+                    f"{publication_id}: distinction.source_url must use HTTPS"
+                )
+
+        if "status" in publication:
+            raise PublicationDataError(
+                f"{publication_id}: status classifications are not used"
             )
         if not isinstance(publication["year"], int) or not 1900 <= publication["year"] <= 2100:
             raise PublicationDataError(f"{publication_id}: year must be a four-digit integer")
+        sort_year, _, _ = _parse_sort_date(publication["sort_date"], publication_id)
+        if publication["year"] != sort_year:
+            raise PublicationDataError(
+                f"{publication_id}: year must match the year in sort_date"
+            )
+        if publication["date_basis"] not in DATE_BASES:
+            raise PublicationDataError(
+                f"{publication_id}: unsupported date_basis {publication['date_basis']!r}"
+            )
 
         authors = publication["authors"]
         if not isinstance(authors, list) or not authors:
@@ -192,6 +266,14 @@ def load_and_validate_data() -> Dict[str, Any]:
                 raise PublicationDataError(f"duplicate DOI: {doi}")
             if publication["url"].casefold() != f"https://doi.org/{doi}":
                 raise PublicationDataError(f"{publication_id}: URL must resolve through its DOI")
+            if publication["date_basis"] != "crossref_published":
+                raise PublicationDataError(
+                    f"{publication_id}: DOI records must use crossref_published"
+                )
+            if "paper_url" not in publication:
+                raise PublicationDataError(
+                    f"{publication_id}: DOI records must include an official paper_url"
+                )
             dois.add(doi)
         if arxiv_id is not None:
             _require_non_empty_string(arxiv_id, "arxiv", publication_id)
@@ -201,14 +283,17 @@ def load_and_validate_data() -> Dict[str, Any]:
                 raise PublicationDataError(f"duplicate arXiv id: {arxiv_id}")
             if publication["url"] != f"https://arxiv.org/abs/{arxiv_id}":
                 raise PublicationDataError(f"{publication_id}: URL must use the stable arXiv abstract URL")
+            if publication["date_basis"] != "arxiv_latest_version":
+                raise PublicationDataError(
+                    f"{publication_id}: arXiv-only records must use arxiv_latest_version"
+                )
             arxiv_ids.add(arxiv_id)
         if doi is None and arxiv_id is None and publication_id != "jo-2019-time-series-momentum":
             raise PublicationDataError(f"{publication_id}: expected a DOI or arXiv identifier")
-
-    if publications != sorted(publications, key=_sort_key):
-        raise PublicationDataError(
-            "publications must be ordered by category, descending year, then title"
-        )
+        if publication_id == "jo-2019-time-series-momentum" and publication["date_basis"] != "journal_issue":
+            raise PublicationDataError(
+                "jo-2019-time-series-momentum must use its official journal_issue date"
+            )
 
     tracking = next(
         (item for item in publications if item["id"] == "lee-2025-tracking-north-korea"),
@@ -225,34 +310,7 @@ def load_and_validate_data() -> Dict[str, Any]:
             "lee-2025-tracking-north-korea must document its intentional author omission"
         )
 
-    counts = _category_counts(publications)
-    expected_counts = data.get("expected_category_counts")
-    if not isinstance(expected_counts, dict) or set(expected_counts) != set(counts):
-        raise PublicationDataError(
-            "expected_category_counts must contain each rendered category"
-        )
-    if any(not isinstance(count, int) or count < 0 for count in expected_counts.values()):
-        raise PublicationDataError(
-            "expected_category_counts values must be non-negative integers"
-        )
-    if sum(expected_counts.values()) != expected_count:
-        raise PublicationDataError(
-            "expected_category_counts must sum to expected_count"
-        )
-    if counts != expected_counts:
-        raise PublicationDataError(
-            f"unexpected category counts: expected {expected_counts}, found {counts}"
-        )
-
     return data
-
-
-def _category_counts(publications: Iterable[Dict[str, Any]]) -> Dict[str, int]:
-    status_counts = Counter(publication["status"] for publication in publications)
-    return {
-        slug: sum(status_counts[status] for status in statuses)
-        for slug, _, _, statuses in CATEGORY_CONFIG
-    }
 
 
 def _render_authors(authors: Sequence[str], lab_authors: set[str]) -> str:
@@ -268,118 +326,100 @@ def _render_authors(authors: Sequence[str], lab_authors: set[str]) -> str:
     return ", ".join(rendered_authors)
 
 
+def _render_venue(venue: str) -> str:
+    rendered: List[str] = []
+    start = 0
+    for match in VENUE_HIGHLIGHT_PATTERN.finditer(venue):
+        rendered.append(html.escape(venue[start : match.start()]))
+        rendered.append(
+            '<strong class="publication-venue-highlight">'
+            f"{html.escape(match.group(0))}</strong>"
+        )
+        start = match.end()
+    rendered.append(html.escape(venue[start:]))
+    return "".join(rendered)
+
+
+def _publication_destination(publication: Dict[str, Any]) -> str:
+    if publication.get("paper_url"):
+        return publication["paper_url"]
+    if publication.get("arxiv"):
+        return publication["url"]
+    return publication["url"]
+
+
+def _render_distinction(distinction: Dict[str, str]) -> str:
+    label = html.escape(distinction["label"])
+    kind = html.escape(distinction["kind"], quote=True)
+    return (
+        f'                                <span class="publication-distinction '
+        f'publication-distinction--{kind}">{label}</span>'
+    )
+
+
 def _render_publication(publication: Dict[str, Any], lab_authors: set[str]) -> List[str]:
     title = html.escape(publication["title"])
-    url = html.escape(publication["url"], quote=True)
-    venue = html.escape(publication["venue"])
-    status = publication["status"]
-    link_label = (
-        "DOI"
-        if publication.get("doi")
-        else "arXiv"
-        if publication.get("arxiv")
-        else "PDF"
-        if publication["url"].casefold().endswith(".pdf")
-        else "Article"
-    )
+    publication_destination = _publication_destination(publication)
+    primary_url = html.escape(publication_destination, quote=True)
+    venue = _render_venue(publication["venue"])
     authors = _render_authors(publication["authors"], lab_authors)
-    return [
-        '                                <li class="publication-item">',
+    lines = [
+        '                        <li class="publication-item">',
         (
-            f'                                    <a class="publication-title" href="{url}" '
+            f'                            <a class="publication-title" href="{primary_url}" '
             f'target="_blank" rel="noopener noreferrer">{title}</a>'
         ),
-        f'                                    <p class="publication-authors">{authors}</p>',
-        '                                    <div class="publication-meta">',
-        f'                                        <span class="publication-venue">{venue}</span>',
-        (
-            f'                                        <span class="publication-status '
-            f'publication-status-{html.escape(status)}">{STATUS_LABELS[status]}</span>'
-        ),
-        (
-            f'                                        <a class="publication-link" href="{url}" '
-            f'target="_blank" rel="noopener noreferrer" '
-            f'aria-label="Open {title}">{link_label}<span aria-hidden="true">&#8599;</span></a>'
-        ),
-        "                                    </div>",
-        "                                </li>",
+        f'                            <p class="publication-authors">{authors}</p>',
     ]
 
+    metadata: List[str] = []
+    if publication["venue"] != "arXiv":
+        metadata.append(f'                                <span class="publication-venue">{venue}</span>')
 
-def _render_category(
-    slug: str,
-    heading: str,
-    description: str,
-    statuses: Tuple[str, ...],
+    distinction = publication.get("distinction")
+    if distinction is not None:
+        metadata.append(_render_distinction(distinction))
+
+    if metadata:
+        lines.append('                            <div class="publication-meta">')
+        lines.extend(metadata)
+        lines.append("                            </div>")
+    lines.append("                        </li>")
+    return lines
+
+
+def _render_year(
+    year: int,
     publications: Sequence[Dict[str, Any]],
     lab_authors: set[str],
 ) -> List[str]:
-    category_publications = [item for item in publications if item["status"] in statuses]
     lines = [
-        f'                <section class="publication-category" aria-labelledby="{slug}-title">',
-        '                    <div class="publication-category-header">',
-        "                        <div>",
-        f'                            <h2 class="publication-category-title" id="{slug}-title">{html.escape(heading)}</h2>',
-        f'                            <p class="publication-category-description">{html.escape(description)}</p>',
-        "                        </div>",
-        f'                        <span class="publication-count">{len(category_publications)}</span>',
-        "                    </div>",
+        f'                <section class="publication-year-block" aria-labelledby="publications-{year}">',
+        f'                    <h2 class="publication-year" id="publications-{year}">{year}</h2>',
+        '                    <ol class="publication-list">',
     ]
-
-    years = sorted({publication["year"] for publication in category_publications}, reverse=True)
-    for year in years:
-        lines.extend(
-            [
-                f'                    <section class="publication-year-block" aria-labelledby="{slug}-{year}">',
-                f'                        <h3 class="publication-year" id="{slug}-{year}">{year}</h3>',
-                '                        <ol class="publication-list">',
-            ]
-        )
-        for publication in category_publications:
-            if publication["year"] == year:
-                lines.extend(_render_publication(publication, lab_authors))
-        lines.extend(
-            [
-                "                        </ol>",
-                "                    </section>",
-            ]
-        )
-    lines.append("                </section>")
+    for publication in publications:
+        if publication["year"] == year:
+            lines.extend(_render_publication(publication, lab_authors))
+    lines.extend(
+        [
+            "                    </ol>",
+            "                </section>",
+        ]
+    )
     return lines
 
 
 def render_publications(data: Dict[str, Any]) -> str:
-    publications = data["publications"]
+    publications = sorted(data["publications"], key=_sort_key)
     lab_authors = set(data["lab_authors"])
-    counts = _category_counts(publications)
-    verified_date = date.fromisoformat(data["last_verified"])
-    verified = f"{verified_date.strftime('%B')} {verified_date.day}, {verified_date.year}"
     lines = [
         START_MARKER,
         '        <section class="section-band publications-section">',
         '            <div class="container publications-container">',
-        '                <div class="publication-summary" aria-label="Publication summary">',
-        '                    <div class="publication-summary-item">',
-        f'                        <strong>{len(publications)}</strong>',
-        "                        <span>Curated records</span>",
-        "                    </div>",
-        '                    <div class="publication-summary-item">',
-        f'                        <strong>{counts["published-accepted"]}</strong>',
-        "                        <span>Published &amp; accepted</span>",
-        "                    </div>",
-        '                    <div class="publication-summary-item">',
-        f'                        <strong>{counts["preprints"]}</strong>',
-        "                        <span>Preprints</span>",
-        "                    </div>",
-        "                </div>",
-        (
-            '                <p class="publication-curation-note">'
-            'EconAI Lab members are highlighted. Records are curated from publisher and arXiv metadata; '
-            f'last verified {html.escape(verified)}.</p>'
-        ),
     ]
-    for category in CATEGORY_CONFIG:
-        lines.extend(_render_category(*category, publications, lab_authors))
+    for year in sorted({publication["year"] for publication in publications}, reverse=True):
+        lines.extend(_render_year(year, publications, lab_authors))
     lines.extend(
         [
             "            </div>",
@@ -442,13 +482,9 @@ def main() -> int:
         print(f"publication validation failed: {exc}", file=sys.stderr)
         return 1
 
-    counts = _category_counts(data["publications"])
     state = "current" if args.check or not changed else "updated"
     print(
-        f"Publication HTML {state}: {len(data['publications'])} records "
-        f"({counts['published-accepted']} published/accepted, "
-        f"{counts['preprints']} preprints, "
-        f"{counts['extended-abstracts']} extended abstracts)."
+        f"Publication HTML {state}: {len(data['publications'])} records in publication/version-date order."
     )
     return 0
 

@@ -349,93 +349,6 @@ body {
     max-width: 1060px;
 }
 
-.publication-summary {
-    background: linear-gradient(135deg, var(--kaist-blue-dark), var(--kaist-blue));
-    border-radius: 10px;
-    color: #fff;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    overflow: hidden;
-}
-
-.publication-summary-item {
-    align-items: center;
-    display: flex;
-    gap: 12px;
-    min-height: 88px;
-    padding: 20px 24px;
-}
-
-.publication-summary-item + .publication-summary-item {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.publication-summary-item strong {
-    font-size: 1.85rem;
-    font-weight: 900;
-    line-height: 1;
-}
-
-.publication-summary-item span {
-    color: rgba(255, 255, 255, 0.86);
-    font-size: 0.86rem;
-    font-weight: 700;
-    line-height: 1.35;
-}
-
-.publication-curation-note {
-    color: var(--muted-gray);
-    font-size: 0.84rem;
-    line-height: 1.6;
-    margin: 13px 2px 0;
-}
-
-.publication-category {
-    margin-top: 54px;
-}
-
-.publication-category + .publication-category {
-    border-top: 1px solid var(--border-color);
-    padding-top: 50px;
-}
-
-.publication-category-header {
-    align-items: flex-end;
-    display: flex;
-    gap: 24px;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.publication-category-title {
-    color: var(--ink);
-    font-size: 1.6rem;
-    font-weight: 900;
-    margin: 0 0 5px;
-}
-
-.publication-category-description {
-    color: var(--text-gray);
-    font-size: 0.92rem;
-    line-height: 1.55;
-    margin: 0;
-}
-
-.publication-count {
-    align-items: center;
-    background: #eaf1f9;
-    border-radius: 999px;
-    color: var(--kaist-blue);
-    display: inline-flex;
-    flex: 0 0 auto;
-    font-size: 0.86rem;
-    font-weight: 900;
-    height: 34px;
-    justify-content: center;
-    min-width: 42px;
-    padding: 0 12px;
-}
-
 .publication-year-block {
     border-top: 1px solid var(--border-color);
     display: grid;
@@ -511,55 +424,36 @@ body {
     margin-right: 2px;
 }
 
-.publication-status {
+.publication-venue-highlight {
+    color: var(--ink);
+    font-style: normal;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.publication-distinction {
+    align-items: center;
     border: 1px solid transparent;
     border-radius: 999px;
     display: inline-flex;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
+    font-style: normal;
     font-weight: 800;
-    line-height: 1;
-    padding: 5px 8px;
-    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+    padding: 3px 8px;
 }
 
-.publication-status-published {
-    background: #eef7f1;
-    border-color: #d9ebdf;
-    color: #21653b;
+.publication-distinction--award {
+    background: #fff5d9;
+    border-color: #e8ce83;
+    color: #6f4a00;
 }
 
-.publication-status-accepted {
-    background: #e9f1fb;
-    border-color: #d4e2f4;
-    color: var(--kaist-blue);
-}
-
-.publication-status-preprint {
-    background: #f5f0fb;
-    border-color: #e6daf4;
-    color: #66408a;
-}
-
-.publication-status-extended_abstract {
-    background: #f6f2ea;
-    border-color: #e9dfcf;
-    color: #765b2f;
-}
-
-.publication-link {
-    align-items: center;
-    color: var(--kaist-blue);
-    display: inline-flex;
-    font-size: 0.78rem;
-    font-weight: 800;
-    gap: 3px;
-    text-decoration: none;
-}
-
-.publication-link:hover,
-.publication-link:focus-visible {
+.publication-distinction--presentation {
+    background: #eef4fb;
+    border-color: #cbd9ea;
     color: var(--kaist-blue-dark);
-    text-decoration: underline;
 }
 
 .members-section {
@@ -746,36 +640,6 @@ body {
     .frame-grid,
     .members-grid {
         grid-template-columns: 1fr;
-    }
-
-    .publication-summary {
-        grid-template-columns: 1fr;
-    }
-
-    .publication-summary-item {
-        min-height: 68px;
-        padding: 15px 20px;
-    }
-
-    .publication-summary-item + .publication-summary-item {
-        border-left: 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .publication-category {
-        margin-top: 44px;
-    }
-
-    .publication-category + .publication-category {
-        padding-top: 42px;
-    }
-
-    .publication-category-header {
-        align-items: flex-start;
-    }
-
-    .publication-category-title {
-        font-size: 1.4rem;
     }
 
     .publication-year-block {
