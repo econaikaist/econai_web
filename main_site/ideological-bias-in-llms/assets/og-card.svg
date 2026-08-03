@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Ideological Bias in LLMs' Economic Causal Reasoning</title>
+  <desc id="desc">COLM 2026 paper from KAIST EconAI Lab</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#002b61"/>
+      <stop offset="1" stop-color="#004191"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.8" cy="0.18" r="0.7">
+      <stop offset="0" stop-color="#2dd4bf" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#001b3e" flood-opacity=".32"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <g opacity=".08" stroke="#fff">
+    <path d="M0 105h1200M0 210h1200M0 315h1200M0 420h1200M0 525h1200"/>
+    <path d="M100 0v630M300 0v630M500 0v630M700 0v630M900 0v630M1100 0v630"/>
+  </g>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <g transform="translate(72 62)">
+      <rect width="224" height="38" rx="19" fill="#eaf2fb"/>
+      <circle cx="22" cy="19" r="5" fill="#0f766e"/>
+      <text x="38" y="25" fill="#004191" font-size="15" font-weight="800" letter-spacing="1">COLM 2026 · ACCEPTED</text>
+    </g>
+    <text x="1128" y="88" fill="#dfeaf8" font-size="17" font-weight="700" text-anchor="end" letter-spacing="1.8">KAIST ECONAI LAB</text>
+
+    <text x="72" y="188" fill="#fff" font-size="58" font-weight="850" letter-spacing="-2.4">
+      <tspan x="72" dy="0">Ideological Bias in LLMs'</tspan>
+      <tspan x="72" dy="66">Economic Causal Reasoning</tspan>
+    </text>
+    <text x="74" y="307" fill="#b9cbe1" font-size="24" font-weight="500">When economic mechanisms disagree, LLM reliability tilts.</text>
+
+    <g transform="translate(72 362)" filter="url(#shadow)">
+      <rect width="450" height="170" rx="24" fill="#fff"/>
+      <text x="28" y="38" fill="#66758a" font-size="14" font-weight="800" letter-spacing="1.5">SAME ECONOMIC QUESTION</text>
+      <text x="28" y="85" fill="#172033" font-size="25" font-weight="800">Minimum wage ↑</text>
+      <path d="M225 77h45" stroke="#8ca0b8" stroke-width="3" stroke-linecap="round"/>
+      <path d="m262 69 10 8-10 8" fill="none" stroke="#8ca0b8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="292" y="85" fill="#172033" font-size="25" font-weight="800">Employment ?</text>
+      <rect x="28" y="112" width="181" height="35" rx="10" fill="#dff4f0"/>
+      <text x="118" y="135" fill="#0f766e" font-size="15" font-weight="800" text-anchor="middle">Intervention path</text>
+      <rect x="224" y="112" width="181" height="35" rx="10" fill="#fff0df"/>
+      <text x="314" y="135" fill="#a84c0b" font-size="15" font-weight="800" text-anchor="middle">Market path</text>
+    </g>
+
+    <g transform="translate(568 362)" filter="url(#shadow)">
+      <rect width="560" height="170" rx="24" fill="#fff"/>
+      <text x="30" y="43" fill="#66758a" font-size="14" font-weight="800" letter-spacing="1.5">MAIN RESULT</text>
+      <text x="30" y="108" fill="#004191" font-size="58" font-weight="900" letter-spacing="-2">18 / 20</text>
+      <text x="245" y="83" fill="#172033" font-size="20" font-weight="800">models are more accurate on</text>
+      <text x="245" y="113" fill="#0f766e" font-size="20" font-weight="850">intervention-truth cases</text>
+      <text x="30" y="145" fill="#66758a" font-size="14">20 state-of-the-art LLMs · 1,056 contested causal triplets</text>
+    </g>
+
+    <text x="72" y="588" fill="#a8bdd7" font-size="16">Lee et al. · arXiv:2604.21334</text>
+    <text x="1128" y="588" fill="#82e3d1" font-size="16" font-weight="700" text-anchor="end">econai.kaist.ac.kr/ideological-bias-in-llms</text>
+  </g>
+</svg>
