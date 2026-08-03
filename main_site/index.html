@@ -1,203 +1,247 @@
-<!DOCTYPE html>
-<html lang="ko">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAIST EconAI Lab</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="KAIST EconAI Lab develops AI and data-driven methods for economic and social research.">
+  <title>KAIST EconAI Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="site.css?v=20260803">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html"><img src="img/EconAI@KAIST.svg" alt="KAIST EconAI Lab" class="brand-logo"></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="members.html">MEMBERS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="research.html">RESEARCH</a></li>
-                    <li class="nav-item"><a class="nav-link" href="publications.html">PUBLICATIONS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="projects.html">PROJECTS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html">CONTACT</a></li>
-                </ul>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container navbar">
+      <a class="brand" href="index.html" aria-label="EconAI Lab home">
+        <img src="img/EconAI@KAIST.svg" alt="KAIST EconAI Lab">
+      </a>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="members.html">MEMBERS</a>
+        <a href="research.html">RESEARCH</a>
+        <a href="publications.html">PUBLICATIONS</a>
+        <a href="projects.html">PROJECTS</a>
+        <a href="contact.html">CONTACT</a>
+      </nav>
+      <details class="mobile-nav">
+        <summary>MENU</summary>
+        <nav class="mobile-nav-links" aria-label="Mobile navigation">
+          <a href="members.html">Members</a>
+          <a href="research.html">Research</a>
+          <a href="publications.html">Publications</a>
+          <a href="projects.html">Projects</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </details>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container">
+        <div class="hero-layout">
+          <div class="hero-content">
+            <h1 id="hero-title">Economic Analysis with Artificial Intelligence</h1>
+            <p class="hero-copy">We develop AI and data-driven methods to understand economic activity, organizations, and social outcomes.</p>
+            <div class="hero-actions">
+              <a class="button button-primary" href="research.html">Explore Research</a>
+              <a class="button button-secondary" href="publications.html">View Publications</a>
             </div>
+          </div>
+          <aside class="weather-card" id="weatherCard" aria-label="KAIST Daejeon weather">
+            <div class="wc-location">Daejeon, KR &nbsp;·&nbsp; KAIST</div>
+            <div class="wc-date" id="weatherDate"></div>
+            <div class="wc-main-row">
+              <span class="wc-temp" id="weatherTemp">—</span><span class="wc-deg">°</span>
+              <span class="wc-sep">/</span>
+              <span class="wc-cond" id="weatherStatus">—</span>
+              <span class="wc-icon" id="weatherIcon"></span>
+            </div>
+            <div class="wc-meta" id="weatherMeta"></div>
+          </aside>
         </div>
-    </nav>
+      </div>
+    </section>
 
-    <main class="site-main">
-        <header class="hero-section">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-9">
-                        <div class="section-kicker text-white">KAIST EconAI Lab</div>
-                        <h1 class="hero-title">Economic Analysis with Artificial Intelligence</h1>
-                        <p class="hero-copy">
-                            We study economic and social systems through AI, machine learning, satellite imagery, large language models, and data-driven empirical analysis.
-                        </p>
-                        <div class="hero-actions">
-                            <a href="research.html" class="btn btn-kaist">Research Areas</a>
-                            <a href="members.html" class="btn btn-outline-light fw-bold">Meet the Lab</a>
-                        </div>
-                        <div class="metric-strip">
-                            <div class="metric-item">
-                                <span class="metric-value">AI + Economics</span>
-                                <span class="metric-label">Machine learning for economic measurement and prediction</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-value">Data-Driven</span>
-                                <span class="metric-label">Satellite, spatial, business, and administrative data</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-value">LLM Agents</span>
-                                <span class="metric-label">AI agents for research workflows and decision support</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <section class="section-band">
-            <div class="container">
-                <div class="row g-4 align-items-start">
-                    <div class="col-lg-4">
-                        <div class="section-kicker">About</div>
-                        <h2 class="section-title">Research at the intersection of economics and AI</h2>
-                    </div>
-                    <div class="col-lg-8">
-                        <p class="section-subtitle">
-                            KAIST EconAI Lab develops and applies computational methods to understand economic activity, organizational behavior, public policy, and social outcomes. The lab connects rigorous empirical research with emerging AI systems and large-scale data sources.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section-band alt">
-            <div class="container">
-                <div class="mb-4">
-                    <div class="section-kicker">Research Areas</div>
-                    <h2 class="section-title">What We Study</h2>
-                    <p class="section-subtitle">The lab's work is organized around AI-enabled economic measurement, prediction, and decision support.</p>
-                </div>
-                <div class="content-grid">
-                    <article class="info-card">
-                        <h3 class="info-card-title">AI for Economic Analysis</h3>
-                        <p class="info-card-text">Machine learning and causal empirical methods for studying firms, markets, technology adoption, and economic behavior.</p>
-                    </article>
-                    <article class="info-card">
-                        <h3 class="info-card-title">Satellite and Spatial Data</h3>
-                        <p class="info-card-text">Remote sensing, geospatial signals, and alternative data for measuring local economic activity and social change.</p>
-                    </article>
-                    <article class="info-card">
-                        <h3 class="info-card-title">LLMs and Social Systems</h3>
-                        <p class="info-card-text">Evaluation and application of language models in research workflows, organizations, and decision environments.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="section-band">
-            <div class="container">
-                <div class="row g-5">
-                    <div class="col-lg-6">
-                        <div class="section-kicker">Projects</div>
-                        <h2 class="section-title">Selected Project Frames</h2>
-                        <ul class="inline-list">
-                            <li>
-                                <div class="list-title">Economic measurement with alternative data</div>
-                                <div class="list-note">Building empirical pipelines from large-scale, nontraditional data sources.</div>
-                            </li>
-                            <li>
-                                <div class="list-title">AI-assisted research and evaluation</div>
-                                <div class="list-note">Studying how modern AI systems can support analysis, review, and decision tasks.</div>
-                            </li>
-                            <li>
-                                <div class="list-title">Technology, firms, and social outcomes</div>
-                                <div class="list-note">Connecting data science with organizational and policy-relevant questions.</div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="section-kicker">Publications</div>
-                        <h2 class="section-title">Publication Area</h2>
-                        <ul class="inline-list">
-                            <li>
-                                <div class="list-title">Working papers and selected publications</div>
-                                <div class="list-note">The publication list will be organized by topic, venue, and year as the page is updated.</div>
-                            </li>
-                            <li>
-                                <div class="list-title">Research outputs</div>
-                                <div class="list-note">Project pages can link to papers, datasets, code, and presentation materials.</div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="section-band alt">
-            <div class="container">
-                <div class="mb-4">
-                    <div class="section-kicker">News</div>
-                    <h2 class="section-title">Lab Updates</h2>
-                </div>
-                <div id="newsList">
-                    <ul class="inline-list">
-                        <li>
-                            <div class="list-date">Feb 2026</div>
-                            <div class="list-title">연구실 서버 GitHub 연동 및 배포 시스템 구축</div>
-                        </li>
-                        <li>
-                            <div class="list-date">Jan 2026</div>
-                            <div class="list-title">EconAI 연구실 공식 홈페이지 (econai.kaist.ac.kr) 오픈</div>
-                        </li>
-                        <li>
-                            <div class="list-date">Jan 2026</div>
-                            <div class="list-title">홈페이지 SSL 보안 인증서 적용</div>
-                        </li>
-                        <li>
-                            <div class="list-date">Jan 2026</div>
-                            <div class="list-title">교수님 개별 홈페이지 연결 및 멤버 페이지 업데이트</div>
-                        </li>
-                        <li class="news-toggle-item news-hidden">
-                            <div class="list-date">Dec 2025</div>
-                            <div class="list-title">연구실 GPU 서버 환경 구축 완료</div>
-                        </li>
-                        <li class="news-toggle-item news-hidden">
-                            <div class="list-date">Dec 2025</div>
-                            <div class="list-title">연구실 내부 네트워크 구성 및 보안 설정 완료</div>
-                        </li>
-                    </ul>
-                </div>
-                <a href="#" class="show-more-link" id="showMoreBtn">show more...</a>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer py-4">
-        <div class="container text-center">
-            <p class="mb-1 fw-bold text-kaist">KAIST School of Business and Technology Management</p>
-            <p class="text-muted small mb-0">Daejeon, Republic of Korea | © 2026 EconAI Lab. All Rights Reserved.</p>
+    <section class="section" aria-labelledby="research-focus-title">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">Research Focus</p>
+            <h2 id="research-focus-title">Research at the intersection of economics and AI</h2>
+          </div>
+          <a class="text-link" href="research.html">View all research →</a>
         </div>
-    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const showMoreBtn = document.getElementById('showMoreBtn');
-        showMoreBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const toggleItems = document.querySelectorAll('.news-toggle-item');
-            const isHidden = toggleItems[0].classList.contains('news-hidden');
+        <!-- SHEET:RESEARCH_FOCUS:START -->
+        <div class="research-focus-grid">
+          <article class="focus-card">
+            <span class="focus-number">01</span>
+            <h3>Economic Measurement from Geospatial and Large-Scale Data</h3>
+            <p>Turning satellite imagery and alternative data into reliable measures of economic activity and social change.</p>
+          </article>
+          <article class="focus-card">
+            <span class="focus-number">02</span>
+            <h3>LLMs for Economic Reasoning and Research</h3>
+            <p>Testing what language models know about economic evidence and when their reasoning can support research.</p>
+          </article>
+          <article class="focus-card">
+            <span class="focus-number">03</span>
+            <h3>AI, Technology, and Social &amp; Policy Outcomes</h3>
+            <p>Studying how AI and digital technologies reshape firms, institutions, policy, and collective behavior.</p>
+          </article>
+        </div>
+        <!-- SHEET:RESEARCH_FOCUS:END -->
+      </div>
+    </section>
 
-            toggleItems.forEach(function(item) {
-                item.classList.toggle('news-hidden', !isHidden);
-            });
+    <section class="section section-soft" aria-labelledby="recent-work-title">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">Recent Work</p>
+            <h2 id="recent-work-title">Latest Publications</h2>
+          </div>
+        </div>
 
-            showMoreBtn.textContent = isHidden ? 'show less...' : 'show more...';
+        <div class="publication-panel publication-panel-wide">
+          <!-- SHEET:LATEST_PUBLICATIONS:START -->
+          <ol class="publication-list">
+            <li>
+              <a href="https://arxiv.org/abs/2607.25292">Instruction-Tuned Language Models Cannot Sample from Distributions They Can Describe</a>
+              <p class="publication-authors">Chaemin Jang, Dongman Lee, Jihee Kim</p>
+              <p class="publication-venue">arXiv</p>
+            </li>
+            <li>
+              <a href="https://arxiv.org/abs/2604.21334">Ideological Bias in LLMs' Economic Causal Reasoning</a>
+              <p class="publication-authors">Donggyu Lee, Hyeok Yun, Jungwon Kim, Junsik Min, et al.</p>
+              <p class="publication-venue">Conference on Language Modeling (COLM 2026)</p>
+            </li>
+            <li>
+              <a href="https://arxiv.org/abs/2510.07231">EconCausal: A Context-Aware Economic Reasoning Benchmark for Large Language Models</a>
+              <p class="publication-authors">Donggyu Lee, Hyeok Yun, Meeyoung Cha, Sungwon Park, et al.</p>
+              <p class="publication-venue">arXiv</p>
+            </li>
+          </ol>
+          <!-- SHEET:LATEST_PUBLICATIONS:END -->
+          <a class="text-link" href="publications.html">View all publications →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="news-title">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">News &amp; Highlights</p>
+            <h2 id="news-title">Latest from the lab</h2>
+          </div>
+        </div>
+
+        <div class="news-list">
+          <article class="news-item news-item-featured">
+            <div>
+              <time class="news-date" datetime="2026-07">Jul 2026</time>
+              <span class="news-tag">Publications</span>
+            </div>
+            <div class="news-content">
+              <h3>Congratulations! Two EconAI papers were accepted to COLM 2026.</h3>
+              <p>Our work on ideological bias in economic causal reasoning and scientific knowledge recall will appear at the Conference on Language Modeling.</p>
+              <div class="news-paper-links">
+                <a href="https://econai.kaist.ac.kr/ideological-bias-in-llms/">Ideological Bias in LLMs’ Economic Causal Reasoning →</a>
+                <a href="https://arxiv.org/abs/2604.27540">In-Context Examples Suppress Scientific Knowledge Recall in LLMs →</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div>
+              <time class="news-date" datetime="2026">2026</time>
+              <span class="news-tag">Award</span>
+            </div>
+            <div class="news-content">
+              <h3>Best Paper Award at the AAAI Conference on Artificial Intelligence</h3>
+              <p><a class="text-link" href="https://ojs.aaai.org/index.php/AAAI/article/view/41227">Generalizable Slum Detection from Satellite Imagery with Mixture-of-Experts →</a></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div>
+              <time class="news-date" datetime="2026-03">Spring 2026</time>
+              <span class="news-tag">People</span>
+            </div>
+            <div class="news-content">
+              <h3>EconAI Lab welcomes our Spring 2026 interns</h3>
+              <p>Junsik Min and Jaewoo Choi join the lab internship program.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-school">KAIST School of Business and Technology Management</p>
+      <p class="footer-meta">Daejeon, Republic of Korea · © 2026 EconAI Lab</p>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      function weatherDesc(code) {
+        if (code === 0) return "Clear";
+        if (code === 1) return "Mainly Clear";
+        if (code === 2) return "Partly Cloudy";
+        if (code === 3) return "Overcast";
+        if (code === 45 || code === 48) return "Foggy";
+        if (code >= 51 && code <= 57) return "Drizzle";
+        if (code >= 61 && code <= 67) return "Rainy";
+        if (code >= 71 && code <= 77) return "Snowy";
+        if (code >= 80 && code <= 82) return "Showers";
+        if (code === 85 || code === 86) return "Snow Showers";
+        if (code >= 95) return "Thunderstorm";
+        return "Cloudy";
+      }
+
+      function weatherEmoji(code) {
+        if (code === 0) return "☀️";
+        if (code === 1 || code === 2) return "⛅";
+        if (code === 3) return "☁️";
+        if (code === 45 || code === 48) return "🌫️";
+        if (code >= 51 && code <= 57) return "🌦️";
+        if (code >= 61 && code <= 67) return "🌧️";
+        if (code >= 71 && code <= 77) return "❄️";
+        if (code >= 80 && code <= 82) return "🌧️";
+        if (code >= 95) return "⛈️";
+        return "☁️";
+      }
+
+      var url = "https://api.open-meteo.com/v1/forecast"
+        + "?latitude=36.3724&longitude=127.3604"
+        + "&current=temperature_2m,weather_code"
+        + "&daily=temperature_2m_max,temperature_2m_min"
+        + "&timezone=Asia%2FSeoul&forecast_days=1";
+
+      fetch(url)
+        .then(function (response) {
+          if (!response.ok) throw new Error("Weather request failed");
+          return response.json();
+        })
+        .then(function (data) {
+          var current = data.current;
+          var daily = data.daily;
+          var dateParts = daily.time[0].split("-");
+          document.getElementById("weatherDate").textContent = dateParts[0] + ". " + dateParts[1] + ". " + dateParts[2];
+          document.getElementById("weatherTemp").textContent = Math.round(current.temperature_2m);
+          document.getElementById("weatherStatus").textContent = weatherDesc(current.weather_code);
+          document.getElementById("weatherIcon").textContent = weatherEmoji(current.weather_code);
+          document.getElementById("weatherMeta").textContent = "H " + Math.round(daily.temperature_2m_max[0]) + "°  /  L " + Math.round(daily.temperature_2m_min[0]) + "°";
+        })
+        .catch(function () {
+          var card = document.getElementById("weatherCard");
+          if (card) card.style.display = "none";
         });
-    </script>
+    })();
+  </script>
 </body>
 </html>

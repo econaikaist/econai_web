@@ -10,3 +10,8 @@ Thumbs.db
 
 # 로그 파일 등
 *.log
+
+# Generated Python and local site build artifacts
+_site/
+__pycache__/
+*.py[cod]

@@ -10,8 +10,8 @@ services:
       - "443:443"
     volumes:
       # 1. 설정 파일 연결 (내컴퓨터 : 도커내부)
-      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
       # 2. 인증서 폴더 연결 (여기가 핵심!)
-      - ./nginx/ssl:/etc/nginx/ssl
-      # 3. 웹사이트 폴더 연결 (main_site 사용)
-      - ./main_site:/usr/share/nginx/html
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      # 3. 검증 후 원자적으로 전환되는 배포 릴리스
+      - ${ECONAI_SITE_ROOT:-/srv/econai-site}:/srv/econai-site:ro

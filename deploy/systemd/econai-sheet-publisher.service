@@ -1,0 +1,31 @@
+[Unit]
+Description=Build and publish the EconAI website from Google Sheet
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=econai-publisher
+Group=econai-publisher
+Environment=HOME=/var/lib/econai-publisher
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/local/libexec/econai-sheet-publish
+TimeoutStartSec=3min
+UMask=0022
+
+# The publisher can update only its managed checkout and versioned web releases.
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/econai-publisher /srv/econai-site
+ProtectControlGroups=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
