@@ -1,0 +1,36 @@
+name: Validate Sheet-driven site
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/**"
+      - "main_site/**"
+      - "scripts/**"
+      - "tests/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Build from Google Sheet
+        run: >-
+          python scripts/build_sheet_site.py
+          --sheet-id 14pRbiM3ubsGT1DsBZdLF9xSHmSntwBRSkAUYbyrr6xM
+          --output-dir _site
+
+      - name: Validate generated site
+        run: python scripts/validate_site.py _site

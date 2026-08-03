@@ -1,73 +1,154 @@
-<!DOCTYPE html>
-<html lang="ko">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Research - KAIST EconAI Lab</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Research areas at KAIST EconAI Lab.">
+  <title>Research — KAIST EconAI Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="site.css?v=20260803">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html"><img src="img/EconAI@KAIST.svg" alt="KAIST EconAI Lab" class="brand-logo"></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="members.html">MEMBERS</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="research.html">RESEARCH</a></li>
-                    <li class="nav-item"><a class="nav-link" href="publications.html">PUBLICATIONS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="projects.html">PROJECTS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html">CONTACT</a></li>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container navbar">
+      <a class="brand" href="index.html" aria-label="EconAI Lab home">
+        <img src="img/EconAI@KAIST.svg" alt="KAIST EconAI Lab">
+      </a>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="members.html">MEMBERS</a>
+        <a href="research.html" aria-current="page">RESEARCH</a>
+        <a href="publications.html">PUBLICATIONS</a>
+        <a href="projects.html">PROJECTS</a>
+        <a href="contact.html">CONTACT</a>
+      </nav>
+      <details class="mobile-nav">
+        <summary>MENU</summary>
+        <nav class="mobile-nav-links" aria-label="Mobile navigation">
+          <a href="members.html">Members</a>
+          <a href="research.html" aria-current="page">Research</a>
+          <a href="publications.html">Publications</a>
+          <a href="projects.html">Projects</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </details>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <header class="page-hero">
+      <div class="container">
+        <p class="kicker">Research</p>
+        <h1>Research Areas</h1>
+        <p>We combine artificial intelligence, large-scale data, and empirical analysis to study economic and social systems.</p>
+      </div>
+    </header>
+
+    <section class="section" aria-label="EconAI research areas">
+      <div class="container">
+        <!-- SHEET:RESEARCH_AREAS:START -->
+        <div class="research-rows">
+          <article class="research-row" id="economic-measurement">
+            <div class="research-index">01</div>
+            <div class="research-body">
+              <h2>Economic Measurement from Geospatial and Large-Scale Data</h2>
+              <p class="research-question">How can we measure overlooked places and populations when reliable ground truth is limited?</p>
+              <p class="research-summary">We develop machine learning methods that turn satellite imagery, spatial signals, and other large-scale data into reliable measures of local economic activity, inequality, environmental exposure, and social change.</p>
+              <div class="selected-publications">
+                <p class="selected-label">Selected Publications</p>
+                <ul>
+                  <li>
+                    <a class="selected-figure-link" href="https://ojs.aaai.org/index.php/AAAI/article/view/41227" aria-label="Open Generalizable Slum Detection from Satellite Imagery with Mixture-of-Experts">
+                      <span class="selected-figure-frame"><img src="img/research/slum-detection-figure-5.png" alt="Kampala slum detection map comparing 2015 and 2023" loading="lazy" decoding="async"></span>
+                    </a>
+                    <a class="selected-title" href="https://ojs.aaai.org/index.php/AAAI/article/view/41227">Generalizable Slum Detection from Satellite Imagery with Mixture-of-Experts</a>
+                    <span>AAAI Conference on Artificial Intelligence (AAAI 2026)</span>
+                    <small class="selected-figure-credit">Fig. 5, Lee et al. · CC BY-NC-SA 4.0</small>
+                  </li>
+                  <li>
+                    <a class="selected-figure-link" href="https://www.nature.com/articles/s41467-023-42122-8" aria-label="Open A human-machine collaborative approach measures economic development using satellite imagery">
+                      <span class="selected-figure-frame"><img src="img/research/economic-development-figure-2.png" alt="North Korea siScore, nightlight, land cover, and local prediction comparison" loading="lazy" decoding="async"></span>
+                    </a>
+                    <a class="selected-title" href="https://www.nature.com/articles/s41467-023-42122-8">A human-machine collaborative approach measures economic development using satellite imagery</a>
+                    <span>Nature Communications (2023)</span>
+                    <small class="selected-figure-credit">Fig. 2, Ahn et al. · CC BY 4.0</small>
+                  </li>
                 </ul>
+              </div>
             </div>
+          </article>
+
+          <article class="research-row" id="llm-reasoning">
+            <div class="research-index">02</div>
+            <div class="research-body">
+              <h2>LLMs for Economic Reasoning and Research</h2>
+              <p class="research-question">What do language models know about causal evidence, and when can researchers trust their reasoning?</p>
+              <p class="research-summary">We build benchmarks and empirical evaluations that reveal how language models retrieve, represent, and reason over economic and scientific evidence, while exploring responsible ways to use them in research workflows.</p>
+              <div class="selected-publications">
+                <p class="selected-label">Selected Publications</p>
+                <ul>
+                  <li>
+                    <a class="selected-figure-link" href="https://arxiv.org/abs/2604.21334" aria-label="Open Ideological Bias in LLMs' Economic Causal Reasoning">
+                      <span class="selected-figure-frame"><img src="img/research/ideological-bias-figure-2.svg" alt="Model accuracy under market and intervention interpretations" loading="lazy" decoding="async"></span>
+                    </a>
+                    <a class="selected-title" href="https://arxiv.org/abs/2604.21334">Ideological Bias in LLMs’ Economic Causal Reasoning</a>
+                    <span>Conference on Language Modeling (COLM 2026)</span>
+                    <small class="selected-figure-credit">Fig. 2, Lee et al. (2026)</small>
+                  </li>
+                  <li>
+                    <a class="selected-figure-link" href="https://arxiv.org/abs/2604.27540" aria-label="Open In-Context Examples Suppress Scientific Knowledge Recall in LLMs">
+                      <span class="selected-figure-frame"><img src="img/research/in-context-clusters.png" alt="Zero-shot domain clusters compared with converged ten-shot clusters" loading="lazy" decoding="async"></span>
+                    </a>
+                    <a class="selected-title" href="https://arxiv.org/abs/2604.27540">In-Context Examples Suppress Scientific Knowledge Recall in LLMs</a>
+                    <span>Conference on Language Modeling (COLM 2026)</span>
+                    <small class="selected-figure-credit">Hidden-state comparison, Jang et al. (2026)</small>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="research-row" id="technology-outcomes">
+            <div class="research-index">03</div>
+            <div class="research-body">
+              <h2>AI, Technology, and Social &amp; Policy Outcomes</h2>
+              <p class="research-question">How do emerging technologies change decisions, institutions, organizations, and social outcomes?</p>
+              <p class="research-summary">We use computational and causal methods to study how AI and digital technologies interact with firms, public policy, human behavior, and collective decision-making.</p>
+              <div class="selected-publications">
+                <p class="selected-label">Selected Publications</p>
+                <ul>
+                  <li>
+                    <a class="selected-figure-link" href="https://www.sciencedirect.com/science/article/pii/S0313592624002091" aria-label="Open Can stimulus checks to households save the local economy">
+                      <span class="selected-figure-frame"><img src="img/research/stimulus-checks-figure-3.jpg" alt="Weekly effects of Gyeonggi stimulus payments on sales in 2020" loading="lazy" decoding="async"></span>
+                    </a>
+                    <a class="selected-title" href="https://www.sciencedirect.com/science/article/pii/S0313592624002091">Can stimulus checks to households save the local economy?</a>
+                    <span>Economic Analysis and Policy (2024)</span>
+                    <small class="selected-figure-credit">Fig. 3, Kim &amp; Lee · CC BY-NC-ND 4.0</small>
+                  </li>
+                  <li>
+                    <a class="selected-figure-link" href="https://www.sciencedirect.com/science/article/pii/S0022199623000995" aria-label="Open The economic costs of trade sanctions: Evidence from North Korea">
+                      <span class="selected-figure-frame"><img src="img/research/trade-sanctions-figure-2.jpg" alt="Spatial distribution of export and intermediate-input sanction exposure in North Korea" loading="lazy" decoding="async"></span>
+                    </a>
+                    <a class="selected-title" href="https://www.sciencedirect.com/science/article/pii/S0022199623000995">The economic costs of trade sanctions: Evidence from North Korea</a>
+                    <span>Journal of International Economics (2023)</span>
+                    <small class="selected-figure-credit">Fig. 2, Kim et al. · © Elsevier B.V.</small>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </article>
         </div>
-    </nav>
+        <!-- SHEET:RESEARCH_AREAS:END -->
+      </div>
+    </section>
+  </main>
 
-    <main>
-        <header class="page-header">
-            <div class="container">
-                <h1 class="page-title">Research</h1>
-                <p class="page-subtitle">AI-enabled empirical research on economic activity, organizations, technology, and social outcomes.</p>
-            </div>
-        </header>
-
-        <section class="section-band">
-            <div class="container">
-                <div class="frame-grid">
-                    <article class="frame-card">
-                        <div class="frame-eyebrow">Area 01</div>
-                        <h2 class="frame-title">AI for Economic Analysis</h2>
-                        <p class="frame-text">Developing machine learning and empirical methods for studying firms, markets, technology adoption, and economic behavior.</p>
-                    </article>
-                    <article class="frame-card">
-                        <div class="frame-eyebrow">Area 02</div>
-                        <h2 class="frame-title">Satellite and Spatial Data</h2>
-                        <p class="frame-text">Using geospatial data, remote sensing, and large-scale external signals to measure local economic and social activity.</p>
-                    </article>
-                    <article class="frame-card">
-                        <div class="frame-eyebrow">Area 03</div>
-                        <h2 class="frame-title">LLMs and Research Workflows</h2>
-                        <p class="frame-text">Evaluating how large language models can support analysis, review, reasoning, and organizational decision processes.</p>
-                    </article>
-                    <article class="frame-card">
-                        <div class="frame-eyebrow">Area 04</div>
-                        <h2 class="frame-title">Technology and Social Outcomes</h2>
-                        <p class="frame-text">Studying how digital technology and AI systems interact with institutions, policy, and human behavior.</p>
-                    </article>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer py-4">
-        <div class="container text-center">
-            <p class="mb-1 fw-bold text-kaist">KAIST School of Business and Technology Management</p>
-            <p class="text-muted small mb-0">Daejeon, Republic of Korea | © 2026 EconAI Lab. All Rights Reserved.</p>
-        </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-school">KAIST School of Business and Technology Management</p>
+      <p class="footer-meta">Daejeon, Republic of Korea · © 2026 EconAI Lab</p>
+    </div>
+  </footer>
 </body>
 </html>

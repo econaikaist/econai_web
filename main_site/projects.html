@@ -1,73 +1,127 @@
-<!DOCTYPE html>
-<html lang="ko">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects - KAIST EconAI Lab</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Current and completed projects at KAIST EconAI Lab.">
+  <title>Projects — KAIST EconAI Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="site.css?v=20260803">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="index.html"><img src="img/EconAI@KAIST.svg" alt="KAIST EconAI Lab" class="brand-logo"></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="members.html">MEMBERS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="research.html">RESEARCH</a></li>
-                    <li class="nav-item"><a class="nav-link" href="publications.html">PUBLICATIONS</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="projects.html">PROJECTS</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html">CONTACT</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+  <a class="skip-link" href="#main-content">Skip to content</a>
 
-    <main>
-        <header class="page-header">
-            <div class="container">
-                <h1 class="page-title">Projects</h1>
-                <p class="page-subtitle">Current and planned project pages can describe research questions, methods, outputs, and collaborators.</p>
-            </div>
-        </header>
+  <header class="site-header">
+    <div class="container navbar">
+      <a class="brand" href="index.html" aria-label="EconAI Lab home">
+        <img src="img/EconAI@KAIST.svg" alt="KAIST EconAI Lab">
+      </a>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="members.html">MEMBERS</a>
+        <a href="research.html">RESEARCH</a>
+        <a href="publications.html">PUBLICATIONS</a>
+        <a href="projects.html" aria-current="page">PROJECTS</a>
+        <a href="contact.html">CONTACT</a>
+      </nav>
+      <details class="mobile-nav">
+        <summary>MENU</summary>
+        <nav class="mobile-nav-links" aria-label="Mobile navigation">
+          <a href="members.html">Members</a>
+          <a href="research.html">Research</a>
+          <a href="publications.html">Publications</a>
+          <a href="projects.html" aria-current="page">Projects</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </details>
+    </div>
+  </header>
 
-        <section class="section-band">
-            <div class="container">
-                <div class="frame-grid">
-                    <article class="frame-card">
-                        <div class="frame-eyebrow">Project Frame</div>
-                        <h2 class="frame-title">Economic Signals from Large-Scale Data</h2>
-                        <p class="frame-text">A project area for measuring economic activity using alternative data, machine learning, and empirical validation.</p>
-                    </article>
-                    <article class="frame-card">
-                        <div class="frame-eyebrow">Project Frame</div>
-                        <h2 class="frame-title">AI Evaluation for Research Tasks</h2>
-                        <p class="frame-text">A project area for assessing model behavior, reasoning quality, and AI-assisted analysis workflows.</p>
-                    </article>
-                    <article class="frame-card">
-                        <div class="frame-eyebrow">Project Frame</div>
-                        <h2 class="frame-title">Technology Adoption and Organizations</h2>
-                        <p class="frame-text">A project area for studying how firms and institutions adopt digital technologies and AI systems.</p>
-                    </article>
-                    <article class="frame-card">
-                        <div class="frame-eyebrow">Project Frame</div>
-                        <h2 class="frame-title">Policy-Relevant Data Products</h2>
-                        <p class="frame-text">A project area for translating research pipelines into interpretable outputs for social and policy questions.</p>
-                    </article>
-                </div>
-            </div>
+  <main id="main-content">
+    <header class="page-hero">
+      <div class="container">
+        <p class="kicker">Projects</p>
+        <h1>Research Projects</h1>
+      </div>
+    </header>
+
+    <section class="section section-soft" aria-label="Project portfolio">
+      <div class="container">
+        <!-- SHEET:PROJECTS:START -->
+        <section class="project-section" aria-labelledby="ongoing-projects">
+          <div class="project-section-header">
+            <h2 id="ongoing-projects">Ongoing Projects</h2>
+            <span class="project-count">3 projects</span>
+          </div>
+          <div class="project-grid">
+            <article class="project-card">
+              <div class="project-meta">
+                <span class="status">Ongoing</span>
+                <span class="project-period">2025–</span>
+              </div>
+              <h3><a href="https://arxiv.org/abs/2510.07231">EconCausal</a></h3>
+              <p>A context-aware benchmark for evaluating whether language models can recover causal findings from economics and finance research.</p>
+              <span class="project-area">LLMs for Economic Reasoning</span>
+            </article>
+
+            <article class="project-card">
+              <div class="project-meta">
+                <span class="status">Ongoing</span>
+                <span class="project-period">2024–</span>
+              </div>
+              <h3><a href="https://arxiv.org/abs/2406.09799">GeoSEE: Socio-Economic Estimation with Geospatial AI</a></h3>
+              <p>Combining geospatial data, satellite imagery, and language models to estimate local socio-economic conditions with limited labels.</p>
+              <span class="project-area">Geospatial Economic Measurement</span>
+            </article>
+
+            <article class="project-card">
+              <div class="project-meta">
+                <span class="status">Ongoing</span>
+                <span class="project-period">2024–</span>
+              </div>
+              <h3><a href="https://ojs.aaai.org/index.php/AAAI/article/view/41227">Slum Mapping and Urban Poverty</a></h3>
+              <p>Developing transferable, low-label methods for mapping informal settlements and tracking urban poverty from satellite imagery.</p>
+              <span class="project-area">Geospatial Economic Measurement</span>
+            </article>
+          </div>
         </section>
-    </main>
 
-    <footer class="footer py-4">
-        <div class="container text-center">
-            <p class="mb-1 fw-bold text-kaist">KAIST School of Business and Technology Management</p>
-            <p class="text-muted small mb-0">Daejeon, Republic of Korea | © 2026 EconAI Lab. All Rights Reserved.</p>
-        </div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <section class="project-section" aria-labelledby="completed-projects">
+          <div class="project-section-header">
+            <h2 id="completed-projects">Completed Projects</h2>
+            <span class="project-count">2 projects</span>
+          </div>
+          <div class="project-grid">
+            <article class="project-card">
+              <div class="project-meta">
+                <span class="status status-completed">Completed</span>
+                <span class="project-period">2025–2026</span>
+              </div>
+              <h3><a href="ideological-bias-in-llms/">Ideological Bias in LLMs’ Economic Causal Reasoning</a></h3>
+              <p>A direction-aware evaluation of ideological asymmetry in economic causal reasoning across twenty language models.</p>
+              <span class="project-area">LLMs for Economic Reasoning</span>
+            </article>
+
+            <article class="project-card">
+              <div class="project-meta">
+                <span class="status status-completed">Completed</span>
+                <span class="project-period">2024–2025</span>
+              </div>
+              <h3><a href="https://ojs.aaai.org/index.php/AAAI/article/view/34994">Generalizable Disaster Damage Assessment</a></h3>
+              <p>Assessing disaster damage from before-and-after satellite imagery with change detection and vision foundation models.</p>
+              <span class="project-area">AI for Social &amp; Policy Outcomes</span>
+            </article>
+          </div>
+        </section>
+        <!-- SHEET:PROJECTS:END -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-school">KAIST School of Business and Technology Management</p>
+      <p class="footer-meta">Daejeon, Republic of Korea · © 2026 EconAI Lab</p>
+    </div>
+  </footer>
 </body>
 </html>
