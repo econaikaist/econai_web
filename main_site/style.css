@@ -435,6 +435,28 @@ body {
     white-space: nowrap;
 }
 
+.publication-project-link {
+    align-items: center;
+    background: #eef4fb;
+    border: 1px solid #cbd9ea;
+    border-radius: 999px;
+    color: var(--kaist-blue-dark);
+    display: inline-flex;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.35;
+    padding: 3px 9px;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.publication-project-link:hover,
+.publication-project-link:focus-visible {
+    background: var(--kaist-blue);
+    border-color: var(--kaist-blue);
+    color: #fff;
+}
+
 .publication-distinction {
     align-items: center;
     border: 1px solid transparent;
