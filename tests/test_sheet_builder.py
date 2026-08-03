@@ -296,6 +296,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "details": "Faculty profile",
                 "photo": "img/prof_jihee.jpg",
                 "email": "professor@example.com",
+                "address": "KAIST Bldg. N5 #2108, Daejeon, South Korea",
                 "highlight_publications": "TRUE",
             },
             {
@@ -356,11 +357,14 @@ class SheetBuilderTests(unittest.TestCase):
             )
             index_text = (output / "index.html").read_text(encoding="utf-8")
             member_text = (output / "members.html").read_text(encoding="utf-8")
+            contact_text = (output / "contact.html").read_text(encoding="utf-8")
             publication_text = (output / "publications.html").read_text(
                 encoding="utf-8"
             )
             self.assertEqual(site_validator._classes(index_text, "sheet-news-item"), 2)
             self.assertEqual(site_validator._classes(member_text, "sheet-member-item"), 3)
+            self.assertIn("Professor A Author", contact_text)
+            self.assertIn('mailto:professor@example.com', contact_text)
             self.assertLess(
                 index_text.index("Newer lab news"), index_text.index("Older lab news")
             )
