@@ -892,6 +892,42 @@ def _lab_authors(member_rows: Sequence[Dict[str, str]]) -> set[str]:
     }
 
 
+def render_contact(member_rows: Sequence[Dict[str, str]]) -> str:
+    faculty = sorted(
+        (row for row in member_rows if row["section"] == "Faculty"),
+        key=_member_sort_key,
+    )
+    if not faculty:
+        raise SheetBuildError("Members: at least one published Faculty row is required")
+    primary = faculty[0]
+    for field in ("email", "address"):
+        if not primary.get(field):
+            raise SheetBuildError(
+                f"Members: first Faculty row requires {field} for contact.html"
+            )
+    office, separator, street_address = primary["address"].partition(", ")
+    if not separator:
+        office = "KAIST"
+        street_address = primary["address"]
+    contact_name = " ".join(
+        part for part in (primary.get("role", ""), primary["name_en"]) if part
+    )
+    return "\n".join(
+        [
+            '                    <article class="frame-card">',
+            '                        <div class="frame-eyebrow">Office</div>',
+            f'                        <h2 class="frame-title">{_escape(office)}</h2>',
+            f'                        <p class="frame-text">{_escape(street_address)}</p>',
+            "                    </article>",
+            '                    <article class="frame-card">',
+            '                        <div class="frame-eyebrow">Email</div>',
+            f'                        <h2 class="frame-title">{_escape(contact_name)}</h2>',
+            f'                        <p class="frame-text"><a href="mailto:{_escape(primary["email"], quote=True)}">{_escape(primary["email"])}</a></p>',
+            "                    </article>",
+        ]
+    )
+
+
 def _replace_block(path: Path, start_marker: str, end_marker: str, block: str) -> None:
     try:
         current = path.read_text(encoding="utf-8")
@@ -988,6 +1024,12 @@ def build_site(
         "<!-- SHEET:MEMBERS:START -->",
         "<!-- SHEET:MEMBERS:END -->",
         render_members(members, output_dir),
+    )
+    _replace_block(
+        output_dir / "contact.html",
+        "<!-- SHEET:CONTACT:START -->",
+        "<!-- SHEET:CONTACT:END -->",
+        render_contact(members),
     )
 
     metadata = {

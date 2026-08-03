@@ -22,6 +22,9 @@ MARKER_PAIRS = {
     "members.html": (
         ("<!-- SHEET:MEMBERS:START -->", "<!-- SHEET:MEMBERS:END -->"),
     ),
+    "contact.html": (
+        ("<!-- SHEET:CONTACT:START -->", "<!-- SHEET:CONTACT:END -->"),
+    ),
     "research.html": (
         ("<!-- SHEET:RESEARCH_AREAS:START -->", "<!-- SHEET:RESEARCH_AREAS:END -->"),
     ),

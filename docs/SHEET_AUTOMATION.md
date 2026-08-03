@@ -118,7 +118,8 @@ News is sorted newest first. The first item is automatically featured.
 | `highlight_publications` | Checkbox; bold this English name in publication author lists |
 
 The Members tab is publicly downloadable because the site builder reads it without
-Google credentials. Store only information intended for public display.
+Google credentials. Store only information intended for public display. The first
+published Faculty row also supplies the office and email cards on Contact.
 
 ## Safety behavior
 
