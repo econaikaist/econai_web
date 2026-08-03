@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Build the static EconAI website from the lab's Google Sheet.
 
-The source HTML remains a complete, browsable fallback. During a build this
-script copies ``main_site`` to a staging directory, reads the three Sheet tabs,
-and replaces only explicitly marked content blocks.
+The source HTML contains the stable page shells. During a build this script
+copies ``main_site`` to a staging directory, reads the five Sheet tabs, and
+fills only explicitly marked content blocks. Dynamic content is not duplicated
+in the Git checkout.
 
 No Google API key is required: the Sheet must be viewable by anyone with the
 link, while edit access should remain restricted to lab accounts.
@@ -25,16 +26,13 @@ import urllib.request
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Sequence, Tuple
+from typing import Dict, Iterable, List, Mapping, Sequence, Tuple
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SHEET_ID = "14pRbiM3ubsGT1DsBZdLF9xSHmSntwBRSkAUYbyrr6xM"
 DEFAULT_SOURCE_DIR = REPOSITORY_ROOT / "main_site"
 DEFAULT_OUTPUT_DIR = REPOSITORY_ROOT / "_site"
-CATALOG_NAME = "data/site_catalog.json"
-PUBLICATION_DATA_NAME = "data/publications.json"
-
 REQUIRED_COLUMNS = {
     "Publications": {
         "publish",
@@ -45,18 +43,84 @@ REQUIRED_COLUMNS = {
         "paper_url",
         "project_url",
         "highlight",
+        "research_title",
+        "figure_src",
+        "figure_alt",
+        "figure_credit",
     },
-    "Research": {"publish", "title", "summary"},
-    "Projects": {"publish", "title", "summary"},
+    "Research": {
+        "publish",
+        "slug",
+        "title",
+        "summary",
+        "question",
+        "home_summary",
+        "selected_publication_1",
+        "selected_publication_2",
+    },
+    "Projects": {
+        "publish",
+        "title",
+        "summary",
+        "status",
+        "period",
+        "area",
+        "url",
+    },
+    "News": {
+        "publish",
+        "date",
+        "display_date",
+        "tag",
+        "title",
+        "summary",
+        "related_publications",
+        "url",
+    },
+    "Members": {
+        "publish",
+        "section",
+        "group",
+        "sort_order",
+        "name_en",
+        "name_ko",
+        "role",
+        "details",
+        "photo",
+        "email",
+        "website",
+        "scholar",
+        "linkedin",
+        "phone",
+        "address",
+        "highlight_publications",
+    },
 }
-MINIMUM_PUBLISHED_ROWS = {"Publications": 20, "Research": 1, "Projects": 1}
+MINIMUM_PUBLISHED_ROWS = {
+    "Publications": 20,
+    "Research": 1,
+    "Projects": 1,
+    "News": 1,
+    "Members": 1,
+}
 TRUTHY = {"1", "true", "yes", "y", "checked", "x"}
+FALSEY = {"", "0", "false", "no", "n", "unchecked"}
 DATE_PATTERN = re.compile(r"^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$")
 YEAR_PATTERN = re.compile(r"(?<!\d)((?:19|20)\d{2})(?!\d)")
 VENUE_HIGHLIGHT_PATTERN = re.compile(
     r"\((?=[^()]*[A-Za-z])[^()]*(?:19|20)\d{2}\)"
 )
 SAFE_SLUG_PATTERN = re.compile(r"[^a-z0-9]+")
+SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+MEMBER_SECTIONS = (
+    "Faculty",
+    "Ph.D. Students",
+    "Master's Students",
+    "Lab Internship",
+    "Alumni",
+    "Pre-EconAI Alumni",
+)
 
 
 class SheetBuildError(RuntimeError):
@@ -66,18 +130,24 @@ class SheetBuildError(RuntimeError):
 def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
     try:
         reader = csv.DictReader(io.StringIO(text.lstrip("\ufeff")))
-        fieldnames = [name.strip() for name in (reader.fieldnames or []) if name]
+        raw_fieldnames = reader.fieldnames or []
+        fieldnames = [name.strip() for name in raw_fieldnames if name]
     except csv.Error as exc:
         raise SheetBuildError(f"{tab_name}: invalid CSV: {exc}") from exc
 
+    if len(fieldnames) != len(set(fieldnames)):
+        raise SheetBuildError(f"{tab_name}: duplicate column names")
     missing = REQUIRED_COLUMNS[tab_name] - set(fieldnames)
     if missing:
         raise SheetBuildError(
             f"{tab_name}: missing columns: {', '.join(sorted(missing))}"
         )
 
-    rows: List[Dict[str, str]] = []
-    for source_row in reader:
+    rows_with_numbers: List[Tuple[int, Dict[str, str]]] = []
+    for sheet_row, source_row in enumerate(reader, start=2):
+        overflow = source_row.get(None, [])
+        if any((value or "").strip() for value in overflow):
+            raise SheetBuildError(f"{tab_name} row {sheet_row}: too many cells")
         row = {
             (key or "").strip(): (value or "").strip()
             for key, value in source_row.items()
@@ -85,9 +155,16 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
         }
         if not any(row.values()):
             continue
-        if row.get("publish", "").casefold() not in TRUTHY:
+        publish = row.get("publish", "").casefold()
+        if publish not in TRUTHY | FALSEY:
+            raise SheetBuildError(
+                f"{tab_name} row {sheet_row}: publish must be a checkbox value"
+            )
+        if publish not in TRUTHY:
             continue
-        rows.append(row)
+        rows_with_numbers.append((sheet_row, row))
+
+    rows = [row for _, row in rows_with_numbers]
 
     minimum = MINIMUM_PUBLISHED_ROWS[tab_name]
     if len(rows) < minimum:
@@ -95,15 +172,28 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
             f"{tab_name}: expected at least {minimum} published rows, found {len(rows)}"
         )
 
-    titles: set[str] = set()
-    for index, row in enumerate(rows, start=2):
-        title = row.get("title", "")
-        if not title:
-            raise SheetBuildError(f"{tab_name} row {index}: title is required")
-        title_key = _normalise_title(title)
-        if title_key in titles:
-            raise SheetBuildError(f"{tab_name} row {index}: duplicate title {title!r}")
-        titles.add(title_key)
+    unique_rows: set[str] = set()
+    research_slugs: set[str] = set()
+    for index, row in rows_with_numbers:
+        if tab_name == "Members":
+            name = row.get("name_en", "")
+            if not name:
+                raise SheetBuildError(f"{tab_name} row {index}: name_en is required")
+            unique_key = "|".join(
+                (row.get("section", ""), row.get("group", ""), name)
+            ).casefold()
+            duplicate_label = name
+        else:
+            title = row.get("title", "")
+            if not title:
+                raise SheetBuildError(f"{tab_name} row {index}: title is required")
+            unique_key = _normalise_title(title)
+            duplicate_label = title
+        if unique_key in unique_rows:
+            raise SheetBuildError(
+                f"{tab_name} row {index}: duplicate entry {duplicate_label!r}"
+            )
+        unique_rows.add(unique_key)
 
         if tab_name == "Publications":
             for field in ("authors", "venue", "paper_url"):
@@ -117,8 +207,101 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                     row["project_url"], f"{tab_name} row {index} project_url"
                 )
             _publication_sort_tuple(row)
-        elif not row.get("summary"):
-            raise SheetBuildError(f"{tab_name} row {index}: summary is required")
+            figure_values = [
+                row.get(field, "")
+                for field in ("figure_src", "figure_alt", "figure_credit")
+            ]
+            if any(figure_values) and not all(figure_values):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: figure_src, figure_alt, and figure_credit must be filled together"
+                )
+        elif tab_name == "Research":
+            slug = row.get("slug", "")
+            if SLUG_PATTERN.fullmatch(slug) is None:
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: slug must contain lowercase letters, numbers, and hyphens"
+                )
+            if slug in research_slugs:
+                raise SheetBuildError(f"{tab_name} row {index}: duplicate slug {slug!r}")
+            research_slugs.add(slug)
+            for field in (
+                "summary",
+                "question",
+                "home_summary",
+                "selected_publication_1",
+                "selected_publication_2",
+            ):
+                if not row.get(field):
+                    raise SheetBuildError(
+                        f"{tab_name} row {index}: {field} is required"
+                    )
+        elif tab_name == "Projects":
+            for field in ("summary", "status", "period", "area", "url"):
+                if not row.get(field):
+                    raise SheetBuildError(
+                        f"{tab_name} row {index}: {field} is required"
+                    )
+            if row["status"].casefold() not in {"ongoing", "completed"}:
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: status must be Ongoing or Completed"
+                )
+            _validate_url(row["url"], f"{tab_name} row {index} url")
+        elif tab_name == "News":
+            for field in ("date", "display_date", "tag"):
+                if not row.get(field):
+                    raise SheetBuildError(
+                        f"{tab_name} row {index}: {field} is required"
+                    )
+            _date_tuple(row["date"], f"{tab_name} row {index} date")
+            if row.get("url"):
+                _validate_url(row["url"], f"{tab_name} row {index} url")
+        elif tab_name == "Members":
+            section = row.get("section", "")
+            if section not in MEMBER_SECTIONS:
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: unknown section {section!r}"
+                )
+            try:
+                sort_order = int(row.get("sort_order", ""))
+            except ValueError as exc:
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: sort_order must be a positive integer"
+                ) from exc
+            if sort_order < 1:
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: sort_order must be a positive integer"
+                )
+            if section == "Lab Internship" and not row.get("group"):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: group is required for Lab Internship"
+                )
+            if section != "Lab Internship" and row.get("group"):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: group is only used for Lab Internship"
+                )
+            if section in {"Faculty", "Ph.D. Students", "Master's Students"}:
+                for field in ("role", "photo"):
+                    if not row.get(field):
+                        raise SheetBuildError(
+                            f"{tab_name} row {index}: {field} is required for {section}"
+                        )
+            if section in {"Alumni", "Pre-EconAI Alumni"}:
+                for field in ("role", "details"):
+                    if not row.get(field):
+                        raise SheetBuildError(
+                            f"{tab_name} row {index}: {field} is required for alumni"
+                        )
+            email = row.get("email", "")
+            if email and EMAIL_PATTERN.fullmatch(email) is None:
+                raise SheetBuildError(f"{tab_name} row {index}: invalid email")
+            for field in ("website", "scholar", "linkedin"):
+                if row.get(field):
+                    _validate_url(row[field], f"{tab_name} row {index} {field}")
+            highlight = row.get("highlight_publications", "").casefold()
+            if highlight not in TRUTHY | FALSEY:
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: highlight_publications must be a checkbox value"
+                )
 
     return rows
 
@@ -178,34 +361,36 @@ def _normalise_title(value: str) -> str:
 def _validate_url(value: str, label: str) -> None:
     parsed = urllib.parse.urlparse(value)
     if not parsed.scheme and not parsed.netloc and value and not value.startswith("//"):
+        if value.startswith("#") or ".." in Path(parsed.path).parts:
+            raise SheetBuildError(f"{label}: unsafe relative URL")
         return
     if parsed.scheme != "https" or not parsed.netloc:
         raise SheetBuildError(f"{label}: use an HTTPS or relative URL")
 
 
+def _date_tuple(value: str, label: str) -> Tuple[int, int, int]:
+    match = DATE_PATTERN.fullmatch(value)
+    if match is None:
+        raise SheetBuildError(f"{label}: use YYYY, YYYY-MM, or YYYY-MM-DD")
+    year = int(match.group(1))
+    month = int(match.group(2) or 0)
+    day = int(match.group(3) or 0)
+    if not 1900 <= year <= 2100 or not 0 <= month <= 12 or not 0 <= day <= 31:
+        raise SheetBuildError(f"{label}: invalid date {value!r}")
+    if month and day:
+        try:
+            datetime(year, month, day)
+        except ValueError as exc:
+            raise SheetBuildError(f"{label}: invalid date {value!r}") from exc
+    return year, month, day
+
+
 def _publication_sort_tuple(row: Mapping[str, str]) -> Tuple[int, int, int]:
     raw_date = row.get("date", "")
     if raw_date:
-        match = DATE_PATTERN.fullmatch(raw_date)
-        if match is None:
-            raise SheetBuildError(
-                f"Publications: date for {row.get('title', '<untitled>')!r} must be YYYY, YYYY-MM, or YYYY-MM-DD"
-            )
-        year = int(match.group(1))
-        month = int(match.group(2) or 0)
-        day = int(match.group(3) or 0)
-        if not 1900 <= year <= 2100 or not 0 <= month <= 12 or not 0 <= day <= 31:
-            raise SheetBuildError(
-                f"Publications: invalid date {raw_date!r} for {row.get('title')!r}"
-            )
-        if month and day:
-            try:
-                datetime(year, month, day)
-            except ValueError as exc:
-                raise SheetBuildError(
-                    f"Publications: invalid date {raw_date!r} for {row.get('title')!r}"
-                ) from exc
-        return year, month, day
+        return _date_tuple(
+            raw_date, f"Publications: date for {row.get('title', '<untitled>')!r}"
+        )
 
     venue_years = [int(year) for year in YEAR_PATTERN.findall(row.get("venue", ""))]
     if len(set(venue_years)) != 1:
@@ -229,39 +414,6 @@ def _sort_publications(rows: Sequence[Dict[str, str]]) -> List[Dict[str, str]]:
             row["title"].casefold(),
         ),
     )
-
-
-def _load_json(path: Path, label: str) -> Dict[str, Any]:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError as exc:
-        raise SheetBuildError(f"missing {label}: {path}") from exc
-    except json.JSONDecodeError as exc:
-        raise SheetBuildError(f"invalid {label}: {exc}") from exc
-    if not isinstance(data, dict):
-        raise SheetBuildError(f"{label} must be a JSON object")
-    return data
-
-
-def _load_catalog(source_dir: Path) -> Dict[str, Any]:
-    catalog = _load_json(source_dir / CATALOG_NAME, "site catalog")
-    if catalog.get("schema_version") != 1:
-        raise SheetBuildError("site catalog schema_version must be 1")
-    if not isinstance(catalog.get("research"), dict) or not isinstance(
-        catalog.get("projects"), dict
-    ):
-        raise SheetBuildError("site catalog must contain research and projects objects")
-    return catalog
-
-
-def _load_lab_authors(source_dir: Path) -> set[str]:
-    data = _load_json(source_dir / PUBLICATION_DATA_NAME, "publication metadata")
-    authors = data.get("lab_authors")
-    if not isinstance(authors, list) or not all(
-        isinstance(author, str) and author.strip() for author in authors
-    ):
-        raise SheetBuildError("publication metadata lab_authors must be a string list")
-    return set(authors)
 
 
 def _escape(value: str, quote: bool = False) -> str:
@@ -360,19 +512,15 @@ def _slugify(value: str) -> str:
     return slug or "research-area"
 
 
-def render_home_research(
-    research_rows: Sequence[Dict[str, str]], catalog: Mapping[str, Any]
-) -> str:
+def render_home_research(research_rows: Sequence[Dict[str, str]]) -> str:
     lines = ['        <div class="research-focus-grid">']
     for index, row in enumerate(research_rows[:3], start=1):
-        details = catalog.get(row["title"], {})
-        summary = details.get("home_summary", row["summary"])
         lines.extend(
             [
                 '          <article class="focus-card">',
                 f'            <span class="focus-number">{index:02d}</span>',
                 f'            <h3>{_escape(row["title"])}</h3>',
-                f'            <p>{_escape(summary)}</p>',
+                f'            <p>{_escape(row["home_summary"])}</p>',
                 "          </article>",
             ]
         )
@@ -410,13 +558,10 @@ def _publication_lookup(
 
 
 def _selected_publication_lines(
-    selected: Mapping[str, Any],
+    publication_title: str,
     publication_lookup: Mapping[str, Dict[str, str]],
     output_dir: Path,
 ) -> List[str]:
-    publication_title = selected.get("publication_title")
-    if not isinstance(publication_title, str) or not publication_title:
-        raise SheetBuildError("selected publication is missing publication_title")
     publication = publication_lookup.get(_normalise_title(publication_title))
     if publication is None:
         raise SheetBuildError(
@@ -424,38 +569,42 @@ def _selected_publication_lines(
         )
 
     for field in ("figure_src", "figure_alt", "figure_credit"):
-        if not isinstance(selected.get(field), str) or not selected[field]:
-            raise SheetBuildError(f"{publication_title}: catalog {field} is required")
-    figure_path = output_dir / selected["figure_src"]
+        if not publication.get(field):
+            raise SheetBuildError(f"{publication_title}: Publications {field} is required")
+    figure_path = (output_dir / publication["figure_src"]).resolve()
+    try:
+        figure_path.relative_to(output_dir.resolve())
+    except ValueError as exc:
+        raise SheetBuildError(
+            f"{publication_title}: figure_src must stay inside the site"
+        ) from exc
     if not figure_path.is_file():
         raise SheetBuildError(f"{publication_title}: missing figure asset {figure_path}")
 
-    display_title = selected.get("display_title", publication["title"])
+    display_title = publication.get("research_title") or publication["title"]
     paper_url = _escape(publication["paper_url"], quote=True)
     aria_label = _escape(f"Open {display_title}", quote=True)
     return [
         "                  <li>",
         f'                    <a class="selected-figure-link" href="{paper_url}" aria-label="{aria_label}">',
-        f'                      <span class="selected-figure-frame"><img src="{_escape(selected["figure_src"], quote=True)}" alt="{_escape(selected["figure_alt"], quote=True)}" loading="lazy" decoding="async"></span>',
+        f'                      <span class="selected-figure-frame"><img src="{_escape(publication["figure_src"], quote=True)}" alt="{_escape(publication["figure_alt"], quote=True)}" loading="lazy" decoding="async"></span>',
         "                    </a>",
         f'                    <a class="selected-title" href="{paper_url}">{_escape(display_title)}</a>',
         f'                    <span>{_escape(publication["venue"])}</span>',
-        f'                    <small class="selected-figure-credit">{_escape(selected["figure_credit"])}</small>',
+        f'                    <small class="selected-figure-credit">{_escape(publication["figure_credit"])}</small>',
         "                  </li>",
     ]
 
 
 def render_research_areas(
     research_rows: Sequence[Dict[str, str]],
-    catalog: Mapping[str, Any],
     publications: Sequence[Dict[str, str]],
     output_dir: Path,
 ) -> str:
     lookup = _publication_lookup(publications)
     lines = ['        <div class="research-rows">']
     for index, row in enumerate(research_rows, start=1):
-        details = catalog.get(row["title"], {})
-        slug = details.get("slug", _slugify(row["title"]))
+        slug = row["slug"]
         lines.extend(
             [
                 f'          <article class="research-row" id="{_escape(slug, quote=True)}">',
@@ -464,58 +613,30 @@ def render_research_areas(
                 f'              <h2>{_escape(row["title"])}</h2>',
             ]
         )
-        question = details.get("question")
-        if question:
-            lines.append(f'              <p class="research-question">{_escape(question)}</p>')
+        lines.append(
+            f'              <p class="research-question">{_escape(row["question"])}</p>'
+        )
         lines.append(f'              <p class="research-summary">{_escape(row["summary"])}</p>')
 
-        selected_publications = details.get("selected_publications", [])
-        if selected_publications:
-            if not isinstance(selected_publications, list):
-                raise SheetBuildError(f"{row['title']}: selected_publications must be a list")
-            lines.extend(
-                [
-                    '              <div class="selected-publications">',
-                    '                <p class="selected-label">Selected Publications</p>',
-                    "                <ul>",
-                ]
-            )
-            for selected in selected_publications:
-                if not isinstance(selected, dict):
-                    raise SheetBuildError(
-                        f"{row['title']}: selected publication entries must be objects"
-                    )
-                lines.extend(_selected_publication_lines(selected, lookup, output_dir))
-            lines.extend(["                </ul>", "              </div>"])
+        lines.extend(
+            [
+                '              <div class="selected-publications">',
+                '                <p class="selected-label">Selected Publications</p>',
+                "                <ul>",
+            ]
+        )
+        for field in ("selected_publication_1", "selected_publication_2"):
+            lines.extend(_selected_publication_lines(row[field], lookup, output_dir))
+        lines.extend(["                </ul>", "              </div>"])
 
         lines.extend(["            </div>", "          </article>"])
     lines.append("        </div>")
     return "\n".join(lines)
 
 
-def _project_url(
-    details: Mapping[str, Any], publication_lookup: Mapping[str, Dict[str, str]]
-) -> str:
-    explicit_url = details.get("url")
-    if explicit_url:
-        _validate_url(explicit_url, "project catalog url")
-        return explicit_url
-    publication_title = details.get("publication_title")
-    if publication_title:
-        publication = publication_lookup.get(_normalise_title(publication_title))
-        if publication is None:
-            raise SheetBuildError(
-                f"project publication not found in Publications tab: {publication_title}"
-            )
-        return publication["paper_url"]
-    return ""
-
-
 def _render_project_group(
     status_label: str,
     rows: Sequence[Dict[str, str]],
-    catalog: Mapping[str, Any],
-    publication_lookup: Mapping[str, Dict[str, str]],
 ) -> List[str]:
     slug = f"{status_label.casefold()}-projects"
     count_label = "project" if len(rows) == 1 else "projects"
@@ -528,16 +649,14 @@ def _render_project_group(
         '          <div class="project-grid">',
     ]
     for row in rows:
-        details = catalog.get(row["title"], {})
-        status = details.get("status", status_label)
-        period = details.get("period", "")
-        area = details.get("area", "")
-        display_title = details.get("display_title", row["title"])
-        url = _project_url(details, publication_lookup)
+        status = row["status"]
+        period = row["period"]
+        area = row["area"]
+        url = row["url"]
         status_class = " status-completed" if status.casefold() == "completed" else ""
-        title_html = _escape(display_title)
-        if url:
-            title_html = f'<a href="{_escape(url, quote=True)}">{title_html}</a>'
+        title_html = (
+            f'<a href="{_escape(url, quote=True)}">{_escape(row["title"])}</a>'
+        )
         lines.extend(
             [
                 '            <article class="project-card">',
@@ -555,17 +674,10 @@ def _render_project_group(
     return [line for line in lines if line]
 
 
-def render_projects(
-    project_rows: Sequence[Dict[str, str]],
-    catalog: Mapping[str, Any],
-    publications: Sequence[Dict[str, str]],
-) -> str:
-    lookup = _publication_lookup(publications)
+def render_projects(project_rows: Sequence[Dict[str, str]]) -> str:
     grouped: Dict[str, List[Dict[str, str]]] = {"Ongoing": [], "Completed": []}
     for row in project_rows:
-        details = catalog.get(row["title"], {})
-        status = details.get("status", "Ongoing")
-        key = "Completed" if status.casefold() == "completed" else "Ongoing"
+        key = "Completed" if row["status"].casefold() == "completed" else "Ongoing"
         grouped[key].append(row)
 
     lines: List[str] = []
@@ -573,8 +685,211 @@ def render_projects(
         if grouped[label]:
             if lines:
                 lines.append("")
-            lines.extend(_render_project_group(label, grouped[label], catalog, lookup))
+            lines.extend(_render_project_group(label, grouped[label]))
     return "\n".join(lines)
+
+
+def _sort_news(rows: Sequence[Dict[str, str]]) -> List[Dict[str, str]]:
+    return sorted(
+        rows,
+        key=lambda row: (
+            -_date_tuple(row["date"], f"News date for {row['title']!r}")[0],
+            -_date_tuple(row["date"], f"News date for {row['title']!r}")[1],
+            -_date_tuple(row["date"], f"News date for {row['title']!r}")[2],
+            row["title"].casefold(),
+        ),
+    )
+
+
+def _related_publication_links(
+    value: str, publication_lookup: Mapping[str, Dict[str, str]]
+) -> List[Tuple[str, str]]:
+    links: List[Tuple[str, str]] = []
+    for title in (part.strip() for part in re.split(r"[|\n]+", value) if part.strip()):
+        publication = publication_lookup.get(_normalise_title(title))
+        if publication is None:
+            raise SheetBuildError(
+                f"News related publication not found in Publications tab: {title}"
+            )
+        links.append(
+            (
+                publication.get("research_title") or publication["title"],
+                publication.get("project_url") or publication["paper_url"],
+            )
+        )
+    return links
+
+
+def render_news(
+    news_rows: Sequence[Dict[str, str]], publications: Sequence[Dict[str, str]]
+) -> str:
+    publication_lookup = _publication_lookup(publications)
+    lines = ['        <div class="news-list">']
+    for index, row in enumerate(_sort_news(news_rows)):
+        featured = " news-item-featured" if index == 0 else ""
+        lines.extend(
+            [
+                f'          <article class="news-item sheet-news-item{featured}">',
+                "            <div>",
+                f'              <time class="news-date" datetime="{_escape(row["date"], quote=True)}">{_escape(row["display_date"])}</time>',
+                f'              <span class="news-tag">{_escape(row["tag"])}</span>',
+                "            </div>",
+                '            <div class="news-content">',
+                f'              <h3>{_escape(row["title"])}</h3>',
+            ]
+        )
+        if row.get("summary"):
+            lines.append(f'              <p>{_escape(row["summary"])}</p>')
+        related = _related_publication_links(
+            row.get("related_publications", ""), publication_lookup
+        )
+        if row.get("url"):
+            related.append(("Read more", row["url"]))
+        if related:
+            lines.append('              <div class="news-paper-links">')
+            for label, url in related:
+                lines.append(
+                    f'                <a href="{_escape(url, quote=True)}">{_escape(label)} →</a>'
+                )
+            lines.append("              </div>")
+        lines.extend(["            </div>", "          </article>"])
+    lines.append("        </div>")
+    return "\n".join(lines)
+
+
+def _member_sort_key(row: Mapping[str, str]) -> Tuple[int, int]:
+    return MEMBER_SECTIONS.index(row["section"]), int(row["sort_order"])
+
+
+def _member_name(row: Mapping[str, str]) -> str:
+    if row.get("name_ko"):
+        return f'{row["name_en"]} | {row["name_ko"]}'
+    return row["name_en"]
+
+
+def _member_link_lines(row: Mapping[str, str]) -> List[str]:
+    links: List[Tuple[str, str, str]] = []
+    if row.get("website"):
+        links.append((row["website"], "Website", "fas fa-home"))
+    if row.get("scholar"):
+        links.append((row["scholar"], "Google Scholar", "fas fa-graduation-cap"))
+    if row.get("linkedin"):
+        links.append((row["linkedin"], "LinkedIn", "fab fa-linkedin-in"))
+    if row.get("email"):
+        links.append((f'mailto:{row["email"]}', "Email", "fas fa-envelope"))
+    if not links:
+        return []
+    lines = ['                        <div class="member-links">']
+    for url, label, icon in links:
+        target = ' target="_blank" rel="noopener noreferrer"' if not url.startswith("mailto:") else ""
+        aria = _escape(f'{label} {_member_name(row)}', quote=True)
+        lines.append(
+            f'                            <a href="{_escape(url, quote=True)}"{target} class="member-link-btn" aria-label="{aria}"><i class="{icon}"></i></a>'
+        )
+    lines.append("                        </div>")
+    return lines
+
+
+def _member_card_lines(row: Mapping[str, str], output_dir: Path) -> List[str]:
+    photo_path = (output_dir / row["photo"]).resolve()
+    try:
+        photo_path.relative_to(output_dir.resolve())
+    except ValueError as exc:
+        raise SheetBuildError(f'{row["name_en"]}: photo must stay inside the site') from exc
+    if not photo_path.is_file():
+        raise SheetBuildError(f'{row["name_en"]}: missing member photo {photo_path}')
+    professor = " prof-card" if row["section"] == "Faculty" else ""
+    lines = [
+        f'                    <article class="member-card sheet-member-item{professor}">',
+        f'                        <img src="{_escape(row["photo"], quote=True)}" alt="{_escape(row["name_en"], quote=True)}" class="member-photo">',
+        '                        <div class="member-info">',
+        f'                            <h3 class="member-name">{_escape(_member_name(row))}</h3>',
+        f'                            <p class="member-role">{_escape(row["role"])}</p>',
+    ]
+    if row["section"] == "Faculty":
+        contact: List[str] = []
+        if row.get("email"):
+            contact.append(f'<i class="fas fa-envelope fa-fw"></i> {_escape(row["email"])}')
+        if row.get("phone"):
+            contact.append(f'<i class="fas fa-phone fa-fw"></i> {_escape(row["phone"])}')
+        if row.get("address"):
+            contact.append(f'<i class="fas fa-map-marker-alt fa-fw"></i> {_escape(row["address"])}')
+        if contact:
+            lines.append(f'                            <p class="member-keywords">{"<br>".join(contact)}</p>')
+    elif row.get("details"):
+        lines.append(f'                            <p class="member-keywords">{_escape(row["details"])}</p>')
+    lines.append("                        </div>")
+    lines.extend(_member_link_lines(row))
+    lines.append("                    </article>")
+    return lines
+
+
+def render_members(
+    member_rows: Sequence[Dict[str, str]], output_dir: Path
+) -> str:
+    sections: Dict[str, List[Dict[str, str]]] = defaultdict(list)
+    for row in member_rows:
+        sections[row["section"]].append(row)
+
+    lines: List[str] = []
+    for section in MEMBER_SECTIONS:
+        rows = sections.get(section, [])
+        if not rows:
+            continue
+        lines.append(f'                <h2 class="members-category-title">{_escape(section)}</h2>')
+        if section in {"Faculty", "Ph.D. Students", "Master's Students"}:
+            lines.append('                <div class="members-grid">')
+            for row in sorted(rows, key=_member_sort_key):
+                lines.extend(_member_card_lines(row, output_dir))
+            lines.append("                </div>")
+        elif section == "Lab Internship":
+            lines.append('                <div class="accordion" id="internshipAccordion">')
+            groups: Dict[str, List[Dict[str, str]]] = {}
+            for row in rows:
+                groups.setdefault(row["group"], []).append(row)
+            for group, group_rows in groups.items():
+                slug = f'intern-{_slugify(group)}'
+                lines.extend(
+                    [
+                        '                    <div class="accordion-item">',
+                        f'                        <h2 class="accordion-header" id="heading-{slug}">',
+                        f'                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{slug}" aria-expanded="false" aria-controls="collapse-{slug}">{_escape(group)}</button>',
+                        "                        </h2>",
+                        f'                        <div id="collapse-{slug}" class="accordion-collapse collapse" aria-labelledby="heading-{slug}" data-bs-parent="#internshipAccordion">',
+                        '                            <div class="accordion-body">',
+                        '                                <ul class="intern-list">',
+                    ]
+                )
+                for row in sorted(group_rows, key=_member_sort_key):
+                    lines.append(
+                        f'                                    <li class="sheet-member-item">{_escape(_member_name(row))}</li>'
+                    )
+                lines.extend(
+                    [
+                        "                                </ul>",
+                        "                            </div>",
+                        "                        </div>",
+                        "                    </div>",
+                    ]
+                )
+            lines.append("                </div>")
+        else:
+            lines.append('                <ul class="alumni-list">')
+            for row in sorted(rows, key=_member_sort_key):
+                lines.append(
+                    f'                    <li class="sheet-member-item"><strong>{_escape(_member_name(row))}</strong> — {_escape(row["role"])} · {_escape(row["details"])}</li>'
+                )
+            lines.append("                </ul>")
+        lines.append("")
+    return "\n".join(lines).rstrip()
+
+
+def _lab_authors(member_rows: Sequence[Dict[str, str]]) -> set[str]:
+    return {
+        row["name_en"]
+        for row in member_rows
+        if row.get("highlight_publications", "").casefold() in TRUTHY
+    }
 
 
 def _replace_block(path: Path, start_marker: str, end_marker: str, block: str) -> None:
@@ -619,13 +934,14 @@ def build_site(
     sheet_id: str,
     source_kind: str,
 ) -> None:
-    catalog = _load_catalog(source_dir)
-    lab_authors = _load_lab_authors(source_dir)
     _safe_prepare_output(source_dir, output_dir)
 
     publications = tabs["Publications"]
     research = tabs["Research"]
     projects = tabs["Projects"]
+    news = tabs["News"]
+    members = tabs["Members"]
+    lab_authors = _lab_authors(members)
 
     _replace_block(
         output_dir / "publications.html",
@@ -637,7 +953,7 @@ def build_site(
         output_dir / "index.html",
         "<!-- SHEET:RESEARCH_FOCUS:START -->",
         "<!-- SHEET:RESEARCH_FOCUS:END -->",
-        render_home_research(research, catalog["research"]),
+        render_home_research(research),
     )
     _replace_block(
         output_dir / "index.html",
@@ -651,7 +967,6 @@ def build_site(
         "<!-- SHEET:RESEARCH_AREAS:END -->",
         render_research_areas(
             research,
-            catalog["research"],
             publications,
             output_dir,
         ),
@@ -660,7 +975,19 @@ def build_site(
         output_dir / "projects.html",
         "<!-- SHEET:PROJECTS:START -->",
         "<!-- SHEET:PROJECTS:END -->",
-        render_projects(projects, catalog["projects"], publications),
+        render_projects(projects),
+    )
+    _replace_block(
+        output_dir / "index.html",
+        "<!-- SHEET:NEWS:START -->",
+        "<!-- SHEET:NEWS:END -->",
+        render_news(news, publications),
+    )
+    _replace_block(
+        output_dir / "members.html",
+        "<!-- SHEET:MEMBERS:START -->",
+        "<!-- SHEET:MEMBERS:END -->",
+        render_members(members, output_dir),
     )
 
     metadata = {
@@ -670,7 +997,9 @@ def build_site(
         "built_at": datetime.now(timezone.utc).isoformat(),
         "published_rows": {name: len(rows) for name, rows in tabs.items()},
     }
-    (output_dir / "data/sheet-build.json").write_text(
+    metadata_path = output_dir / "data/sheet-build.json"
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata_path.write_text(
         json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
@@ -684,7 +1013,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--csv-dir",
         type=Path,
-        help="read Publications.csv, Research.csv, and Projects.csv locally instead of Google",
+        help="read the five named tab CSV files locally instead of Google",
     )
     parser.add_argument("--timeout", type=float, default=30.0)
     return parser.parse_args()

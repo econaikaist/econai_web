@@ -17,6 +17,10 @@ MARKER_PAIRS = {
     "index.html": (
         ("<!-- SHEET:RESEARCH_FOCUS:START -->", "<!-- SHEET:RESEARCH_FOCUS:END -->"),
         ("<!-- SHEET:LATEST_PUBLICATIONS:START -->", "<!-- SHEET:LATEST_PUBLICATIONS:END -->"),
+        ("<!-- SHEET:NEWS:START -->", "<!-- SHEET:NEWS:END -->"),
+    ),
+    "members.html": (
+        ("<!-- SHEET:MEMBERS:START -->", "<!-- SHEET:MEMBERS:END -->"),
     ),
     "research.html": (
         ("<!-- SHEET:RESEARCH_AREAS:START -->", "<!-- SHEET:RESEARCH_AREAS:END -->"),
@@ -91,7 +95,7 @@ def validate(site_dir: Path) -> List[str]:
             errors.append(
                 f"generated site must not contain symlinks: {candidate.relative_to(site_dir)}"
             )
-    for name in ("Publications", "Research", "Projects"):
+    for name in ("Publications", "Research", "Projects", "News", "Members"):
         if not isinstance(expected_counts.get(name), int) or expected_counts[name] < 1:
             errors.append(f"sheet-build.json has invalid count for {name}")
 
@@ -107,11 +111,14 @@ def validate(site_dir: Path) -> List[str]:
         for start, end in marker_pairs:
             if text.count(start) != 1 or text.count(end) != 1:
                 errors.append(f"{file_name}: invalid marker pair {start} / {end}")
+            elif text.index(start) > text.index(end):
+                errors.append(f"{file_name}: reversed marker pair {start} / {end}")
 
     publication_text = (site_dir / "publications.html").read_text(encoding="utf-8")
     research_text = (site_dir / "research.html").read_text(encoding="utf-8")
     project_text = (site_dir / "projects.html").read_text(encoding="utf-8")
     index_text = (site_dir / "index.html").read_text(encoding="utf-8")
+    member_text = (site_dir / "members.html").read_text(encoding="utf-8")
 
     if _classes(publication_text, "publication-item") != expected_counts.get("Publications"):
         errors.append("publications.html row count does not match Sheet metadata")
@@ -123,6 +130,10 @@ def validate(site_dir: Path) -> List[str]:
         errors.append("index.html research focus count is incorrect")
     if _classes(index_text, "publication-list") < 1:
         errors.append("index.html is missing latest publications")
+    if _classes(index_text, "sheet-news-item") != expected_counts.get("News"):
+        errors.append("index.html news row count does not match Sheet metadata")
+    if _classes(member_text, "sheet-member-item") != expected_counts.get("Members"):
+        errors.append("members.html row count does not match Sheet metadata")
 
     selected_count = research_text.count('class="selected-figure-frame"')
     if selected_count and selected_count != research_text.count("loading=\"lazy\""):

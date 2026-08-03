@@ -397,7 +397,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--csv-dir",
         type=Path,
-        help="use local Publications.csv, Research.csv, and Projects.csv fixtures",
+        help="use local CSV fixtures for all five Sheet tabs",
     )
     parser.add_argument("--timeout", type=float, default=30.0)
     parser.add_argument("--keep-releases", type=int, default=5)

@@ -13,7 +13,7 @@ and Google Apps Script are not used.
 Every five minutes the server:
 
 1. refreshes a dedicated, unprivileged checkout of GitHub `main`;
-2. downloads the three Sheet tabs;
+2. downloads the five Sheet tabs;
 3. builds and validates the complete static site in staging;
 4. compares the result with the current release; and
 5. atomically switches Nginx's `current` symlink only when content changed.
@@ -32,7 +32,7 @@ read-only.
 
 Sheet ID: `14pRbiM3ubsGT1DsBZdLF9xSHmSntwBRSkAUYbyrr6xM`
 
-Keep the three tab names and header names exact. Rows with an unchecked `publish`
+Keep the five tab names and header names exact. Rows with an unchecked `publish`
 cell are omitted.
 
 ### Publications
@@ -47,6 +47,10 @@ cell are omitted.
 | `paper_url` | One canonical full-text or paper landing-page URL |
 | `project_url` | Optional lab project page |
 | `highlight` | Optional award or presentation label |
+| `research_title` | Optional shorter title used only on Research/News cards |
+| `figure_src` | Local figure path for a selected Research paper; otherwise blank |
+| `figure_alt` | Accessible description for `figure_src`; otherwise blank |
+| `figure_credit` | Figure number/source/license line; otherwise blank |
 
 The site groups papers by year and sorts every year by `date` descending. Title
 links replace redundant Paper buttons. The home page automatically uses the first
@@ -57,13 +61,17 @@ three rows after date sorting.
 | Column | What to enter |
 | --- | --- |
 | `publish` | Checkbox |
+| `slug` | Stable URL anchor, for example `llm-reasoning` |
 | `title` | Research area title |
 | `summary` | One concise area description |
+| `question` | The question shown above the area summary |
+| `home_summary` | One-line version shown on the home page |
+| `selected_publication_1` | Exact title from Publications |
+| `selected_publication_2` | Exact title from Publications |
 
-The first three published rows become the home-page Research Focus cards.
-`main_site/data/site_catalog.json` adds stable questions, short home descriptions,
-and two representative publications/figures for the current three areas. If an
-area title changes, update the matching catalog key in the same PR.
+The first three published rows become the home-page Research Focus cards. Figure
+metadata is read from the matching Publications rows, so Research needs only the
+two exact publication titles.
 
 ### Projects
 
@@ -72,18 +80,53 @@ area title changes, update the matching catalog key in the same PR.
 | `publish` | Checkbox |
 | `title` | Project title |
 | `summary` | One concise project description |
+| `status` | `Ongoing` or `Completed` |
+| `period` | Display period, for example `2025–` |
+| `area` | Short research-area label |
+| `url` | HTTPS or site-relative project/paper link |
 
-New project rows work with only these three fields and default to Ongoing.
-`main_site/data/site_catalog.json` optionally supplies status, period, area, and a
-link for recurring/current projects, keeping the Sheet short.
+### News
+
+| Column | What to enter |
+| --- | --- |
+| `publish` | Checkbox |
+| `date` | Sort date in `YYYY-MM-DD`, `YYYY-MM`, or `YYYY` form |
+| `display_date` | Visible label such as `Jul 2026` or `Spring 2026` |
+| `tag` | Short category such as `Publications`, `Award`, or `People` |
+| `title` | News headline |
+| `summary` | Optional explanatory sentence |
+| `related_publications` | Optional exact Publication titles separated by `|`; links are resolved automatically |
+| `url` | Optional separate HTTPS or site-relative link |
+
+News is sorted newest first. The first item is automatically featured.
+
+### Members
+
+| Column | What to enter |
+| --- | --- |
+| `publish` | Checkbox |
+| `section` | `Faculty`, `Ph.D. Students`, `Master's Students`, `Lab Internship`, `Alumni`, or `Pre-EconAI Alumni` |
+| `group` | Internship term such as `Spring 2026`; blank otherwise |
+| `sort_order` | Positive integer within the section/term |
+| `name_en`, `name_ko` | English name and optional Korean name |
+| `role` | Current role for cards; degree/year for alumni |
+| `details` | Research interests for students; current position for alumni |
+| `photo` | Local image path for Faculty/Student cards |
+| `email` | Public email address |
+| `website`, `scholar`, `linkedin` | Optional HTTPS profile links |
+| `phone`, `address` | Optional public faculty contact fields |
+| `highlight_publications` | Checkbox; bold this English name in publication author lists |
+
+The Members tab is publicly downloadable because the site builder reads it without
+Google credentials. Store only information intended for public display.
 
 ## Safety behavior
 
-The build rejects missing columns, duplicate or blank titles, malformed dates,
-unsafe publication URLs, broken selected-publication references, broken local
-assets, duplicate HTML IDs, and any symlink in the generated site. It also refuses
+The build rejects missing columns, invalid checkboxes, duplicate or blank records,
+malformed dates, unsafe URLs, broken selected-publication references, missing local
+images, duplicate HTML IDs, and any symlink in the generated site. It also refuses
 to publish fewer than 20 publication rows, preventing an accidental mass deletion
-from replacing the live list.
+from replacing the live list. A failed build leaves the last validated release live.
 
 The generated release is never written into the Git checkout or the live Nginx
 directory. The source checkout and immutable releases are separate, and the
@@ -137,5 +180,5 @@ python3 -m http.server 8895 \
   --directory /tmp/econai-site-releases/current
 ```
 
-Open `http://127.0.0.1:8895/index.html`, `research.html`, `projects.html`, and
-`publications.html`.
+Open `http://127.0.0.1:8895/index.html`, `members.html`, `research.html`,
+`projects.html`, and `publications.html`.
