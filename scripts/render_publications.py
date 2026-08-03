@@ -175,7 +175,7 @@ def load_and_validate_data() -> Dict[str, Any]:
             if not publication[field].startswith("https://"):
                 raise PublicationDataError(f"{publication_id}: {field} must use HTTPS")
 
-        for field in ("paper_url", "pdf_url", "venue_url"):
+        for field in ("paper_url", "pdf_url", "venue_url", "project_url"):
             value = publication.get(field)
             if value is None:
                 continue
@@ -357,6 +357,15 @@ def _render_distinction(distinction: Dict[str, str]) -> str:
     )
 
 
+def _render_project_link(project_url: str, title: str) -> str:
+    escaped_url = html.escape(project_url, quote=True)
+    escaped_label = html.escape(f"Project page for {title}", quote=True)
+    return (
+        f'                                <a class="publication-project-link" '
+        f'href="{escaped_url}" aria-label="{escaped_label}">Project Page</a>'
+    )
+
+
 def _render_publication(publication: Dict[str, Any], lab_authors: set[str]) -> List[str]:
     title = html.escape(publication["title"])
     publication_destination = _publication_destination(publication)
@@ -373,8 +382,11 @@ def _render_publication(publication: Dict[str, Any], lab_authors: set[str]) -> L
     ]
 
     metadata: List[str] = []
-    if publication["venue"] != "arXiv":
-        metadata.append(f'                                <span class="publication-venue">{venue}</span>')
+    metadata.append(f'                                <span class="publication-venue">{venue}</span>')
+
+    project_url = publication.get("project_url")
+    if project_url is not None:
+        metadata.append(_render_project_link(project_url, publication["title"]))
 
     distinction = publication.get("distinction")
     if distinction is not None:
