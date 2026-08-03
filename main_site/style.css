@@ -357,6 +357,10 @@ body {
     padding: 6px 0 0;
 }
 
+.publications-container > .publication-year-block:first-child {
+    border-top: 0;
+}
+
 .publication-year {
     color: var(--kaist-blue);
     font-size: 1rem;
