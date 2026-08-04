@@ -691,7 +691,23 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertIn('aria-live="polite"', rendered)
         self.assertIn('aria-label="Show previous publication figure"', rendered)
         self.assertIn('aria-label="Show next publication figure"', rendered)
+        self.assertIn('aria-label="Open paper: Paper 1"', rendered)
         self.assertIn('alt="Paper overview"', rendered)
+        self.assertNotIn("publication-figure-caption", rendered)
+        self.assertNotIn("publication-figure-title", rendered)
+        self.assertNotIn("publication-figure-venue", rendered)
+        self.assertNotIn("publication-figure-credit", rendered)
+        self.assertNotIn("publication-carousel-controls", rendered)
+        self.assertEqual(
+            site_validator._classes(
+                rendered, "publication-carousel-button--previous"
+            ),
+            1,
+        )
+        self.assertEqual(
+            site_validator._classes(rendered, "publication-carousel-button--next"),
+            1,
+        )
         self.assertEqual(rendered.count('loading="eager"'), 3)
         self.assertEqual(rendered.count('fetchpriority="high"'), 1)
         self.assertEqual(rendered.count('fetchpriority="low"'), 2)
@@ -712,6 +728,17 @@ class SheetBuilderTests(unittest.TestCase):
             stylesheet,
             r"\.publication-figure-image\s*\{[^}]*object-fit:\s*contain",
         )
+        self.assertRegex(
+            stylesheet,
+            r"\.publication-figure-image\s*\{[^}]*mix-blend-mode:\s*multiply",
+        )
+        self.assertRegex(
+            stylesheet,
+            r"\.publication-carousel-button\s*\{[^}]*position:\s*absolute"
+            r"[^}]*top:\s*50%",
+        )
+        self.assertNotIn("weather-card", index_source)
+        self.assertNotIn("open-meteo.com", index_source)
 
     def test_publication_home_image_columns_must_be_complete(self) -> None:
         self._allow_small_fixtures("Publications")
@@ -1354,7 +1381,8 @@ class SheetBuilderTests(unittest.TestCase):
                 3,
             )
             self.assertIn("Overview of the published paper", index_text)
-            self.assertIn("Figure 1", index_text)
+            self.assertNotIn("publication-figure-caption", index_text)
+            self.assertNotIn("publication-figure-credit", index_text)
             self.assertNotIn("googleusercontent.com", index_text)
             self.assertNotIn("ggpht.com", index_text)
             self.assertEqual(site_validator.validate(output), [])

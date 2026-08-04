@@ -6,7 +6,7 @@
   <meta name="description" content="KAIST EconAI Lab develops AI and data-driven methods for economic and social research.">
   <title>KAIST EconAI Lab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet" href="site.css?v=20260804-paper-carousel">
+  <link rel="stylesheet" href="site.css?v=20260804-figure-only">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -39,26 +39,13 @@
   <main id="main-content">
     <section class="hero" aria-labelledby="hero-title">
       <div class="container">
-        <div class="hero-layout">
-          <div class="hero-content">
-            <h1 id="hero-title">Economic Analysis with Artificial Intelligence</h1>
-            <p class="hero-copy">We develop AI and data-driven methods to understand economic activity, organizations, and social outcomes.</p>
-            <div class="hero-actions">
-              <a class="button button-primary" href="research.html">Explore Research</a>
-              <a class="button button-secondary" href="publications.html">View Publications</a>
-            </div>
+        <div class="hero-content">
+          <h1 id="hero-title">Economic Analysis with Artificial Intelligence</h1>
+          <p class="hero-copy">We develop AI and data-driven methods to understand economic activity, organizations, and social outcomes.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="research.html">Explore Research</a>
+            <a class="button button-secondary" href="publications.html">View Publications</a>
           </div>
-          <aside class="weather-card" id="weatherCard" aria-label="KAIST Daejeon weather">
-            <div class="wc-location">Daejeon, KR &nbsp;·&nbsp; KAIST</div>
-            <div class="wc-date" id="weatherDate"></div>
-            <div class="wc-main-row">
-              <span class="wc-temp" id="weatherTemp">—</span><span class="wc-deg">°</span>
-              <span class="wc-sep">/</span>
-              <span class="wc-cond" id="weatherStatus">—</span>
-              <span class="wc-icon" id="weatherIcon"></span>
-            </div>
-            <div class="wc-meta" id="weatherMeta"></div>
-          </aside>
         </div>
       </div>
     </section>
@@ -118,63 +105,6 @@
       <p class="footer-meta">Daejeon, ROK · 2026 EconAI Lab</p>
     </div>
   </footer>
-  <script>
-    (function () {
-      function weatherDesc(code) {
-        if (code === 0) return "Clear";
-        if (code === 1) return "Mainly Clear";
-        if (code === 2) return "Partly Cloudy";
-        if (code === 3) return "Overcast";
-        if (code === 45 || code === 48) return "Foggy";
-        if (code >= 51 && code <= 57) return "Drizzle";
-        if (code >= 61 && code <= 67) return "Rainy";
-        if (code >= 71 && code <= 77) return "Snowy";
-        if (code >= 80 && code <= 82) return "Showers";
-        if (code === 85 || code === 86) return "Snow Showers";
-        if (code >= 95) return "Thunderstorm";
-        return "Cloudy";
-      }
-
-      function weatherEmoji(code) {
-        if (code === 0) return "☀️";
-        if (code === 1 || code === 2) return "⛅";
-        if (code === 3) return "☁️";
-        if (code === 45 || code === 48) return "🌫️";
-        if (code >= 51 && code <= 57) return "🌦️";
-        if (code >= 61 && code <= 67) return "🌧️";
-        if (code >= 71 && code <= 77) return "❄️";
-        if (code >= 80 && code <= 82) return "🌧️";
-        if (code >= 95) return "⛈️";
-        return "☁️";
-      }
-
-      var url = "https://api.open-meteo.com/v1/forecast"
-        + "?latitude=36.3724&longitude=127.3604"
-        + "&current=temperature_2m,weather_code"
-        + "&daily=temperature_2m_max,temperature_2m_min"
-        + "&timezone=Asia%2FSeoul&forecast_days=1";
-
-      fetch(url)
-        .then(function (response) {
-          if (!response.ok) throw new Error("Weather request failed");
-          return response.json();
-        })
-        .then(function (data) {
-          var current = data.current;
-          var daily = data.daily;
-          var dateParts = daily.time[0].split("-");
-          document.getElementById("weatherDate").textContent = dateParts[0] + ". " + dateParts[1] + ". " + dateParts[2];
-          document.getElementById("weatherTemp").textContent = Math.round(current.temperature_2m);
-          document.getElementById("weatherStatus").textContent = weatherDesc(current.weather_code);
-          document.getElementById("weatherIcon").textContent = weatherEmoji(current.weather_code);
-          document.getElementById("weatherMeta").textContent = "H " + Math.round(daily.temperature_2m_max[0]) + "°  /  L " + Math.round(daily.temperature_2m_min[0]) + "°";
-        })
-        .catch(function () {
-          var card = document.getElementById("weatherCard");
-          if (card) card.style.display = "none";
-        });
-    })();
-  </script>
   <script>
     (function () {
       var carousels = document.querySelectorAll("[data-publication-carousel]");

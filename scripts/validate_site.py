@@ -146,6 +146,10 @@ def validate(site_dir: Path) -> List[str]:
     expected_controls = 2 if carousel_slides else 0
     if _classes(index_text, "publication-carousel-button") != expected_controls:
         errors.append("index.html publication figure carousel controls are missing")
+    if carousel_slides and _classes(index_text, "publication-figure-caption"):
+        errors.append("index.html publication carousel must remain figure-only")
+    if "weather-card" in index_text or "open-meteo.com" in index_text:
+        errors.append("index.html still contains the removed weather widget")
     if "googleusercontent.com" in index_text or "ggpht.com" in index_text:
         errors.append("index.html leaks a temporary Google image URL")
     if _classes(index_text, "sheet-news-item") != expected_counts.get("News"):

@@ -66,10 +66,12 @@ Sheet row order within each year. Move rows in this tab to curate arXiv-first or
 same-venue groupings. Title links replace redundant Paper buttons. The home page
 independently shows the three most recent papers by exact `date` descending.
 
-The homepage pairs that three-paper list with one 2:1 paper-figure card. Images
-use `object-fit: contain`, so a paper figure is never cropped. Previous
-and next controls, as well as the left/right arrow keys while the card has focus,
-cycle through the same three papers. Add all three image headers together or omit
+The homepage pairs that three-paper list with one figure-only 2:1 card. Images
+use `object-fit: contain`, so a paper figure is never cropped. Semi-transparent
+previous and next controls sit over the vertical center of the image; the
+left/right arrow keys work while the card has focus. Paper titles, venues,
+credits, and the slide count are not displayed below the figure. Add all three
+image headers together or omit
 all three. With the headers omitted, or with a complete header set but zero
 embedded `home_image` cells, the homepage keeps the original clean text-only
 publication panel. This lets the columns be created before anyone signs in to

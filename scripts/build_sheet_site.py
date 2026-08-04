@@ -1480,22 +1480,9 @@ def render_home_latest(
         lines.extend(
             [
                 f'              <article class="publication-figure-slide" data-carousel-slide role="group" aria-roledescription="slide" aria-label="{index + 1} of {slide_count}"{hidden}>',
-                f'                <a class="publication-figure-link" href="{_escape(row["paper_url"], quote=True)}">',
+                f'                <a class="publication-figure-link" href="{_escape(row["paper_url"], quote=True)}" aria-label="Open paper: {_escape(row["title"], quote=True)}">',
                 '                  <span class="publication-figure-frame">',
                 *visual_lines,
-                "                  </span>",
-                '                  <span class="publication-figure-caption">',
-                f'                    <span class="publication-figure-eyebrow">Paper Figure · {index + 1:02d}</span>',
-                f'                    <span class="publication-figure-title">{_escape(row["title"])}</span>',
-                f'                    <span class="publication-figure-venue">{_escape(row["venue"])}</span>',
-            ]
-        )
-        if figure.get("credit"):
-            lines.append(
-                f'                    <span class="publication-figure-credit">{_escape(figure["credit"])}</span>'
-            )
-        lines.extend(
-            [
                 "                  </span>",
                 "                </a>",
                 "              </article>",
@@ -1504,11 +1491,9 @@ def render_home_latest(
     lines.extend(
         [
             "            </div>",
-            '            <div class="publication-carousel-controls">',
-            '              <button class="publication-carousel-button" type="button" data-carousel-previous aria-controls="latest-publication-figures" aria-label="Show previous publication figure"><span aria-hidden="true">←</span></button>',
-            f'              <span class="publication-carousel-status" data-carousel-status aria-live="polite" aria-atomic="true">1 / {slide_count}</span>',
-            '              <button class="publication-carousel-button" type="button" data-carousel-next aria-controls="latest-publication-figures" aria-label="Show next publication figure"><span aria-hidden="true">→</span></button>',
-            "            </div>",
+            '            <button class="publication-carousel-button publication-carousel-button--previous" type="button" data-carousel-previous aria-controls="latest-publication-figures" aria-label="Show previous publication figure"><span aria-hidden="true">‹</span></button>',
+            f'            <span class="publication-carousel-status" data-carousel-status aria-live="polite" aria-atomic="true">1 / {slide_count}</span>',
+            '            <button class="publication-carousel-button publication-carousel-button--next" type="button" data-carousel-next aria-controls="latest-publication-figures" aria-label="Show next publication figure"><span aria-hidden="true">›</span></button>',
             "          </div>",
             "        </div>",
         ]
