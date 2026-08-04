@@ -62,7 +62,9 @@
             </a>
             <nav class="section-nav" aria-label="Paper sections">
                 <a href="#motivation">Motivation</a>
+                <a href="#benchmark">Benchmark</a>
                 <a href="#findings">Main results</a>
+                <a href="#release-bias">Release view</a>
             </nav>
             <a class="nav-paper-link" href="assets/paper.pdf" target="_blank" rel="noopener">Read paper <span aria-hidden="true">↗</span></a>
         </div>
@@ -128,15 +130,12 @@
             </div>
         </section>
 
-        <section id="findings" class="content-section section-shell" aria-labelledby="findings-heading">
+        <section id="benchmark" class="content-section section-shell benchmark-section" aria-labelledby="benchmark-heading">
             <div class="section-heading centered-heading">
-                <span class="section-index">02 · Main findings</span>
-                <h2 id="findings-heading">One benchmark. Two directional failures.</h2>
-                <p>Across 20 LLMs, both accuracy and error patterns systematically favor intervention-oriented expectations.</p>
+                <span class="figure-label">Benchmark construction</span>
+                <h2 id="benchmark-heading">From published evidence to directional questions.</h2>
             </div>
-
-            <article id="benchmark" class="benchmark-flow" aria-labelledby="benchmark-heading">
-                <span id="benchmark-heading" class="figure-label">Benchmark construction</span>
+            <article class="benchmark-flow">
                 <p class="benchmark-description"><a href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener noreferrer">EconCausal</a> turns empirical findings from five leading economics and three leading finance journals into causal questions. Given a <strong>treatment</strong>, an <strong>outcome</strong>, and the <strong>study context</strong>, an LLM predicts the published effect as <strong>positive</strong>, <strong>negative</strong>, <strong>no significant effect</strong>, or <strong>mixed</strong>.</p>
                 <ol class="benchmark-steps">
                     <li>
@@ -163,13 +162,21 @@
                     </div>
                 </div>
             </article>
+        </section>
+
+        <section id="findings" class="content-section section-shell" aria-labelledby="findings-heading">
+            <div class="section-heading centered-heading">
+                <span class="section-index">02 · Main findings</span>
+                <h2 id="findings-heading">One benchmark. Two directional failures.</h2>
+                <p>Across 20 LLMs, both accuracy and error patterns systematically favor intervention-oriented expectations.</p>
+            </div>
 
             <article class="model-benchmark" aria-labelledby="model-benchmark-heading">
                 <div class="model-benchmark-header">
                     <div>
                         <span class="figure-label">All-model accuracy</span>
                         <h3 id="model-benchmark-heading">18 of 20 models are more accurate on intervention-truth cases.</h3>
-                        <p>Each pair compares accuracy on intervention-truth and market-truth cases, grouped by model family as reported in the paper.</p>
+                        <p>Each pair compares accuracy on intervention-truth and market-truth cases, grouped by model family as reported in the paper. Select any model for its full result, ICL sensitivity, and two concrete examples.</p>
                     </div>
                     <div class="model-benchmark-legend" role="list" aria-label="Accuracy series">
                         <span role="listitem"><i class="intervention-score-key" aria-hidden="true"></i>Intervention-truth</span>
@@ -353,6 +360,36 @@
             </aside>
         </section>
 
+        <section id="release-bias" class="content-section section-shell" aria-labelledby="release-bias-heading">
+            <div class="section-heading split-heading release-heading">
+                <div>
+                    <span class="figure-label">Bias across model releases</span>
+                    <h2 id="release-bias-heading">Directional bias does not disappear in newer releases.</h2>
+                </div>
+                <p>Each point combines a model's first official public release date with its canonical error-direction bias, <em>B</em><sub>dir</sub>, from Equation 2 and Table 5 of the public arXiv v2 paper.</p>
+            </div>
+
+            <article class="release-panel" aria-labelledby="release-chart-title">
+                <div class="release-panel-header">
+                    <div>
+                        <h3 id="release-chart-title">Release date vs. error-direction bias</h3>
+                        <p>Positive values mean that, among directionally classifiable mistakes, more predictions align with the intervention-oriented expectation; negative values lean market-oriented.</p>
+                    </div>
+                    <div id="release-family-legend" class="release-family-legend" aria-label="Model family legend"></div>
+                </div>
+                <div id="release-chart" class="release-chart" role="group" aria-label="Interactive plot of release date and error-direction bias for 20 models">
+                    <p class="release-chart-fallback">The interactive release view is loading. The paper-reported accuracy values above and the full paper link below remain available without JavaScript.</p>
+                </div>
+                <div class="release-chart-footer">
+                    <p><strong>How to read it:</strong> select a point for the model's complete result. Thin connectors only show release order <em>within the same family</em>; they are not a causal or long-run trend line.</p>
+                    <details class="release-data-details">
+                        <summary>View the 20-point data table</summary>
+                        <div id="release-data-table" class="release-data-table"></div>
+                    </details>
+                </div>
+            </article>
+        </section>
+
         <section class="content-section section-shell" aria-labelledby="subfields-heading">
             <div class="section-heading split-heading">
                 <div>
@@ -419,7 +456,7 @@
                         <span>BibTeX</span>
                         <button class="code-copy copy-trigger" type="button" data-copy-target="bibtex" data-default-label="Copy"><span>Copy</span></button>
                     </div>
-                    <pre id="bibtex"><code>@inproceedings{lee2026ideological,
+                    <pre id="bibtex" tabindex="0" aria-label="BibTeX citation"><code>@inproceedings{lee2026ideological,
   title     = {Ideological Bias in {LLMs}' Economic Causal Reasoning},
   author    = {Lee, Donggyu and Yun, Hyeok and Kim, Jungwon and
                Min, Junsik and Park, Sungwon and Park, Sangyoon and
@@ -443,6 +480,54 @@
         </section>
     </main>
 
+    <div id="model-quick-detail" class="model-quick-detail" role="tooltip" hidden></div>
+
+    <dialog id="model-detail-dialog" class="model-detail-dialog" aria-labelledby="model-detail-title">
+        <div class="model-detail-shell">
+            <header class="model-detail-header">
+                <div>
+                    <span id="model-detail-family" class="figure-label"></span>
+                    <h2 id="model-detail-title">Model details</h2>
+                    <p id="model-detail-release" class="model-detail-release"></p>
+                </div>
+                <button class="icon-button" type="button" data-dialog-close aria-label="Close model details">×</button>
+            </header>
+            <div class="model-detail-actions">
+                <button id="model-compare-toggle" class="button button-primary" type="button">Add to compare</button>
+                <a id="model-release-source" class="button button-secondary" href="#" target="_blank" rel="noopener noreferrer">Release source <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="model-tabs" role="tablist" aria-label="Model detail views">
+                <button id="model-tab-overview" type="button" role="tab" aria-selected="true" aria-controls="model-panel-overview" data-model-tab="overview">Overview</button>
+                <button id="model-tab-icl" type="button" role="tab" aria-selected="false" aria-controls="model-panel-icl" data-model-tab="icl" tabindex="-1">ICL</button>
+                <button id="model-tab-examples" type="button" role="tab" aria-selected="false" aria-controls="model-panel-examples" data-model-tab="examples" tabindex="-1">Examples</button>
+            </div>
+            <div id="model-panel-overview" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-overview" data-model-panel="overview"></div>
+            <div id="model-panel-icl" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-icl" data-model-panel="icl" hidden></div>
+            <div id="model-panel-examples" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-examples" data-model-panel="examples" hidden></div>
+        </div>
+    </dialog>
+
+    <aside id="compare-tray" class="compare-tray" aria-labelledby="compare-title" hidden>
+        <div class="compare-tray-header">
+            <div>
+                <span class="figure-label">Model compare</span>
+                <h2 id="compare-title">Compare selected models</h2>
+            </div>
+            <button id="compare-clear" class="text-button" type="button">Clear all</button>
+        </div>
+        <div class="compare-controls">
+            <label for="compare-sort">Order by</label>
+            <select id="compare-sort">
+                <option value="selection">Selection order</option>
+                <option value="intervention">Intervention accuracy</option>
+                <option value="market">Market accuracy</option>
+                <option value="gap">Accuracy gap</option>
+                <option value="b_dir">B_dir</option>
+            </select>
+        </div>
+        <div id="compare-grid" class="compare-grid"></div>
+    </aside>
+
     <footer class="paper-footer">
         <div class="section-shell footer-inner">
             <a href="../" class="footer-brand">
@@ -453,7 +538,7 @@
         </div>
     </footer>
 
-    <div class="copy-status" role="status" aria-live="polite"></div>
-    <script src="script.js" defer></script>
+    <div class="copy-status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

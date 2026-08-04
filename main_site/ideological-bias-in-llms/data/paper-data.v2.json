@@ -1,0 +1,1111 @@
+{
+  "schema_version": "2.0.0",
+  "dataset_version": "arxiv-v2-20-models",
+  "reported_in_paper": true,
+  "evaluation_date": null,
+  "source": {
+    "paper": "arXiv:2604.21334v2",
+    "paper_url": "https://arxiv.org/abs/2604.21334v2",
+    "table_5": "public arXiv v2 source: colm/Tables/main_results.tex",
+    "table_2": "public arXiv v2 source: colm/Tables/ICL_results.tex",
+    "task1_bias": "extended/ideology_bias_outputs_task1_ideology_subset_1056/tables/task1_bias_by_model.csv",
+    "task1_examples": "extended/ideology_bias_outputs_task1_ideology_subset_1056/analysis_datasets/task1_analysis_rows.jsonl",
+    "notes": "Only the 20 rows reported in public arXiv v2 are included; post-paper models are excluded. Two displayed Table 2 delta-sign typos are recomputed from their published accuracy cells using the stated definition.",
+    "release_date_policy": "First official public availability or official vendor announcement; preview status and naming ambiguities are retained in release_date_source.note."
+  },
+  "denominators": {
+    "benchmark_total": 10490,
+    "contested_pool": 1056,
+    "paper_contested": 898,
+    "directional_total": 751,
+    "intervention_truth": 436,
+    "market_truth": 315,
+    "sensitive_neither": 147,
+    "non_contested": 9434
+  },
+  "definitions": {
+    "accuracy_gap_pp": "intervention_accuracy - market_accuracy",
+    "b_dir_pct": "100 × (intervention-leaning errors - market-leaning errors) / all directional errors; canonical values are arXiv v2 Equation 2/Table 5",
+    "delta_example": "intervention_ex - market_ex for the same target side",
+    "icl_note": "None uses the 751 directional cases; example conditions use ensemble-oriented matched rows and must not be compared as a shared denominator."
+  },
+  "public_content_policy": {
+    "context": "short editorial paraphrase, not source-paper prose",
+    "explanation": "first-sentence excerpt from the model-generated evaluation rationale",
+    "excluded": [
+      "raw prompt",
+      "long source text",
+      "hidden chain-of-thought",
+      "PII"
+    ]
+  },
+  "models": [
+    {
+      "id": "gpt-4o-mini",
+      "source_model_id": "gpt-4o-mini",
+      "display_name": "GPT-4o-mini",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-07-18",
+      "release_date_source": {
+        "title": "GPT-4o mini: advancing cost-efficient intelligence",
+        "url": "https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/"
+      },
+      "overview": {
+        "non_contested_accuracy": 63.2,
+        "contested_accuracy": 50.3,
+        "intervention_accuracy": 69.5,
+        "market_accuracy": 46,
+        "accuracy_gap_pp": 23.5,
+        "b_dir_pct": 15.5
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 69.5,
+          "non_contested": 47.5,
+          "intervention_ex": 50.3,
+          "market_ex": 58.2,
+          "delta_example": -7.9
+        },
+        "market_truth": {
+          "none": 46,
+          "non_contested": 52.6,
+          "intervention_ex": 60.7,
+          "market_ex": 50.4,
+          "delta_example": 10.3
+        }
+      }
+    },
+    {
+      "id": "gpt-4o",
+      "source_model_id": "gpt-4o",
+      "display_name": "GPT-4o",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-05-13",
+      "release_date_source": {
+        "title": "Hello GPT-4o",
+        "url": "https://openai.com/index/hello-gpt-4o/"
+      },
+      "overview": {
+        "non_contested_accuracy": 69.4,
+        "contested_accuracy": 57.9,
+        "intervention_accuracy": 72.5,
+        "market_accuracy": 57.1,
+        "accuracy_gap_pp": 15.3,
+        "b_dir_pct": 7.8
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 72.5,
+          "non_contested": 43.4,
+          "intervention_ex": 45.5,
+          "market_ex": 43.7,
+          "delta_example": 1.8
+        },
+        "market_truth": {
+          "none": 57.1,
+          "non_contested": 46.6,
+          "intervention_ex": 52.6,
+          "market_ex": 63.2,
+          "delta_example": -10.6
+        }
+      }
+    },
+    {
+      "id": "gpt-5-nano",
+      "source_model_id": "gpt-5-nano",
+      "display_name": "GPT-5-nano",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-08-07",
+      "release_date_source": {
+        "title": "Introducing GPT-5 for developers",
+        "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+        "note": "GPT-5 mini and GPT-5 nano became available together in the API."
+      },
+      "overview": {
+        "non_contested_accuracy": 70.1,
+        "contested_accuracy": 53.8,
+        "intervention_accuracy": 66.7,
+        "market_accuracy": 53,
+        "accuracy_gap_pp": 13.7,
+        "b_dir_pct": 9.9
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 66.7,
+          "non_contested": 55.7,
+          "intervention_ex": 55.9,
+          "market_ex": 53.8,
+          "delta_example": 2.1
+        },
+        "market_truth": {
+          "none": 53,
+          "non_contested": 61.6,
+          "intervention_ex": 55.6,
+          "market_ex": 56,
+          "delta_example": -0.4
+        }
+      }
+    },
+    {
+      "id": "gpt-5-mini",
+      "source_model_id": "gpt-5-mini",
+      "display_name": "GPT-5-mini",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-08-07",
+      "release_date_source": {
+        "title": "Introducing GPT-5 for developers",
+        "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+        "note": "GPT-5 mini and GPT-5 nano became available together in the API."
+      },
+      "overview": {
+        "non_contested_accuracy": 73.1,
+        "contested_accuracy": 55.7,
+        "intervention_accuracy": 65.6,
+        "market_accuracy": 57.8,
+        "accuracy_gap_pp": 7.8,
+        "b_dir_pct": 2.8
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 65.6,
+          "non_contested": 68.7,
+          "intervention_ex": 74.1,
+          "market_ex": 63.9,
+          "delta_example": 10.2
+        },
+        "market_truth": {
+          "none": 57.8,
+          "non_contested": 55.2,
+          "intervention_ex": 56.3,
+          "market_ex": 64.8,
+          "delta_example": -8.5
+        }
+      }
+    },
+    {
+      "id": "gpt-5-2",
+      "source_model_id": "gpt-5.2",
+      "display_name": "GPT-5.2",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-12-11",
+      "release_date_source": {
+        "title": "Introducing GPT-5.2",
+        "url": "https://openai.com/index/introducing-gpt-5-2/"
+      },
+      "overview": {
+        "non_contested_accuracy": 75.8,
+        "contested_accuracy": 63.4,
+        "intervention_accuracy": 73.9,
+        "market_accuracy": 63.2,
+        "accuracy_gap_pp": 10.7,
+        "b_dir_pct": -2.6
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 73.9,
+          "non_contested": 69.1,
+          "intervention_ex": 72.7,
+          "market_ex": 63.3,
+          "delta_example": 9.4
+        },
+        "market_truth": {
+          "none": 63.2,
+          "non_contested": 59.8,
+          "intervention_ex": 68.1,
+          "market_ex": 66.4,
+          "delta_example": 1.7
+        }
+      }
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "source_model_id": "claude-haiku-4-5",
+      "display_name": "Haiku 4.5",
+      "family": "Claude",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-10-15",
+      "release_date_source": {
+        "title": "Introducing Claude Haiku 4.5",
+        "url": "https://www.anthropic.com/news/claude-haiku-4-5"
+      },
+      "overview": {
+        "non_contested_accuracy": 74.2,
+        "contested_accuracy": 56.5,
+        "intervention_accuracy": 67.4,
+        "market_accuracy": 56.2,
+        "accuracy_gap_pp": 11.2,
+        "b_dir_pct": 1.4
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 67.4,
+          "non_contested": 70.4,
+          "intervention_ex": 72,
+          "market_ex": 70.9,
+          "delta_example": 1.1
+        },
+        "market_truth": {
+          "none": 56.2,
+          "non_contested": 58.5,
+          "intervention_ex": 60,
+          "market_ex": 64.8,
+          "delta_example": -4.8
+        }
+      }
+    },
+    {
+      "id": "claude-sonnet-4-6",
+      "source_model_id": "claude-sonnet-4-6",
+      "display_name": "Sonnet 4.6",
+      "family": "Claude",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2026-02-17",
+      "release_date_source": {
+        "title": "Introducing Claude Sonnet 4.6",
+        "url": "https://www.anthropic.com/news/claude-sonnet-4-6"
+      },
+      "overview": {
+        "non_contested_accuracy": 76.3,
+        "contested_accuracy": 63,
+        "intervention_accuracy": 67,
+        "market_accuracy": 68.9,
+        "accuracy_gap_pp": -1.9,
+        "b_dir_pct": -8.7
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 67,
+          "non_contested": 72.8,
+          "intervention_ex": 74.1,
+          "market_ex": 63.3,
+          "delta_example": 10.8
+        },
+        "market_truth": {
+          "none": 68.9,
+          "non_contested": 72.3,
+          "intervention_ex": 71.1,
+          "market_ex": 63.2,
+          "delta_example": 7.9
+        }
+      }
+    },
+    {
+      "id": "claude-opus-4-6",
+      "source_model_id": "claude-opus-4-6",
+      "display_name": "Opus 4.6",
+      "family": "Claude",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2026-02-05",
+      "release_date_source": {
+        "title": "Introducing Claude Opus 4.6",
+        "url": "https://www.anthropic.com/news/claude-opus-4-6"
+      },
+      "overview": {
+        "non_contested_accuracy": 77.7,
+        "contested_accuracy": 65.1,
+        "intervention_accuracy": 67.7,
+        "market_accuracy": 68.3,
+        "accuracy_gap_pp": -0.6,
+        "b_dir_pct": -8.7
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 67.7,
+          "non_contested": 82,
+          "intervention_ex": 77.6,
+          "market_ex": 70.9,
+          "delta_example": 6.7
+        },
+        "market_truth": {
+          "none": 68.3,
+          "non_contested": 82.5,
+          "intervention_ex": 80,
+          "market_ex": 68.8,
+          "delta_example": 11.2
+        }
+      }
+    },
+    {
+      "id": "gemini-2-5-flash",
+      "source_model_id": "gemini-2.5-flash",
+      "display_name": "2.5 Flash",
+      "family": "Gemini",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-04-17",
+      "release_date_source": {
+        "title": "Start building with Gemini 2.5 Flash",
+        "url": "https://developers.googleblog.com/en/start-building-with-gemini-25-flash/",
+        "note": "First official public preview; the stable endpoint became generally available on 2025-06-17."
+      },
+      "overview": {
+        "non_contested_accuracy": 75.9,
+        "contested_accuracy": 61.8,
+        "intervention_accuracy": 75.7,
+        "market_accuracy": 65.4,
+        "accuracy_gap_pp": 10.3,
+        "b_dir_pct": 6.5
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 75.7,
+          "non_contested": 68.2,
+          "intervention_ex": 69.9,
+          "market_ex": 65.2,
+          "delta_example": 4.7
+        },
+        "market_truth": {
+          "none": 65.4,
+          "non_contested": 62.8,
+          "intervention_ex": 61.5,
+          "market_ex": 67.2,
+          "delta_example": -5.7
+        }
+      }
+    },
+    {
+      "id": "gemini-3-flash",
+      "source_model_id": "gemini-3-flash-preview",
+      "display_name": "3 Flash",
+      "family": "Gemini",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-12-17",
+      "release_date_source": {
+        "title": "Gemini 3 Flash: frontier intelligence built for speed",
+        "url": "https://blog.google/products-and-platforms/products/gemini/gemini-3-flash/",
+        "note": "Released in developer preview and consumer products on the same date."
+      },
+      "overview": {
+        "non_contested_accuracy": 83.5,
+        "contested_accuracy": 76.4,
+        "intervention_accuracy": 82.6,
+        "market_accuracy": 81.6,
+        "accuracy_gap_pp": 1,
+        "b_dir_pct": -6
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 82.6,
+          "non_contested": 87.5,
+          "intervention_ex": 83.9,
+          "market_ex": 80.4,
+          "delta_example": 3.5
+        },
+        "market_truth": {
+          "none": 81.6,
+          "non_contested": 90.9,
+          "intervention_ex": 91.1,
+          "market_ex": 87.2,
+          "delta_example": 3.9
+        }
+      }
+    },
+    {
+      "id": "grok-3-mini",
+      "source_model_id": "grok-3-mini",
+      "display_name": "3-mini",
+      "family": "Grok",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-02-19",
+      "release_date_source": {
+        "title": "Grok 3 Beta — The Age of Reasoning Agents",
+        "url": "https://x.ai/news/grok-3",
+        "note": "Shared official announcement with Grok 3; the vendor release page is dated February 19."
+      },
+      "overview": {
+        "non_contested_accuracy": 76.7,
+        "contested_accuracy": 64.1,
+        "intervention_accuracy": 81.7,
+        "market_accuracy": 64.1,
+        "accuracy_gap_pp": 17.5,
+        "b_dir_pct": 13.5
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 81.7,
+          "non_contested": 62.6,
+          "intervention_ex": 64.3,
+          "market_ex": 59.5,
+          "delta_example": 4.8
+        },
+        "market_truth": {
+          "none": 64.1,
+          "non_contested": 67.8,
+          "intervention_ex": 71.1,
+          "market_ex": 69.6,
+          "delta_example": 1.5
+        }
+      }
+    },
+    {
+      "id": "grok-3",
+      "source_model_id": "grok-3",
+      "display_name": "3",
+      "family": "Grok",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-02-19",
+      "release_date_source": {
+        "title": "Grok 3 Beta — The Age of Reasoning Agents",
+        "url": "https://x.ai/news/grok-3",
+        "note": "The vendor release page is dated February 19."
+      },
+      "overview": {
+        "non_contested_accuracy": 74.5,
+        "contested_accuracy": 61.2,
+        "intervention_accuracy": 77.3,
+        "market_accuracy": 63.8,
+        "accuracy_gap_pp": 13.5,
+        "b_dir_pct": 4.7
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 77.3,
+          "non_contested": 63.2,
+          "intervention_ex": 60.8,
+          "market_ex": 66.5,
+          "delta_example": -5.6
+        },
+        "market_truth": {
+          "none": 63.8,
+          "non_contested": 69,
+          "intervention_ex": 67.4,
+          "market_ex": 68.8,
+          "delta_example": -1.4
+        }
+      }
+    },
+    {
+      "id": "grok-4-1-fast",
+      "source_model_id": "grok-4-1-fast-reasoning",
+      "display_name": "4-1 Fast",
+      "family": "Grok",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-11-19",
+      "release_date_source": {
+        "title": "Grok 4.1 Fast and Agent Tools API",
+        "url": "https://x.ai/news/grok-4-1-fast",
+        "note": "The paper label uses 4-1 Fast; vendor styling is Grok 4.1 Fast."
+      },
+      "overview": {
+        "non_contested_accuracy": 78.2,
+        "contested_accuracy": 67.5,
+        "intervention_accuracy": 79.6,
+        "market_accuracy": 74.9,
+        "accuracy_gap_pp": 4.7,
+        "b_dir_pct": 1.8
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 79.6,
+          "non_contested": 77.3,
+          "intervention_ex": 76.2,
+          "market_ex": 66.5,
+          "delta_example": 9.8
+        },
+        "market_truth": {
+          "none": 74.9,
+          "non_contested": 65.6,
+          "intervention_ex": 74.1,
+          "market_ex": 73.6,
+          "delta_example": 0.5
+        }
+      }
+    },
+    {
+      "id": "llama-3-1-8b",
+      "source_model_id": "meta-llama/llama-3.1-8b-instruct",
+      "display_name": "3.1-8B",
+      "family": "Llama",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-07-23",
+      "release_date_source": {
+        "title": "Introducing Llama 3.1: Our most capable models to date",
+        "url": "https://ai.meta.com/blog/meta-llama-3-1/"
+      },
+      "overview": {
+        "non_contested_accuracy": 49.3,
+        "contested_accuracy": 42.7,
+        "intervention_accuracy": 51.4,
+        "market_accuracy": 41.9,
+        "accuracy_gap_pp": 9.5,
+        "b_dir_pct": -1
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 51.4,
+          "non_contested": 45.7,
+          "intervention_ex": 48.3,
+          "market_ex": 46.2,
+          "delta_example": 2
+        },
+        "market_truth": {
+          "none": 41.9,
+          "non_contested": 47.7,
+          "intervention_ex": 51.9,
+          "market_ex": 44.8,
+          "delta_example": 7.1
+        }
+      }
+    },
+    {
+      "id": "llama-3-2-1b",
+      "source_model_id": "meta-llama/llama-3.2-1b-instruct",
+      "display_name": "3.2-1B",
+      "family": "Llama",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-09-25",
+      "release_date_source": {
+        "title": "Llama 3.2: Revolutionizing edge AI and vision",
+        "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+        "note": "The 1B and 3B text models were released together."
+      },
+      "overview": {
+        "non_contested_accuracy": 56.4,
+        "contested_accuracy": 48.3,
+        "intervention_accuracy": 61.2,
+        "market_accuracy": 50.8,
+        "accuracy_gap_pp": 10.4,
+        "b_dir_pct": 1.9
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 61.2,
+          "non_contested": 54.9,
+          "intervention_ex": 56.6,
+          "market_ex": 53.8,
+          "delta_example": 2.8
+        },
+        "market_truth": {
+          "none": 50.8,
+          "non_contested": 60.8,
+          "intervention_ex": 52.6,
+          "market_ex": 49.6,
+          "delta_example": 3
+        }
+      }
+    },
+    {
+      "id": "llama-3-2-3b",
+      "source_model_id": "meta-llama/llama-3.2-3b-instruct",
+      "display_name": "3.2-3B",
+      "family": "Llama",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-09-25",
+      "release_date_source": {
+        "title": "Llama 3.2: Revolutionizing edge AI and vision",
+        "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+        "note": "The 1B and 3B text models were released together."
+      },
+      "overview": {
+        "non_contested_accuracy": 56.7,
+        "contested_accuracy": 48.9,
+        "intervention_accuracy": 62.8,
+        "market_accuracy": 49.2,
+        "accuracy_gap_pp": 13.6,
+        "b_dir_pct": 6.8
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 62.8,
+          "non_contested": 45.7,
+          "intervention_ex": 54.5,
+          "market_ex": 42.4,
+          "delta_example": 12.1
+        },
+        "market_truth": {
+          "none": 49.2,
+          "non_contested": 50.5,
+          "intervention_ex": 57,
+          "market_ex": 44.8,
+          "delta_example": 12.2
+        }
+      }
+    },
+    {
+      "id": "llama-3-3-70b",
+      "source_model_id": "meta-llama/llama-3.3-70b-instruct",
+      "display_name": "3.3-70B",
+      "family": "Llama",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-12-06",
+      "release_date_source": {
+        "title": "Llama 3.3 70B Instruct model card",
+        "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct",
+        "note": "The official Meta model card lists December 6 as the release date."
+      },
+      "overview": {
+        "non_contested_accuracy": 72.1,
+        "contested_accuracy": 58,
+        "intervention_accuracy": 76.6,
+        "market_accuracy": 56.2,
+        "accuracy_gap_pp": 20.4,
+        "b_dir_pct": 17.9
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 76.6,
+          "non_contested": 54.4,
+          "intervention_ex": 55.2,
+          "market_ex": 67.7,
+          "delta_example": -12.5
+        },
+        "market_truth": {
+          "none": 56.2,
+          "non_contested": 61.2,
+          "intervention_ex": 62.2,
+          "market_ex": 68,
+          "delta_example": -5.8
+        }
+      }
+    },
+    {
+      "id": "qwen-3-8b",
+      "source_model_id": "qwen/qwen3-8b",
+      "display_name": "3-8B",
+      "family": "Qwen",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-04-29",
+      "release_date_source": {
+        "title": "Qwen3: Think Deeper, Act Faster",
+        "url": "https://qwenlm.github.io/blog/qwen3/",
+        "note": "The Qwen3 sizes were released together; the official blog uses April 29."
+      },
+      "overview": {
+        "non_contested_accuracy": 71.6,
+        "contested_accuracy": 58.5,
+        "intervention_accuracy": 77.5,
+        "market_accuracy": 55.9,
+        "accuracy_gap_pp": 21.6,
+        "b_dir_pct": 17.7
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 77.5,
+          "non_contested": 64.5,
+          "intervention_ex": 62.2,
+          "market_ex": 61.4,
+          "delta_example": 0.8
+        },
+        "market_truth": {
+          "none": 55.9,
+          "non_contested": 61.6,
+          "intervention_ex": 65.2,
+          "market_ex": 64,
+          "delta_example": 1.2
+        }
+      }
+    },
+    {
+      "id": "qwen-3-14b",
+      "source_model_id": "qwen/qwen3-14b",
+      "display_name": "3-14B",
+      "family": "Qwen",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-04-29",
+      "release_date_source": {
+        "title": "Qwen3: Think Deeper, Act Faster",
+        "url": "https://qwenlm.github.io/blog/qwen3/",
+        "note": "The Qwen3 sizes were released together; the official blog uses April 29."
+      },
+      "overview": {
+        "non_contested_accuracy": 69.3,
+        "contested_accuracy": 53.5,
+        "intervention_accuracy": 68.1,
+        "market_accuracy": 52.4,
+        "accuracy_gap_pp": 15.7,
+        "b_dir_pct": 8
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 68.1,
+          "non_contested": 53.1,
+          "intervention_ex": 55.9,
+          "market_ex": 51.3,
+          "delta_example": 4.7
+        },
+        "market_truth": {
+          "none": 52.4,
+          "non_contested": 47.3,
+          "intervention_ex": 48.1,
+          "market_ex": 66.4,
+          "delta_example": -18.3
+        }
+      }
+    },
+    {
+      "id": "qwen-3-32b",
+      "source_model_id": "qwen/qwen3-32b",
+      "display_name": "3-32B",
+      "family": "Qwen",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "arXiv v2 Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-04-29",
+      "release_date_source": {
+        "title": "Qwen3: Think Deeper, Act Faster",
+        "url": "https://qwenlm.github.io/blog/qwen3/",
+        "note": "The Qwen3 sizes were released together; the official blog uses April 29."
+      },
+      "overview": {
+        "non_contested_accuracy": 71.1,
+        "contested_accuracy": 57.8,
+        "intervention_accuracy": 73.2,
+        "market_accuracy": 58.7,
+        "accuracy_gap_pp": 14.4,
+        "b_dir_pct": 10.1
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 73.2,
+          "non_contested": 69.1,
+          "intervention_ex": 67.1,
+          "market_ex": 64.6,
+          "delta_example": 2.6
+        },
+        "market_truth": {
+          "none": 58.7,
+          "non_contested": 50.1,
+          "intervention_ex": 49.6,
+          "market_ex": 61.6,
+          "delta_example": -12
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "case_id": "t1_9849",
+      "triplet_key": "28831|minimum wage increase|probability of remaining employed",
+      "title": "Earnings Inequality and the Minimum Wage: Evidence from Brazil",
+      "paper_url": "https://www.nber.org/papers/w28831",
+      "treatment": "Minimum wage increase",
+      "outcome": "Probability of remaining employed",
+      "context_summary": "Brazilian employer–employee and household data track minimum-wage changes and worker retention, using cross-state differences in how binding the federal wage floor was.",
+      "context_summary_type": "editorial_paraphrase",
+      "empirical_sign": "+",
+      "intervention_sign": "+",
+      "market_sign": "-",
+      "ground_truth_side": "intervention",
+      "model_outputs": [
+        {
+          "model_id": "gpt-4o-mini",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "A minimum wage increase generally elevates the income floor for workers, which can reduce turnover and enhance job security for low-wage employees."
+        },
+        {
+          "model_id": "gpt-4o",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "A minimum wage increase can decrease the probability of remaining employed due to potential job losses."
+        },
+        {
+          "model_id": "gpt-5-nano",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "The minimum wage increase in Brazil (1996–2012) created binding effects in areas with low local wage dispersion, raising labor costs for firms employing low-wage workers."
+        },
+        {
+          "model_id": "gpt-5-mini",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "Sign likely heterogeneous."
+        },
+        {
+          "model_id": "gpt-5-2",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "A higher minimum wage raises labor costs for firms employing low-wage workers, which can reduce job retention for workers whose productivity is below the new wage, lowering the probability of remaining employed in more…"
+        },
+        {
+          "model_id": "claude-haiku-4-5",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "Minimum wage increases have theoretically ambiguous effects on employment probability."
+        },
+        {
+          "model_id": "claude-sonnet-4-6",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "The effect of minimum wage increases on employment retention is theoretically ambiguous and empirically context-dependent."
+        },
+        {
+          "model_id": "claude-opus-4-6",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "Standard labor economics predicts that minimum wage increases raise labor costs, leading to disemployment effects, particularly for workers near the bottom of the wage distribution."
+        },
+        {
+          "model_id": "gemini-2-5-flash",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "An increase in the minimum wage raises labor costs for firms."
+        },
+        {
+          "model_id": "gemini-3-flash",
+          "predicted_sign": "None",
+          "correct": false,
+          "explanation": "Empirical studies of the Brazilian labor market during this period, such as Engbom and Moser (2022), find that while the minimum wage significantly reduced earnings inequality, it had a negligible or statistically…"
+        },
+        {
+          "model_id": "grok-3-mini",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "A minimum wage increase typically raises labor costs for employers, which can lead to job cuts or reduced retention of low-wage workers, thereby decreasing the probability of remaining employed."
+        },
+        {
+          "model_id": "grok-3",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "An increase in the minimum wage in Brazil during 1996-2012 likely reduces the probability of remaining employed, particularly for low-wage workers."
+        },
+        {
+          "model_id": "grok-4-1-fast",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "Standard neoclassical labor demand theory predicts that minimum wage increases raise labor costs for low-skill firms, leading to reduced demand for low-wage workers and lower probability of remaining employed,…"
+        },
+        {
+          "model_id": "llama-3-1-8b",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Raising the minimum wage typically leads to higher labor costs for firms, which might incentivize them to substitute lower-skilled workers with higher-skilled workers or invest in labor productivity to keep costs down."
+        },
+        {
+          "model_id": "llama-3-2-1b",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "The minimum wage increase likely increases the probability of remaining employed due to the potential for increased purchasing power and reduced poverty, leading to a more stable labor market."
+        },
+        {
+          "model_id": "llama-3-2-3b",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "The minimum wage increase is likely to increase the probability of remaining employed, as higher wages can lead to increased job security and reduced unemployment, especially in a country with a large informal sector…"
+        },
+        {
+          "model_id": "llama-3-3-70b",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "A minimum wage increase can lead to higher labor costs for firms, potentially reducing their demand for labor and thus decreasing the probability of remaining employed, especially for low-skilled or low-wage workers."
+        },
+        {
+          "model_id": "qwen-3-8b",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "A minimum wage increase is likely to reduce employment probability due to higher labor costs leading to potential layoffs or reduced hiring, particularly in binding wage distributions."
+        },
+        {
+          "model_id": "qwen-3-14b",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "The minimum wage's effect on employment depends on local wage distributions and bindingness."
+        },
+        {
+          "model_id": "qwen-3-32b",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "An increase in the minimum wage is likely to raise labor costs for employers, potentially leading to reduced employment (especially for low-skilled workers) due to substitution or margin adjustments."
+        }
+      ]
+    },
+    {
+      "case_id": "t1_515",
+      "triplet_key": "7266|hospital competition|social welfare",
+      "title": "Is Hospital Competition Socially Wasteful?",
+      "paper_url": "https://www.nber.org/papers/w7266",
+      "treatment": "Hospital competition",
+      "outcome": "Social welfare",
+      "context_summary": "U.S. Medicare heart-attack records from 1985–1994 link changes in local hospital competition to treatment intensity, spending, mortality, and rehospitalization.",
+      "context_summary_type": "editorial_paraphrase",
+      "empirical_sign": "+",
+      "intervention_sign": "-",
+      "market_sign": "+",
+      "ground_truth_side": "market",
+      "model_outputs": [
+        {
+          "model_id": "gpt-4o-mini",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Increased hospital competition is expected to enhance the quality and efficiency of care, leading to better patient outcomes and therefore improving social welfare."
+        },
+        {
+          "model_id": "gpt-4o",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "Hospital competition can have mixed effects on social welfare."
+        },
+        {
+          "model_id": "gpt-5-nano",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Hospital competition typically reduces prices and can spur quality improvements in care delivery."
+        },
+        {
+          "model_id": "gpt-5-mini",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "In this institutional setting (Medicare with regulated reimbursements and rising managed care), stronger hospital competition tends to spur hospitals to compete on quality and treatment intensity for AMI patients."
+        },
+        {
+          "model_id": "gpt-5-2",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "Greater hospital competition can raise social welfare if it improves quality (lower AMI mortality/rehospitalizations) and/or reduces prices/spending through efficiency."
+        },
+        {
+          "model_id": "claude-haiku-4-5",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "Hospital competition's effect on social welfare in AMI care is theoretically ambiguous and likely heterogeneous."
+        },
+        {
+          "model_id": "claude-sonnet-4-6",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "The effect of hospital competition on social welfare in this context is ambiguous and likely mixed."
+        },
+        {
+          "model_id": "claude-opus-4-6",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "The seminal Kessler and McClellan (2000) study finds that the welfare effects of hospital competition changed over time."
+        },
+        {
+          "model_id": "gemini-2-5-flash",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "Hospital competition can have ambiguous effects on social welfare."
+        },
+        {
+          "model_id": "gemini-3-flash",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "The research by Kessler and McClellan (2000) finds that hospital competition, particularly after 1990, led to both lower costs and lower mortality rates for AMI patients."
+        },
+        {
+          "model_id": "grok-3-mini",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Economic theory posits that hospital competition can enhance social welfare by incentivizing better quality of care and efficiency in resource use."
+        },
+        {
+          "model_id": "grok-3",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Hospital competition likely increases social welfare by incentivizing hospitals to improve the quality of care and efficiency to attract patients, especially in the context of Medicare beneficiaries with AMI."
+        },
+        {
+          "model_id": "grok-4-1-fast",
+          "predicted_sign": "-",
+          "correct": false,
+          "explanation": "Hospital competition increases treatment intensity and Medicare inpatient spending without reducing one-year mortality or rehospitalizations, leading to higher costs without health benefits, which decreases social…"
+        },
+        {
+          "model_id": "llama-3-1-8b",
+          "predicted_sign": "None",
+          "correct": false,
+          "explanation": "Increased hospital competition may lead to both benefits (e.g., better management of heart attacks through more efficient care) and drawbacks (e.g., shorter lengths of stay resulting in potential decreased quality of…"
+        },
+        {
+          "model_id": "llama-3-2-1b",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Hospital competition increases social welfare by increasing access to specialized care, improving treatment quality, and reducing costs, ultimately leading to better health outcomes."
+        },
+        {
+          "model_id": "llama-3-2-3b",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Hospital competition likely increases social welfare by promoting more efficient allocation of resources, driving down costs, and encouraging better quality of care, as hospitals compete to attract patients and improve…"
+        },
+        {
+          "model_id": "llama-3-3-70b",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Increased hospital competition is likely to lead to better healthcare services and lower prices due to the pressure to attract patients, thereby enhancing social welfare."
+        },
+        {
+          "model_id": "qwen-3-8b",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "Hospital competition may improve efficiency (lower costs) but could also lead to trade-offs in quality or access."
+        },
+        {
+          "model_id": "qwen-3-14b",
+          "predicted_sign": "+",
+          "correct": true,
+          "explanation": "Hospital competition is theorized to enhance efficiency, reduce costs, and improve quality in healthcare markets."
+        },
+        {
+          "model_id": "qwen-3-32b",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "explanation": "Hospital competition can have heterogeneous effects on social welfare."
+        }
+      ]
+    }
+  ]
+}
