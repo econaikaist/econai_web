@@ -50,6 +50,12 @@ PUBLICATION_WORKBOOK_UNCOMPRESSED_LIMIT = 128 * 1024 * 1024
 PUBLICATION_WORKBOOK_MEMBER_LIMIT = 20 * 1024 * 1024
 PUBLICATION_WORKBOOK_MAX_MEMBERS = 2048
 PUBLICATION_IMAGE_ASSET_DIR = Path("img/sheet-publications")
+PUBLICATION_IMAGE_FILE_LIMIT = 10 * 1024 * 1024
+PUBLICATION_IMAGE_FORMULA_HOSTS = {
+    "arxiv.org",
+    "econai.kaist.ac.kr",
+    "media.springernature.com",
+}
 RESEARCH_LEGACY_IMAGE_COLUMNS = {
     "figure_1_url",
     "figure_2_url",
@@ -1059,6 +1065,99 @@ def _xlsx_cell_values(
     return values
 
 
+def _xlsx_cell_formulas(
+    worksheet: ElementTree.Element,
+) -> Dict[Tuple[int, int], str]:
+    formulas: Dict[Tuple[int, int], str] = {}
+    for cell in worksheet.findall(f".//{{{XLSX_MAIN_NS}}}c"):
+        formula_node = cell.find(f"{{{XLSX_MAIN_NS}}}f")
+        if formula_node is None or not (formula_node.text or "").strip():
+            continue
+        reference = cell.get("r", "")
+        match = re.fullmatch(r"([A-Z]+)([1-9]\d*)", reference)
+        if match is None:
+            raise SheetBuildError(
+                "Publications worksheet has an invalid cell reference"
+            )
+        key = (int(match.group(2)) - 1, _xlsx_column_index(reference))
+        if key in formulas:
+            raise SheetBuildError("Publications worksheet duplicated a formula cell")
+        formulas[key] = (formula_node.text or "").strip()
+    return formulas
+
+
+def _publication_image_formula_url(formula: str, label: str) -> str:
+    match = re.fullmatch(
+        r'(?:_xlfn\.)?IMAGE\(\s*"([^"]+)"\s*\)',
+        formula,
+        flags=re.IGNORECASE,
+    )
+    if match is None:
+        raise SheetBuildError(
+            f'{label}: home_image formula must use IMAGE("https://...")'
+        )
+    value = match.group(1)
+    try:
+        parsed = urllib.parse.urlsplit(value)
+        port = parsed.port
+    except ValueError:
+        raise SheetBuildError(
+            f"{label}: home_image formula has an invalid URL"
+        ) from None
+    hostname = (parsed.hostname or "").casefold()
+    if (
+        parsed.scheme != "https"
+        or parsed.username is not None
+        or parsed.password is not None
+        or port not in (None, 443)
+        or hostname not in PUBLICATION_IMAGE_FORMULA_HOSTS
+        or not parsed.path
+        or parsed.fragment
+    ):
+        raise SheetBuildError(f"{label}: home_image formula URL is not allowed")
+    return value
+
+
+def _download_publication_formula_image(
+    content_url: str,
+    title: str,
+    timeout: float,
+) -> bytes:
+    label = f"Publications image for {title!r}"
+    _publication_image_formula_url(f'IMAGE("{content_url}")', label)
+    request = urllib.request.Request(
+        content_url,
+        headers={
+            "Accept": "image/png,image/jpeg,image/gif,image/webp",
+            "Cache-Control": "no-store",
+            "User-Agent": "EconAI-Site-Builder/1.0",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            status = getattr(response, "status", 200)
+            if status is not None and not 200 <= int(status) < 300:
+                raise SheetBuildError(f"{label}: download returned an HTTP error")
+            get_final_url = getattr(response, "geturl", None)
+            final_url = get_final_url() if callable(get_final_url) else content_url
+            _publication_image_formula_url(f'IMAGE("{final_url}")', label)
+            content_type = _response_content_type(response)
+            payload = _read_limited_response(
+                response,
+                PUBLICATION_IMAGE_FILE_LIMIT,
+                label,
+            )
+    except SheetBuildError:
+        raise
+    except Exception:
+        raise SheetBuildError(f"{label}: download failed") from None
+
+    extension, accepted_content_types = _detect_image_format(payload)
+    if content_type not in accepted_content_types:
+        raise SheetBuildError(f"{label}: Content-Type does not match the image")
+    return payload
+
+
 def _publication_asset_key(title: str) -> str:
     return hashlib.sha256(title.encode("utf-8")).hexdigest()[:16]
 
@@ -1067,6 +1166,7 @@ def _materialise_publication_images(
     workbook_payload: bytes,
     publications: Sequence[Dict[str, str]],
     output_dir: Path,
+    timeout: float = 30.0,
 ) -> Dict[str, Dict[str, str]]:
     try:
         archive = zipfile.ZipFile(io.BytesIO(workbook_payload))
@@ -1077,6 +1177,7 @@ def _materialise_publication_images(
         _validate_xlsx_archive(archive)
         worksheet_path, worksheet = _xlsx_publications_sheet(archive)
         values = _xlsx_cell_values(worksheet, _xlsx_shared_strings(archive))
+        formulas = _xlsx_cell_formulas(worksheet)
 
         headers: Dict[str, int] = {}
         for (row, column), value in values.items():
@@ -1097,7 +1198,7 @@ def _materialise_publication_images(
                     f"Publications workbook is missing header {required!r}"
                 )
 
-        latest = _sort_publications(publications)[:3]
+        latest = _latest_home_publications(publications)
         expected_titles = {row["title"] for row in latest}
         title_rows: Dict[str, int] = {}
         worksheet_rows = {row for row, _ in values if row > 0}
@@ -1117,34 +1218,38 @@ def _materialise_publication_images(
         if missing_rows:
             labels = ", ".join(sorted(missing_rows))
             raise SheetBuildError(
-                f"Publications workbook is out of sync for latest papers: {labels}"
+                f"Publications workbook is out of sync for latest published papers: {labels}"
             )
 
         drawing = worksheet.find(f"{{{XLSX_MAIN_NS}}}drawing")
-        if drawing is None:
-            return {}
-        drawing_relationship_id = drawing.get(
-            f"{{{XLSX_DOCUMENT_REL_NS}}}id", ""
-        )
-        drawing_path = _xlsx_relationship_target(
-            archive,
-            worksheet_path,
-            drawing_relationship_id,
-            "drawing",
-            "Publications drawing",
-        )
-        drawing_root = _xlsx_xml(
-            archive,
-            drawing_path,
-            "Publications drawing",
-        )
+        drawing_path = ""
+        drawing_root = None
+        if drawing is not None:
+            drawing_relationship_id = drawing.get(
+                f"{{{XLSX_DOCUMENT_REL_NS}}}id", ""
+            )
+            drawing_path = _xlsx_relationship_target(
+                archive,
+                worksheet_path,
+                drawing_relationship_id,
+                "drawing",
+                "Publications drawing",
+            )
+            drawing_root = _xlsx_xml(
+                archive,
+                drawing_path,
+                "Publications drawing",
+            )
         row_to_title = {row: title for title, row in title_rows.items()}
         image_column = headers["home_image"]
         image_targets: Dict[str, str] = {}
         home_image_anchor_count = 0
-        for anchor in drawing_root.findall(
-            f"{{{XLSX_DRAWING_NS}}}oneCellAnchor"
-        ):
+        anchors = (
+            drawing_root.findall(f"{{{XLSX_DRAWING_NS}}}oneCellAnchor")
+            if drawing_root is not None
+            else []
+        )
+        for anchor in anchors:
             row_text = anchor.findtext(
                 f"{{{XLSX_DRAWING_NS}}}from/{{{XLSX_DRAWING_NS}}}row"
             )
@@ -1186,13 +1291,27 @@ def _materialise_publication_images(
                 f"Publications image for {title!r}",
             )
 
-        if home_image_anchor_count == 0:
+        formula_urls: Dict[str, str] = {}
+        for title, row in title_rows.items():
+            formula = formulas.get((row, image_column), "")
+            if not formula:
+                continue
+            if title in image_targets:
+                raise SheetBuildError(
+                    f"Publications image for {title!r} is both embedded and formula-based"
+                )
+            formula_urls[title] = _publication_image_formula_url(
+                formula,
+                f"Publications image for {title!r}",
+            )
+
+        if home_image_anchor_count == 0 and not formula_urls:
             return {}
-        missing_images = expected_titles - set(image_targets)
+        missing_images = expected_titles - set(image_targets) - set(formula_urls)
         if missing_images:
             labels = ", ".join(sorted(missing_images))
             raise SheetBuildError(
-                f"Publications: latest papers need in-cell home images: {labels}"
+                f"Publications: latest published papers need home images: {labels}"
             )
 
         assets: Dict[str, Dict[str, str]] = {}
@@ -1209,11 +1328,18 @@ def _materialise_publication_images(
                 raise SheetBuildError(
                     f"Publications image for {title!r} has invalid credit text"
                 )
-            payload = _xlsx_read_member(
-                archive,
-                image_targets[title],
-                f"Publications image for {title!r}",
-            )
+            if title in image_targets:
+                payload = _xlsx_read_member(
+                    archive,
+                    image_targets[title],
+                    f"Publications image for {title!r}",
+                )
+            else:
+                payload = _download_publication_formula_image(
+                    formula_urls[title],
+                    title,
+                    timeout,
+                )
             extension, _ = _detect_image_format(payload)
             digest = hashlib.sha256(payload).hexdigest()
             relative_path = PUBLICATION_IMAGE_ASSET_DIR / (
@@ -1280,6 +1406,17 @@ def _sort_publications(rows: Sequence[Dict[str, str]]) -> List[Dict[str, str]]:
             row["title"].casefold(),
         ),
     )
+
+
+def _latest_home_publications(
+    rows: Sequence[Dict[str, str]],
+) -> List[Dict[str, str]]:
+    published = [
+        row
+        for row in rows
+        if not row.get("venue", "").strip().casefold().startswith("arxiv")
+    ]
+    return _sort_publications(published)[:3]
 
 
 def _escape(value: str, quote: bool = False) -> str:
@@ -1408,12 +1545,12 @@ def render_home_latest(
     publications: Sequence[Dict[str, str]],
     publication_images: Mapping[str, Mapping[str, str]] | None = None,
 ) -> str:
-    latest = _sort_publications(publications)[:3]
+    latest = _latest_home_publications(publications)
     images = publication_images or {}
 
     # Keep the production page clean while the optional Sheet image cells are
     # being prepared.  The figure carousel is an enhancement, so it appears
-    # only after all three current latest papers have real in-cell images.
+    # only after all three latest conference/journal papers have real images.
     if not images:
         lines = [
             '        <div class="publication-panel publication-panel-wide">',
@@ -1492,8 +1629,8 @@ def render_home_latest(
     lines.extend(
         [
             "              </div>",
-            '              <button class="publication-carousel-button publication-carousel-button--previous" type="button" data-carousel-previous aria-controls="latest-publication-figures" aria-label="Show previous publication figure"><span aria-hidden="true">←</span></button>',
-            '              <button class="publication-carousel-button publication-carousel-button--next" type="button" data-carousel-next aria-controls="latest-publication-figures" aria-label="Show next publication figure"><span aria-hidden="true">→</span></button>',
+            '              <button class="publication-carousel-button publication-carousel-button--previous" type="button" data-carousel-previous aria-controls="latest-publication-figures" aria-label="Show previous publication figure"><svg class="publication-carousel-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5 8 12l7 7"/></svg></button>',
+            '              <button class="publication-carousel-button publication-carousel-button--next" type="button" data-carousel-next aria-controls="latest-publication-figures" aria-label="Show next publication figure"><svg class="publication-carousel-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 5 7 7-7 7"/></svg></button>',
             "            </div>",
             '            <div class="publication-figure-captions">',
         ]
@@ -2027,7 +2164,7 @@ def render_footer_affiliations(member_rows: Sequence[Dict[str, str]]) -> str:
     )
     return "\n".join(
         [
-            '      <ul class="footer-school footer-affiliations mb-1 fw-bold text-kaist">',
+            '      <ul class="footer-school footer-affiliations">',
             items,
             "      </ul>",
         ]
@@ -2112,6 +2249,7 @@ def build_site(
             publication_workbook or b"",
             publications,
             output_dir,
+            timeout,
         )
         if publication_image_schema == "direct_cell"
         else None

@@ -64,9 +64,10 @@ cell are omitted.
 The site groups papers into newest-year-first sections and preserves the physical
 Sheet row order within each year. Move rows in this tab to curate arXiv-first or
 same-venue groupings. Title links replace redundant Paper buttons. The home page
-independently shows the three most recent papers by exact `date` descending.
+independently excludes `arXiv` rows and shows the three most recent conference or
+journal papers by exact `date` descending.
 
-The homepage pairs that three-paper list with one 16:9 figure card. Images use
+The homepage pairs that three-paper list with one larger 5:3 figure card. Images use
 `object-fit: contain`, so a paper figure is never cropped or distorted. Subtle
 gray previous and next arrows sit over the vertical center of the image. The
 paper title appears below the figure, followed by three small pagination dots;
@@ -74,12 +75,13 @@ the active dot changes opacity with the current slide. The left/right arrow keys
 work while the card has focus. Venues, credits, and the numeric slide count are
 not displayed. Add all three image headers together or omit
 all three. With the headers omitted, or with a complete header set but zero
-embedded `home_image` cells, the homepage keeps the original clean text-only
-publication panel. This lets the columns be created before anyone signs in to
-upload figures. As soon as any image is inserted in the `home_image` column, each
-of the current latest three checked papers must have a real in-cell image and
-non-empty `home_image_alt`; a partial set fails the staged build and keeps the
-last valid release live.
+embedded or `IMAGE("https://...")` `home_image` cells, the homepage keeps the
+original clean text-only publication panel. This lets the columns be created
+before anyone signs in to upload figures. As soon as any image is inserted in
+the `home_image` column, each of the current latest three non-arXiv papers must
+have a real in-cell image or an allowed HTTPS `IMAGE()` formula and non-empty
+`home_image_alt`; a partial set fails the staged build and keeps the last valid
+release live.
 
 The server securely reads only the `Publications` worksheet, its drawing anchors,
 and the three matched media files from the anonymous XLSX export. It matches each

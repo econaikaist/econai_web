@@ -212,7 +212,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "date": "2026-08-01",
                 "title": "Published Paper",
                 "authors": "Example Author",
-                "venue": "arXiv",
+                "venue": "Example Journal (2026)",
                 "paper_url": "https://example.com/published-paper",
             },
             {
@@ -220,7 +220,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "date": "2026-07-01",
                 "title": "Second Published Paper",
                 "authors": "Example Author",
-                "venue": "arXiv",
+                "venue": "Example Conference (2026)",
                 "paper_url": "https://example.com/second-published-paper",
             },
             {
@@ -228,7 +228,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "date": "2026-09-01",
                 "title": "Unchecked Paper",
                 "authors": "Example Author",
-                "venue": "arXiv",
+                "venue": "Example Conference (2026)",
                 "paper_url": "https://example.com/unchecked-paper",
             },
         ]
@@ -399,7 +399,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "date": "2026-08-01",
                 "title": "Published Paper",
                 "authors": "Example Author",
-                "venue": "arXiv",
+                "venue": "Example Journal (2026)",
                 "paper_url": "https://example.com/published-paper",
                 "home_image_alt": "Overview of the published paper",
                 "home_image_credit": "Figure 1",
@@ -419,7 +419,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "date": "2026-06-01",
                 "title": "Third Published Paper",
                 "authors": "Example Author",
-                "venue": "arXiv",
+                "venue": "Example Conference (2026)",
                 "paper_url": "https://example.com/third-published-paper",
                 "home_image_alt": "Method diagram from the third paper",
                 "home_image_credit": "",
@@ -602,20 +602,62 @@ class SheetBuilderTests(unittest.TestCase):
             ["Newer", "Older"],
         )
 
+    def test_home_latest_excludes_newer_arxiv_preprints(self) -> None:
+        rows = [
+            {
+                "date": "2026-09-01",
+                "title": "Newest Preprint",
+                "authors": "A Author",
+                "venue": "arXiv",
+                "paper_url": "https://arxiv.org/abs/2609.00001",
+            }
+        ] + [
+            {
+                "date": f"2026-0{8 - index}-01",
+                "title": f"Published Paper {index + 1}",
+                "authors": "A Author",
+                "venue": "Example Conference (2026)",
+                "paper_url": f"https://example.com/published-{index + 1}",
+            }
+            for index in range(3)
+        ]
+        rendered = builder.render_home_latest(rows)
+        self.assertNotIn("Newest Preprint", rendered)
+        self.assertLess(
+            rendered.index("Published Paper 1"),
+            rendered.index("Published Paper 2"),
+        )
+        self.assertLess(
+            rendered.index("Published Paper 2"),
+            rendered.index("Published Paper 3"),
+        )
+
+    def test_publication_image_formula_urls_are_narrowly_allowlisted(self) -> None:
+        formula = 'IMAGE("https://econai.kaist.ac.kr/img/example.png")'
+        self.assertEqual(
+            builder._publication_image_formula_url(formula, "Example image"),
+            "https://econai.kaist.ac.kr/img/example.png",
+        )
+        with self.assertRaisesRegex(builder.SheetBuildError, "not allowed"):
+            builder._publication_image_formula_url(
+                'IMAGE("https://127.0.0.1/private.png")',
+                "Example image",
+            )
+
     def test_publications_page_uses_sheet_order_within_newest_first_years(self) -> None:
         rows = [
             {
                 "date": "2025-12-01",
                 "title": "First 2025 Sheet Row",
                 "authors": "A Author",
-                "venue": "arXiv",
+                "venue": "Journal of Example Studies (2025)",
                 "paper_url": "https://example.com/first-2025",
             },
             {
                 "date": "2026-01-01",
                 "title": "First 2026 Sheet Row",
                 "authors": "B Author",
-                "venue": "arXiv",
+                "venue": "Example Conference (2026)",
                 "paper_url": "https://example.com/first-2026",
             },
             {
@@ -664,7 +706,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "date": f"2026-0{8 - index}-01",
                 "title": f"Paper {index + 1}",
                 "authors": "A Author, B Author",
-                "venue": "arXiv",
+                "venue": "Example Conference (2026)",
                 "paper_url": f"https://example.com/paper-{index + 1}",
             }
             for index in range(3)
@@ -731,7 +773,7 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertIn('caption.hidden = captionIndex !== current', index_source)
         self.assertIn("(index + slides.length) % slides.length", index_source)
         self.assertNotIn("setInterval", index_source)
-        self.assertIn("aspect-ratio: 16 / 9", stylesheet)
+        self.assertIn("aspect-ratio: 5 / 3", stylesheet)
         self.assertRegex(
             stylesheet,
             r"\.publication-figure-image\s*\{[^}]*object-fit:\s*contain",
@@ -747,8 +789,9 @@ class SheetBuilderTests(unittest.TestCase):
         )
         self.assertRegex(
             stylesheet,
-            r"\.publication-carousel-button\s*\{[^}]*background:\s*transparent",
+            r"\.publication-carousel-button\s*\{[^}]*background:\s*rgba\(255, 255, 255",
         )
+        self.assertIn('class="publication-carousel-icon"', rendered)
         self.assertIn('.publication-carousel-dot[aria-current="true"]', stylesheet)
         self.assertNotIn("weather-card", index_source)
         self.assertNotIn("open-meteo.com", index_source)
@@ -1425,7 +1468,7 @@ class SheetBuilderTests(unittest.TestCase):
             output = Path(temporary_directory) / "output"
             with self.assertRaisesRegex(
                 builder.SheetBuildError,
-                "latest papers need in-cell home images",
+                "latest published papers need home images",
             ):
                 builder.build_site(
                     tabs,
