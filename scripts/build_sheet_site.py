@@ -68,6 +68,7 @@ REQUIRED_COLUMNS = {
         "status",
         "period",
         "area",
+        "related_publication",
         "url",
     },
     "News": {
@@ -77,7 +78,8 @@ REQUIRED_COLUMNS = {
         "tag",
         "title",
         "summary",
-        "related_publications",
+        "related_publication_1",
+        "related_publication_2",
         "url",
     },
     "Members": {
@@ -243,16 +245,21 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                     f"{tab_name} row {index} figure_{slot}_url",
                 )
         elif tab_name == "Projects":
-            for field in ("summary", "status", "period", "area", "url"):
+            for field in ("summary", "status", "period", "area"):
                 if not row.get(field):
                     raise SheetBuildError(
                         f"{tab_name} row {index}: {field} is required"
                     )
+            if not row.get("related_publication") and not row.get("url"):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: choose related_publication or provide url"
+                )
             if row["status"].casefold() not in {"ongoing", "completed"}:
                 raise SheetBuildError(
                     f"{tab_name} row {index}: status must be Ongoing or Completed"
                 )
-            _validate_url(row["url"], f"{tab_name} row {index} url")
+            if row.get("url"):
+                _validate_url(row["url"], f"{tab_name} row {index} url")
         elif tab_name == "News":
             for field in ("date", "display_date", "tag"):
                 if not row.get(field):
@@ -563,7 +570,51 @@ def render_home_latest(publications: Sequence[Dict[str, str]]) -> str:
 def _publication_lookup(
     publications: Sequence[Dict[str, str]],
 ) -> Dict[str, Dict[str, str]]:
-    return {_normalise_title(row["title"]): row for row in publications}
+    return {row["title"]: row for row in publications}
+
+
+def _resolve_publication(
+    publication_title: str,
+    publication_lookup: Mapping[str, Dict[str, str]],
+    reference_label: str,
+) -> Dict[str, str]:
+    publication = publication_lookup.get(publication_title)
+    if publication is None:
+        raise SheetBuildError(
+            f"{reference_label} does not exactly match a published "
+            f"Publications title: {publication_title!r}"
+        )
+    return publication
+
+
+def _validate_publication_references(
+    tabs: Mapping[str, List[Dict[str, str]]],
+) -> None:
+    publication_lookup = _publication_lookup(tabs["Publications"])
+    for row in tabs["Research"]:
+        for slot in (1, 2):
+            field = f"selected_publication_{slot}"
+            _resolve_publication(
+                row[field],
+                publication_lookup,
+                f"Research {row['slug']!r} {field}",
+            )
+    for row in tabs["News"]:
+        for slot in (1, 2):
+            field = f"related_publication_{slot}"
+            if row.get(field):
+                _resolve_publication(
+                    row[field],
+                    publication_lookup,
+                    f"News {row['title']!r} {field}",
+                )
+    for row in tabs["Projects"]:
+        if row.get("related_publication"):
+            _resolve_publication(
+                row["related_publication"],
+                publication_lookup,
+                f"Projects {row['title']!r} related_publication",
+            )
 
 
 def _selected_publication_lines(
@@ -574,11 +625,11 @@ def _selected_publication_lines(
     publication_lookup: Mapping[str, Dict[str, str]],
     output_dir: Path,
 ) -> List[str]:
-    publication = publication_lookup.get(_normalise_title(publication_title))
-    if publication is None:
-        raise SheetBuildError(
-            f"selected publication not found in Publications tab: {publication_title}"
-        )
+    publication = _resolve_publication(
+        publication_title,
+        publication_lookup,
+        "Research selected publication",
+    )
 
     parsed_figure = urllib.parse.urlparse(figure_url)
     if not parsed_figure.scheme and not parsed_figure.netloc:
@@ -659,6 +710,7 @@ def render_research_areas(
 def _render_project_group(
     status_label: str,
     rows: Sequence[Dict[str, str]],
+    publication_lookup: Mapping[str, Dict[str, str]],
 ) -> List[str]:
     slug = f"{status_label.casefold()}-projects"
     count_label = "project" if len(rows) == 1 else "projects"
@@ -674,10 +726,20 @@ def _render_project_group(
         status = row["status"]
         period = row["period"]
         area = row["area"]
-        url = row["url"]
+        url = row.get("url", "")
+        related_publication = None
+        if row.get("related_publication"):
+            related_publication = _resolve_publication(
+                row["related_publication"],
+                publication_lookup,
+                f"Projects {row['title']!r} related_publication",
+            )
+        primary_url = url or (
+            related_publication["paper_url"] if related_publication else ""
+        )
         status_class = " status-completed" if status.casefold() == "completed" else ""
         title_html = (
-            f'<a href="{_escape(url, quote=True)}">{_escape(row["title"])}</a>'
+            f'<a href="{_escape(primary_url, quote=True)}">{_escape(row["title"])}</a>'
         )
         lines.extend(
             [
@@ -689,6 +751,11 @@ def _render_project_group(
                 f"              <h3>{title_html}</h3>",
                 f'              <p>{_escape(row["summary"])}</p>',
                 f'              <span class="project-area">{_escape(area)}</span>' if area else "",
+                (
+                    f'              <a class="project-publication-link" href="{_escape(related_publication["paper_url"], quote=True)}">Related publication →</a>'
+                    if related_publication and url
+                    else ""
+                ),
                 "            </article>",
             ]
         )
@@ -696,7 +763,11 @@ def _render_project_group(
     return [line for line in lines if line]
 
 
-def render_projects(project_rows: Sequence[Dict[str, str]]) -> str:
+def render_projects(
+    project_rows: Sequence[Dict[str, str]],
+    publications: Sequence[Dict[str, str]],
+) -> str:
+    publication_lookup = _publication_lookup(publications)
     grouped: Dict[str, List[Dict[str, str]]] = {"Ongoing": [], "Completed": []}
     for row in project_rows:
         key = "Completed" if row["status"].casefold() == "completed" else "Ongoing"
@@ -707,7 +778,9 @@ def render_projects(project_rows: Sequence[Dict[str, str]]) -> str:
         if grouped[label]:
             if lines:
                 lines.append("")
-            lines.extend(_render_project_group(label, grouped[label]))
+            lines.extend(
+                _render_project_group(label, grouped[label], publication_lookup)
+            )
     return "\n".join(lines)
 
 
@@ -724,15 +797,15 @@ def _sort_news(rows: Sequence[Dict[str, str]]) -> List[Dict[str, str]]:
 
 
 def _related_publication_links(
-    value: str, publication_lookup: Mapping[str, Dict[str, str]]
+    titles: Iterable[str], publication_lookup: Mapping[str, Dict[str, str]]
 ) -> List[Tuple[str, str]]:
     links: List[Tuple[str, str]] = []
-    for title in (part.strip() for part in re.split(r"[|\n]+", value) if part.strip()):
-        publication = publication_lookup.get(_normalise_title(title))
-        if publication is None:
-            raise SheetBuildError(
-                f"News related publication not found in Publications tab: {title}"
-            )
+    for title in (value for value in titles if value):
+        publication = _resolve_publication(
+            title,
+            publication_lookup,
+            "News related publication",
+        )
         links.append(
             (
                 publication.get("research_title") or publication["title"],
@@ -763,7 +836,11 @@ def render_news(
         if row.get("summary"):
             lines.append(f'              <p>{_escape(row["summary"])}</p>')
         related = _related_publication_links(
-            row.get("related_publications", ""), publication_lookup
+            (
+                row.get("related_publication_1", ""),
+                row.get("related_publication_2", ""),
+            ),
+            publication_lookup,
         )
         if row.get("url"):
             related.append(("Read more", row["url"]))
@@ -979,10 +1056,16 @@ def render_footer_affiliations(member_rows: Sequence[Dict[str, str]]) -> str:
     ]
     if not affiliations:
         raise SheetBuildError("Members: first Faculty row requires affiliations")
-    text = " · ".join(affiliations)
-    return (
-        '      <p class="footer-school footer-affiliations mb-1 fw-bold text-kaist">'
-        f"{_escape(text)}</p>"
+    items = "\n".join(
+        f'        <li class="footer-affiliation">{_escape(affiliation)}</li>'
+        for affiliation in affiliations
+    )
+    return "\n".join(
+        [
+            '      <ul class="footer-school footer-affiliations mb-1 fw-bold text-kaist">',
+            items,
+            "      </ul>",
+        ]
     )
 
 
@@ -1028,6 +1111,7 @@ def build_site(
     sheet_id: str,
     source_kind: str,
 ) -> None:
+    _validate_publication_references(tabs)
     _safe_prepare_output(source_dir, output_dir)
 
     publications = tabs["Publications"]
@@ -1069,7 +1153,7 @@ def build_site(
         output_dir / "projects.html",
         "<!-- SHEET:PROJECTS:START -->",
         "<!-- SHEET:PROJECTS:END -->",
-        render_projects(projects),
+        render_projects(projects, publications),
     )
     _replace_block(
         output_dir / "index.html",

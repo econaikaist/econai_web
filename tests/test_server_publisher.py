@@ -131,13 +131,14 @@ class ServerPublisherTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (csv_dir / "Projects.csv").write_text(
-                "publish,title,summary,status,period,area,url\n"
-                "TRUE,Project,Summary,Ongoing,2026–,Area,https://example.com/project\n",
+                "publish,title,summary,status,period,area,related_publication,url\n"
+                "TRUE,Project,Summary,Ongoing,2026–,Area,,https://example.com/project\n",
                 encoding="utf-8",
             )
             (csv_dir / "News.csv").write_text(
-                "publish,date,display_date,tag,title,summary,related_publications,url\n"
-                "TRUE,2026-08-03,Aug 2026,People,News,Summary,,https://example.com/news\n",
+                "publish,date,display_date,tag,title,summary,related_publication_1,"
+                "related_publication_2,url\n"
+                "TRUE,2026-08-03,Aug 2026,People,News,Summary,,,https://example.com/news\n",
                 encoding="utf-8",
             )
             (csv_dir / "Members.csv").write_text(
@@ -163,6 +164,76 @@ class ServerPublisherTests(unittest.TestCase):
             with self.assertRaises(publisher.PublishError):
                 publisher.publish_once(arguments)
 
+            self.assertEqual(publisher._current_release(deploy_root), previous.resolve())
+            self.assertEqual((deploy_root / "current/index.html").read_text(), "last good")
+
+    def test_unmatched_publication_reference_leaves_current_release_unchanged(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            deploy_root = root / "econai-site"
+            previous = deploy_root / "releases" / "previous"
+            previous.mkdir(parents=True)
+            (previous / "index.html").write_text("last good", encoding="utf-8")
+            publisher.activate_release(previous, deploy_root)
+
+            csv_dir = root / "csv"
+            csv_dir.mkdir()
+            publication_rows = "\n".join(
+                "TRUE,2026-01-{day:02d},Paper {day},Example Professor,arXiv,"
+                "https://example.com/paper-{day},,,".format(day=day)
+                for day in range(1, 21)
+            )
+            (csv_dir / "Publications.csv").write_text(
+                "publish,date,title,authors,venue,paper_url,project_url,highlight,"
+                "research_title\n"
+                + publication_rows
+                + "\n",
+                encoding="utf-8",
+            )
+            (csv_dir / "Research.csv").write_text(
+                "publish,slug,title,summary,question,home_summary,selected_publication_1,"
+                "figure_1_url,figure_1_alt,figure_1_credit,selected_publication_2,"
+                "figure_2_url,figure_2_alt,figure_2_credit\n"
+                "TRUE,area,Area,Summary,Question,Home summary,Paper 1,"
+                "img/research/slum-detection-figure-5.png,Alt 1,Credit 1,Paper 2,"
+                "img/research/economic-development-figure-2.png,Alt 2,Credit 2\n",
+                encoding="utf-8",
+            )
+            (csv_dir / "Projects.csv").write_text(
+                "publish,title,summary,status,period,area,related_publication,url\n"
+                "TRUE,Project,Summary,Ongoing,2026–,Area,Paper 1,\n",
+                encoding="utf-8",
+            )
+            (csv_dir / "News.csv").write_text(
+                "publish,date,display_date,tag,title,summary,related_publication_1,"
+                "related_publication_2,url\n"
+                "TRUE,2026-08-03,Aug 2026,Publications,News,Summary,Paper 999,,\n",
+                encoding="utf-8",
+            )
+            (csv_dir / "Members.csv").write_text(
+                "publish,section,group,name_en,name_ko,role,details,photo,email,"
+                "website,scholar,linkedin,phone,address,affiliations,joint_supervisor,"
+                "joint_supervisor_url\n"
+                "TRUE,Faculty,,Example Professor,,Professor,Profile,img/prof_jihee.jpg,"
+                ",,,,,,KAIST School of Business,,,\n",
+                encoding="utf-8",
+            )
+            arguments = SimpleNamespace(
+                deploy_root=deploy_root,
+                source_repo=REPOSITORY_ROOT,
+                checkout_dir=root / "unused-checkout",
+                remote_url=publisher.DEFAULT_REMOTE_URL,
+                branch="main",
+                sheet_id=publisher.DEFAULT_SHEET_ID,
+                csv_dir=csv_dir,
+                timeout=5.0,
+                keep_releases=5,
+            )
+
+            with self.assertRaises(publisher.PublishError) as context:
+                publisher.publish_once(arguments)
+
+            self.assertIn("Paper 999", str(context.exception))
             self.assertEqual(publisher._current_release(deploy_root), previous.resolve())
             self.assertEqual((deploy_root / "current/index.html").read_text(), "last good")
 
@@ -199,13 +270,14 @@ class ServerPublisherTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (csv_dir / "Projects.csv").write_text(
-                "publish,title,summary,status,period,area,url\n"
-                "TRUE,Project,Summary,Ongoing,2026–,Area,https://example.com/project\n",
+                "publish,title,summary,status,period,area,related_publication,url\n"
+                "TRUE,Project,Summary,Ongoing,2026–,Area,,https://example.com/project\n",
                 encoding="utf-8",
             )
             (csv_dir / "News.csv").write_text(
-                "publish,date,display_date,tag,title,summary,related_publications,url\n"
-                "TRUE,2026-08-03,Aug 2026,People,News,Summary,,https://example.com/news\n",
+                "publish,date,display_date,tag,title,summary,related_publication_1,"
+                "related_publication_2,url\n"
+                "TRUE,2026-08-03,Aug 2026,People,News,Summary,,,https://example.com/news\n",
                 encoding="utf-8",
             )
             (csv_dir / "Members.csv").write_text(
