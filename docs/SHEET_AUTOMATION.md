@@ -179,8 +179,8 @@ reported in the publisher log.
 | `section` | `Faculty`, `Ph.D. Students`, `Master's Students`, `Lab Internship`, `Staff`, `Alumni`, or `Pre-EconAI Alumni` |
 | `group` | Internship term such as `Spring 2026`; blank otherwise |
 | `name_en`, `name_ko` | English name and optional Korean name |
-| `role` | Current role for cards; optional degree/year for alumni |
-| `details` | Research interests for students; required current position for alumni |
+| `role` | Current role shown directly below a card name; for Staff, use a descriptive function such as `Lab Administration & Operations` rather than the generic `Staff` |
+| `details` | Optional longer description for Faculty/Student/Staff cards; required current position for alumni |
 | `photo` | Local image path for Faculty/Student cards; optional for Staff, which falls back to the basic profile image |
 | `email` | Public email address |
 | `website`, `scholar`, `linkedin` | Optional HTTPS profile links |
@@ -191,6 +191,9 @@ reported in the publisher log.
 Sections use the canonical order listed above, with Staff between Lab Internship
 and Alumni. Rows within each section follow the physical Sheet order; internship
 terms follow the order in which each `group` first appears and are always expanded.
+Keep internship groups newest-first in the Sheet. For example, use `Summer 2026`,
+`Spring 2026`, `Winter 2025`, then `Fall 2025`; people within a term follow their
+row order. A person attending more than one term should have one row per term.
 Publication author names are bolded automatically for every checked member,
 including `Pre-EconAI Alumni`, so no manual highlight flag is needed. Repeated
 joint-supervisor pairs are rendered once as a linked footnote below that alumni

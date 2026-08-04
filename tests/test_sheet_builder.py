@@ -665,7 +665,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "section": "Staff",
                 "name_en": "Sohyun Han",
                 "name_ko": "한소현",
-                "role": "Staff",
+                "role": "Lab Administration & Operations",
             },
             {
                 "publish": "TRUE",
@@ -685,6 +685,18 @@ class SheetBuilderTests(unittest.TestCase):
                 "group": "Summer 2026",
                 "name_en": "Jaewoo Choi",
             },
+            {
+                "publish": "TRUE",
+                "section": "Lab Internship",
+                "group": "Winter 2025",
+                "name_en": "Woojin Park",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Lab Internship",
+                "group": "Fall 2025",
+                "name_en": "Hyunwoo Oh",
+            },
         ]
         members = builder._read_csv_text(
             _csv_text(MEMBER_COLUMNS, rows), "Members"
@@ -696,6 +708,8 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertNotIn("collapse", rendered)
         self.assertNotIn("<button", rendered)
         self.assertLess(rendered.index("Summer 2026"), rendered.index("Spring 2026"))
+        self.assertLess(rendered.index("Spring 2026"), rendered.index("Winter 2025"))
+        self.assertLess(rendered.index("Winter 2025"), rendered.index("Fall 2025"))
         summer_start = rendered.index("Summer 2026")
         summer = rendered[
             summer_start : rendered.index("</section>", summer_start)
@@ -707,6 +721,10 @@ class SheetBuilderTests(unittest.TestCase):
         )
         self.assertLess(rendered.index(">Staff</h2>"), rendered.index(">Alumni</h2>"))
         self.assertIn("Sohyun Han | 한소현", rendered)
+        self.assertIn(
+            '<p class="member-role">Lab Administration &amp; Operations</p>',
+            rendered,
+        )
         self.assertIn('src="img/basic_profile.png" alt="Sohyun Han"', rendered)
 
     def test_joint_supervisor_fields_must_be_paired(self) -> None:
