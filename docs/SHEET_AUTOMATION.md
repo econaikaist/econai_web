@@ -4,22 +4,25 @@
 
 The production path is:
 
-`Google Sheet (public tab data + private image bridge) + GitHub main → school-server systemd timer → build and validation → versioned release → Docker Nginx`
+`Google Sheet (public CSV/XLSX data + private Research image bridge) + GitHub main → school-server systemd timer → build and validation → versioned release → Docker Nginx`
 
 The existing `https://econai.kaist.ac.kr` URL, KAIST DNS A record, TLS certificate,
 and school server stay unchanged. GitHub Pages, a CNAME change, an inbound webhook,
 and an inbound Google-triggered webhook are not used. A small standalone Google
 Apps Script is used only for Research images stored directly in Sheet cells,
 because the anonymous CSV feed cannot expose those image objects. It is not the
-site host and it does not push or deploy anything.
+site host and it does not push or deploy anything. Homepage publication images
+use the Sheet's anonymous XLSX export instead, so adding those images does not
+require an Apps Script code change or Google owner login.
 
 Every five minutes the server:
 
 1. refreshes a dedicated, unprivileged checkout of GitHub `main`;
-2. downloads the five Sheet tabs through their public CSV feeds;
-3. in direct-image mode, requests fresh image transport URLs from the
-   token-authenticated Apps Script bridge and immediately downloads the images
-   into staging;
+2. downloads the five Sheet tabs through their public CSV feeds and, when the
+   Publications image columns exist, a matching XLSX workbook export;
+3. for direct Research images, requests fresh image transport URLs from the
+   token-authenticated Apps Script bridge and immediately downloads them into
+   staging;
 4. builds and validates the complete static site in staging;
 5. compares the result with the current release; and
 6. atomically switches Nginx's `current` symlink only when content changed.
@@ -54,11 +57,33 @@ cell are omitted.
 | `project_url` | Optional lab project page |
 | `highlight` | Optional award or presentation label |
 | `research_title` | Optional shorter title used on Research cards |
+| `home_image` | Optional-schema column containing an image inserted with **Insert > Image > Insert image in cell** |
+| `home_image_alt` | Accessible description of the homepage figure |
+| `home_image_credit` | Optional figure number or source/credit line |
 
 The site groups papers into newest-year-first sections and preserves the physical
 Sheet row order within each year. Move rows in this tab to curate arXiv-first or
 same-venue groupings. Title links replace redundant Paper buttons. The home page
 independently shows the three most recent papers by exact `date` descending.
+
+The homepage pairs that three-paper list with one 2:1 paper-figure card. Images
+use `object-fit: contain`, so a paper figure is never cropped. Previous
+and next controls, as well as the left/right arrow keys while the card has focus,
+cycle through the same three papers. Add all three image headers together or omit
+all three. With the headers omitted, the homepage uses clean branded fallback
+cards. A complete header set with zero embedded `home_image` cells is also a safe
+migration state and keeps those fallback cards, so the columns can be created
+before anyone signs in to upload figures. As soon as any image is inserted in the
+`home_image` column, each of the current latest three checked papers must have a
+real in-cell image and non-empty `home_image_alt`; a partial set fails the staged
+build and keeps the last valid release live.
+
+The server securely reads only the `Publications` worksheet, its drawing anchors,
+and the three matched media files from the anonymous XLSX export. It matches each
+image's exact Sheet row and title, validates the workbook paths, XML, file counts,
+sizes, and image signatures, and writes content-hashed local files under
+`img/sheet-publications/`. The generated homepage never contains a Google image
+URL. `home_image_credit` may be blank and is shown below the venue when provided.
 
 ### Research
 
@@ -253,7 +278,9 @@ journalctl -u econai-sheet-publisher.service -n 100 --no-pager
 cat /srv/econai-site/state/status.json
 ```
 
-In direct-image mode, a bridge or image error appears in the service journal. The
+In direct Research-image mode, a bridge error appears in the service journal. A
+Publications workbook, anchor, alt-text, or image error is reported there as a
+Publications build error. The
 status file remains the last successful/no-change result, and the `current`
 symlink and public site remain on the previous validated release. Correct the
 Sheet cell or bridge configuration and start the service again.

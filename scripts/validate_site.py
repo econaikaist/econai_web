@@ -139,6 +139,14 @@ def validate(site_dir: Path) -> List[str]:
         errors.append("index.html research focus count is incorrect")
     if _classes(index_text, "publication-list") < 1:
         errors.append("index.html is missing latest publications")
+    if _classes(index_text, "publication-figure-slide") != min(
+        expected_counts.get("Publications", 0), 3
+    ):
+        errors.append("index.html publication figure carousel count is incorrect")
+    if _classes(index_text, "publication-carousel-button") != 2:
+        errors.append("index.html publication figure carousel controls are missing")
+    if "googleusercontent.com" in index_text or "ggpht.com" in index_text:
+        errors.append("index.html leaks a temporary Google image URL")
     if _classes(index_text, "sheet-news-item") != expected_counts.get("News"):
         errors.append("index.html news row count does not match Sheet metadata")
     if _classes(member_text, "sheet-member-item") != expected_counts.get("Members"):

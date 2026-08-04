@@ -10,9 +10,11 @@ import shutil
 import sys
 import tempfile
 import unittest
+import zipfile
 from email.message import Message
 from pathlib import Path
 from unittest import mock
+from xml.sax.saxutils import escape as xml_escape
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -32,6 +34,11 @@ PUBLICATION_COLUMNS = (
     "project_url",
     "highlight",
     "research_title",
+)
+DIRECT_PUBLICATION_COLUMNS = PUBLICATION_COLUMNS + (
+    "home_image",
+    "home_image_alt",
+    "home_image_credit",
 )
 RESEARCH_COLUMNS = (
     "publish",
@@ -384,6 +391,195 @@ class SheetBuilderTests(unittest.TestCase):
 
         return urlopen, requests
 
+    def _direct_publication_tabs(self) -> dict[str, list[dict[str, str]]]:
+        tabs = self._publication_reference_tabs()
+        publication_rows = [
+            {
+                "publish": "TRUE",
+                "date": "2026-08-01",
+                "title": "Published Paper",
+                "authors": "Example Author",
+                "venue": "arXiv",
+                "paper_url": "https://example.com/published-paper",
+                "home_image_alt": "Overview of the published paper",
+                "home_image_credit": "Figure 1",
+            },
+            {
+                "publish": "TRUE",
+                "date": "2026-07-01",
+                "title": "Second Published Paper",
+                "authors": "Example Author",
+                "venue": "Conference on Language Modeling (COLM 2026)",
+                "paper_url": "https://example.com/second-published-paper",
+                "home_image_alt": "Results from the second paper",
+                "home_image_credit": "Paper authors",
+            },
+            {
+                "publish": "TRUE",
+                "date": "2026-06-01",
+                "title": "Third Published Paper",
+                "authors": "Example Author",
+                "venue": "arXiv",
+                "paper_url": "https://example.com/third-published-paper",
+                "home_image_alt": "Method diagram from the third paper",
+                "home_image_credit": "",
+            },
+        ]
+        tabs["Publications"] = builder._read_csv_text(
+            _csv_text(DIRECT_PUBLICATION_COLUMNS, publication_rows),
+            "Publications",
+        )
+        return tabs
+
+    def _publication_workbook(
+        self,
+        publication_rows: list[dict[str, str]],
+        *,
+        omit_image_for: str = "",
+        omit_all_images: bool = False,
+    ) -> bytes:
+        def column_name(index: int) -> str:
+            value = index + 1
+            result = ""
+            while value:
+                value, remainder = divmod(value - 1, 26)
+                result = chr(ord("A") + remainder) + result
+            return result
+
+        def inline_cell(row: int, column: int, value: str) -> str:
+            reference = f"{column_name(column)}{row}"
+            return (
+                f'<c r="{reference}" t="inlineStr"><is><t>'
+                f"{xml_escape(value)}</t></is></c>"
+            )
+
+        worksheet_rows = []
+        worksheet_rows.append(
+            '<row r="1">'
+            + "".join(
+                inline_cell(1, column, header)
+                for column, header in enumerate(DIRECT_PUBLICATION_COLUMNS)
+            )
+            + "</row>"
+        )
+        for sheet_row, row in enumerate(publication_rows, start=2):
+            worksheet_rows.append(
+                f'<row r="{sheet_row}">'
+                + "".join(
+                    inline_cell(sheet_row, column, row.get(header, ""))
+                    for column, header in enumerate(DIRECT_PUBLICATION_COLUMNS)
+                    if header != "home_image"
+                )
+                + "</row>"
+            )
+
+        image_payloads = (TINY_PNG, TINY_JPEG, TINY_PNG)
+        anchors = []
+        image_relationships = []
+        media: list[tuple[str, bytes]] = []
+        relationship_index = 0
+        for sheet_row, (row, payload) in enumerate(
+            zip(publication_rows, image_payloads), start=2
+        ):
+            if omit_all_images or row["title"] == omit_image_for:
+                continue
+            relationship_index += 1
+            extension = "jpg" if payload.startswith(b"\xff\xd8\xff") else "png"
+            media_name = f"image{relationship_index}.{extension}"
+            anchors.append(
+                '<xdr:oneCellAnchor>'
+                '<xdr:from><xdr:col>9</xdr:col><xdr:colOff>0</xdr:colOff>'
+                f'<xdr:row>{sheet_row - 1}</xdr:row><xdr:rowOff>0</xdr:rowOff>'
+                '</xdr:from><xdr:ext cx="4000000" cy="3000000"/>'
+                '<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="0" '
+                f'name="{media_name}"/><xdr:cNvPicPr/></xdr:nvPicPr>'
+                '<xdr:blipFill><a:blip '
+                f'r:embed="rId{relationship_index}"/>'
+                '<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
+                '<xdr:spPr><a:prstGeom prst="rect"><a:avLst/>'
+                '</a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/>'
+                '</xdr:oneCellAnchor>'
+            )
+            image_relationships.append(
+                '<Relationship '
+                f'Id="rId{relationship_index}" '
+                'Type="http://schemas.openxmlformats.org/officeDocument/'
+                '2006/relationships/image" '
+                f'Target="../media/{media_name}"/>'
+            )
+            media.append((f"xl/media/{media_name}", payload))
+
+        workbook_xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<workbook xmlns="http://schemas.openxmlformats.org/'
+            'spreadsheetml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/'
+            '2006/relationships"><sheets><sheet name="Publications" '
+            'sheetId="1" r:id="rId1"/></sheets></workbook>'
+        )
+        workbook_relationships = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/'
+            '2006/relationships"><Relationship Id="rId1" '
+            'Type="http://schemas.openxmlformats.org/officeDocument/2006/'
+            'relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            '</Relationships>'
+        )
+        worksheet_xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<worksheet xmlns="http://schemas.openxmlformats.org/'
+            'spreadsheetml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/'
+            '2006/relationships"><sheetData>'
+            + "".join(worksheet_rows)
+            + '</sheetData><drawing r:id="rId1"/></worksheet>'
+        )
+        worksheet_relationships = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/'
+            '2006/relationships"><Relationship Id="rId1" '
+            'Type="http://schemas.openxmlformats.org/officeDocument/2006/'
+            'relationships/drawing" Target="../drawings/drawing1.xml"/>'
+            '</Relationships>'
+        )
+        drawing_xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/'
+            '2006/spreadsheetDrawing" '
+            'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/'
+            'relationships">'
+            + "".join(anchors)
+            + '</xdr:wsDr>'
+        )
+        drawing_relationships = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/'
+            '2006/relationships">'
+            + "".join(image_relationships)
+            + '</Relationships>'
+        )
+
+        output = io.BytesIO()
+        with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("xl/workbook.xml", workbook_xml)
+            archive.writestr(
+                "xl/_rels/workbook.xml.rels", workbook_relationships
+            )
+            archive.writestr("xl/worksheets/sheet1.xml", worksheet_xml)
+            archive.writestr(
+                "xl/worksheets/_rels/sheet1.xml.rels",
+                worksheet_relationships,
+            )
+            archive.writestr("xl/drawings/drawing1.xml", drawing_xml)
+            archive.writestr(
+                "xl/drawings/_rels/drawing1.xml.rels",
+                drawing_relationships,
+            )
+            for name, payload in media:
+                archive.writestr(name, payload)
+        return output.getvalue()
+
     def test_publications_are_sorted_by_exact_date_descending(self) -> None:
         text = PUBLICATION_HEADER + "\n".join(
             [
@@ -461,6 +657,81 @@ class SheetBuilderTests(unittest.TestCase):
             home_latest.index("First 2026 Sheet Row"),
             home_latest.index("First 2025 Sheet Row"),
         )
+
+    def test_home_latest_renders_accessible_three_slide_carousel(self) -> None:
+        rows = [
+            {
+                "date": f"2026-0{8 - index}-01",
+                "title": f"Paper {index + 1}",
+                "authors": "A Author, B Author",
+                "venue": "arXiv",
+                "paper_url": f"https://example.com/paper-{index + 1}",
+            }
+            for index in range(3)
+        ]
+        rendered = builder.render_home_latest(
+            rows,
+            {
+                "Paper 1": {
+                    "url": "img/sheet-publications/paper.png",
+                    "alt": "Paper overview",
+                    "credit": "Figure 1",
+                }
+            },
+        )
+        self.assertEqual(
+            site_validator._classes(rendered, "publication-figure-slide"), 3
+        )
+        self.assertEqual(
+            site_validator._classes(rendered, "publication-carousel-button"), 2
+        )
+        self.assertEqual(
+            site_validator._classes(rendered, "publication-figure-fallback"), 2
+        )
+        self.assertIn('aria-roledescription="carousel"', rendered)
+        self.assertIn('aria-live="polite"', rendered)
+        self.assertIn('aria-label="Show previous publication figure"', rendered)
+        self.assertIn('aria-label="Show next publication figure"', rendered)
+        self.assertIn('alt="Paper overview"', rendered)
+        self.assertEqual(rendered.count(" hidden>"), 2)
+        index_source = (REPOSITORY_ROOT / "main_site/index.html").read_text(
+            encoding="utf-8"
+        )
+        stylesheet = (REPOSITORY_ROOT / "main_site/site.css").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('event.key === "ArrowLeft"', index_source)
+        self.assertIn('event.key === "ArrowRight"', index_source)
+        self.assertIn("(index + slides.length) % slides.length", index_source)
+        self.assertNotIn("setInterval", index_source)
+        self.assertIn("aspect-ratio: 2 / 1", stylesheet)
+        self.assertRegex(
+            stylesheet,
+            r"\.publication-figure-image\s*\{[^}]*object-fit:\s*contain",
+        )
+
+    def test_publication_home_image_columns_must_be_complete(self) -> None:
+        self._allow_small_fixtures("Publications")
+        columns = PUBLICATION_COLUMNS + ("home_image", "home_image_alt")
+        with self.assertRaisesRegex(
+            builder.SheetBuildError, "home_image_credit"
+        ):
+            builder._read_csv_text(
+                _csv_text(
+                    columns,
+                    [
+                        {
+                            "publish": "TRUE",
+                            "date": "2026-08-01",
+                            "title": "Paper",
+                            "authors": "A Author",
+                            "venue": "arXiv",
+                            "paper_url": "https://example.com/paper",
+                        }
+                    ],
+                ),
+                "Publications",
+            )
 
     def test_blank_date_uses_one_unambiguous_venue_year(self) -> None:
         text = (
@@ -1041,6 +1312,120 @@ class SheetBuilderTests(unittest.TestCase):
             {self.IMAGE_1_URL, self.IMAGE_2_URL},
         )
         self.assertTrue(all(timeout == 7.5 for _, _, timeout in requests))
+
+    def test_publication_xlsx_images_are_materialised_without_url_leaks(self) -> None:
+        tabs = self._direct_publication_tabs()
+        workbook = self._publication_workbook(tabs["Publications"])
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            with mock.patch.object(
+                builder.urllib.request,
+                "urlopen",
+                side_effect=AssertionError(
+                    "offline XLSX build must not request image URLs"
+                ),
+            ):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    output,
+                    "test-sheet",
+                    "offline_csv",
+                    publication_workbook=workbook,
+                )
+
+            assets = sorted((output / "img/sheet-publications").iterdir())
+            self.assertEqual(len(assets), 3)
+            self.assertEqual(
+                sorted(asset.read_bytes() for asset in assets),
+                sorted((TINY_PNG, TINY_JPEG, TINY_PNG)),
+            )
+            index_text = (output / "index.html").read_text(encoding="utf-8")
+            self.assertEqual(
+                site_validator._classes(index_text, "publication-figure-image"),
+                3,
+            )
+            self.assertEqual(
+                site_validator._classes(index_text, "publication-figure-slide"),
+                3,
+            )
+            self.assertIn("Overview of the published paper", index_text)
+            self.assertIn("Figure 1", index_text)
+            self.assertNotIn("googleusercontent.com", index_text)
+            self.assertNotIn("ggpht.com", index_text)
+            self.assertEqual(site_validator.validate(output), [])
+
+    def test_direct_publication_images_fail_closed_when_latest_image_is_missing(
+        self,
+    ) -> None:
+        tabs = self._direct_publication_tabs()
+        workbook = self._publication_workbook(
+            tabs["Publications"],
+            omit_image_for="Second Published Paper",
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            with self.assertRaisesRegex(
+                builder.SheetBuildError,
+                "latest papers need in-cell home images",
+            ):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    output,
+                    "test-sheet",
+                    "offline_csv",
+                    publication_workbook=workbook,
+                )
+
+    def test_direct_publication_columns_allow_zero_image_migration_state(self) -> None:
+        tabs = self._direct_publication_tabs()
+        workbook = self._publication_workbook(
+            tabs["Publications"],
+            omit_all_images=True,
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            builder.build_site(
+                tabs,
+                REPOSITORY_ROOT / "main_site",
+                output,
+                "test-sheet",
+                "offline_csv",
+                publication_workbook=workbook,
+            )
+            index_text = (output / "index.html").read_text(encoding="utf-8")
+            self.assertEqual(
+                site_validator._classes(index_text, "publication-figure-fallback"),
+                3,
+            )
+            self.assertFalse((output / "img/sheet-publications").exists())
+            self.assertEqual(site_validator.validate(output), [])
+
+    def test_direct_publication_images_require_workbook_export(self) -> None:
+        tabs = self._direct_publication_tabs()
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            with self.assertRaisesRegex(
+                builder.SheetBuildError,
+                "require an XLSX workbook export",
+            ):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    output,
+                    "test-sheet",
+                    "offline_csv",
+                )
+
+    def test_publication_workbook_rejects_unsafe_zip_entries(self) -> None:
+        payload = io.BytesIO()
+        with zipfile.ZipFile(payload, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("../outside.xml", "unsafe")
+        with zipfile.ZipFile(io.BytesIO(payload.getvalue())) as archive:
+            with self.assertRaisesRegex(builder.SheetBuildError, "unsafe ZIP entry"):
+                builder._validate_xlsx_archive(archive)
 
     def test_direct_image_mode_requires_both_bridge_credentials(self) -> None:
         cases = (
