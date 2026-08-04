@@ -39,7 +39,7 @@ cell are omitted.
 
 | Column | What to enter |
 | --- | --- |
-| `publish` | Checkbox |
+| `publish` | Checkbox; checked rows are published |
 | `date` | Published paper: actual publication date. Preprint: latest public version date. Use `YYYY-MM-DD`, `YYYY-MM`, or `YYYY`. |
 | `title` | Paper title |
 | `authors` | Comma-separated authors |
@@ -47,10 +47,7 @@ cell are omitted.
 | `paper_url` | One canonical full-text or paper landing-page URL |
 | `project_url` | Optional lab project page |
 | `highlight` | Optional award or presentation label |
-| `research_title` | Optional shorter title used only on Research/News cards |
-| `figure_src` | Local figure path for a selected Research paper; otherwise blank |
-| `figure_alt` | Accessible description for `figure_src`; otherwise blank |
-| `figure_credit` | Figure number/source/license line; otherwise blank |
+| `research_title` | Optional shorter title used on Research cards |
 
 The site groups papers by year and sorts every year by `date` descending. Title
 links replace redundant Paper buttons. The home page automatically uses the first
@@ -60,24 +57,35 @@ three rows after date sorting.
 
 | Column | What to enter |
 | --- | --- |
-| `publish` | Checkbox |
+| `publish` | Checkbox; checked rows are published |
 | `slug` | Stable URL anchor, for example `llm-reasoning` |
 | `title` | Research area title |
 | `summary` | One concise area description |
 | `question` | The question shown above the area summary |
 | `home_summary` | One-line version shown on the home page |
-| `selected_publication_1` | Exact title from Publications |
-| `selected_publication_2` | Exact title from Publications |
+| `selected_publication_1`, `selected_publication_2` | Publication-title dropdowns sourced from Publications |
+| `figure_1_url`, `figure_2_url` | HTTPS image URL or existing site-relative image path for each selected paper |
+| `figure_1_alt`, `figure_2_alt` | Accessible description of each image |
+| `figure_1_credit`, `figure_2_credit` | Figure number, source, and license/credit line |
 
-The first three published rows become the home-page Research Focus cards. Figure
-metadata is read from the matching Publications rows, so Research needs only the
-two exact publication titles.
+The first three checked rows become the home-page Research Focus cards. The
+selected-publication cells use dropdowns sourced from the Publications title
+column. The builder still validates the exact relationship and refuses an unknown
+title, then automatically reuses that publication's paper URL, venue, and optional
+short title. Figure presentation data belongs to Research because it controls the
+Research cards.
+
+The anonymous CSV feed cannot expose an image uploaded directly as a Google Sheets
+cell-image object: Google exposes that image only through an authorized Apps Script
+API and its content URL expires. Paste an HTTPS image URL in `figure_*_url` instead.
+Existing site images may use a site-relative path. Google Sheets can show an
+in-cell preview with `IMAGE(url)`, but the URL cell must remain the builder source.
 
 ### Projects
 
 | Column | What to enter |
 | --- | --- |
-| `publish` | Checkbox |
+| `publish` | Checkbox; checked rows are published |
 | `title` | Project title |
 | `summary` | One concise project description |
 | `status` | `Ongoing` or `Completed` |
@@ -89,7 +97,7 @@ two exact publication titles.
 
 | Column | What to enter |
 | --- | --- |
-| `publish` | Checkbox |
+| `publish` | Checkbox; checked rows are published |
 | `date` | Sort date in `YYYY-MM-DD`, `YYYY-MM`, or `YYYY` form |
 | `display_date` | Visible label such as `Jul 2026` or `Spring 2026` |
 | `tag` | Short category such as `Publications`, `Award`, or `People` |
@@ -104,22 +112,28 @@ News is sorted newest first. The first item is automatically featured.
 
 | Column | What to enter |
 | --- | --- |
-| `publish` | Checkbox |
+| `publish` | Checkbox; checked rows are published |
 | `section` | `Faculty`, `Ph.D. Students`, `Master's Students`, `Lab Internship`, `Alumni`, or `Pre-EconAI Alumni` |
 | `group` | Internship term such as `Spring 2026`; blank otherwise |
-| `sort_order` | Positive integer within the section/term |
 | `name_en`, `name_ko` | English name and optional Korean name |
-| `role` | Current role for cards; degree/year for alumni |
-| `details` | Research interests for students; current position for alumni |
+| `role` | Current role for cards; optional degree/year for alumni |
+| `details` | Research interests for students; required current position for alumni |
 | `photo` | Local image path for Faculty/Student cards |
 | `email` | Public email address |
 | `website`, `scholar`, `linkedin` | Optional HTTPS profile links |
 | `phone`, `address` | Optional public faculty contact fields |
-| `highlight_publications` | Checkbox; bold this English name in publication author lists |
+| `affiliations` | Faculty footer affiliations separated by `|` |
+| `joint_supervisor`, `joint_supervisor_url` | Optional paired alumni footnote label and HTTPS profile URL |
+
+Members and section order follow the physical row order in the Sheet; no separate
+sort column is used. Publication author names are bolded automatically for every
+checked member except `Pre-EconAI Alumni`, so no manual highlight flag is needed.
+Repeated joint-supervisor pairs are rendered once as a linked footnote below that
+alumni section. The first checked Faculty row also supplies Contact and every page's
+footer affiliations.
 
 The Members tab is publicly downloadable because the site builder reads it without
-Google credentials. Store only information intended for public display. The first
-published Faculty row also supplies the office and email cards on Contact.
+Google credentials. Store only information intended for public display.
 
 ## Safety behavior
 

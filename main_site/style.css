@@ -629,6 +629,33 @@ body {
     font-weight: 800;
 }
 
+.alumni-note-marker {
+    font-size: 0.72em;
+    margin-left: 0.12em;
+    vertical-align: super;
+}
+
+.alumni-footnotes {
+    color: var(--text-gray);
+    font-size: 0.84rem;
+    line-height: 1.55;
+    margin: 10px 0 0;
+}
+
+.alumni-footnotes p {
+    margin: 0;
+}
+
+.alumni-footnotes a {
+    color: var(--kaist-blue);
+    font-weight: 700;
+    text-underline-offset: 2px;
+}
+
+.footer-affiliations {
+    line-height: 1.55;
+}
+
 .footer {
     background: var(--surface);
     border-top: 1px solid var(--border-color);

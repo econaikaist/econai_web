@@ -18,21 +18,27 @@ MARKER_PAIRS = {
         ("<!-- SHEET:RESEARCH_FOCUS:START -->", "<!-- SHEET:RESEARCH_FOCUS:END -->"),
         ("<!-- SHEET:LATEST_PUBLICATIONS:START -->", "<!-- SHEET:LATEST_PUBLICATIONS:END -->"),
         ("<!-- SHEET:NEWS:START -->", "<!-- SHEET:NEWS:END -->"),
+        ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
     ),
     "members.html": (
         ("<!-- SHEET:MEMBERS:START -->", "<!-- SHEET:MEMBERS:END -->"),
+        ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
     ),
     "contact.html": (
         ("<!-- SHEET:CONTACT:START -->", "<!-- SHEET:CONTACT:END -->"),
+        ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
     ),
     "research.html": (
         ("<!-- SHEET:RESEARCH_AREAS:START -->", "<!-- SHEET:RESEARCH_AREAS:END -->"),
+        ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
     ),
     "projects.html": (
         ("<!-- SHEET:PROJECTS:START -->", "<!-- SHEET:PROJECTS:END -->"),
+        ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
     ),
     "publications.html": (
         ("<!-- PUBLICATIONS:START -->", "<!-- PUBLICATIONS:END -->"),
+        ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
     ),
 }
 EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel", "data"}

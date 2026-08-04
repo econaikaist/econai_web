@@ -907,6 +907,11 @@ a {
   margin: 0;
 }
 
+.footer-affiliations {
+  line-height: 1.55;
+  max-width: 780px;
+}
+
 .footer-meta {
   color: var(--muted);
   font-size: 0.76rem;

@@ -118,14 +118,16 @@ class ServerPublisherTests(unittest.TestCase):
             csv_dir.mkdir()
             (csv_dir / "Publications.csv").write_text(
                 "publish,date,title,authors,venue,paper_url,project_url,highlight,"
-                "research_title,figure_src,figure_alt,figure_credit\n"
-                "TRUE,2026-01-01,Only one,A Author,arXiv,https://example.com/paper,,,,,,\n",
+                "research_title\n"
+                "TRUE,2026-01-01,Only one,A Author,arXiv,https://example.com/paper,,,\n",
                 encoding="utf-8",
             )
             (csv_dir / "Research.csv").write_text(
                 "publish,slug,title,summary,question,home_summary,selected_publication_1,"
-                "selected_publication_2\n"
-                "TRUE,area,Area,Summary,Question,Home summary,Only one,\n",
+                "figure_1_url,figure_1_alt,figure_1_credit,selected_publication_2,"
+                "figure_2_url,figure_2_alt,figure_2_credit\n"
+                "TRUE,area,Area,Summary,Question,Home summary,Only one,"
+                "img/research/slum-detection-figure-5.png,Alt,Credit,,,,\n",
                 encoding="utf-8",
             )
             (csv_dir / "Projects.csv").write_text(
@@ -139,10 +141,11 @@ class ServerPublisherTests(unittest.TestCase):
                 encoding="utf-8",
             )
             (csv_dir / "Members.csv").write_text(
-                "publish,section,group,sort_order,name_en,name_ko,role,details,photo,email,"
-                "website,scholar,linkedin,phone,address,highlight_publications\n"
-                "TRUE,Faculty,,1,Example Professor,,Professor,Profile,img/prof_jihee.jpg,,"
-                "https://example.com/,,,,,\n",
+                "publish,section,group,name_en,name_ko,role,details,photo,email,"
+                "website,scholar,linkedin,phone,address,affiliations,joint_supervisor,"
+                "joint_supervisor_url\n"
+                "TRUE,Faculty,,Example Professor,,Professor,Profile,img/prof_jihee.jpg,,"
+                "https://example.com/,,,,,KAIST School of Business,,,,\n",
                 encoding="utf-8",
             )
             arguments = SimpleNamespace(
@@ -176,20 +179,23 @@ class ServerPublisherTests(unittest.TestCase):
             csv_dir.mkdir()
             publication_rows = "\n".join(
                 "TRUE,2026-01-{day:02d},Paper {day},A Author,arXiv,"
-                "https://example.com/paper-{day},,,,,,".format(day=day)
+                "https://example.com/paper-{day},,,".format(day=day)
                 for day in range(1, 21)
             )
             (csv_dir / "Publications.csv").write_text(
                 "publish,date,title,authors,venue,paper_url,project_url,highlight,"
-                "research_title,figure_src,figure_alt,figure_credit\n"
+                "research_title\n"
                 + publication_rows
                 + "\n",
                 encoding="utf-8",
             )
             (csv_dir / "Research.csv").write_text(
                 "publish,slug,title,summary,question,home_summary,selected_publication_1,"
-                "selected_publication_2\n"
-                "TRUE,area,Area,Summary,Question,Home summary,Paper 1,Paper 2\n",
+                "figure_1_url,figure_1_alt,figure_1_credit,selected_publication_2,"
+                "figure_2_url,figure_2_alt,figure_2_credit\n"
+                "TRUE,area,Area,Summary,Question,Home summary,Paper 1,"
+                "img/research/slum-detection-figure-5.png,Alt 1,Credit 1,Paper 2,"
+                "img/research/economic-development-figure-2.png,Alt 2,Credit 2\n",
                 encoding="utf-8",
             )
             (csv_dir / "Projects.csv").write_text(
@@ -204,9 +210,10 @@ class ServerPublisherTests(unittest.TestCase):
             )
             (csv_dir / "Members.csv").write_text(
                 # Deliberately omit the unique `section` sentinel column.
-                "publish,group,sort_order,name_en,name_ko,role,details,photo,email,website,"
-                "scholar,linkedin,phone,address,highlight_publications\n"
-                "TRUE,,1,Example Professor,,Professor,Profile,,,,,,,,\n",
+                "publish,group,name_en,name_ko,role,details,photo,email,website,"
+                "scholar,linkedin,phone,address,affiliations,joint_supervisor,"
+                "joint_supervisor_url\n"
+                "TRUE,,Example Professor,,Professor,Profile,,,,,,,,,,\n",
                 encoding="utf-8",
             )
             arguments = SimpleNamespace(
