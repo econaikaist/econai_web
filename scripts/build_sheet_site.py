@@ -44,9 +44,6 @@ REQUIRED_COLUMNS = {
         "project_url",
         "highlight",
         "research_title",
-        "figure_src",
-        "figure_alt",
-        "figure_credit",
     },
     "Research": {
         "publish",
@@ -56,7 +53,13 @@ REQUIRED_COLUMNS = {
         "question",
         "home_summary",
         "selected_publication_1",
+        "figure_1_url",
+        "figure_1_alt",
+        "figure_1_credit",
         "selected_publication_2",
+        "figure_2_url",
+        "figure_2_alt",
+        "figure_2_credit",
     },
     "Projects": {
         "publish",
@@ -81,7 +84,6 @@ REQUIRED_COLUMNS = {
         "publish",
         "section",
         "group",
-        "sort_order",
         "name_en",
         "name_ko",
         "role",
@@ -93,7 +95,9 @@ REQUIRED_COLUMNS = {
         "linkedin",
         "phone",
         "address",
-        "highlight_publications",
+        "affiliations",
+        "joint_supervisor",
+        "joint_supervisor_url",
     },
 }
 MINIMUM_PUBLISHED_ROWS = {
@@ -207,14 +211,6 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                     row["project_url"], f"{tab_name} row {index} project_url"
                 )
             _publication_sort_tuple(row)
-            figure_values = [
-                row.get(field, "")
-                for field in ("figure_src", "figure_alt", "figure_credit")
-            ]
-            if any(figure_values) and not all(figure_values):
-                raise SheetBuildError(
-                    f"{tab_name} row {index}: figure_src, figure_alt, and figure_credit must be filled together"
-                )
         elif tab_name == "Research":
             slug = row.get("slug", "")
             if SLUG_PATTERN.fullmatch(slug) is None:
@@ -229,12 +225,23 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                 "question",
                 "home_summary",
                 "selected_publication_1",
+                "figure_1_url",
+                "figure_1_alt",
+                "figure_1_credit",
                 "selected_publication_2",
+                "figure_2_url",
+                "figure_2_alt",
+                "figure_2_credit",
             ):
                 if not row.get(field):
                     raise SheetBuildError(
                         f"{tab_name} row {index}: {field} is required"
                     )
+            for slot in (1, 2):
+                _validate_url(
+                    row[f"figure_{slot}_url"],
+                    f"{tab_name} row {index} figure_{slot}_url",
+                )
         elif tab_name == "Projects":
             for field in ("summary", "status", "period", "area", "url"):
                 if not row.get(field):
@@ -261,16 +268,6 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                 raise SheetBuildError(
                     f"{tab_name} row {index}: unknown section {section!r}"
                 )
-            try:
-                sort_order = int(row.get("sort_order", ""))
-            except ValueError as exc:
-                raise SheetBuildError(
-                    f"{tab_name} row {index}: sort_order must be a positive integer"
-                ) from exc
-            if sort_order < 1:
-                raise SheetBuildError(
-                    f"{tab_name} row {index}: sort_order must be a positive integer"
-                )
             if section == "Lab Internship" and not row.get("group"):
                 raise SheetBuildError(
                     f"{tab_name} row {index}: group is required for Lab Internship"
@@ -285,22 +282,34 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                         raise SheetBuildError(
                             f"{tab_name} row {index}: {field} is required for {section}"
                         )
-            if section in {"Alumni", "Pre-EconAI Alumni"}:
-                for field in ("role", "details"):
-                    if not row.get(field):
-                        raise SheetBuildError(
-                            f"{tab_name} row {index}: {field} is required for alumni"
-                        )
+            if section in {"Alumni", "Pre-EconAI Alumni"} and not row.get("details"):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: details is required for alumni"
+                )
+            if section == "Faculty" and not row.get("affiliations"):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: affiliations is required for Faculty"
+                )
             email = row.get("email", "")
             if email and EMAIL_PATTERN.fullmatch(email) is None:
                 raise SheetBuildError(f"{tab_name} row {index}: invalid email")
             for field in ("website", "scholar", "linkedin"):
                 if row.get(field):
                     _validate_url(row[field], f"{tab_name} row {index} {field}")
-            highlight = row.get("highlight_publications", "").casefold()
-            if highlight not in TRUTHY | FALSEY:
+            supervisor = row.get("joint_supervisor", "")
+            supervisor_url = row.get("joint_supervisor_url", "")
+            if bool(supervisor) != bool(supervisor_url):
                 raise SheetBuildError(
-                    f"{tab_name} row {index}: highlight_publications must be a checkbox value"
+                    f"{tab_name} row {index}: joint_supervisor and joint_supervisor_url must be filled together"
+                )
+            if supervisor:
+                if section not in {"Alumni", "Pre-EconAI Alumni"}:
+                    raise SheetBuildError(
+                        f"{tab_name} row {index}: joint supervision is only used for alumni"
+                    )
+                _validate_url(
+                    supervisor_url,
+                    f"{tab_name} row {index} joint_supervisor_url",
                 )
 
     return rows
@@ -559,6 +568,9 @@ def _publication_lookup(
 
 def _selected_publication_lines(
     publication_title: str,
+    figure_url: str,
+    figure_alt: str,
+    figure_credit: str,
     publication_lookup: Mapping[str, Dict[str, str]],
     output_dir: Path,
 ) -> List[str]:
@@ -568,18 +580,19 @@ def _selected_publication_lines(
             f"selected publication not found in Publications tab: {publication_title}"
         )
 
-    for field in ("figure_src", "figure_alt", "figure_credit"):
-        if not publication.get(field):
-            raise SheetBuildError(f"{publication_title}: Publications {field} is required")
-    figure_path = (output_dir / publication["figure_src"]).resolve()
-    try:
-        figure_path.relative_to(output_dir.resolve())
-    except ValueError as exc:
-        raise SheetBuildError(
-            f"{publication_title}: figure_src must stay inside the site"
-        ) from exc
-    if not figure_path.is_file():
-        raise SheetBuildError(f"{publication_title}: missing figure asset {figure_path}")
+    parsed_figure = urllib.parse.urlparse(figure_url)
+    if not parsed_figure.scheme and not parsed_figure.netloc:
+        figure_path = (output_dir / figure_url).resolve()
+        try:
+            figure_path.relative_to(output_dir.resolve())
+        except ValueError as exc:
+            raise SheetBuildError(
+                f"{publication_title}: figure URL must stay inside the site"
+            ) from exc
+        if not figure_path.is_file():
+            raise SheetBuildError(
+                f"{publication_title}: missing figure asset {figure_path}"
+            )
 
     display_title = publication.get("research_title") or publication["title"]
     paper_url = _escape(publication["paper_url"], quote=True)
@@ -587,11 +600,11 @@ def _selected_publication_lines(
     return [
         "                  <li>",
         f'                    <a class="selected-figure-link" href="{paper_url}" aria-label="{aria_label}">',
-        f'                      <span class="selected-figure-frame"><img src="{_escape(publication["figure_src"], quote=True)}" alt="{_escape(publication["figure_alt"], quote=True)}" loading="lazy" decoding="async"></span>',
+        f'                      <span class="selected-figure-frame"><img src="{_escape(figure_url, quote=True)}" alt="{_escape(figure_alt, quote=True)}" loading="lazy" decoding="async"></span>',
         "                    </a>",
         f'                    <a class="selected-title" href="{paper_url}">{_escape(display_title)}</a>',
         f'                    <span>{_escape(publication["venue"])}</span>',
-        f'                    <small class="selected-figure-credit">{_escape(publication["figure_credit"])}</small>',
+        f'                    <small class="selected-figure-credit">{_escape(figure_credit)}</small>',
         "                  </li>",
     ]
 
@@ -625,8 +638,17 @@ def render_research_areas(
                 "                <ul>",
             ]
         )
-        for field in ("selected_publication_1", "selected_publication_2"):
-            lines.extend(_selected_publication_lines(row[field], lookup, output_dir))
+        for slot in (1, 2):
+            lines.extend(
+                _selected_publication_lines(
+                    row[f"selected_publication_{slot}"],
+                    row[f"figure_{slot}_url"],
+                    row[f"figure_{slot}_alt"],
+                    row[f"figure_{slot}_credit"],
+                    lookup,
+                    output_dir,
+                )
+            )
         lines.extend(["                </ul>", "              </div>"])
 
         lines.extend(["            </div>", "          </article>"])
@@ -757,14 +779,20 @@ def render_news(
     return "\n".join(lines)
 
 
-def _member_sort_key(row: Mapping[str, str]) -> Tuple[int, int]:
-    return MEMBER_SECTIONS.index(row["section"]), int(row["sort_order"])
-
-
 def _member_name(row: Mapping[str, str]) -> str:
     if row.get("name_ko"):
         return f'{row["name_en"]} | {row["name_ko"]}'
     return row["name_en"]
+
+
+def _alumni_name_html(row: Mapping[str, str]) -> str:
+    rendered = _escape(_member_name(row))
+    if row.get("joint_supervisor"):
+        rendered += (
+            '<sup class="alumni-note-marker" '
+            'aria-label="Jointly supervised">†</sup>'
+        )
+    return rendered
 
 
 def _member_link_lines(row: Mapping[str, str]) -> List[str]:
@@ -832,14 +860,11 @@ def render_members(
         sections[row["section"]].append(row)
 
     lines: List[str] = []
-    for section in MEMBER_SECTIONS:
-        rows = sections.get(section, [])
-        if not rows:
-            continue
+    for section, rows in sections.items():
         lines.append(f'                <h2 class="members-category-title">{_escape(section)}</h2>')
         if section in {"Faculty", "Ph.D. Students", "Master's Students"}:
             lines.append('                <div class="members-grid">')
-            for row in sorted(rows, key=_member_sort_key):
+            for row in rows:
                 lines.extend(_member_card_lines(row, output_dir))
             lines.append("                </div>")
         elif section == "Lab Internship":
@@ -860,7 +885,7 @@ def render_members(
                         '                                <ul class="intern-list">',
                     ]
                 )
-                for row in sorted(group_rows, key=_member_sort_key):
+                for row in group_rows:
                     lines.append(
                         f'                                    <li class="sheet-member-item">{_escape(_member_name(row))}</li>'
                     )
@@ -875,11 +900,28 @@ def render_members(
             lines.append("                </div>")
         else:
             lines.append('                <ul class="alumni-list">')
-            for row in sorted(rows, key=_member_sort_key):
-                lines.append(
-                    f'                    <li class="sheet-member-item"><strong>{_escape(_member_name(row))}</strong> — {_escape(row["role"])} · {_escape(row["details"])}</li>'
+            footnotes: List[Tuple[str, str]] = []
+            for row in rows:
+                alumni_detail = " · ".join(
+                    value for value in (row.get("role", ""), row["details"]) if value
                 )
+                lines.append(
+                    f'                    <li class="sheet-member-item"><strong>{_alumni_name_html(row)}</strong> — {_escape(alumni_detail)}</li>'
+                )
+                if row.get("joint_supervisor"):
+                    note = (row["joint_supervisor"], row["joint_supervisor_url"])
+                    if note not in footnotes:
+                        footnotes.append(note)
             lines.append("                </ul>")
+            if footnotes:
+                lines.append('                <div class="alumni-footnotes">')
+                for supervisor, url in footnotes:
+                    lines.append(
+                        '                    <p><span aria-hidden="true">†</span> '
+                        'Jointly supervised with '
+                        f'<a href="{_escape(url, quote=True)}" target="_blank" rel="noopener noreferrer">{_escape(supervisor)}</a></p>'
+                    )
+                lines.append("                </div>")
         lines.append("")
     return "\n".join(lines).rstrip()
 
@@ -888,15 +930,12 @@ def _lab_authors(member_rows: Sequence[Dict[str, str]]) -> set[str]:
     return {
         row["name_en"]
         for row in member_rows
-        if row.get("highlight_publications", "").casefold() in TRUTHY
+        if row["section"] != "Pre-EconAI Alumni"
     }
 
 
 def render_contact(member_rows: Sequence[Dict[str, str]]) -> str:
-    faculty = sorted(
-        (row for row in member_rows if row["section"] == "Faculty"),
-        key=_member_sort_key,
-    )
+    faculty = [row for row in member_rows if row["section"] == "Faculty"]
     if not faculty:
         raise SheetBuildError("Members: at least one published Faculty row is required")
     primary = faculty[0]
@@ -925,6 +964,25 @@ def render_contact(member_rows: Sequence[Dict[str, str]]) -> str:
             f'                        <p class="frame-text"><a href="mailto:{_escape(primary["email"], quote=True)}">{_escape(primary["email"])}</a></p>',
             "                    </article>",
         ]
+    )
+
+
+def render_footer_affiliations(member_rows: Sequence[Dict[str, str]]) -> str:
+    primary = next(
+        (row for row in member_rows if row["section"] == "Faculty"),
+        None,
+    )
+    if primary is None:
+        raise SheetBuildError("Members: at least one published Faculty row is required")
+    affiliations = [
+        value.strip() for value in primary["affiliations"].split("|") if value.strip()
+    ]
+    if not affiliations:
+        raise SheetBuildError("Members: first Faculty row requires affiliations")
+    text = " · ".join(affiliations)
+    return (
+        '      <p class="footer-school footer-affiliations mb-1 fw-bold text-kaist">'
+        f"{_escape(text)}</p>"
     )
 
 
@@ -1031,9 +1089,24 @@ def build_site(
         "<!-- SHEET:CONTACT:END -->",
         render_contact(members),
     )
+    footer_affiliations = render_footer_affiliations(members)
+    for page_name in (
+        "index.html",
+        "members.html",
+        "research.html",
+        "publications.html",
+        "projects.html",
+        "contact.html",
+    ):
+        _replace_block(
+            output_dir / page_name,
+            "<!-- SHEET:FOOTER_AFFILIATIONS:START -->",
+            "<!-- SHEET:FOOTER_AFFILIATIONS:END -->",
+            footer_affiliations,
+        )
 
     metadata = {
-        "schema_version": 1,
+        "schema_version": 2,
         "content_source": source_kind,
         "sheet_id": sheet_id,
         "built_at": datetime.now(timezone.utc).isoformat(),

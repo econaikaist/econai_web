@@ -27,9 +27,6 @@ PUBLICATION_COLUMNS = (
     "project_url",
     "highlight",
     "research_title",
-    "figure_src",
-    "figure_alt",
-    "figure_credit",
 )
 RESEARCH_COLUMNS = (
     "publish",
@@ -39,7 +36,13 @@ RESEARCH_COLUMNS = (
     "question",
     "home_summary",
     "selected_publication_1",
+    "figure_1_url",
+    "figure_1_alt",
+    "figure_1_credit",
     "selected_publication_2",
+    "figure_2_url",
+    "figure_2_alt",
+    "figure_2_credit",
 )
 PROJECT_COLUMNS = ("publish", "title", "summary", "status", "period", "area", "url")
 NEWS_COLUMNS = (
@@ -56,7 +59,6 @@ MEMBER_COLUMNS = (
     "publish",
     "section",
     "group",
-    "sort_order",
     "name_en",
     "name_ko",
     "role",
@@ -68,7 +70,9 @@ MEMBER_COLUMNS = (
     "linkedin",
     "phone",
     "address",
-    "highlight_publications",
+    "affiliations",
+    "joint_supervisor",
+    "joint_supervisor_url",
 )
 PUBLICATION_HEADER = ",".join(PUBLICATION_COLUMNS) + "\n"
 
@@ -99,9 +103,9 @@ class SheetBuilderTests(unittest.TestCase):
     def test_publications_are_sorted_by_exact_date_descending(self) -> None:
         text = PUBLICATION_HEADER + "\n".join(
             [
-                "TRUE,2026-04-30,Older,A Author,arXiv,https://example.com/older,,,,,,",
-                "TRUE,2026-07-12,Newer,B Author,COLM (2026),https://example.com/newer,,,,,,",
-                "FALSE,2027-01-01,Hidden,C Author,arXiv,https://example.com/hidden,,,,,,",
+                "TRUE,2026-04-30,Older,A Author,arXiv,https://example.com/older,, ,",
+                "TRUE,2026-07-12,Newer,B Author,COLM (2026),https://example.com/newer,, ,",
+                "FALSE,2027-01-01,Hidden,C Author,arXiv,https://example.com/hidden,, ,",
             ]
         )
         original_minimum = builder.MINIMUM_PUBLISHED_ROWS["Publications"]
@@ -121,7 +125,7 @@ class SheetBuilderTests(unittest.TestCase):
     def test_blank_date_uses_one_unambiguous_venue_year(self) -> None:
         text = (
             PUBLICATION_HEADER
-            + "TRUE,,Legacy,A Author,Workshop (2017),https://example.com/paper,,,,,,\n"
+            + "TRUE,,Legacy,A Author,Workshop (2017),https://example.com/paper,,,\n"
         )
         original_minimum = builder.MINIMUM_PUBLISHED_ROWS["Publications"]
         builder.MINIMUM_PUBLISHED_ROWS["Publications"] = 1
@@ -136,7 +140,7 @@ class SheetBuilderTests(unittest.TestCase):
     def test_non_https_publication_link_is_rejected(self) -> None:
         text = (
             PUBLICATION_HEADER
-            + "TRUE,2026-01-01,Unsafe,A Author,arXiv,javascript:alert(1),,,,,,\n"
+            + "TRUE,2026-01-01,Unsafe,A Author,arXiv,javascript:alert(1),,,\n"
         )
         original_minimum = builder.MINIMUM_PUBLISHED_ROWS["Publications"]
         builder.MINIMUM_PUBLISHED_ROWS["Publications"] = 1
@@ -151,7 +155,7 @@ class SheetBuilderTests(unittest.TestCase):
     def test_publication_mass_deletion_guardrail(self) -> None:
         text = (
             PUBLICATION_HEADER
-            + "TRUE,2026-01-01,Only one,A Author,arXiv,https://example.com/paper,,,,,,\n"
+            + "TRUE,2026-01-01,Only one,A Author,arXiv,https://example.com/paper,,,\n"
         )
         with self.assertRaisesRegex(builder.SheetBuildError, "at least 20"):
             builder._read_csv_text(text, "Publications")
@@ -159,7 +163,7 @@ class SheetBuilderTests(unittest.TestCase):
     def test_publication_csv_cannot_be_mistaken_for_news_or_members(self) -> None:
         text = (
             PUBLICATION_HEADER
-            + "TRUE,2026-01-01,Paper,A Author,arXiv,https://example.com/paper,,,,,,\n"
+            + "TRUE,2026-01-01,Paper,A Author,arXiv,https://example.com/paper,,,\n"
         )
         for tab_name in ("News", "Members"):
             with self.subTest(tab_name=tab_name):
@@ -196,7 +200,6 @@ class SheetBuilderTests(unittest.TestCase):
                 {
                     "publish": "TRUE",
                     "section": "Master's Students",
-                    "sort_order": "1",
                     "name_en": "Example Student",
                     "name_ko": "예시",
                     "role": "Master's Student",
@@ -213,6 +216,73 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertEqual([row["title"] for row in news], ["Two papers accepted"])
         self.assertEqual([row["name_en"] for row in members], ["Example Student"])
 
+    def test_alumni_joint_supervision_footnote_is_sheet_driven(self) -> None:
+        self._allow_small_fixtures("Members")
+        rows = [
+            {
+                "publish": "TRUE",
+                "section": "Alumni",
+                "name_en": "Minhyuk Song",
+                "details": "AI Researcher, LIG Defense&Aerospace",
+                "joint_supervisor": "Prof. Meeyoung Cha",
+                "joint_supervisor_url": "https://www.mpi-sp.org/cha",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Alumni",
+                "name_en": "Sumin Lee",
+                "details": "Ph.D Student, Max Planck Institute for Security and Privacy",
+                "joint_supervisor": "Prof. Meeyoung Cha",
+                "joint_supervisor_url": "https://www.mpi-sp.org/cha",
+            },
+        ]
+        members = builder._read_csv_text(
+            _csv_text(MEMBER_COLUMNS, rows), "Members"
+        )
+        rendered = builder.render_members(members, REPOSITORY_ROOT / "main_site")
+
+        self.assertIn(
+            "Minhyuk Song<sup class=\"alumni-note-marker\"", rendered
+        )
+        self.assertIn("AI Researcher, LIG Defense&amp;Aerospace", rendered)
+        self.assertIn(
+            "Sumin Lee<sup class=\"alumni-note-marker\"", rendered
+        )
+        self.assertEqual(rendered.count("Jointly supervised with"), 1)
+        self.assertEqual(rendered.count("https://www.mpi-sp.org/cha"), 1)
+        self.assertEqual(
+            builder._lab_authors(
+                members
+                + [
+                    {
+                        "section": "Pre-EconAI Alumni",
+                        "name_en": "Legacy Author",
+                    }
+                ]
+            ),
+            {"Minhyuk Song", "Sumin Lee"},
+        )
+
+    def test_joint_supervisor_fields_must_be_paired(self) -> None:
+        self._allow_small_fixtures("Members")
+        text = _csv_text(
+            MEMBER_COLUMNS,
+            [
+                {
+                    "publish": "TRUE",
+                    "section": "Alumni",
+                    "name_en": "Example Alumni",
+                    "details": "Researcher",
+                    "joint_supervisor": "Prof. Example",
+                }
+            ],
+        )
+        with self.assertRaisesRegex(
+            builder.SheetBuildError,
+            "joint_supervisor and joint_supervisor_url must be filled together",
+        ):
+            builder._read_csv_text(text, "Members")
+
     def test_five_tab_build_and_validation_are_consistent(self) -> None:
         self._allow_small_fixtures(
             "Publications", "Research", "Projects", "News", "Members"
@@ -226,9 +296,6 @@ class SheetBuilderTests(unittest.TestCase):
                 "venue": "arXiv",
                 "paper_url": "https://example.com/newer-paper",
                 "research_title": "Test Research Area",
-                "figure_src": "img/research/slum-detection-figure-5.png",
-                "figure_alt": "Example result map",
-                "figure_credit": "Example figure credit",
             },
             {
                 "publish": "TRUE",
@@ -238,9 +305,6 @@ class SheetBuilderTests(unittest.TestCase):
                 "venue": "arXiv",
                 "paper_url": "https://example.com/older-paper",
                 "research_title": "Test Research Area",
-                "figure_src": "img/research/economic-development-figure-2.png",
-                "figure_alt": "Example comparison chart",
-                "figure_credit": "Second example figure credit",
             },
         ]
         research_rows = [
@@ -252,7 +316,13 @@ class SheetBuilderTests(unittest.TestCase):
                 "question": "What can this research measure?",
                 "home_summary": "A concise home-page summary.",
                 "selected_publication_1": "Newer Paper",
+                "figure_1_url": "img/research/slum-detection-figure-5.png",
+                "figure_1_alt": "Example result map",
+                "figure_1_credit": "Example figure credit",
                 "selected_publication_2": "Older Paper",
+                "figure_2_url": "img/research/economic-development-figure-2.png",
+                "figure_2_alt": "Example comparison chart",
+                "figure_2_credit": "Second example figure credit",
             }
         ]
         project_rows = [
@@ -290,19 +360,17 @@ class SheetBuilderTests(unittest.TestCase):
             {
                 "publish": "TRUE",
                 "section": "Faculty",
-                "sort_order": "1",
                 "name_en": "A Author",
                 "role": "Professor",
                 "details": "Faculty profile",
                 "photo": "img/prof_jihee.jpg",
                 "email": "professor@example.com",
                 "address": "KAIST Bldg. N5 #2108, Daejeon, South Korea",
-                "highlight_publications": "TRUE",
+                "affiliations": "KAIST School of Business and Technology Management|School of Computing",
             },
             {
                 "publish": "TRUE",
                 "section": "Master's Students",
-                "sort_order": "2",
                 "name_en": "Second Student",
                 "role": "Master's Student",
                 "details": "Second in display order",
@@ -311,7 +379,6 @@ class SheetBuilderTests(unittest.TestCase):
             {
                 "publish": "TRUE",
                 "section": "Master's Students",
-                "sort_order": "1",
                 "name_en": "First Student",
                 "role": "Master's Student",
                 "details": "First in display order",
@@ -369,13 +436,17 @@ class SheetBuilderTests(unittest.TestCase):
                 index_text.index("Newer lab news"), index_text.index("Older lab news")
             )
             self.assertLess(
-                member_text.index("First Student"), member_text.index("Second Student")
+                member_text.index("Second Student"), member_text.index("First Student")
             )
             self.assertIn('href="https://example.com/newer-paper"', index_text)
             self.assertIn('href="https://example.com/older-paper"', index_text)
             self.assertIn(
                 '<strong class="publication-lab-author">A Author</strong>',
                 publication_text,
+            )
+            self.assertIn(
+                "KAIST School of Business and Technology Management · School of Computing",
+                index_text,
             )
             self.assertEqual(site_validator.validate(output), [])
 
