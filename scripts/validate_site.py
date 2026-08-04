@@ -117,6 +117,8 @@ def validate(site_dir: Path) -> List[str]:
             continue
         if "Preview" in text or "preview.css" in text:
             errors.append(f"{file_name}: preview-only text or stylesheet remains")
+        if 'rel="icon"' not in text or "favicon.svg" not in text:
+            errors.append(f"{file_name}: EconAI favicon is missing")
         for start, end in marker_pairs:
             if text.count(start) != 1 or text.count(end) != 1:
                 errors.append(f"{file_name}: invalid marker pair {start} / {end}")
@@ -184,7 +186,7 @@ def validate(site_dir: Path) -> List[str]:
                     f"{html_path.relative_to(site_dir)}: broken local {attribute}={value!r}"
                 )
 
-    for required in ("site.css", "banner.png", "img/EconAI@KAIST.svg"):
+    for required in ("site.css", "favicon.svg", "banner.png", "img/EconAI@KAIST.svg"):
         if not (site_dir / required).exists():
             errors.append(f"missing required static asset: {required}")
     return errors
