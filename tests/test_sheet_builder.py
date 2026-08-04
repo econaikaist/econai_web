@@ -693,7 +693,13 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertIn('aria-label="Show next publication figure"', rendered)
         self.assertIn('aria-label="Open paper: Paper 1"', rendered)
         self.assertIn('alt="Paper overview"', rendered)
-        self.assertNotIn("publication-figure-caption", rendered)
+        self.assertEqual(
+            site_validator._classes(rendered, "publication-figure-caption"), 3
+        )
+        self.assertEqual(
+            site_validator._classes(rendered, "publication-carousel-dot"), 3
+        )
+        self.assertIn(">Paper 1</a>", rendered)
         self.assertNotIn("publication-figure-title", rendered)
         self.assertNotIn("publication-figure-venue", rendered)
         self.assertNotIn("publication-figure-credit", rendered)
@@ -712,7 +718,7 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertEqual(rendered.count('fetchpriority="high"'), 1)
         self.assertEqual(rendered.count('fetchpriority="low"'), 2)
         self.assertEqual(rendered.count('decoding="sync"'), 3)
-        self.assertEqual(rendered.count(" hidden>"), 2)
+        self.assertEqual(rendered.count(" hidden>"), 4)
         index_source = (REPOSITORY_ROOT / "main_site/index.html").read_text(
             encoding="utf-8"
         )
@@ -721,9 +727,11 @@ class SheetBuilderTests(unittest.TestCase):
         )
         self.assertIn('event.key === "ArrowLeft"', index_source)
         self.assertIn('event.key === "ArrowRight"', index_source)
+        self.assertIn('dot.setAttribute("aria-current", "true")', index_source)
+        self.assertIn('caption.hidden = captionIndex !== current', index_source)
         self.assertIn("(index + slides.length) % slides.length", index_source)
         self.assertNotIn("setInterval", index_source)
-        self.assertIn("aspect-ratio: 2 / 1", stylesheet)
+        self.assertIn("aspect-ratio: 16 / 9", stylesheet)
         self.assertRegex(
             stylesheet,
             r"\.publication-figure-image\s*\{[^}]*object-fit:\s*contain",
@@ -737,8 +745,19 @@ class SheetBuilderTests(unittest.TestCase):
             r"\.publication-carousel-button\s*\{[^}]*position:\s*absolute"
             r"[^}]*top:\s*50%",
         )
+        self.assertRegex(
+            stylesheet,
+            r"\.publication-carousel-button\s*\{[^}]*background:\s*transparent",
+        )
+        self.assertIn('.publication-carousel-dot[aria-current="true"]', stylesheet)
         self.assertNotIn("weather-card", index_source)
         self.assertNotIn("open-meteo.com", index_source)
+        legacy_stylesheet = (REPOSITORY_ROOT / "main_site/style.css").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("scrollbar-gutter: stable", stylesheet)
+        self.assertIn("scrollbar-gutter: stable", legacy_stylesheet)
+        self.assertIn("max-width: 1120px", legacy_stylesheet)
 
     def test_publication_home_image_columns_must_be_complete(self) -> None:
         self._allow_small_fixtures("Publications")
@@ -1381,7 +1400,14 @@ class SheetBuilderTests(unittest.TestCase):
                 3,
             )
             self.assertIn("Overview of the published paper", index_text)
-            self.assertNotIn("publication-figure-caption", index_text)
+            self.assertEqual(
+                site_validator._classes(index_text, "publication-figure-caption"),
+                3,
+            )
+            self.assertEqual(
+                site_validator._classes(index_text, "publication-carousel-dot"),
+                3,
+            )
             self.assertNotIn("publication-figure-credit", index_text)
             self.assertNotIn("googleusercontent.com", index_text)
             self.assertNotIn("ggpht.com", index_text)

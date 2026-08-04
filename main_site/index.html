@@ -115,14 +115,33 @@
         var previous = carousel.querySelector("[data-carousel-previous]");
         var next = carousel.querySelector("[data-carousel-next]");
         var status = carousel.querySelector("[data-carousel-status]");
+        var captions = Array.prototype.slice.call(
+          carousel.querySelectorAll("[data-carousel-caption]")
+        );
+        var dots = Array.prototype.slice.call(
+          carousel.querySelectorAll("[data-carousel-dot]")
+        );
         var current = 0;
 
-        if (!slides.length || !previous || !next || !status) return;
+        if (
+          !slides.length || !previous || !next || !status
+          || captions.length !== slides.length || dots.length !== slides.length
+        ) return;
 
         function show(index) {
           current = (index + slides.length) % slides.length;
           slides.forEach(function (slide, slideIndex) {
             slide.hidden = slideIndex !== current;
+          });
+          captions.forEach(function (caption, captionIndex) {
+            caption.hidden = captionIndex !== current;
+          });
+          dots.forEach(function (dot, dotIndex) {
+            if (dotIndex === current) {
+              dot.setAttribute("aria-current", "true");
+            } else {
+              dot.removeAttribute("aria-current");
+            }
           });
           status.textContent = (current + 1) + " / " + slides.length;
         }
@@ -132,6 +151,11 @@
         });
         next.addEventListener("click", function () {
           show(current + 1);
+        });
+        dots.forEach(function (dot, dotIndex) {
+          dot.addEventListener("click", function () {
+            show(dotIndex);
+          });
         });
         carousel.addEventListener("keydown", function (event) {
           if (event.key === "ArrowLeft") {

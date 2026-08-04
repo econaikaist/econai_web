@@ -11,6 +11,10 @@
     --surface: #ffffff;
 }
 
+html {
+    scrollbar-gutter: stable;
+}
+
 body {
     font-family: 'Noto Sans KR', sans-serif;
     color: var(--ink);
@@ -27,10 +31,19 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
+.navbar > .container {
+    margin-inline: auto;
+    max-width: 1120px;
+    padding-inline: 32px;
+    width: 100%;
+}
+
 .navbar-brand {
     display: inline-flex;
     align-items: center;
     color: var(--kaist-blue) !important;
+    margin: 0;
+    padding: 0;
 }
 
 .brand-logo {
@@ -41,11 +54,24 @@ body {
 
 .nav-link {
     color: #34383d !important;
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0;
-    margin-left: 18px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+    margin-left: 0;
     position: relative;
+}
+
+@media (min-width: 992px) {
+    .navbar-nav {
+        gap: 25px;
+    }
+
+    .navbar .nav-link {
+        align-items: center;
+        display: inline-flex;
+        min-height: 76px;
+        padding: 0 !important;
+    }
 }
 
 .nav-link:hover,
@@ -55,16 +81,16 @@ body {
 
 .nav-link.active::after,
 .nav-link:hover::after {
-    width: calc(100% - 1rem);
+    width: 100%;
 }
 
 .nav-link::after {
     content: "";
     position: absolute;
-    left: 0.5rem;
-    bottom: 0.18rem;
+    left: 0;
+    bottom: -1px;
     width: 0;
-    height: 2px;
+    height: 3px;
     background: var(--kaist-blue);
     transition: width 0.18s ease;
 }
@@ -690,7 +716,12 @@ body {
 }
 
 @media (max-width: 991px) {
+    .navbar-nav {
+        gap: 0;
+    }
+
     .nav-link {
+        min-height: 0;
         margin-left: 0;
         padding: 0.72rem 0;
     }
@@ -706,6 +737,10 @@ body {
 }
 
 @media (max-width: 768px) {
+    .navbar > .container {
+        padding-inline: 20px;
+    }
+
     .brand-logo {
         height: 30px;
     }

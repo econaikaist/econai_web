@@ -1466,7 +1466,8 @@ def render_home_latest(
             '            <a class="text-link" href="publications.html">View all publications →</a>',
             "          </div>",
             '          <div class="publication-figure-carousel" data-publication-carousel tabindex="0" role="region" aria-roledescription="carousel" aria-label="Representative figures from the latest publications">',
-            '            <div class="publication-figure-slides" id="latest-publication-figures">',
+            '            <div class="publication-figure-stage">',
+            '              <div class="publication-figure-slides" id="latest-publication-figures">',
         ]
     )
     slide_count = len(latest)
@@ -1479,21 +1480,44 @@ def render_home_latest(
         ]
         lines.extend(
             [
-                f'              <article class="publication-figure-slide" data-carousel-slide role="group" aria-roledescription="slide" aria-label="{index + 1} of {slide_count}"{hidden}>',
-                f'                <a class="publication-figure-link" href="{_escape(row["paper_url"], quote=True)}" aria-label="Open paper: {_escape(row["title"], quote=True)}">',
-                '                  <span class="publication-figure-frame">',
+                f'                <article class="publication-figure-slide" data-carousel-slide role="group" aria-roledescription="slide" aria-label="{index + 1} of {slide_count}"{hidden}>',
+                f'                  <a class="publication-figure-link" href="{_escape(row["paper_url"], quote=True)}" aria-label="Open paper: {_escape(row["title"], quote=True)}">',
+                '                    <span class="publication-figure-frame">',
                 *visual_lines,
-                "                  </span>",
-                "                </a>",
-                "              </article>",
+                "                    </span>",
+                "                  </a>",
+                "                </article>",
             ]
         )
     lines.extend(
         [
+            "              </div>",
+            '              <button class="publication-carousel-button publication-carousel-button--previous" type="button" data-carousel-previous aria-controls="latest-publication-figures" aria-label="Show previous publication figure"><span aria-hidden="true">‹</span></button>',
+            '              <button class="publication-carousel-button publication-carousel-button--next" type="button" data-carousel-next aria-controls="latest-publication-figures" aria-label="Show next publication figure"><span aria-hidden="true">›</span></button>',
             "            </div>",
-            '            <button class="publication-carousel-button publication-carousel-button--previous" type="button" data-carousel-previous aria-controls="latest-publication-figures" aria-label="Show previous publication figure"><span aria-hidden="true">‹</span></button>',
+            '            <div class="publication-figure-captions">',
+        ]
+    )
+    for index, row in enumerate(latest):
+        hidden = "" if index == 0 else " hidden"
+        lines.append(
+            f'              <a class="publication-figure-caption" data-carousel-caption href="{_escape(row["paper_url"], quote=True)}"{hidden}>{_escape(row["title"])}</a>'
+        )
+    lines.extend(
+        [
+            "            </div>",
+            '            <div class="publication-carousel-pagination" aria-label="Choose publication figure">',
+        ]
+    )
+    for index, row in enumerate(latest):
+        current = ' aria-current="true"' if index == 0 else ""
+        lines.append(
+            f'              <button class="publication-carousel-dot" type="button" data-carousel-dot aria-label="Show figure {index + 1}: {_escape(row["title"], quote=True)}"{current}></button>'
+        )
+    lines.extend(
+        [
+            "            </div>",
             f'            <span class="publication-carousel-status" data-carousel-status aria-live="polite" aria-atomic="true">1 / {slide_count}</span>',
-            '            <button class="publication-carousel-button publication-carousel-button--next" type="button" data-carousel-next aria-controls="latest-publication-figures" aria-label="Show next publication figure"><span aria-hidden="true">›</span></button>',
             "          </div>",
             "        </div>",
         ]

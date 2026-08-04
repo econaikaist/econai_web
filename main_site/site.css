@@ -20,6 +20,7 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -418,10 +419,10 @@ a {
 }
 
 .latest-publications-layout {
-  align-items: start;
+  align-items: center;
   display: grid;
   gap: 54px;
-  grid-template-columns: minmax(0, 58fr) minmax(320px, 42fr);
+  grid-template-columns: minmax(0, 60fr) minmax(330px, 40fr);
 }
 
 .latest-publications-layout .publication-panel {
@@ -434,8 +435,10 @@ a {
 }
 
 .publication-figure-carousel {
+  justify-self: end;
+  max-width: 430px;
   min-width: 0;
-  position: relative;
+  width: 100%;
 }
 
 .publication-figure-carousel:focus-visible {
@@ -447,6 +450,10 @@ a {
   display: none;
 }
 
+.publication-figure-stage {
+  position: relative;
+}
+
 .publication-figure-link {
   color: inherit;
   display: block;
@@ -456,7 +463,7 @@ a {
 
 .publication-figure-frame {
   align-items: center;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 16 / 9;
   background: linear-gradient(145deg, rgba(231, 241, 251, 0.92), rgba(246, 249, 253, 0.82));
   border: 1px solid rgba(0, 65, 145, 0.1);
   border-radius: 14px;
@@ -477,46 +484,96 @@ a {
 
 .publication-carousel-button {
   align-items: center;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  background: rgba(0, 45, 101, 0.52);
+  background: transparent;
   border: 0;
-  border-radius: 50%;
-  box-shadow: 0 5px 16px rgba(0, 30, 80, 0.18);
-  color: #fff;
+  color: rgba(79, 92, 104, 0.82);
   cursor: pointer;
   display: inline-flex;
   font: inherit;
-  font-size: 2rem;
-  font-weight: 500;
-  height: 44px;
+  font-size: 2.25rem;
+  font-weight: 400;
+  height: 52px;
   justify-content: center;
   line-height: 1;
   padding: 0;
   position: absolute;
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.96);
   top: 50%;
   transform: translateY(-50%);
-  transition: background 150ms ease, transform 150ms ease;
-  width: 44px;
+  transition: color 150ms ease;
+  width: 36px;
   z-index: 2;
 }
 
 .publication-carousel-button--previous {
-  left: 12px;
+  left: 8px;
 }
 
 .publication-carousel-button--next {
-  right: 12px;
+  right: 8px;
 }
 
 .publication-carousel-button:hover {
-  background: rgba(0, 45, 101, 0.76);
-  transform: translateY(-50%) scale(1.05);
+  color: rgba(32, 38, 45, 0.98);
 }
 
 .publication-carousel-button:focus-visible {
-  outline: 3px solid #fff;
+  outline: 2px solid rgba(0, 65, 145, 0.55);
   outline-offset: 2px;
+}
+
+.publication-figure-captions {
+  min-height: 64px;
+  padding: 14px 4px 2px;
+}
+
+.publication-figure-caption {
+  color: var(--ink);
+  display: block;
+  font-size: 0.91rem;
+  font-weight: 800;
+  line-height: 1.45;
+  text-decoration: none;
+}
+
+.publication-figure-caption[hidden] {
+  display: none;
+}
+
+.publication-figure-caption:hover {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.publication-carousel-pagination {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  min-height: 20px;
+}
+
+.publication-carousel-dot {
+  background: rgba(79, 92, 104, 0.55);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 7px;
+  opacity: 0.22;
+  padding: 0;
+  transition: opacity 160ms ease, transform 160ms ease;
+  width: 7px;
+}
+
+.publication-carousel-dot[aria-current="true"] {
+  opacity: 0.82;
+  transform: scale(1.12);
+}
+
+.publication-carousel-dot:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
 }
 
 .publication-carousel-status {
@@ -1004,6 +1061,7 @@ summary:focus-visible {
 
   .publication-figure-carousel {
     max-width: 620px;
+    justify-self: start;
   }
 }
 
@@ -1080,17 +1138,17 @@ summary:focus-visible {
   }
 
   .publication-carousel-button {
-    font-size: 1.7rem;
-    height: 38px;
-    width: 38px;
+    font-size: 2rem;
+    height: 48px;
+    width: 32px;
   }
 
   .publication-carousel-button--previous {
-    left: 8px;
+    left: 5px;
   }
 
   .publication-carousel-button--next {
-    right: 8px;
+    right: 5px;
   }
 
   .news-item,
