@@ -533,6 +533,7 @@ async function validateModelDialog(page, width) {
 
     const negativeTrigger = page.locator('.model-open-button[data-model-id="claude-sonnet-4-6"]');
     await negativeTrigger.focus();
+    await negativeTrigger.dispatchEvent('mouseenter');
     await page.waitForFunction(() => (
         !document.querySelector('#model-quick-detail').hidden
         && document.querySelector('#model-quick-detail .quick-detail-header strong')?.textContent.includes('Claude Sonnet 4.6')
