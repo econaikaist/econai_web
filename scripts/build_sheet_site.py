@@ -1492,8 +1492,8 @@ def render_home_latest(
     lines.extend(
         [
             "              </div>",
-            '              <button class="publication-carousel-button publication-carousel-button--previous" type="button" data-carousel-previous aria-controls="latest-publication-figures" aria-label="Show previous publication figure"><span aria-hidden="true">‹</span></button>',
-            '              <button class="publication-carousel-button publication-carousel-button--next" type="button" data-carousel-next aria-controls="latest-publication-figures" aria-label="Show next publication figure"><span aria-hidden="true">›</span></button>',
+            '              <button class="publication-carousel-button publication-carousel-button--previous" type="button" data-carousel-previous aria-controls="latest-publication-figures" aria-label="Show previous publication figure"><span aria-hidden="true">←</span></button>',
+            '              <button class="publication-carousel-button publication-carousel-button--next" type="button" data-carousel-next aria-controls="latest-publication-figures" aria-label="Show next publication figure"><span aria-hidden="true">→</span></button>',
             "            </div>",
             '            <div class="publication-figure-captions">',
         ]

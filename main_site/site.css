@@ -490,7 +490,7 @@ a {
   cursor: pointer;
   display: inline-flex;
   font: inherit;
-  font-size: 2.25rem;
+  font-size: 1.55rem;
   font-weight: 400;
   height: 52px;
   justify-content: center;
@@ -1138,7 +1138,7 @@ summary:focus-visible {
   }
 
   .publication-carousel-button {
-    font-size: 2rem;
+    font-size: 1.4rem;
     height: 48px;
     width: 32px;
   }
