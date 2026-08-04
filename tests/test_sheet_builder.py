@@ -44,7 +44,16 @@ RESEARCH_COLUMNS = (
     "figure_2_alt",
     "figure_2_credit",
 )
-PROJECT_COLUMNS = ("publish", "title", "summary", "status", "period", "area", "url")
+PROJECT_COLUMNS = (
+    "publish",
+    "title",
+    "summary",
+    "status",
+    "period",
+    "area",
+    "related_publication",
+    "url",
+)
 NEWS_COLUMNS = (
     "publish",
     "date",
@@ -52,7 +61,8 @@ NEWS_COLUMNS = (
     "tag",
     "title",
     "summary",
-    "related_publications",
+    "related_publication_1",
+    "related_publication_2",
     "url",
 )
 MEMBER_COLUMNS = (
@@ -99,6 +109,114 @@ class SheetBuilderTests(unittest.TestCase):
                 builder.MINIMUM_PUBLISHED_ROWS[tab_name] = minimum
 
         self.addCleanup(restore)
+
+    def _publication_reference_tabs(
+        self,
+        *,
+        research_publication_1: str = "Published Paper",
+        research_publication_2: str = "Second Published Paper",
+        project_publication: str = "Published Paper",
+        news_publication_1: str = "Published Paper",
+        news_publication_2: str = "Second Published Paper",
+    ) -> dict[str, list[dict[str, str]]]:
+        self._allow_small_fixtures(
+            "Publications", "Research", "Projects", "News", "Members"
+        )
+        publication_rows = [
+            {
+                "publish": "TRUE",
+                "date": "2026-08-01",
+                "title": "Published Paper",
+                "authors": "Example Author",
+                "venue": "arXiv",
+                "paper_url": "https://example.com/published-paper",
+            },
+            {
+                "publish": "TRUE",
+                "date": "2026-07-01",
+                "title": "Second Published Paper",
+                "authors": "Example Author",
+                "venue": "arXiv",
+                "paper_url": "https://example.com/second-published-paper",
+            },
+            {
+                "publish": "FALSE",
+                "date": "2026-09-01",
+                "title": "Unchecked Paper",
+                "authors": "Example Author",
+                "venue": "arXiv",
+                "paper_url": "https://example.com/unchecked-paper",
+            },
+        ]
+        research_rows = [
+            {
+                "publish": "TRUE",
+                "slug": "reference-test",
+                "title": "Reference Test",
+                "summary": "Summary",
+                "question": "Question?",
+                "home_summary": "Home summary",
+                "selected_publication_1": research_publication_1,
+                "figure_1_url": "img/research/slum-detection-figure-5.png",
+                "figure_1_alt": "First figure",
+                "figure_1_credit": "First figure credit",
+                "selected_publication_2": research_publication_2,
+                "figure_2_url": "img/research/economic-development-figure-2.png",
+                "figure_2_alt": "Second figure",
+                "figure_2_credit": "Second figure credit",
+            }
+        ]
+        project_rows = [
+            {
+                "publish": "TRUE",
+                "title": "Publication-backed Project",
+                "summary": "Summary",
+                "status": "Ongoing",
+                "period": "2026–",
+                "area": "Reference Test",
+                "related_publication": project_publication,
+            }
+        ]
+        news_rows = [
+            {
+                "publish": "TRUE",
+                "date": "2026-08-01",
+                "display_date": "Aug 2026",
+                "tag": "Publications",
+                "title": "Publication news",
+                "summary": "Summary",
+                "related_publication_1": news_publication_1,
+                "related_publication_2": news_publication_2,
+            }
+        ]
+        member_rows = [
+            {
+                "publish": "TRUE",
+                "section": "Faculty",
+                "name_en": "Example Author",
+                "role": "Professor",
+                "details": "Profile",
+                "photo": "img/prof_jihee.jpg",
+                "affiliations": "KAIST School of Business and Technology Management",
+            }
+        ]
+        return {
+            "Publications": builder._read_csv_text(
+                _csv_text(PUBLICATION_COLUMNS, publication_rows), "Publications"
+            ),
+            "Research": builder._read_csv_text(
+                _csv_text(RESEARCH_COLUMNS, research_rows), "Research"
+            ),
+            "Projects": builder._read_csv_text(
+                _csv_text(PROJECT_COLUMNS, project_rows), "Projects"
+            ),
+            "News": builder._read_csv_text(
+                _csv_text(NEWS_COLUMNS, news_rows), "News"
+            ),
+            "Members": builder._read_csv_text(
+                _csv_text(MEMBER_COLUMNS, member_rows), "Members"
+            ),
+        }
 
     def test_publications_are_sorted_by_exact_date_descending(self) -> None:
         text = PUBLICATION_HEADER + "\n".join(
@@ -182,7 +300,8 @@ class SheetBuilderTests(unittest.TestCase):
                     "tag": "Publications",
                     "title": "Two papers accepted",
                     "summary": "The lab will present two papers.",
-                    "related_publications": "Paper A | Paper B",
+                    "related_publication_1": "Paper A",
+                    "related_publication_2": "Paper B",
                 },
                 {
                     "publish": "FALSE",
@@ -216,6 +335,36 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertEqual([row["title"] for row in news], ["Two papers accepted"])
         self.assertEqual([row["name_en"] for row in members], ["Example Student"])
 
+    def test_news_pipe_delimited_publication_column_is_rejected(self) -> None:
+        old_columns = (
+            "publish",
+            "date",
+            "display_date",
+            "tag",
+            "title",
+            "summary",
+            "related_publications",
+            "url",
+        )
+        text = _csv_text(
+            old_columns,
+            [
+                {
+                    "publish": "TRUE",
+                    "date": "2026-08-01",
+                    "display_date": "Aug 2026",
+                    "tag": "Publications",
+                    "title": "Legacy references",
+                    "related_publications": "Paper A | Paper B",
+                }
+            ],
+        )
+        with self.assertRaisesRegex(
+            builder.SheetBuildError,
+            r"missing columns: .*related_publication_1.*related_publication_2",
+        ):
+            builder._read_csv_text(text, "News")
+
     def test_alumni_joint_supervision_footnote_is_sheet_driven(self) -> None:
         self._allow_small_fixtures("Members")
         rows = [
@@ -223,7 +372,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "publish": "TRUE",
                 "section": "Alumni",
                 "name_en": "Minhyuk Song",
-                "details": "AI Researcher, LIG Defense&Aerospace",
+                "details": "AI Researcher, LIG Defense & Aerospace",
                 "joint_supervisor": "Prof. Meeyoung Cha",
                 "joint_supervisor_url": "https://www.mpi-sp.org/cha",
             },
@@ -244,7 +393,7 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertIn(
             "Minhyuk Song<sup class=\"alumni-note-marker\"", rendered
         )
-        self.assertIn("AI Researcher, LIG Defense&amp;Aerospace", rendered)
+        self.assertIn("AI Researcher, LIG Defense &amp; Aerospace", rendered)
         self.assertIn(
             "Sumin Lee<sup class=\"alumni-note-marker\"", rendered
         )
@@ -333,7 +482,26 @@ class SheetBuilderTests(unittest.TestCase):
                 "status": "Ongoing",
                 "period": "2026–",
                 "area": "Test Research Area",
-                "url": "https://example.com/project",
+                "related_publication": "Newer Paper",
+            },
+            {
+                "publish": "TRUE",
+                "title": "Standalone Project",
+                "summary": "A standalone project summary.",
+                "status": "Completed",
+                "period": "2025",
+                "area": "Test Research Area",
+                "url": "https://example.com/standalone-project",
+            },
+            {
+                "publish": "TRUE",
+                "title": "Project Page and Paper",
+                "summary": "A project with its own page and a related paper.",
+                "status": "Ongoing",
+                "period": "2026–",
+                "area": "Test Research Area",
+                "related_publication": "Older Paper",
+                "url": "https://example.com/project-page",
             }
         ]
         news_rows = [
@@ -353,7 +521,8 @@ class SheetBuilderTests(unittest.TestCase):
                 "tag": "Award",
                 "title": "Newer lab news",
                 "summary": "A newer update.",
-                "related_publications": "Newer Paper | Older Paper",
+                "related_publication_1": "Newer Paper",
+                "related_publication_2": "Older Paper",
             },
         ]
         member_rows = [
@@ -417,7 +586,7 @@ class SheetBuilderTests(unittest.TestCase):
                 {
                     "Publications": 2,
                     "Research": 1,
-                    "Projects": 1,
+                    "Projects": 3,
                     "News": 2,
                     "Members": 3,
                 },
@@ -428,6 +597,7 @@ class SheetBuilderTests(unittest.TestCase):
             publication_text = (output / "publications.html").read_text(
                 encoding="utf-8"
             )
+            project_text = (output / "projects.html").read_text(encoding="utf-8")
             self.assertEqual(site_validator._classes(index_text, "sheet-news-item"), 2)
             self.assertEqual(site_validator._classes(member_text, "sheet-member-item"), 3)
             self.assertIn("Professor A Author", contact_text)
@@ -440,14 +610,38 @@ class SheetBuilderTests(unittest.TestCase):
             )
             self.assertIn('href="https://example.com/newer-paper"', index_text)
             self.assertIn('href="https://example.com/older-paper"', index_text)
+            self.assertIn('href="https://example.com/newer-paper"', project_text)
+            self.assertIn('href="https://example.com/standalone-project"', project_text)
+            self.assertIn(
+                '<h3><a href="https://example.com/project-page">Project Page and Paper</a></h3>',
+                project_text,
+            )
+            self.assertIn(
+                '<a class="project-publication-link" href="https://example.com/older-paper">Related publication →</a>',
+                project_text,
+            )
             self.assertIn(
                 '<strong class="publication-lab-author">A Author</strong>',
                 publication_text,
             )
             self.assertIn(
-                "KAIST School of Business and Technology Management · School of Computing",
+                '<li class="footer-affiliation">KAIST School of Business and Technology Management</li>',
                 index_text,
             )
+            self.assertIn(
+                '<li class="footer-affiliation">School of Computing</li>',
+                index_text,
+            )
+            for page_name in (
+                "index.html",
+                "members.html",
+                "research.html",
+                "publications.html",
+                "projects.html",
+                "contact.html",
+            ):
+                page_text = (output / page_name).read_text(encoding="utf-8")
+                self.assertIn("Daejeon, ROK · 2026 EconAI Lab", page_text)
             self.assertEqual(site_validator.validate(output), [])
 
             metadata["published_rows"]["News"] = 3
@@ -458,6 +652,80 @@ class SheetBuilderTests(unittest.TestCase):
             errors = site_validator.validate(output)
             self.assertIn("index.html news row count does not match Sheet metadata", errors)
             self.assertIn("members.html row count does not match Sheet metadata", errors)
+
+    def test_unmatched_cross_tab_publication_references_fail_the_build(self) -> None:
+        cases = (
+            (
+                "Research",
+                "Missing Paper",
+                {"research_publication_1": "Missing Paper"},
+            ),
+            (
+                "Projects",
+                "Missing Paper",
+                {"project_publication": "Missing Paper"},
+            ),
+            ("News", "Missing Paper", {"news_publication_1": "Missing Paper"}),
+            (
+                "Research",
+                "published Paper",
+                {"research_publication_1": "published Paper"},
+            ),
+        )
+        for tab_name, bad_title, overrides in cases:
+            with self.subTest(tab_name=tab_name, bad_title=bad_title):
+                tabs = self._publication_reference_tabs(**overrides)
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    root = Path(temporary_directory)
+                    output = root / "output"
+                    with self.assertRaises(builder.SheetBuildError) as context:
+                        builder.build_site(
+                            tabs,
+                            REPOSITORY_ROOT / "main_site",
+                            output,
+                            "test-sheet",
+                            "offline_csv",
+                        )
+                message = str(context.exception)
+                self.assertIn(tab_name, message)
+                self.assertIn(bad_title, message)
+
+    def test_unchecked_publication_cannot_be_referenced_from_another_tab(self) -> None:
+        tabs = self._publication_reference_tabs(
+            project_publication="Unchecked Paper"
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            with self.assertRaises(builder.SheetBuildError) as context:
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    output,
+                    "test-sheet",
+                    "offline_csv",
+                )
+
+        message = str(context.exception)
+        self.assertIn("Projects", message)
+        self.assertIn("Unchecked Paper", message)
+
+    def test_project_requires_a_page_url_or_publication_dropdown(self) -> None:
+        self._allow_small_fixtures("Projects")
+        rows = [
+            {
+                "publish": "TRUE",
+                "title": "Unlinked Project",
+                "summary": "Summary",
+                "status": "Ongoing",
+                "period": "2026–",
+                "area": "Research Area",
+            }
+        ]
+        with self.assertRaisesRegex(
+            builder.SheetBuildError,
+            r"Projects row 2: .*related_publication.*url|Projects row 2: .*url.*related_publication",
+        ):
+            builder._read_csv_text(_csv_text(PROJECT_COLUMNS, rows), "Projects")
 
     def test_marker_replacement_preserves_markers(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

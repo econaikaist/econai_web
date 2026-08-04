@@ -63,17 +63,17 @@ three rows after date sorting.
 | `summary` | One concise area description |
 | `question` | The question shown above the area summary |
 | `home_summary` | One-line version shown on the home page |
-| `selected_publication_1`, `selected_publication_2` | Publication-title dropdowns sourced from Publications |
+| `selected_publication_1`, `selected_publication_2` | Exact paper-title dropdowns sourced from `Publications!C2:C` |
 | `figure_1_url`, `figure_2_url` | HTTPS image URL or existing site-relative image path for each selected paper |
 | `figure_1_alt`, `figure_2_alt` | Accessible description of each image |
 | `figure_1_credit`, `figure_2_credit` | Figure number, source, and license/credit line |
 
 The first three checked rows become the home-page Research Focus cards. The
 selected-publication cells use dropdowns sourced from the Publications title
-column. The builder still validates the exact relationship and refuses an unknown
-title, then automatically reuses that publication's paper URL, venue, and optional
-short title. Figure presentation data belongs to Research because it controls the
-Research cards.
+column with invalid input rejected. The builder also requires an exact,
+case-sensitive match to a checked Publications row. It then automatically reuses
+that publication's paper URL, venue, and optional short title. Figure presentation
+data belongs to Research because it controls the Research cards.
 
 The anonymous CSV feed cannot expose an image uploaded directly as a Google Sheets
 cell-image object: Google exposes that image only through an authorized Apps Script
@@ -91,7 +91,14 @@ in-cell preview with `IMAGE(url)`, but the URL cell must remain the builder sour
 | `status` | `Ongoing` or `Completed` |
 | `period` | Display period, for example `2025–` |
 | `area` | Short research-area label |
-| `url` | HTTPS or site-relative project/paper link |
+| `related_publication` | Optional exact paper-title dropdown sourced from `Publications!C2:C` |
+| `url` | Optional HTTPS or site-relative standalone project-page link |
+
+Every project needs at least one of `related_publication` or `url`. With only a
+related publication, the project title links to that paper's canonical `paper_url`.
+With only `url`, the title links to the standalone project page. When both are
+filled, the title links to the project page and a separate Related publication
+link uses the selected paper's canonical `paper_url`.
 
 ### News
 
@@ -103,10 +110,37 @@ in-cell preview with `IMAGE(url)`, but the URL cell must remain the builder sour
 | `tag` | Short category such as `Publications`, `Award`, or `People` |
 | `title` | News headline |
 | `summary` | Optional explanatory sentence |
-| `related_publications` | Optional exact Publication titles separated by `|`; links are resolved automatically |
+| `related_publication_1`, `related_publication_2` | Optional exact paper-title dropdowns sourced from `Publications!C2:C` |
 | `url` | Optional separate HTTPS or site-relative link |
 
 News is sorted newest first. The first item is automatically featured.
+
+### Publication-reference dropdowns
+
+Research, News, and Projects must cite papers through their Publications-backed
+dropdown columns; do not copy titles into another free-text column or combine
+multiple titles with `|`. Each dropdown uses **Dropdown (from a range)** with
+`Publications!$C$2:$C` as the range and **Reject input** enabled:
+
+- Research: `selected_publication_1`, `selected_publication_2`
+- News: `related_publication_1`, `related_publication_2`
+- Projects: `related_publication`
+
+The CSV builder cannot tell whether an exact value was clicked or pasted, so the
+Sheet's reject-input validation enforces dropdown-only editing. The builder is the
+second safety layer: every nonblank reference must equal the `title` of a checked
+Publications row, including capitalization and punctuation. An unchecked paper,
+stale title, typo, or value absent from Publications fails the staged build. The
+publisher does not switch the live symlink, so the last validated website remains
+online.
+
+If a title is renamed in Publications, the dropdown choices update but existing
+selected cells may retain the previous title. Search the Research, News, and
+Projects tabs for the old title and reselect the renamed title from each dropdown.
+If a reference should not be public yet, either clear that optional reference or
+check the matching Publications row; do not bypass the dropdown with a manually
+entered paper URL in a standalone `url` column. The failed row and title are
+reported in the publisher log.
 
 ### Members
 
@@ -138,7 +172,7 @@ Google credentials. Store only information intended for public display.
 ## Safety behavior
 
 The build rejects missing columns, invalid checkboxes, duplicate or blank records,
-malformed dates, unsafe URLs, broken selected-publication references, missing local
+malformed dates, unsafe URLs, broken cross-tab publication references, missing local
 images, duplicate HTML IDs, and any symlink in the generated site. It also refuses
 to publish fewer than 20 publication rows, preventing an accidental mass deletion
 from replacing the live list. A failed build leaves the last validated release live.

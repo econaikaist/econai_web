@@ -887,6 +887,19 @@ a {
   padding-top: 24px;
 }
 
+.project-publication-link {
+  color: var(--blue);
+  font-size: 0.76rem;
+  font-weight: 800;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+.project-publication-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .site-footer {
   background: #fff;
   border-top: 1px solid var(--line);
@@ -909,14 +922,22 @@ a {
 
 .footer-affiliations {
   line-height: 1.55;
+  list-style: none;
+  padding: 0;
   max-width: 780px;
+}
+
+.footer-affiliation + .footer-affiliation {
+  margin-top: 2px;
 }
 
 .footer-meta {
   color: var(--muted);
+  flex-shrink: 0;
   font-size: 0.76rem;
   margin: 0;
   text-align: right;
+  white-space: nowrap;
 }
 
 a:focus-visible,

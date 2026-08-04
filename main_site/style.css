@@ -654,6 +654,16 @@ body {
 
 .footer-affiliations {
     line-height: 1.55;
+    list-style: none;
+    padding-left: 0;
+}
+
+.footer-affiliation + .footer-affiliation {
+    margin-top: 2px;
+}
+
+.footer-meta {
+    white-space: nowrap;
 }
 
 .footer {
