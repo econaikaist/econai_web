@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import base64
 import csv
+import hashlib
 import io
 import json
+import re
 import shutil
 import sys
 import tempfile
 import unittest
+from email.message import Message
 from pathlib import Path
+from unittest import mock
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -41,6 +46,22 @@ RESEARCH_COLUMNS = (
     "figure_1_credit",
     "selected_publication_2",
     "figure_2_url",
+    "figure_2_alt",
+    "figure_2_credit",
+)
+DIRECT_RESEARCH_COLUMNS = (
+    "publish",
+    "slug",
+    "title",
+    "summary",
+    "question",
+    "home_summary",
+    "selected_publication_1",
+    "figure_1_image",
+    "figure_1_alt",
+    "figure_1_credit",
+    "selected_publication_2",
+    "figure_2_image",
     "figure_2_alt",
     "figure_2_credit",
 )
@@ -87,6 +108,57 @@ MEMBER_COLUMNS = (
 PUBLICATION_HEADER = ",".join(PUBLICATION_COLUMNS) + "\n"
 
 
+# Actual one-pixel images keep the bridge tests independent of Pillow or other
+# image libraries while still exercising MIME and file-signature validation.
+TINY_PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8A"
+    "AQUBAScY42YAAAAASUVORK5CYII="
+)
+TINY_JPEG = base64.b64decode(
+    "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAP//////////////////////////////"
+    "////////////////////////////////////////////////////2wBDAf//////////"
+    "////////////////////////////////////////////////////////////////////"
+    "////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAX/"
+    "xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAEf/8QAFBABAAAAAAAA"
+    "AAAAAAAAAAAAAP/aAAgBAQABBQJ//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgB"
+    "AwEBPwF//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAgEBPwF//8QAFBABAAAA"
+    "AAAAAAAAAAAAAAAAAP/aAAgBAQAGPwJ//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/a"
+    "AAgBAQABPyF//9oADAMBAAIAAwAAABD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oA"
+    "CAEDAQE/EH//xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oACAECAQE/EH//xAAUEAEA"
+    "AAAAAAAAAAAAAAAAAAAA/9oACAEBAAE/EH//2Q=="
+)
+
+
+class _FakeUrlResponse:
+    def __init__(self, payload: bytes, content_type: str, url: str = "") -> None:
+        self._payload = payload
+        self._url = url
+        self.headers = Message()
+        self.headers["Content-Type"] = content_type
+        self.headers["Content-Length"] = str(len(payload))
+        self.status = 200
+
+    def read(self, amount: int = -1) -> bytes:
+        if amount is None or amount < 0:
+            return self._payload
+        return self._payload[:amount]
+
+    def getcode(self) -> int:
+        return self.status
+
+    def getheader(self, name: str, default: str | None = None) -> str | None:
+        return self.headers.get(name, default)
+
+    def geturl(self) -> str:
+        return self._url
+
+    def __enter__(self) -> "_FakeUrlResponse":
+        return self
+
+    def __exit__(self, *args: object) -> None:
+        return None
+
+
 def _csv_text(columns: tuple[str, ...], rows: list[dict[str, str]]) -> str:
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=columns, lineterminator="\n")
@@ -96,6 +168,11 @@ def _csv_text(columns: tuple[str, ...], rows: list[dict[str, str]]) -> str:
 
 
 class SheetBuilderTests(unittest.TestCase):
+    IMAGE_ENDPOINT = "https://script.google.com/macros/s/test-deployment/exec"
+    IMAGE_TOKEN = "t" * 32
+    IMAGE_1_URL = "https://lh3.googleusercontent.com/research-image-one"
+    IMAGE_2_URL = "https://images.ggpht.com/research-image-two"
+
     def _allow_small_fixtures(self, *tab_names: str) -> None:
         original = {
             tab_name: builder.MINIMUM_PUBLISHED_ROWS[tab_name]
@@ -197,6 +274,8 @@ class SheetBuilderTests(unittest.TestCase):
                 "role": "Professor",
                 "details": "Profile",
                 "photo": "img/prof_jihee.jpg",
+                "email": "example-author@example.com",
+                "address": "KAIST N5, Daejeon, South Korea",
                 "affiliations": "KAIST School of Business and Technology Management",
             }
         ]
@@ -217,6 +296,93 @@ class SheetBuilderTests(unittest.TestCase):
                 _csv_text(MEMBER_COLUMNS, member_rows), "Members"
             ),
         }
+
+    def _direct_image_tabs(self) -> dict[str, list[dict[str, str]]]:
+        tabs = self._publication_reference_tabs()
+        direct_rows = [
+            {
+                "publish": "TRUE",
+                "slug": "reference-test",
+                "title": "Reference Test",
+                "summary": "Summary",
+                "question": "Question?",
+                "home_summary": "Home summary",
+                "selected_publication_1": "Published Paper",
+                "figure_1_alt": "First direct figure",
+                "figure_1_credit": "First direct figure credit",
+                "selected_publication_2": "Second Published Paper",
+                "figure_2_alt": "Second direct figure",
+                "figure_2_credit": "Second direct figure credit",
+            }
+        ]
+        tabs["Research"] = builder._read_csv_text(
+            _csv_text(DIRECT_RESEARCH_COLUMNS, direct_rows), "Research"
+        )
+        return tabs
+
+    def _direct_image_manifest(self) -> dict[str, object]:
+        return {
+            "ok": True,
+            "schema_version": 1,
+            "generated_at": "2026-08-04T00:00:00.000Z",
+            "sheet": "Research",
+            "images": [
+                {
+                    "slug": "reference-test",
+                    "slot": 1,
+                    "field": "figure_1_image",
+                    "content_url": self.IMAGE_1_URL,
+                    "alt": "First direct figure",
+                    "credit": "First direct figure credit",
+                    "cell_alt_title": "",
+                    "cell_alt_description": "",
+                },
+                {
+                    "slug": "reference-test",
+                    "slot": 2,
+                    "field": "figure_2_image",
+                    "content_url": self.IMAGE_2_URL,
+                    "alt": "Second direct figure",
+                    "credit": "Second direct figure credit",
+                    "cell_alt_title": "",
+                    "cell_alt_description": "",
+                },
+            ],
+        }
+
+    def _bridge_urlopen(
+        self,
+        manifest: object,
+        *,
+        image_payloads: dict[str, tuple[bytes, str]] | None = None,
+    ) -> tuple[object, list[tuple[str, bytes | None, float | None]]]:
+        requests: list[tuple[str, bytes | None, float | None]] = []
+        payloads = image_payloads or {
+            self.IMAGE_1_URL: (TINY_PNG, "image/png"),
+            self.IMAGE_2_URL: (TINY_JPEG, "image/jpeg"),
+        }
+
+        def urlopen(
+            request: object, timeout: float | None = None
+        ) -> _FakeUrlResponse:
+            url = getattr(request, "full_url", str(request))
+            data = getattr(request, "data", None)
+            requests.append((url, data, timeout))
+            if url == self.IMAGE_ENDPOINT:
+                self.assertEqual(
+                    json.loads((data or b"").decode("utf-8")),
+                    {"token": self.IMAGE_TOKEN},
+                )
+                return _FakeUrlResponse(
+                    json.dumps(manifest).encode("utf-8"), "application/json", url
+                )
+            try:
+                image_bytes, content_type = payloads[url]
+            except KeyError as exc:  # make unexpected network access conspicuous
+                raise AssertionError(f"unexpected URL requested: {url}") from exc
+            return _FakeUrlResponse(image_bytes, content_type, url)
+
+        return urlopen, requests
 
     def test_publications_are_sorted_by_exact_date_descending(self) -> None:
         text = PUBLICATION_HEADER + "\n".join(
@@ -652,6 +818,296 @@ class SheetBuilderTests(unittest.TestCase):
             errors = site_validator.validate(output)
             self.assertIn("index.html news row count does not match Sheet metadata", errors)
             self.assertIn("members.html row count does not match Sheet metadata", errors)
+
+    def test_direct_in_cell_images_are_materialised_without_url_leaks(self) -> None:
+        tabs = self._direct_image_tabs()
+        manifest = self._direct_image_manifest()
+        fake_urlopen, requests = self._bridge_urlopen(manifest)
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            with mock.patch.object(builder.urllib.request, "urlopen", fake_urlopen):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    output,
+                    "test-sheet",
+                    "offline_csv",
+                    image_endpoint=self.IMAGE_ENDPOINT,
+                    image_token=self.IMAGE_TOKEN,
+                    timeout=7.5,
+                )
+
+            first_hash = hashlib.sha256(TINY_PNG).hexdigest()[:16]
+            second_hash = hashlib.sha256(TINY_JPEG).hexdigest()[:16]
+            first_candidates = list(
+                (output / "img/sheet-research").glob(
+                    f"reference-test-1-{first_hash}.*"
+                )
+            )
+            second_candidates = list(
+                (output / "img/sheet-research").glob(
+                    f"reference-test-2-{second_hash}.*"
+                )
+            )
+            self.assertEqual(len(first_candidates), 1)
+            self.assertEqual(len(second_candidates), 1)
+            self.assertEqual(first_candidates[0].suffix, ".png")
+            self.assertIn(second_candidates[0].suffix, {".jpg", ".jpeg"})
+            self.assertEqual(first_candidates[0].read_bytes(), TINY_PNG)
+            self.assertEqual(second_candidates[0].read_bytes(), TINY_JPEG)
+
+            research_html = (output / "research.html").read_text(encoding="utf-8")
+            rendered_sources = re.findall(
+                r'<img src="(img/sheet-research/[^"]+)"', research_html
+            )
+            self.assertEqual(
+                set(rendered_sources),
+                {
+                    first_candidates[0].relative_to(output).as_posix(),
+                    second_candidates[0].relative_to(output).as_posix(),
+                },
+            )
+
+            forbidden_values = (
+                self.IMAGE_ENDPOINT,
+                self.IMAGE_TOKEN,
+                self.IMAGE_1_URL,
+                self.IMAGE_2_URL,
+            )
+            for path in output.rglob("*"):
+                if not path.is_file():
+                    continue
+                payload = path.read_bytes()
+                for forbidden in forbidden_values:
+                    self.assertNotIn(forbidden.encode("utf-8"), payload, path)
+            metadata_text = (output / "data/sheet-build.json").read_text(
+                encoding="utf-8"
+            )
+            self.assertNotIn("content_url", metadata_text)
+
+        self.assertEqual([url for url, _, _ in requests][0], self.IMAGE_ENDPOINT)
+        self.assertEqual(
+            set(url for url, _, _ in requests[1:]),
+            {self.IMAGE_1_URL, self.IMAGE_2_URL},
+        )
+        self.assertTrue(all(timeout == 7.5 for _, _, timeout in requests))
+
+    def test_direct_image_mode_requires_both_bridge_credentials(self) -> None:
+        cases = (
+            (None, None),
+            (self.IMAGE_ENDPOINT, None),
+            (None, self.IMAGE_TOKEN),
+            (self.IMAGE_ENDPOINT, "too-short"),
+        )
+        for endpoint, token in cases:
+            with self.subTest(endpoint=endpoint, token=token):
+                tabs = self._direct_image_tabs()
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    output = Path(temporary_directory) / "output"
+                    with self.assertRaises(builder.SheetBuildError) as context:
+                        builder.build_site(
+                            tabs,
+                            REPOSITORY_ROOT / "main_site",
+                            output,
+                            "test-sheet",
+                            "offline_csv",
+                            image_endpoint=endpoint,
+                            image_token=token,
+                        )
+                self.assertRegex(str(context.exception).casefold(), r"image|token")
+
+    def test_manifest_mapping_must_exactly_match_published_slots(self) -> None:
+        cases: list[tuple[str, dict[str, object], str]] = []
+
+        missing = self._direct_image_manifest()
+        missing["images"] = list(missing["images"])[0:1]  # type: ignore[arg-type]
+        cases.append(("missing", missing, "missing"))
+
+        duplicate = self._direct_image_manifest()
+        duplicate_images = list(duplicate["images"])  # type: ignore[arg-type]
+        duplicate_images.append(dict(duplicate_images[0]))
+        duplicate["images"] = duplicate_images
+        cases.append(("duplicate", duplicate, "duplicate"))
+
+        extra = self._direct_image_manifest()
+        extra_images = list(extra["images"])  # type: ignore[arg-type]
+        extra_images.append(
+            {
+                "slug": "unpublished-area",
+                "slot": 1,
+                "field": "figure_1_image",
+                "content_url": "https://lh3.googleusercontent.com/extra-image",
+                "alt": "Extra image",
+                "credit": "Extra credit",
+            }
+        )
+        extra["images"] = extra_images
+        cases.append(("extra", extra, r"extra|unexpected"))
+
+        for label, manifest, expected_word in cases:
+            with self.subTest(case=label):
+                tabs = self._direct_image_tabs()
+                fake_urlopen, _ = self._bridge_urlopen(manifest)
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    output = Path(temporary_directory) / "output"
+                    with mock.patch.object(
+                        builder.urllib.request, "urlopen", fake_urlopen
+                    ):
+                        with self.assertRaises(builder.SheetBuildError) as context:
+                            builder.build_site(
+                                tabs,
+                                REPOSITORY_ROOT / "main_site",
+                                output,
+                                "test-sheet",
+                                "offline_csv",
+                                image_endpoint=self.IMAGE_ENDPOINT,
+                                image_token=self.IMAGE_TOKEN,
+                            )
+                self.assertRegex(str(context.exception).casefold(), expected_word)
+
+    def test_malformed_bridge_payload_is_rejected(self) -> None:
+        malformed_payloads: tuple[tuple[str, object], ...] = (
+            ("not-an-object", ["not", "an", "object"]),
+            (
+                "reported-error",
+                {"ok": False, "error": {"code": "INVALID_IMAGE", "message": "bad"}},
+            ),
+            (
+                "wrong-version",
+                {
+                    "ok": True,
+                    "schema_version": 2,
+                    "sheet": "Research",
+                    "images": [],
+                },
+            ),
+            (
+                "wrong-sheet",
+                {
+                    "ok": True,
+                    "schema_version": 1,
+                    "sheet": "Projects",
+                    "images": [],
+                },
+            ),
+            (
+                "images-not-list",
+                {
+                    "ok": True,
+                    "schema_version": 1,
+                    "sheet": "Research",
+                    "images": {},
+                },
+            ),
+        )
+        for label, manifest in malformed_payloads:
+            with self.subTest(case=label):
+                tabs = self._direct_image_tabs()
+                fake_urlopen, _ = self._bridge_urlopen(manifest)
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    output = Path(temporary_directory) / "output"
+                    with mock.patch.object(
+                        builder.urllib.request, "urlopen", fake_urlopen
+                    ):
+                        with self.assertRaises(builder.SheetBuildError):
+                            builder.build_site(
+                                tabs,
+                                REPOSITORY_ROOT / "main_site",
+                                output,
+                                "test-sheet",
+                                "offline_csv",
+                                image_endpoint=self.IMAGE_ENDPOINT,
+                                image_token=self.IMAGE_TOKEN,
+                            )
+
+    def test_malformed_manifest_entries_are_rejected(self) -> None:
+        mutations = {
+            "field-mismatch": {"field": "figure_2_image"},
+            "non-https-url": {"content_url": "http://lh3.googleusercontent.com/x"},
+            "untrusted-host": {"content_url": "https://example.com/image.png"},
+            "missing-alt": {"alt": ""},
+            "non-string-credit": {"credit": 123},
+            "string-slot": {"slot": "1"},
+        }
+        for label, replacement in mutations.items():
+            with self.subTest(case=label):
+                manifest = self._direct_image_manifest()
+                images = list(manifest["images"])  # type: ignore[arg-type]
+                images[0] = {**images[0], **replacement}
+                manifest["images"] = images
+                tabs = self._direct_image_tabs()
+                fake_urlopen, _ = self._bridge_urlopen(manifest)
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    output = Path(temporary_directory) / "output"
+                    with mock.patch.object(
+                        builder.urllib.request, "urlopen", fake_urlopen
+                    ):
+                        with self.assertRaises(builder.SheetBuildError):
+                            builder.build_site(
+                                tabs,
+                                REPOSITORY_ROOT / "main_site",
+                                output,
+                                "test-sheet",
+                                "offline_csv",
+                                image_endpoint=self.IMAGE_ENDPOINT,
+                                image_token=self.IMAGE_TOKEN,
+                            )
+
+    def test_malformed_downloaded_image_is_rejected(self) -> None:
+        cases = (
+            (b"<html>not an image</html>", "image/png"),
+            (TINY_PNG, "text/plain"),
+            (TINY_JPEG, "image/png"),
+        )
+        for payload, content_type in cases:
+            with self.subTest(content_type=content_type, prefix=payload[:8]):
+                tabs = self._direct_image_tabs()
+                manifest = self._direct_image_manifest()
+                fake_urlopen, _ = self._bridge_urlopen(
+                    manifest,
+                    image_payloads={
+                        self.IMAGE_1_URL: (payload, content_type),
+                        self.IMAGE_2_URL: (TINY_JPEG, "image/jpeg"),
+                    },
+                )
+                with tempfile.TemporaryDirectory() as temporary_directory:
+                    output = Path(temporary_directory) / "output"
+                    with mock.patch.object(
+                        builder.urllib.request, "urlopen", fake_urlopen
+                    ):
+                        with self.assertRaises(builder.SheetBuildError):
+                            builder.build_site(
+                                tabs,
+                                REPOSITORY_ROOT / "main_site",
+                                output,
+                                "test-sheet",
+                                "offline_csv",
+                                image_endpoint=self.IMAGE_ENDPOINT,
+                                image_token=self.IMAGE_TOKEN,
+                            )
+
+    def test_legacy_research_images_do_not_call_the_image_bridge(self) -> None:
+        tabs = self._publication_reference_tabs()
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            with mock.patch.object(
+                builder.urllib.request,
+                "urlopen",
+                side_effect=AssertionError("legacy build must not use the network"),
+            ):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    output,
+                    "test-sheet",
+                    "offline_csv",
+                )
+            research_html = (output / "research.html").read_text(encoding="utf-8")
+            self.assertIn(
+                'src="img/research/slum-detection-figure-5.png"', research_html
+            )
+            self.assertFalse((output / "img/sheet-research").exists())
 
     def test_unmatched_cross_tab_publication_references_fail_the_build(self) -> None:
         cases = (

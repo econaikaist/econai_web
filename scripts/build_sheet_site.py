@@ -14,9 +14,11 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import html
 import io
 import json
+import os
 import re
 import shutil
 import sys
@@ -33,6 +35,24 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SHEET_ID = "14pRbiM3ubsGT1DsBZdLF9xSHmSntwBRSkAUYbyrr6xM"
 DEFAULT_SOURCE_DIR = REPOSITORY_ROOT / "main_site"
 DEFAULT_OUTPUT_DIR = REPOSITORY_ROOT / "_site"
+RESEARCH_IMAGE_ENDPOINT_ENV = "ECONAI_SHEET_IMAGE_ENDPOINT"
+RESEARCH_IMAGE_TOKEN_ENV = "ECONAI_SHEET_IMAGE_TOKEN"
+RESEARCH_IMAGE_SCHEMA_VERSION = 1
+RESEARCH_IMAGE_RESPONSE_LIMIT = 1024 * 1024
+RESEARCH_IMAGE_FILE_LIMIT = 10 * 1024 * 1024
+RESEARCH_IMAGE_ASSET_DIR = Path("img/sheet-research")
+RESEARCH_LEGACY_IMAGE_COLUMNS = {
+    "figure_1_url",
+    "figure_2_url",
+}
+RESEARCH_DIRECT_IMAGE_COLUMNS = {
+    "figure_1_image",
+    "figure_2_image",
+}
+GOOGLE_IMAGE_HOST_SUFFIXES = (
+    ".googleusercontent.com",
+    ".ggpht.com",
+)
 REQUIRED_COLUMNS = {
     "Publications": {
         "publish",
@@ -53,11 +73,9 @@ REQUIRED_COLUMNS = {
         "question",
         "home_summary",
         "selected_publication_1",
-        "figure_1_url",
         "figure_1_alt",
         "figure_1_credit",
         "selected_publication_2",
-        "figure_2_url",
         "figure_2_alt",
         "figure_2_credit",
     },
@@ -133,6 +151,32 @@ class SheetBuildError(RuntimeError):
     """Raised when Sheet content cannot safely produce a site."""
 
 
+def _research_image_schema(columns: Iterable[str]) -> str:
+    column_set = set(columns)
+    legacy_present = RESEARCH_LEGACY_IMAGE_COLUMNS & column_set
+    direct_present = RESEARCH_DIRECT_IMAGE_COLUMNS & column_set
+    legacy_complete = legacy_present == RESEARCH_LEGACY_IMAGE_COLUMNS
+    direct_complete = direct_present == RESEARCH_DIRECT_IMAGE_COLUMNS
+
+    if legacy_complete and not direct_present:
+        return "legacy_url"
+    if direct_complete and not legacy_present:
+        return "direct_cell"
+    if legacy_complete and direct_complete:
+        raise SheetBuildError(
+            "Research: use either figure_1_url/figure_2_url or "
+            "figure_1_image/figure_2_image, not both"
+        )
+
+    missing_legacy = sorted(RESEARCH_LEGACY_IMAGE_COLUMNS - column_set)
+    missing_direct = sorted(RESEARCH_DIRECT_IMAGE_COLUMNS - column_set)
+    raise SheetBuildError(
+        "Research: incomplete image columns; provide either both legacy URL "
+        f"columns (missing: {', '.join(missing_legacy) or 'none'}) or both "
+        f"direct image columns (missing: {', '.join(missing_direct) or 'none'})"
+    )
+
+
 def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
     try:
         reader = csv.DictReader(io.StringIO(text.lstrip("\ufeff")))
@@ -148,6 +192,9 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
         raise SheetBuildError(
             f"{tab_name}: missing columns: {', '.join(sorted(missing))}"
         )
+    research_image_schema = (
+        _research_image_schema(fieldnames) if tab_name == "Research" else None
+    )
 
     rows_with_numbers: List[Tuple[int, Dict[str, str]]] = []
     for sheet_row, source_row in enumerate(reader, start=2):
@@ -227,23 +274,27 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                 "question",
                 "home_summary",
                 "selected_publication_1",
-                "figure_1_url",
-                "figure_1_alt",
-                "figure_1_credit",
                 "selected_publication_2",
-                "figure_2_url",
-                "figure_2_alt",
-                "figure_2_credit",
             ):
                 if not row.get(field):
                     raise SheetBuildError(
                         f"{tab_name} row {index}: {field} is required"
                     )
-            for slot in (1, 2):
-                _validate_url(
-                    row[f"figure_{slot}_url"],
-                    f"{tab_name} row {index} figure_{slot}_url",
-                )
+            if research_image_schema == "legacy_url":
+                for slot in (1, 2):
+                    for field in (
+                        f"figure_{slot}_url",
+                        f"figure_{slot}_alt",
+                        f"figure_{slot}_credit",
+                    ):
+                        if not row.get(field):
+                            raise SheetBuildError(
+                                f"{tab_name} row {index}: {field} is required"
+                            )
+                    _validate_url(
+                        row[f"figure_{slot}_url"],
+                        f"{tab_name} row {index} figure_{slot}_url",
+                    )
         elif tab_name == "Projects":
             for field in ("summary", "status", "period", "area"):
                 if not row.get(field):
@@ -382,6 +433,314 @@ def _validate_url(value: str, label: str) -> None:
         return
     if parsed.scheme != "https" or not parsed.netloc:
         raise SheetBuildError(f"{label}: use an HTTPS or relative URL")
+
+
+def _validate_image_bridge_endpoint(value: str) -> None:
+    try:
+        parsed = urllib.parse.urlparse(value)
+        hostname = parsed.hostname
+        port = parsed.port
+    except (TypeError, ValueError):
+        raise SheetBuildError(
+            f"{RESEARCH_IMAGE_ENDPOINT_ENV}: invalid endpoint URL"
+        ) from None
+    if (
+        parsed.scheme != "https"
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or port not in (None, 443)
+    ):
+        raise SheetBuildError(
+            f"{RESEARCH_IMAGE_ENDPOINT_ENV}: use an HTTPS URL without credentials"
+        )
+
+
+def _validate_google_image_url(value: str, label: str) -> None:
+    try:
+        parsed = urllib.parse.urlparse(value)
+        hostname = (parsed.hostname or "").casefold()
+        port = parsed.port
+    except (TypeError, ValueError):
+        raise SheetBuildError(f"{label}: invalid image URL") from None
+    google_host = any(
+        hostname == suffix[1:] or hostname.endswith(suffix)
+        for suffix in GOOGLE_IMAGE_HOST_SUFFIXES
+    )
+    if (
+        parsed.scheme != "https"
+        or not google_host
+        or parsed.username is not None
+        or parsed.password is not None
+        or port not in (None, 443)
+    ):
+        raise SheetBuildError(
+            f"{label}: expected an HTTPS Google-hosted image URL"
+        )
+
+
+def _read_limited_response(response: object, limit: int, label: str) -> bytes:
+    headers = getattr(response, "headers", None)
+    raw_length = headers.get("Content-Length") if headers is not None else None
+    if raw_length:
+        try:
+            content_length = int(raw_length)
+        except (TypeError, ValueError) as exc:
+            raise SheetBuildError(f"{label}: invalid Content-Length") from exc
+        if content_length < 0 or content_length > limit:
+            raise SheetBuildError(f"{label}: response exceeds the size limit")
+    payload = response.read(limit + 1)  # type: ignore[attr-defined]
+    if len(payload) > limit:
+        raise SheetBuildError(f"{label}: response exceeds the size limit")
+    return payload
+
+
+def _response_content_type(response: object) -> str:
+    headers = getattr(response, "headers", None)
+    if headers is None:
+        return ""
+    return (headers.get("Content-Type") or "").partition(";")[0].strip().casefold()
+
+
+def _fetch_research_image_manifest(
+    research_rows: Sequence[Dict[str, str]],
+    endpoint: str | None,
+    token: str | None,
+    timeout: float,
+) -> Dict[Tuple[str, int], Dict[str, str]]:
+    if not endpoint:
+        raise SheetBuildError(
+            f"Research direct images require {RESEARCH_IMAGE_ENDPOINT_ENV}"
+        )
+    if not token:
+        raise SheetBuildError(
+            f"Research direct images require {RESEARCH_IMAGE_TOKEN_ENV}"
+        )
+    if len(token) < 32:
+        raise SheetBuildError(
+            f"{RESEARCH_IMAGE_TOKEN_ENV} must contain at least 32 characters"
+        )
+    _validate_image_bridge_endpoint(endpoint)
+
+    request_body = json.dumps(
+        {"token": token},
+        ensure_ascii=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        endpoint,
+        data=request_body,
+        method="POST",
+        headers={
+            "Accept": "application/json",
+            "Cache-Control": "no-store",
+            "Content-Type": "application/json",
+            "User-Agent": "EconAI-Site-Builder/1.0",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            status = getattr(response, "status", 200)
+            if status is not None and not 200 <= int(status) < 300:
+                raise SheetBuildError("Research image bridge returned an HTTP error")
+            content_type = _response_content_type(response)
+            if content_type != "application/json":
+                raise SheetBuildError(
+                    "Research image bridge did not return application/json"
+                )
+            payload = _read_limited_response(
+                response,
+                RESEARCH_IMAGE_RESPONSE_LIMIT,
+                "Research image bridge",
+            )
+    except SheetBuildError:
+        raise
+    except Exception:
+        # Transport exceptions can embed the request URL. Keep diagnostics free
+        # of endpoint parameters and any redirected temporary URLs.
+        raise SheetBuildError("Research image bridge request failed") from None
+
+    try:
+        manifest = json.loads(payload.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        raise SheetBuildError("Research image bridge returned invalid JSON") from None
+    if not isinstance(manifest, dict):
+        raise SheetBuildError("Research image bridge response must be a JSON object")
+    if manifest.get("ok") is not True:
+        error = manifest.get("error")
+        raw_code = error.get("code") if isinstance(error, dict) else None
+        code = (
+            raw_code
+            if isinstance(raw_code, str)
+            and len(raw_code) <= 64
+            and re.fullmatch(r"[A-Z0-9_]+", raw_code)
+            else "UNKNOWN_ERROR"
+        )
+        raise SheetBuildError(f"Research image bridge rejected request ({code})")
+    if manifest.get("schema_version") != RESEARCH_IMAGE_SCHEMA_VERSION:
+        raise SheetBuildError("Research image bridge schema version is unsupported")
+    if manifest.get("sheet") != "Research":
+        raise SheetBuildError("Research image bridge returned the wrong Sheet tab")
+    if not isinstance(manifest.get("generated_at"), str):
+        raise SheetBuildError("Research image bridge is missing generated_at")
+    images = manifest.get("images")
+    if not isinstance(images, list):
+        raise SheetBuildError("Research image bridge images must be a JSON array")
+
+    expected = {
+        (row["slug"], slot)
+        for row in research_rows
+        for slot in (1, 2)
+    }
+    validated: Dict[Tuple[str, int], Dict[str, str]] = {}
+    for entry in images:
+        if not isinstance(entry, dict):
+            raise SheetBuildError("Research image bridge contains an invalid entry")
+        slug = entry.get("slug")
+        slot = entry.get("slot")
+        if not isinstance(slug, str) or SLUG_PATTERN.fullmatch(slug) is None:
+            raise SheetBuildError("Research image bridge contains an invalid slug")
+        if isinstance(slot, bool) or not isinstance(slot, int) or slot not in (1, 2):
+            raise SheetBuildError("Research image bridge contains an invalid slot")
+        key = (slug, slot)
+        if key not in expected:
+            raise SheetBuildError(
+                f"Research image bridge returned unexpected image {slug!r} slot {slot}"
+            )
+        if key in validated:
+            raise SheetBuildError(
+                f"Research image bridge duplicated image {slug!r} slot {slot}"
+            )
+        if entry.get("field") != f"figure_{slot}_image":
+            raise SheetBuildError(
+                f"Research image bridge returned the wrong field for {slug!r} slot {slot}"
+            )
+        content_url = entry.get("content_url")
+        if not isinstance(content_url, str) or not content_url:
+            raise SheetBuildError(
+                f"Research image bridge omitted image data for {slug!r} slot {slot}"
+            )
+        _validate_google_image_url(
+            content_url,
+            f"Research image {slug!r} slot {slot}",
+        )
+        alt = entry.get("alt")
+        credit = entry.get("credit")
+        if not isinstance(alt, str) or not alt.strip() or len(alt) > 4000:
+            raise SheetBuildError(
+                f"Research image {slug!r} slot {slot}: invalid alt text"
+            )
+        if not isinstance(credit, str) or len(credit) > 4000:
+            raise SheetBuildError(
+                f"Research image {slug!r} slot {slot}: invalid credit"
+            )
+        validated[key] = {
+            "content_url": content_url,
+            "alt": alt.strip(),
+            "credit": credit.strip(),
+        }
+
+    missing = sorted(expected - set(validated))
+    if missing:
+        labels = ", ".join(f"{slug} slot {slot}" for slug, slot in missing)
+        raise SheetBuildError(f"Research image bridge is missing: {labels}")
+    return validated
+
+
+def _detect_image_format(payload: bytes) -> Tuple[str, set[str]]:
+    if payload.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "png", {"image/png"}
+    if payload.startswith(b"\xff\xd8\xff"):
+        return "jpg", {"image/jpeg", "image/jpg"}
+    if payload.startswith((b"GIF87a", b"GIF89a")):
+        return "gif", {"image/gif"}
+    if len(payload) >= 12 and payload[:4] == b"RIFF" and payload[8:12] == b"WEBP":
+        return "webp", {"image/webp"}
+    raise SheetBuildError("Research image has an unsupported or invalid file signature")
+
+
+def _download_research_image(
+    content_url: str,
+    slug: str,
+    slot: int,
+    output_dir: Path,
+    timeout: float,
+) -> str:
+    label = f"Research image {slug!r} slot {slot}"
+    _validate_google_image_url(content_url, label)
+    request = urllib.request.Request(
+        content_url,
+        headers={
+            "Accept": "image/png,image/jpeg,image/gif,image/webp",
+            "Cache-Control": "no-store",
+            "User-Agent": "EconAI-Site-Builder/1.0",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            status = getattr(response, "status", 200)
+            if status is not None and not 200 <= int(status) < 300:
+                raise SheetBuildError(f"{label}: download returned an HTTP error")
+            get_final_url = getattr(response, "geturl", None)
+            final_url = get_final_url() if callable(get_final_url) else content_url
+            _validate_google_image_url(final_url, label)
+            content_type = _response_content_type(response)
+            payload = _read_limited_response(
+                response,
+                RESEARCH_IMAGE_FILE_LIMIT,
+                label,
+            )
+    except SheetBuildError:
+        raise
+    except Exception:
+        # urllib exceptions can include the temporary content URL. Never expose
+        # it through the CLI, systemd journal, or publisher status.
+        raise SheetBuildError(f"{label}: download failed") from None
+
+    extension, accepted_content_types = _detect_image_format(payload)
+    if content_type not in accepted_content_types:
+        raise SheetBuildError(f"{label}: Content-Type does not match the image")
+    digest = hashlib.sha256(payload).hexdigest()
+    relative_path = RESEARCH_IMAGE_ASSET_DIR / (
+        f"{slug}-{slot}-{digest[:16]}.{extension}"
+    )
+    target = output_dir / relative_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists() and target.read_bytes() != payload:
+        raise SheetBuildError(f"{label}: generated asset name collision")
+    target.write_bytes(payload)
+    return relative_path.as_posix()
+
+
+def _materialise_research_images(
+    research_rows: Sequence[Dict[str, str]],
+    output_dir: Path,
+    endpoint: str | None,
+    token: str | None,
+    timeout: float,
+) -> Dict[Tuple[str, int], Dict[str, str]]:
+    manifest = _fetch_research_image_manifest(
+        research_rows,
+        endpoint,
+        token,
+        timeout,
+    )
+    assets: Dict[Tuple[str, int], Dict[str, str]] = {}
+    for key in sorted(manifest):
+        slug, slot = key
+        entry = manifest[key]
+        assets[key] = {
+            "url": _download_research_image(
+                entry["content_url"],
+                slug,
+                slot,
+                output_dir,
+                timeout,
+            ),
+            "alt": entry["alt"],
+            "credit": entry["credit"],
+        }
+    return assets
 
 
 def _date_tuple(value: str, label: str) -> Tuple[int, int, int]:
@@ -664,6 +1023,7 @@ def render_research_areas(
     research_rows: Sequence[Dict[str, str]],
     publications: Sequence[Dict[str, str]],
     output_dir: Path,
+    research_images: Mapping[Tuple[str, int], Mapping[str, str]] | None = None,
 ) -> str:
     lookup = _publication_lookup(publications)
     lines = ['        <div class="research-rows">']
@@ -690,12 +1050,25 @@ def render_research_areas(
             ]
         )
         for slot in (1, 2):
+            if research_images is None:
+                figure_url = row[f"figure_{slot}_url"]
+                figure_alt = row[f"figure_{slot}_alt"]
+                figure_credit = row[f"figure_{slot}_credit"]
+            else:
+                image = research_images.get((slug, slot))
+                if image is None:
+                    raise SheetBuildError(
+                        f"Research image asset is missing for {slug!r} slot {slot}"
+                    )
+                figure_url = image["url"]
+                figure_alt = image["alt"]
+                figure_credit = image["credit"]
             lines.extend(
                 _selected_publication_lines(
                     row[f"selected_publication_{slot}"],
-                    row[f"figure_{slot}_url"],
-                    row[f"figure_{slot}_alt"],
-                    row[f"figure_{slot}_credit"],
+                    figure_url,
+                    figure_alt,
+                    figure_credit,
                     lookup,
                     output_dir,
                 )
@@ -1110,6 +1483,10 @@ def build_site(
     output_dir: Path,
     sheet_id: str,
     source_kind: str,
+    *,
+    image_endpoint: str | None = None,
+    image_token: str | None = None,
+    timeout: float = 30.0,
 ) -> None:
     _validate_publication_references(tabs)
     _safe_prepare_output(source_dir, output_dir)
@@ -1120,6 +1497,18 @@ def build_site(
     news = tabs["News"]
     members = tabs["Members"]
     lab_authors = _lab_authors(members)
+    research_image_schema = _research_image_schema(research[0].keys())
+    research_images = (
+        _materialise_research_images(
+            research,
+            output_dir,
+            image_endpoint,
+            image_token,
+            timeout,
+        )
+        if research_image_schema == "direct_cell"
+        else None
+    )
 
     _replace_block(
         output_dir / "publications.html",
@@ -1147,6 +1536,7 @@ def build_site(
             research,
             publications,
             output_dir,
+            research_images,
         ),
     )
     _replace_block(
@@ -1228,6 +1618,9 @@ def main() -> int:
             args.output_dir,
             args.sheet_id,
             "offline_csv" if args.csv_dir else "google_sheet",
+            image_endpoint=os.environ.get(RESEARCH_IMAGE_ENDPOINT_ENV),
+            image_token=os.environ.get(RESEARCH_IMAGE_TOKEN_ENV),
+            timeout=args.timeout,
         )
     except SheetBuildError as exc:
         print(f"site build failed: {exc}", file=sys.stderr)
