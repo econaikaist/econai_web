@@ -1,4 +1,5 @@
 import hashlib
+import importlib.util
 import json
 import re
 import unittest
@@ -17,7 +18,17 @@ class PaperPageStaticTests(unittest.TestCase):
     def setUpClass(cls):
         cls.html = HTML_PATH.read_text(encoding="utf-8")
         cls.css = (PAGE_ROOT / "styles.css").read_text(encoding="utf-8")
+        cls.explorer = (PAGE_ROOT / "modules/paper-explorer.v2.js").read_text(
+            encoding="utf-8"
+        )
         cls.data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
+        validator_path = REPO_ROOT / "scripts/validate_paper_data_v2.py"
+        validator_spec = importlib.util.spec_from_file_location(
+            "paper_data_validator", validator_path
+        )
+        validator_module = importlib.util.module_from_spec(validator_spec)
+        validator_spec.loader.exec_module(validator_module)
+        cls.validator_b_dir_definition = validator_module.B_DIR_DEFINITION
 
     def test_public_arxiv_v2_model_baseline(self):
         models = self.data["models"]
@@ -62,6 +73,27 @@ class PaperPageStaticTests(unittest.TestCase):
         for example in self.data["examples"]:
             self.assertEqual(len(example["model_outputs"]), 20)
             self.assertTrue(example["paper_url"].startswith("https://"))
+
+    def test_b_dir_denominator_definition_is_canonical(self):
+        self.assertEqual(
+            self.data["definitions"]["b_dir_pct"],
+            "100 × (intervention-leaning errors - market-leaning errors) / "
+            "all prediction errors among the 751 ideology-contested cases whose empirical sign "
+            "matches either the intervention or market expectation; "
+            "canonical values are arXiv v2 Equation 2/Table 5",
+        )
+        self.assertEqual(
+            self.validator_b_dir_definition,
+            self.data["definitions"]["b_dir_pct"],
+        )
+        denominator = (
+            "all prediction errors among the 751 ideology-contested cases whose empirical sign "
+            "matches either the intervention or market expectation"
+        )
+        self.assertIn(denominator, self.explorer)
+        self.assertIn("all prediction errors among the 751 ideology-contested cases", self.html)
+        self.assertNotIn("among directionally classifiable mistakes", self.html)
+        self.assertNotIn("/ directional errors", self.explorer)
 
     def test_section_order_and_no_standalone_icl_or_example_section(self):
         markers = [

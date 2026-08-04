@@ -25,7 +25,7 @@
   },
   "definitions": {
     "accuracy_gap_pp": "intervention_accuracy - market_accuracy",
-    "b_dir_pct": "100 × (intervention-leaning errors - market-leaning errors) / all directional errors; canonical values are arXiv v2 Equation 2/Table 5",
+    "b_dir_pct": "100 × (intervention-leaning errors - market-leaning errors) / all prediction errors among the 751 ideology-contested cases whose empirical sign matches either the intervention or market expectation; canonical values are arXiv v2 Equation 2/Table 5",
     "delta_example": "intervention_ex - market_ex for the same target side",
     "icl_note": "None uses the 751 directional cases; example conditions use ensemble-oriented matched rows and must not be compared as a shared denominator."
   },

@@ -21,6 +21,14 @@ from pathlib import Path
 from typing import Any
 
 
+B_DIR_DEFINITION = (
+    "100 × (intervention-leaning errors - market-leaning errors) / "
+    "all prediction errors among the 751 ideology-contested cases whose empirical sign "
+    "matches either the intervention or market expectation; "
+    "canonical values are arXiv v2 Equation 2/Table 5"
+)
+
+
 MODEL_SPECS = (
     ("gpt-4o-mini", "gpt-4o-mini", "OpenAI", "GPT-4o-mini", "closed"),
     ("gpt-4o", "gpt-4o", "OpenAI", "GPT-4o", "closed"),
@@ -358,10 +366,7 @@ def build_expected_payload(
         "denominators": denominators,
         "definitions": {
             "accuracy_gap_pp": "intervention_accuracy - market_accuracy",
-            "b_dir_pct": (
-                "100 × (intervention-leaning errors - market-leaning errors) / "
-                "all directional errors; canonical values are arXiv v2 Equation 2/Table 5"
-            ),
+            "b_dir_pct": B_DIR_DEFINITION,
             "delta_example": "intervention_ex - market_ex for the same target side",
             "icl_note": (
                 "None uses the 751 directional cases; example conditions use "
@@ -401,6 +406,12 @@ def validate(payload: dict[str, Any], expected: dict[str, Any]) -> tuple[list[st
     )
     _assert_equal(payload.get("reported_in_paper"), True, "reported_in_paper", errors)
     _assert_equal(payload.get("denominators"), expected["denominators"], "denominators", errors)
+    _assert_equal(
+        (payload.get("definitions") or {}).get("b_dir_pct"),
+        B_DIR_DEFINITION,
+        "definitions.b_dir_pct",
+        errors,
+    )
 
     models = payload.get("models")
     if not isinstance(models, list):
@@ -614,6 +625,10 @@ def main() -> int:
     print("PASS: schema_version=2.0.0")
     print("PASS: exactly 20 arXiv v2 paper models; post-paper models excluded")
     print("PASS: Table 5 overview and B_dir values match the canonical sources")
+    print(
+        "PASS: B_dir denominator is all prediction errors among the 751 directionally "
+        "aligned ideology-contested cases"
+    )
     print("PASS: Table 2 ICL cells and recomputed delta_example values match")
     print("PASS: both public examples cover all 20 models with short explanations")
     return 0
