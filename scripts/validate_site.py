@@ -139,11 +139,12 @@ def validate(site_dir: Path) -> List[str]:
         errors.append("index.html research focus count is incorrect")
     if _classes(index_text, "publication-list") < 1:
         errors.append("index.html is missing latest publications")
-    if _classes(index_text, "publication-figure-slide") != min(
-        expected_counts.get("Publications", 0), 3
-    ):
+    carousel_slides = _classes(index_text, "publication-figure-slide")
+    expected_slides = min(expected_counts.get("Publications", 0), 3)
+    if carousel_slides not in {0, expected_slides}:
         errors.append("index.html publication figure carousel count is incorrect")
-    if _classes(index_text, "publication-carousel-button") != 2:
+    expected_controls = 2 if carousel_slides else 0
+    if _classes(index_text, "publication-carousel-button") != expected_controls:
         errors.append("index.html publication figure carousel controls are missing")
     if "googleusercontent.com" in index_text or "ggpht.com" in index_text:
         errors.append("index.html leaks a temporary Google image URL")

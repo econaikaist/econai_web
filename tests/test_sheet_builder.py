@@ -672,11 +672,12 @@ class SheetBuilderTests(unittest.TestCase):
         rendered = builder.render_home_latest(
             rows,
             {
-                "Paper 1": {
+                f"Paper {index + 1}": {
                     "url": "img/sheet-publications/paper.png",
                     "alt": "Paper overview",
                     "credit": "Figure 1",
                 }
+                for index in range(3)
             },
         )
         self.assertEqual(
@@ -685,14 +686,16 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertEqual(
             site_validator._classes(rendered, "publication-carousel-button"), 2
         )
-        self.assertEqual(
-            site_validator._classes(rendered, "publication-figure-fallback"), 2
-        )
+        self.assertNotIn("publication-figure-fallback", rendered)
         self.assertIn('aria-roledescription="carousel"', rendered)
         self.assertIn('aria-live="polite"', rendered)
         self.assertIn('aria-label="Show previous publication figure"', rendered)
         self.assertIn('aria-label="Show next publication figure"', rendered)
         self.assertIn('alt="Paper overview"', rendered)
+        self.assertEqual(rendered.count('loading="eager"'), 3)
+        self.assertEqual(rendered.count('fetchpriority="high"'), 1)
+        self.assertEqual(rendered.count('fetchpriority="low"'), 2)
+        self.assertEqual(rendered.count('decoding="sync"'), 3)
         self.assertEqual(rendered.count(" hidden>"), 2)
         index_source = (REPOSITORY_ROOT / "main_site/index.html").read_text(
             encoding="utf-8"
@@ -1397,9 +1400,10 @@ class SheetBuilderTests(unittest.TestCase):
             )
             index_text = (output / "index.html").read_text(encoding="utf-8")
             self.assertEqual(
-                site_validator._classes(index_text, "publication-figure-fallback"),
-                3,
+                site_validator._classes(index_text, "publication-figure-slide"), 0
             )
+            self.assertNotIn("publication-figure-carousel", index_text)
+            self.assertIn("publication-panel-wide", index_text)
             self.assertFalse((output / "img/sheet-publications").exists())
             self.assertEqual(site_validator.validate(output), [])
 

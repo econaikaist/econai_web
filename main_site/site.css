@@ -549,62 +549,6 @@ a {
   width: 100%;
 }
 
-.publication-figure-fallback {
-  align-items: center;
-  background:
-    radial-gradient(circle at 78% 20%, rgba(96, 165, 250, 0.34), transparent 29%),
-    linear-gradient(145deg, #002d65 0%, #004191 62%, #1764ad 100%);
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: center;
-  position: relative;
-  width: 100%;
-}
-
-.publication-figure-fallback::before,
-.publication-figure-fallback::after {
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 50%;
-  content: "";
-  position: absolute;
-}
-
-.publication-figure-fallback::before {
-  height: 180px;
-  left: -72px;
-  top: -68px;
-  width: 180px;
-}
-
-.publication-figure-fallback::after {
-  bottom: -84px;
-  height: 220px;
-  right: -90px;
-  width: 220px;
-}
-
-.publication-figure-fallback-mark {
-  font-size: clamp(2rem, 4vw, 3.25rem);
-  font-weight: 900;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  position: relative;
-  z-index: 1;
-}
-
-.publication-figure-fallback-copy {
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  margin-top: 13px;
-  position: relative;
-  text-transform: uppercase;
-  z-index: 1;
-}
-
 .publication-figure-caption {
   display: flex;
   flex-direction: column;

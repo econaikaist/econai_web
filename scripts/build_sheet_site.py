@@ -1410,6 +1410,41 @@ def render_home_latest(
 ) -> str:
     latest = _sort_publications(publications)[:3]
     images = publication_images or {}
+
+    # Keep the production page clean while the optional Sheet image cells are
+    # being prepared.  The figure carousel is an enhancement, so it appears
+    # only after all three current latest papers have real in-cell images.
+    if not images:
+        lines = [
+            '        <div class="publication-panel publication-panel-wide">',
+            '          <ol class="publication-list">',
+        ]
+        for row in latest:
+            lines.extend(
+                [
+                    "            <li>",
+                    f'              <a href="{_escape(row["paper_url"], quote=True)}">{_escape(row["title"])}</a>',
+                    f'              <p class="publication-authors">{_escape(_short_authors(row["authors"]))}</p>',
+                    f'              <p class="publication-venue">{_escape(row["venue"])}</p>',
+                    "            </li>",
+                ]
+            )
+        lines.extend(
+            [
+                "          </ol>",
+                '          <a class="text-link" href="publications.html">View all publications →</a>',
+                "        </div>",
+            ]
+        )
+        return "\n".join(lines)
+
+    missing_images = {row["title"] for row in latest} - set(images)
+    if missing_images:
+        labels = ", ".join(sorted(missing_images))
+        raise SheetBuildError(
+            f"Homepage carousel is missing publication images: {labels}"
+        )
+
     lines = [
         '        <div class="latest-publications-layout">',
         '          <div class="publication-panel">',
@@ -1436,19 +1471,12 @@ def render_home_latest(
     )
     slide_count = len(latest)
     for index, row in enumerate(latest):
-        figure = images.get(row["title"])
+        figure = images[row["title"]]
         hidden = "" if index == 0 else " hidden"
-        if figure:
-            visual_lines = [
-                f'                    <img class="publication-figure-image" src="{_escape(figure["url"], quote=True)}" alt="{_escape(figure["alt"], quote=True)}" loading="lazy" decoding="async">'
-            ]
-        else:
-            visual_lines = [
-                '                    <span class="publication-figure-fallback" aria-hidden="true">',
-                '                      <span class="publication-figure-fallback-mark">EconAI</span>',
-                '                      <span class="publication-figure-fallback-copy">Research Publication</span>',
-                "                    </span>",
-            ]
+        fetch_priority = "high" if index == 0 else "low"
+        visual_lines = [
+            f'                    <img class="publication-figure-image" src="{_escape(figure["url"], quote=True)}" alt="{_escape(figure["alt"], quote=True)}" loading="eager" fetchpriority="{fetch_priority}" decoding="sync">'
+        ]
         lines.extend(
             [
                 f'              <article class="publication-figure-slide" data-carousel-slide role="group" aria-roledescription="slide" aria-label="{index + 1} of {slide_count}"{hidden}>',
@@ -1462,7 +1490,7 @@ def render_home_latest(
                 f'                    <span class="publication-figure-venue">{_escape(row["venue"])}</span>',
             ]
         )
-        if figure and figure.get("credit"):
+        if figure.get("credit"):
             lines.append(
                 f'                    <span class="publication-figure-credit">{_escape(figure["credit"])}</span>'
             )

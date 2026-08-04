@@ -70,13 +70,13 @@ The homepage pairs that three-paper list with one 2:1 paper-figure card. Images
 use `object-fit: contain`, so a paper figure is never cropped. Previous
 and next controls, as well as the left/right arrow keys while the card has focus,
 cycle through the same three papers. Add all three image headers together or omit
-all three. With the headers omitted, the homepage uses clean branded fallback
-cards. A complete header set with zero embedded `home_image` cells is also a safe
-migration state and keeps those fallback cards, so the columns can be created
-before anyone signs in to upload figures. As soon as any image is inserted in the
-`home_image` column, each of the current latest three checked papers must have a
-real in-cell image and non-empty `home_image_alt`; a partial set fails the staged
-build and keeps the last valid release live.
+all three. With the headers omitted, or with a complete header set but zero
+embedded `home_image` cells, the homepage keeps the original clean text-only
+publication panel. This lets the columns be created before anyone signs in to
+upload figures. As soon as any image is inserted in the `home_image` column, each
+of the current latest three checked papers must have a real in-cell image and
+non-empty `home_image_alt`; a partial set fails the staged build and keeps the
+last valid release live.
 
 The server securely reads only the `Publications` worksheet, its drawing anchors,
 and the three matched media files from the anonymous XLSX export. It matches each
