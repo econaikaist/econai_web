@@ -395,9 +395,10 @@ async function validateModelDialog(page, width) {
         color: getComputedStyle(card.querySelector('dd')).color,
         direction: card.querySelector('.metric-direction')?.textContent.trim(),
     }));
-    assert.match(signedOverview.className, /is-intervention/);
+    assert.match(signedOverview.className, /is-gap-neutral/);
+    assert.doesNotMatch(signedOverview.className, /is-intervention|is-market/);
     assert.equal(signedOverview.direction, 'Intervention-aligned advantage');
-    assert.notEqual(signedOverview.color, neutralMetricColor);
+    assert.equal(signedOverview.color, neutralMetricColor);
     const signedBias = await page.locator('#model-panel-overview .metric-card').nth(5).evaluate((card) => ({
         className: card.className,
         color: getComputedStyle(card.querySelector('dd')).color,
@@ -531,13 +532,47 @@ async function validateModelDialog(page, width) {
     assert.ok(await trigger.evaluate((element) => element === document.activeElement), `${width}px Escape did not restore focus`);
 
     const negativeTrigger = page.locator('.model-open-button[data-model-id="claude-sonnet-4-6"]');
-    await negativeTrigger.evaluate((button) => button.click());
+    await negativeTrigger.focus();
+    await page.waitForFunction(() => (
+        !document.querySelector('#model-quick-detail').hidden
+        && document.querySelector('#model-quick-detail .quick-detail-header strong')?.textContent.includes('Claude Sonnet 4.6')
+    ));
+    const negativeQuickState = await page.evaluate(() => {
+        const metrics = [...document.querySelectorAll('#model-quick-detail .quick-detail-grid > div')];
+        return {
+            neutralColor: getComputedStyle(metrics[0].querySelector('dd')).color,
+            signedMetrics: [2, 3].map((index) => ({
+                className: metrics[index].className,
+                color: getComputedStyle(metrics[index].querySelector('dd')).color,
+                text: metrics[index].querySelector('dd').innerText,
+            })),
+        };
+    });
+    const negativeQuickMetrics = negativeQuickState.signedMetrics;
+    const quickNeutralColor = negativeQuickState.neutralColor;
+    assert.match(negativeQuickMetrics[0].className, /is-gap-neutral/);
+    assert.doesNotMatch(negativeQuickMetrics[0].className, /is-market|is-intervention/);
+    assert.equal(negativeQuickMetrics[0].color, quickNeutralColor);
+    assert.match(negativeQuickMetrics[0].text, /[−-]1\.9/);
+    assert.match(negativeQuickMetrics[1].className, /is-market/);
+    assert.notEqual(negativeQuickMetrics[1].color, quickNeutralColor);
+
+    await negativeTrigger.press('Enter');
     await page.locator('#model-detail-dialog[open]').waitFor();
     const negativeMetrics = await page.locator('#model-panel-overview .metric-card').evaluateAll((cards) => [4, 5].map((index) => ({
         className: cards[index].className,
+        color: getComputedStyle(cards[index].querySelector('dd')).color,
+        background: getComputedStyle(cards[index]).backgroundColor,
+        value: cards[index].querySelector('dd').innerText,
         direction: cards[index].querySelector('.metric-direction')?.textContent.trim(),
     })));
-    negativeMetrics.forEach((metric) => assert.match(metric.className, /is-market/));
+    assert.match(negativeMetrics[0].className, /is-gap-neutral/);
+    assert.doesNotMatch(negativeMetrics[0].className, /is-market|is-intervention/);
+    assert.equal(negativeMetrics[0].color, neutralMetricColor);
+    assert.match(negativeMetrics[0].value, /[−-]1\.9/);
+    assert.match(negativeMetrics[1].className, /is-market/);
+    assert.notEqual(negativeMetrics[1].color, neutralMetricColor);
+    assert.equal(negativeMetrics[0].background, negativeMetrics[1].background);
     assert.equal(negativeMetrics[0].direction, 'Market-aligned advantage');
     assert.equal(negativeMetrics[1].direction, 'Market-oriented');
     await closeDialog(page);
@@ -624,6 +659,32 @@ async function validateViewport(browser, width) {
     ));
     assert.equal(rowBackgrounds['claude-sonnet-4-6'], rowBackgrounds['gpt-4o-mini'], `${width}px Sonnet row background`);
     assert.equal(rowBackgrounds['claude-opus-4-6'], rowBackgrounds['gpt-4o-mini'], `${width}px Opus row background`);
+
+    const mainGapColors = await page.evaluate(() => {
+        const neutralInk = getComputedStyle(document.querySelector('.model-score-name strong')).color;
+        const marketAccent = getComputedStyle(document.querySelector('.market-score strong')).color;
+        return {
+            neutralInk,
+            marketAccent,
+            sonnet: {
+                color: getComputedStyle(document.querySelector('.model-open-button[data-model-id="claude-sonnet-4-6"]')
+                    .closest('.model-score-row').querySelector('.model-gap')).color,
+                text: document.querySelector('.model-open-button[data-model-id="claude-sonnet-4-6"]')
+                    .closest('.model-score-row').querySelector('.model-gap').innerText,
+            },
+            opus: {
+                color: getComputedStyle(document.querySelector('.model-open-button[data-model-id="claude-opus-4-6"]')
+                    .closest('.model-score-row').querySelector('.model-gap')).color,
+                text: document.querySelector('.model-open-button[data-model-id="claude-opus-4-6"]')
+                    .closest('.model-score-row').querySelector('.model-gap').innerText,
+            },
+        };
+    });
+    for (const [name, metric] of Object.entries({ Sonnet: mainGapColors.sonnet, Opus: mainGapColors.opus })) {
+        assert.equal(metric.color, mainGapColors.neutralInk, `${width}px ${name} gap is not neutral ink`);
+        assert.notEqual(metric.color, mainGapColors.marketAccent, `${width}px ${name} gap still uses market orange`);
+        assert.match(metric.text, /[−-]/, `${width}px ${name} gap lost its minus sign`);
+    }
 
     const layout = await page.evaluate(() => {
         const root = document.documentElement;

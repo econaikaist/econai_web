@@ -852,7 +852,7 @@ p {
 }
 
 .negative-gap {
-    color: var(--market);
+    color: var(--ink);
 }
 
 .model-benchmark-note {
@@ -1148,6 +1148,7 @@ p {
 
 .quick-detail-grid .is-intervention dd { color: #75d8ce; }
 .quick-detail-grid .is-market dd { color: #ffc18c; }
+.quick-detail-grid .is-gap-neutral dd { color: #fff; }
 .quick-detail-grid sub { font-size: 0.72em; }
 
 .bias-static-score {
@@ -1516,6 +1517,14 @@ body:has(.model-detail-dialog[open]) {
 
 .metric-card.is-market .metric-direction {
     color: var(--market);
+}
+
+.metric-card.is-gap-neutral dd {
+    color: var(--ink);
+}
+
+.metric-card.is-gap-neutral .metric-direction {
+    color: var(--muted);
 }
 
 .metric-card.is-neutral dd,

@@ -217,7 +217,7 @@ export async function initPaperExplorer({ announce }) {
             <dl class="quick-detail-grid">
                 <div><dt>Intervention-aligned</dt><dd>${formatPercent(overview.intervention_accuracy)}</dd></div>
                 <div><dt>Market-aligned</dt><dd>${formatPercent(overview.market_accuracy)}</dd></div>
-                <div class="${signedTone(overview.accuracy_gap_pp)}"><dt>Accuracy gap</dt><dd>${escapeHtml(formatSigned(overview.accuracy_gap_pp, ' pp'))}<small>${escapeHtml(gapDirection(overview.accuracy_gap_pp))}</small></dd></div>
+                <div class="is-gap-neutral"><dt>Accuracy gap</dt><dd>${escapeHtml(formatSigned(overview.accuracy_gap_pp, ' pp'))}<small>${escapeHtml(gapDirection(overview.accuracy_gap_pp))}</small></dd></div>
                 <div class="${signedTone(overview.b_dir_pct)}"><dt aria-label="B dir">B<sub>dir</sub></dt><dd>${escapeHtml(formatSigned(overview.b_dir_pct))}<small>${escapeHtml(biasDirection(overview.b_dir_pct))}</small></dd></div>
             </dl>`;
         tooltip.hidden = false;
@@ -255,7 +255,7 @@ export async function initPaperExplorer({ announce }) {
                 ${metricCard('Views differ', formatPercent(overview.contested_accuracy))}
                 ${metricCard('Intervention-aligned truth', formatPercent(overview.intervention_accuracy), 'intervention-metric')}
                 ${metricCard('Market-aligned truth', formatPercent(overview.market_accuracy), 'market-metric')}
-                ${metricCard('Accuracy gap', `${escapeHtml(formatSigned(overview.accuracy_gap_pp))}<small>pp</small>`, signedTone(overview.accuracy_gap_pp), gapDirection(overview.accuracy_gap_pp))}
+                ${metricCard('Accuracy gap', `${escapeHtml(formatSigned(overview.accuracy_gap_pp))}<small>pp</small>`, 'is-gap-neutral', gapDirection(overview.accuracy_gap_pp))}
                 ${metricCard('Error-direction bias, B dir', escapeHtml(formatSigned(overview.b_dir_pct)), signedTone(overview.b_dir_pct), biasDirection(overview.b_dir_pct))}
             </dl>
             <div class="metric-definition-grid">

@@ -327,6 +327,40 @@ class PaperPageStaticTests(unittest.TestCase):
         self.assertNotIn(".view-definition-grid", self.css)
         self.assertNotIn(".truth-definition", self.css)
 
+    def test_accuracy_gap_is_neutral_while_b_dir_keeps_signed_tone(self):
+        quick_detail_renderer = self.explorer.split(
+            "function showQuickDetail", 1
+        )[1].split("function activateTab", 1)[0]
+        overview_renderer = self.explorer.split(
+            "function renderOverview(model)", 1
+        )[1].split("function iclTargetCard", 1)[0]
+
+        self.assertIn(
+            '<div class="is-gap-neutral"><dt>Accuracy gap</dt>',
+            quick_detail_renderer,
+        )
+        self.assertNotIn(
+            "signedTone(overview.accuracy_gap_pp)", quick_detail_renderer
+        )
+        self.assertIn("signedTone(overview.b_dir_pct)", quick_detail_renderer)
+
+        self.assertRegex(
+            overview_renderer,
+            r"metricCard\('Accuracy gap',.*?'is-gap-neutral',\s*"
+            r"gapDirection\(overview\.accuracy_gap_pp\)\)",
+        )
+        self.assertNotIn("signedTone(overview.accuracy_gap_pp)", overview_renderer)
+        self.assertIn("signedTone(overview.b_dir_pct)", overview_renderer)
+
+        negative_gap_rule = extract_braced_block(self.css, ".negative-gap {")
+        self.assertRegex(negative_gap_rule, r"color:\s*var\(--ink\)")
+        self.assertNotRegex(negative_gap_rule, r"var\(--market\)")
+        self.assertIn(".quick-detail-grid .is-gap-neutral dd { color: #fff; }", self.css)
+        neutral_metric_rule = extract_braced_block(
+            self.css, ".metric-card.is-gap-neutral dd {"
+        )
+        self.assertRegex(neutral_metric_rule, r"color:\s*var\(--ink\)")
+
     def test_signs_and_direction_labels_are_explicit_and_semantically_distinct(self):
         expected_direction_text = (
             "Intervention-oriented",
