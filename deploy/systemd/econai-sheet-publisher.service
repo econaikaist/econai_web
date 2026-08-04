@@ -9,6 +9,7 @@ User=econai-publisher
 Group=econai-publisher
 Environment=HOME=/var/lib/econai-publisher
 Environment=PYTHONDONTWRITEBYTECODE=1
+EnvironmentFile=-/etc/econai-sheet-publisher.env
 ExecStart=/usr/local/libexec/econai-sheet-publish
 TimeoutStartSec=3min
 UMask=0022

@@ -12,6 +12,7 @@ publisher_home=/var/lib/${publisher_user}
 deploy_root=/srv/econai-site
 unit_dir=/etc/systemd/system
 libexec_dir=/usr/local/libexec
+publisher_env=/etc/econai-sheet-publisher.env
 
 if [[ ! -d ${repository_dir}/.git || ! -f ${repository_dir}/scripts/sync_server_site.py ]]; then
     echo "Expected a deployed EconAI repository at ${repository_dir}." >&2
@@ -37,6 +38,17 @@ install -d -o "${publisher_user}" -g "${publisher_group}" -m 0755 "${deploy_root
 install -d -o "${publisher_user}" -g "${publisher_group}" -m 0755 "${deploy_root}/releases"
 install -d -o "${publisher_user}" -g "${publisher_group}" -m 0755 "${deploy_root}/state"
 install -d -o root -g root -m 0755 "${libexec_dir}"
+
+if [[ -L ${publisher_env} || ( -e ${publisher_env} && ! -f ${publisher_env} ) ]]; then
+    echo "Refusing invalid publisher environment file: ${publisher_env}" >&2
+    exit 1
+fi
+if [[ ! -e ${publisher_env} ]]; then
+    install -o root -g root -m 0600 /dev/null "${publisher_env}"
+else
+    chown root:root "${publisher_env}"
+    chmod 0600 "${publisher_env}"
+fi
 
 install -o root -g root -m 0755 \
     "${repository_dir}/scripts/sync_server_site.py" \
@@ -73,3 +85,4 @@ echo "EconAI Sheet publisher installed."
 echo "Status: systemctl status econai-sheet-publisher.timer"
 echo "Manual refresh: systemctl start econai-sheet-publisher.service"
 echo "Logs: journalctl -u econai-sheet-publisher.service"
+echo "Direct Sheet image credentials: ${publisher_env}"

@@ -4,19 +4,25 @@
 
 The production path is:
 
-`Google Sheet + GitHub main → school-server systemd timer → build and validation → versioned release → Docker Nginx`
+`Google Sheet (public tab data + private image bridge) + GitHub main → school-server systemd timer → build and validation → versioned release → Docker Nginx`
 
 The existing `https://econai.kaist.ac.kr` URL, KAIST DNS A record, TLS certificate,
 and school server stay unchanged. GitHub Pages, a CNAME change, an inbound webhook,
-and Google Apps Script are not used.
+and an inbound Google-triggered webhook are not used. A small standalone Google
+Apps Script is used only for Research images stored directly in Sheet cells,
+because the anonymous CSV feed cannot expose those image objects. It is not the
+site host and it does not push or deploy anything.
 
 Every five minutes the server:
 
 1. refreshes a dedicated, unprivileged checkout of GitHub `main`;
-2. downloads the five Sheet tabs;
-3. builds and validates the complete static site in staging;
-4. compares the result with the current release; and
-5. atomically switches Nginx's `current` symlink only when content changed.
+2. downloads the five Sheet tabs through their public CSV feeds;
+3. in direct-image mode, requests fresh image transport URLs from the
+   token-authenticated Apps Script bridge and immediately downloads the images
+   into staging;
+4. builds and validates the complete static site in staging;
+5. compares the result with the current release; and
+6. atomically switches Nginx's `current` symlink only when content changed.
 
 If GitHub is temporarily unavailable, the last downloaded source is used so Sheet
 updates can continue. If the Sheet download, schema validation, build, or site
@@ -64,7 +70,7 @@ three rows after date sorting.
 | `question` | The question shown above the area summary |
 | `home_summary` | One-line version shown on the home page |
 | `selected_publication_1`, `selected_publication_2` | Exact paper-title dropdowns sourced from `Publications!C2:C` |
-| `figure_1_url`, `figure_2_url` | HTTPS image URL or existing site-relative image path for each selected paper |
+| `figure_1_image`, `figure_2_image` | Image inserted directly into the cell with **Insert > Image > Insert image in cell** |
 | `figure_1_alt`, `figure_2_alt` | Accessible description of each image |
 | `figure_1_credit`, `figure_2_credit` | Figure number, source, and license/credit line |
 
@@ -75,11 +81,33 @@ case-sensitive match to a checked Publications row. It then automatically reuses
 that publication's paper URL, venue, and optional short title. Figure presentation
 data belongs to Research because it controls the Research cards.
 
-The anonymous CSV feed cannot expose an image uploaded directly as a Google Sheets
-cell-image object: Google exposes that image only through an authorized Apps Script
-API and its content URL expires. Paste an HTTPS image URL in `figure_*_url` instead.
-Existing site images may use a site-relative path. Google Sheets can show an
-in-cell preview with `IMAGE(url)`, but the URL cell must remain the builder source.
+Both direct image cells are required in every checked Research row. Do not enter
+an HTTPS URL, local path, or `=IMAGE()` formula: the final Sheet source is the
+actual in-cell image object. The private Apps Script bridge calls the authorized
+`CellImage` API and returns a fresh, short-lived content URL. During that same
+staged build, the server downloads and validates the bytes and writes a
+deterministic local image into the release. Rendered HTML references only that
+local file; the temporary Google URL is never stored in HTML, release metadata,
+logs, the Sheet, or GitHub.
+
+#### Research image schema transition
+
+The builder temporarily accepts one of two complete, mutually exclusive Research
+schemas:
+
+- Legacy mode has both `figure_1_url` and `figure_2_url`. It does not call the
+  image bridge and exists only to keep the current site publishable during the
+  migration.
+- Final direct-image mode replaces those headers with `figure_1_image` and
+  `figure_2_image`. Every checked row needs both real in-cell images, and both
+  `ECONAI_SHEET_IMAGE_ENDPOINT` and `ECONAI_SHEET_IMAGE_TOKEN` must be configured
+  on the server.
+
+Mixed headers or mixed row-level modes are rejected. A missing bridge setting,
+missing image, expired/invalid response, failed download, or invalid image file
+fails the staged build and leaves the previous release live. The exact one-time
+owner authorization, deployment, server-secret, and Sheet migration procedure is
+in [`deploy/apps-script-research-images/README.md`](../deploy/apps-script-research-images/README.md).
 
 ### Projects
 
@@ -171,11 +199,12 @@ Google credentials. Store only information intended for public display.
 
 ## Safety behavior
 
-The build rejects missing columns, invalid checkboxes, duplicate or blank records,
-malformed dates, unsafe URLs, broken cross-tab publication references, missing local
-images, duplicate HTML IDs, and any symlink in the generated site. It also refuses
-to publish fewer than 20 publication rows, preventing an accidental mass deletion
-from replacing the live list. A failed build leaves the last validated release live.
+The build rejects missing or mixed columns, invalid checkboxes, duplicate or blank
+records, malformed dates, unsafe URLs, broken cross-tab publication references,
+missing local or direct-cell images, invalid image downloads, duplicate HTML IDs,
+and any symlink in the generated site. It also refuses to publish fewer than 20
+publication rows, preventing an accidental mass deletion from replacing the live
+list. A failed build leaves the last validated release live.
 
 The generated release is never written into the Git checkout or the live Nginx
 directory. The source checkout and immutable releases are separate, and the
@@ -195,6 +224,12 @@ the systemd units and root-owned publisher entrypoint, creates the first validat
 release, recreates the existing Nginx container with the read-only release mount,
 and enables the timer. It does not change DNS, the public URL, or TLS certificates.
 
+Install the compatibility-capable publisher while Research is still in legacy URL
+mode. Before switching the Sheet to direct-image headers, complete the bridge setup
+and create the root-owned `/etc/econai-sheet-publisher.env` described in the bridge
+README. The service imports that file before dropping to the unprivileged publisher
+account; the endpoint and token must not be committed to GitHub.
+
 ## Operations
 
 ```bash
@@ -211,6 +246,11 @@ journalctl -u econai-sheet-publisher.service -n 100 --no-pager
 # Inspect the last successful/no-change result
 cat /srv/econai-site/state/status.json
 ```
+
+In direct-image mode, a bridge or image error appears in the service journal. The
+status file remains the last successful/no-change result, and the `current`
+symlink and public site remain on the previous validated release. Correct the
+Sheet cell or bridge configuration and start the service again.
 
 To roll back, point `/srv/econai-site/current` to one of the retained directories
 under `/srv/econai-site/releases` using a temporary relative symlink and atomic
