@@ -55,9 +55,10 @@ cell are omitted.
 | `highlight` | Optional award or presentation label |
 | `research_title` | Optional shorter title used on Research cards |
 
-The site groups papers by year and sorts every year by `date` descending. Title
-links replace redundant Paper buttons. The home page automatically uses the first
-three rows after date sorting.
+The site groups papers into newest-year-first sections and preserves the physical
+Sheet row order within each year. Move rows in this tab to curate arXiv-first or
+same-venue groupings. Title links replace redundant Paper buttons. The home page
+independently shows the three most recent papers by exact `date` descending.
 
 ### Research
 
@@ -175,24 +176,26 @@ reported in the publisher log.
 | Column | What to enter |
 | --- | --- |
 | `publish` | Checkbox; checked rows are published |
-| `section` | `Faculty`, `Ph.D. Students`, `Master's Students`, `Lab Internship`, `Alumni`, or `Pre-EconAI Alumni` |
+| `section` | `Faculty`, `Ph.D. Students`, `Master's Students`, `Lab Internship`, `Staff`, `Alumni`, or `Pre-EconAI Alumni` |
 | `group` | Internship term such as `Spring 2026`; blank otherwise |
 | `name_en`, `name_ko` | English name and optional Korean name |
 | `role` | Current role for cards; optional degree/year for alumni |
 | `details` | Research interests for students; required current position for alumni |
-| `photo` | Local image path for Faculty/Student cards |
+| `photo` | Local image path for Faculty/Student cards; optional for Staff, which falls back to the basic profile image |
 | `email` | Public email address |
 | `website`, `scholar`, `linkedin` | Optional HTTPS profile links |
 | `phone`, `address` | Optional public faculty contact fields |
 | `affiliations` | Faculty footer affiliations separated by `|` |
 | `joint_supervisor`, `joint_supervisor_url` | Optional paired alumni footnote label and HTTPS profile URL |
 
-Members and section order follow the physical row order in the Sheet; no separate
-sort column is used. Publication author names are bolded automatically for every
-checked member except `Pre-EconAI Alumni`, so no manual highlight flag is needed.
-Repeated joint-supervisor pairs are rendered once as a linked footnote below that
-alumni section. The first checked Faculty row also supplies Contact and every page's
-footer affiliations.
+Sections use the canonical order listed above, with Staff between Lab Internship
+and Alumni. Rows within each section follow the physical Sheet order; internship
+terms follow the order in which each `group` first appears and are always expanded.
+Publication author names are bolded automatically for every checked member,
+including `Pre-EconAI Alumni`, so no manual highlight flag is needed. Repeated
+joint-supervisor pairs are rendered once as a linked footnote below that alumni
+section. The first checked Faculty row also supplies Contact and every page's footer
+affiliations.
 
 The Members tab is publicly downloadable because the site builder reads it without
 Google credentials. Store only information intended for public display.

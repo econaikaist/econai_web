@@ -142,9 +142,22 @@ MEMBER_SECTIONS = (
     "Ph.D. Students",
     "Master's Students",
     "Lab Internship",
+    "Staff",
     "Alumni",
     "Pre-EconAI Alumni",
 )
+MEMBER_CARD_SECTIONS = {
+    "Faculty",
+    "Ph.D. Students",
+    "Master's Students",
+    "Staff",
+}
+MEMBER_REQUIRED_PHOTO_SECTIONS = {
+    "Faculty",
+    "Ph.D. Students",
+    "Master's Students",
+}
+DEFAULT_MEMBER_PHOTO = "img/basic_profile.png"
 
 
 class SheetBuildError(RuntimeError):
@@ -334,12 +347,14 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                 raise SheetBuildError(
                     f"{tab_name} row {index}: group is only used for Lab Internship"
                 )
-            if section in {"Faculty", "Ph.D. Students", "Master's Students"}:
-                for field in ("role", "photo"):
-                    if not row.get(field):
-                        raise SheetBuildError(
-                            f"{tab_name} row {index}: {field} is required for {section}"
-                        )
+            if section in MEMBER_CARD_SECTIONS and not row.get("role"):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: role is required for {section}"
+                )
+            if section in MEMBER_REQUIRED_PHOTO_SECTIONS and not row.get("photo"):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: photo is required for {section}"
+                )
             if section in {"Alumni", "Pre-EconAI Alumni"} and not row.get("details"):
                 raise SheetBuildError(
                     f"{tab_name} row {index}: details is required for alumni"
@@ -858,9 +873,12 @@ def _render_publication_item(row: Mapping[str, str], lab_authors: set[str]) -> L
 def render_publications_page(
     publications: Sequence[Dict[str, str]], lab_authors: set[str]
 ) -> str:
-    sorted_rows = _sort_publications(publications)
     by_year: Dict[int, List[Dict[str, str]]] = defaultdict(list)
-    for row in sorted_rows:
+    # The Sheet is the editorial ordering surface for each year.  Grouping the
+    # original sequence preserves that order while the year headings themselves
+    # remain newest first.  The home page intentionally uses date sorting via
+    # ``_sort_publications`` instead.
+    for row in publications:
         by_year[_publication_year(row)].append(row)
 
     lines = [
@@ -1269,7 +1287,8 @@ def _member_link_lines(row: Mapping[str, str]) -> List[str]:
 
 
 def _member_card_lines(row: Mapping[str, str], output_dir: Path) -> List[str]:
-    photo_path = (output_dir / row["photo"]).resolve()
+    photo = row.get("photo") or DEFAULT_MEMBER_PHOTO
+    photo_path = (output_dir / photo).resolve()
     try:
         photo_path.relative_to(output_dir.resolve())
     except ValueError as exc:
@@ -1279,7 +1298,7 @@ def _member_card_lines(row: Mapping[str, str], output_dir: Path) -> List[str]:
     professor = " prof-card" if row["section"] == "Faculty" else ""
     lines = [
         f'                    <article class="member-card sheet-member-item{professor}">',
-        f'                        <img src="{_escape(row["photo"], quote=True)}" alt="{_escape(row["name_en"], quote=True)}" class="member-photo">',
+        f'                        <img src="{_escape(photo, quote=True)}" alt="{_escape(row["name_en"], quote=True)}" class="member-photo">',
         '                        <div class="member-info">',
         f'                            <h3 class="member-name">{_escape(_member_name(row))}</h3>',
         f'                            <p class="member-role">{_escape(row["role"])}</p>',
@@ -1310,41 +1329,37 @@ def render_members(
         sections[row["section"]].append(row)
 
     lines: List[str] = []
-    for section, rows in sections.items():
+    for section in MEMBER_SECTIONS:
+        rows = sections.get(section, [])
+        if not rows:
+            continue
         lines.append(f'                <h2 class="members-category-title">{_escape(section)}</h2>')
-        if section in {"Faculty", "Ph.D. Students", "Master's Students"}:
+        if section in MEMBER_CARD_SECTIONS:
             lines.append('                <div class="members-grid">')
             for row in rows:
                 lines.extend(_member_card_lines(row, output_dir))
             lines.append("                </div>")
         elif section == "Lab Internship":
-            lines.append('                <div class="accordion" id="internshipAccordion">')
+            lines.append('                <div class="internship-terms">')
             groups: Dict[str, List[Dict[str, str]]] = {}
             for row in rows:
                 groups.setdefault(row["group"], []).append(row)
             for group, group_rows in groups.items():
-                slug = f'intern-{_slugify(group)}'
                 lines.extend(
                     [
-                        '                    <div class="accordion-item">',
-                        f'                        <h2 class="accordion-header" id="heading-{slug}">',
-                        f'                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{slug}" aria-expanded="false" aria-controls="collapse-{slug}">{_escape(group)}</button>',
-                        "                        </h2>",
-                        f'                        <div id="collapse-{slug}" class="accordion-collapse collapse" aria-labelledby="heading-{slug}" data-bs-parent="#internshipAccordion">',
-                        '                            <div class="accordion-body">',
-                        '                                <ul class="intern-list">',
+                        '                    <section class="internship-term">',
+                        f'                        <h3 class="internship-term-label">{_escape(group)}</h3>',
+                        '                        <ul class="intern-list">',
                     ]
                 )
                 for row in group_rows:
                     lines.append(
-                        f'                                    <li class="sheet-member-item">{_escape(_member_name(row))}</li>'
+                        f'                            <li class="sheet-member-item">{_escape(_member_name(row))}</li>'
                     )
                 lines.extend(
                     [
-                        "                                </ul>",
-                        "                            </div>",
-                        "                        </div>",
-                        "                    </div>",
+                        "                        </ul>",
+                        "                    </section>",
                     ]
                 )
             lines.append("                </div>")
@@ -1377,11 +1392,7 @@ def render_members(
 
 
 def _lab_authors(member_rows: Sequence[Dict[str, str]]) -> set[str]:
-    return {
-        row["name_en"]
-        for row in member_rows
-        if row["section"] != "Pre-EconAI Alumni"
-    }
+    return {row["name_en"] for row in member_rows}
 
 
 def render_contact(member_rows: Sequence[Dict[str, str]]) -> str:

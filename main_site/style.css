@@ -578,31 +578,49 @@ body {
     color: #fff;
 }
 
-.accordion-item {
+.internship-terms {
+    background: var(--surface);
     border: 1px solid var(--border-color);
-    border-radius: 8px !important;
-    margin-bottom: 10px;
+    border-radius: 8px;
     overflow: hidden;
 }
 
-.accordion-button {
-    background: #f0f4f8;
-    color: var(--ink);
-    font-size: 0.92rem;
-    font-weight: 700;
+.internship-term {
+    display: grid;
+    grid-template-columns: minmax(145px, 190px) 1fr;
 }
 
-.accordion-button:not(.collapsed) {
+.internship-term + .internship-term {
+    border-top: 1px solid var(--border-color);
+}
+
+.internship-term-label {
+    align-items: center;
     background: #e8eef6;
-    box-shadow: none;
-    color: var(--kaist-blue);
+    color: var(--kaist-blue-dark);
+    display: flex;
+    font-size: 0.84rem;
+    font-weight: 800;
+    letter-spacing: 0.025em;
+    margin: 0;
+    padding: 14px 18px;
 }
 
 .intern-list {
+    align-items: center;
     color: var(--text-gray);
-    line-height: 1.8;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    list-style: none;
     margin: 0;
-    padding-left: 20px;
+    padding: 13px 18px;
+}
+
+.intern-list li {
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 650;
 }
 
 .alumni-list {
@@ -736,5 +754,17 @@ body {
         justify-content: flex-end;
         margin-top: 14px;
         position: static;
+    }
+
+    .internship-term {
+        grid-template-columns: 1fr;
+    }
+
+    .internship-term-label {
+        padding: 10px 14px;
+    }
+
+    .intern-list {
+        padding: 12px 14px;
     }
 }

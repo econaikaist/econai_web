@@ -406,6 +406,62 @@ class SheetBuilderTests(unittest.TestCase):
             ["Newer", "Older"],
         )
 
+    def test_publications_page_uses_sheet_order_within_newest_first_years(self) -> None:
+        rows = [
+            {
+                "date": "2025-12-01",
+                "title": "First 2025 Sheet Row",
+                "authors": "A Author",
+                "venue": "arXiv",
+                "paper_url": "https://example.com/first-2025",
+            },
+            {
+                "date": "2026-01-01",
+                "title": "First 2026 Sheet Row",
+                "authors": "B Author",
+                "venue": "arXiv",
+                "paper_url": "https://example.com/first-2026",
+            },
+            {
+                "date": "2026-08-01",
+                "title": "Second 2026 Sheet Row",
+                "authors": "C Author",
+                "venue": "Conference on Language Modeling (COLM 2026)",
+                "paper_url": "https://example.com/second-2026",
+            },
+            {
+                "date": "2025-02-01",
+                "title": "Second 2025 Sheet Row",
+                "authors": "D Author",
+                "venue": "AAAI Conference on Artificial Intelligence (AAAI 2025)",
+                "paper_url": "https://example.com/second-2025",
+            },
+        ]
+
+        publication_page = builder.render_publications_page(rows, set())
+        self.assertLess(
+            publication_page.index('id="publications-2026"'),
+            publication_page.index('id="publications-2025"'),
+        )
+        self.assertLess(
+            publication_page.index("First 2026 Sheet Row"),
+            publication_page.index("Second 2026 Sheet Row"),
+        )
+        self.assertLess(
+            publication_page.index("First 2025 Sheet Row"),
+            publication_page.index("Second 2025 Sheet Row"),
+        )
+
+        home_latest = builder.render_home_latest(rows)
+        self.assertLess(
+            home_latest.index("Second 2026 Sheet Row"),
+            home_latest.index("First 2026 Sheet Row"),
+        )
+        self.assertLess(
+            home_latest.index("First 2026 Sheet Row"),
+            home_latest.index("First 2025 Sheet Row"),
+        )
+
     def test_blank_date_uses_one_unambiguous_venue_year(self) -> None:
         text = (
             PUBLICATION_HEADER
@@ -565,18 +621,93 @@ class SheetBuilderTests(unittest.TestCase):
         )
         self.assertEqual(rendered.count("Jointly supervised with"), 1)
         self.assertEqual(rendered.count("https://www.mpi-sp.org/cha"), 1)
-        self.assertEqual(
-            builder._lab_authors(
-                members
-                + [
-                    {
-                        "section": "Pre-EconAI Alumni",
-                        "name_en": "Legacy Author",
-                    }
-                ]
-            ),
-            {"Minhyuk Song", "Sumin Lee"},
+        lab_authors = builder._lab_authors(
+            members
+            + [
+                {
+                    "section": "Pre-EconAI Alumni",
+                    "name_en": "Legacy Author",
+                }
+            ]
         )
+        self.assertEqual(
+            lab_authors,
+            {"Minhyuk Song", "Sumin Lee", "Legacy Author"},
+        )
+        publication_html = builder.render_publications_page(
+            [
+                {
+                    "date": "2026-01-01",
+                    "title": "Legacy Collaboration",
+                    "authors": "External Author, Legacy Author",
+                    "venue": "arXiv",
+                    "paper_url": "https://example.com/legacy-collaboration",
+                }
+            ],
+            lab_authors,
+        )
+        self.assertIn(
+            '<strong class="publication-lab-author">Legacy Author</strong>',
+            publication_html,
+        )
+
+    def test_internship_terms_are_visible_and_staff_uses_canonical_position(self) -> None:
+        self._allow_small_fixtures("Members")
+        rows = [
+            {
+                "publish": "TRUE",
+                "section": "Alumni",
+                "name_en": "Example Alumni",
+                "details": "Researcher",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Staff",
+                "name_en": "Sohyun Han",
+                "name_ko": "한소현",
+                "role": "Staff",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Lab Internship",
+                "group": "Summer 2026",
+                "name_en": "Junsik Min",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Lab Internship",
+                "group": "Spring 2026",
+                "name_en": "Junsik Min",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Lab Internship",
+                "group": "Summer 2026",
+                "name_en": "Jaewoo Choi",
+            },
+        ]
+        members = builder._read_csv_text(
+            _csv_text(MEMBER_COLUMNS, rows), "Members"
+        )
+
+        rendered = builder.render_members(members, REPOSITORY_ROOT / "main_site")
+
+        self.assertNotIn("accordion", rendered)
+        self.assertNotIn("collapse", rendered)
+        self.assertNotIn("<button", rendered)
+        self.assertLess(rendered.index("Summer 2026"), rendered.index("Spring 2026"))
+        summer_start = rendered.index("Summer 2026")
+        summer = rendered[
+            summer_start : rendered.index("</section>", summer_start)
+        ]
+        self.assertLess(summer.index("Junsik Min"), summer.index("Jaewoo Choi"))
+        self.assertLess(
+            rendered.index("Lab Internship"),
+            rendered.index(">Staff</h2>"),
+        )
+        self.assertLess(rendered.index(">Staff</h2>"), rendered.index(">Alumni</h2>"))
+        self.assertIn("Sohyun Han | 한소현", rendered)
+        self.assertIn('src="img/basic_profile.png" alt="Sohyun Han"', rendered)
 
     def test_joint_supervisor_fields_must_be_paired(self) -> None:
         self._allow_small_fixtures("Members")
