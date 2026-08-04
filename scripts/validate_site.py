@@ -125,6 +125,21 @@ def validate(site_dir: Path) -> List[str]:
             elif text.index(start) > text.index(end):
                 errors.append(f"{file_name}: reversed marker pair {start} / {end}")
 
+        if _classes(text, "site-header") != 1:
+            errors.append(f"{file_name}: canonical site header is missing")
+        if _classes(text, "desktop-nav") != 1 or _classes(text, "mobile-nav") != 1:
+            errors.append(f"{file_name}: canonical navigation is missing")
+        if "site.css?" not in text:
+            errors.append(f"{file_name}: shared site stylesheet is missing")
+        if (
+            "fixed-top" in text
+            or "navbar-expand" in text
+            or "cdn.jsdelivr.net/npm/bootstrap" in text.lower()
+        ):
+            errors.append(f"{file_name}: legacy Bootstrap page shell remains")
+        if file_name != "index.html" and _classes(text, "page-hero") != 1:
+            errors.append(f"{file_name}: canonical page hero is missing")
+
     publication_text = (site_dir / "publications.html").read_text(encoding="utf-8")
     research_text = (site_dir / "research.html").read_text(encoding="utf-8")
     project_text = (site_dir / "projects.html").read_text(encoding="utf-8")

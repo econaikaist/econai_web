@@ -793,6 +793,10 @@ class SheetBuilderTests(unittest.TestCase):
         )
         self.assertIn('class="publication-carousel-icon"', rendered)
         self.assertIn('.publication-carousel-dot[aria-current="true"]', stylesheet)
+        self.assertRegex(
+            stylesheet,
+            r"\.publication-figure-caption\s*\{[^}]*text-align:\s*center",
+        )
         self.assertNotIn("weather-card", index_source)
         self.assertNotIn("open-meteo.com", index_source)
         legacy_stylesheet = (REPOSITORY_ROOT / "main_site/style.css").read_text(
@@ -801,6 +805,29 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertIn("scrollbar-gutter: stable", stylesheet)
         self.assertIn("scrollbar-gutter: stable", legacy_stylesheet)
         self.assertIn("max-width: 1120px", legacy_stylesheet)
+
+        for page_name in (
+            "index.html",
+            "members.html",
+            "research.html",
+            "publications.html",
+            "projects.html",
+            "contact.html",
+        ):
+            page_source = (REPOSITORY_ROOT / "main_site" / page_name).read_text(
+                encoding="utf-8"
+            )
+            self.assertIn('class="site-header"', page_source)
+            self.assertIn('class="desktop-nav"', page_source)
+            self.assertIn('class="mobile-nav"', page_source)
+            self.assertIn("site.css?v=20260804-unified-shell", page_source)
+            self.assertNotIn("fixed-top", page_source)
+            self.assertNotIn("bootstrap", page_source.lower())
+
+        self.assertNotIn("Latest Publications", index_source)
+        self.assertIn('<h2 id="recent-work-title">Publications</h2>', index_source)
+        self.assertNotIn("Researchers and students working", (REPOSITORY_ROOT / "main_site/members.html").read_text(encoding="utf-8"))
+        self.assertNotIn("We combine artificial intelligence", (REPOSITORY_ROOT / "main_site/research.html").read_text(encoding="utf-8"))
 
     def test_publication_home_image_columns_must_be_complete(self) -> None:
         self._allow_small_fixtures("Publications")
