@@ -118,13 +118,12 @@
                         <img src="assets/paper-overview.png" width="1024" height="524" fetchpriority="high" decoding="async" alt="Figure 1 from the paper: an economic query about minimum wage and employment branches into intervention-oriented and market-oriented reasoning and produces asymmetric predictions.">
                     </picture>
                 </a>
-                <figcaption><strong>Figure 1.</strong> The same minimum-wage question supports competing causal pathways: higher worker spending may sustain employment, while higher business costs and automation may reduce it.</figcaption>
+                <figcaption><strong>Figure 1.</strong> The same economic question can imply different causal signs under intervention-oriented and market-oriented economic perspectives.</figcaption>
             </figure>
         </section>
 
         <section id="motivation" class="content-section section-shell" aria-labelledby="motivation-heading">
             <div class="section-heading centered-heading">
-                <span class="section-index">01 · Economic causal reasoning</span>
                 <h2 id="motivation-heading">Do LLMs exhibit systematic ideological bias when reasoning about economic causal effects?</h2>
                 <p>LLMs are increasingly deployed in economic reporting, policy evaluation, and corporate decision support, where predicting causal directions correctly is essential. Yet a single intervention can trigger competing mechanisms whose relative magnitudes are debated along ideological lines.</p>
             </div>
@@ -136,7 +135,7 @@
                 <h2 id="benchmark-heading">From published evidence to directional questions.</h2>
             </div>
             <article class="benchmark-flow">
-                <p class="benchmark-description"><a href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener noreferrer">EconCausal</a> turns empirical findings from five leading economics and three leading finance journals into causal questions. Given a <strong>treatment</strong>, an <strong>outcome</strong>, and the <strong>study context</strong>, an LLM predicts the published effect as <strong>positive</strong>, <strong>negative</strong>, <strong>no significant effect</strong>, or <strong>mixed</strong>.</p>
+                <p class="benchmark-description"><a href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener noreferrer">EconCausal</a> is a dataset of causal relationships extracted from economics and finance journals. Each record includes a treatment, an outcome, the study context, and the empirical effect sign. Among 10,490 records, intervention-oriented and market-oriented perspectives predict different signs for 1,056. The directional analysis uses the 751 cases whose empirical sign aligns with one of the two perspectives.</p>
                 <ol class="benchmark-steps">
                     <li>
                         <strong>10,490</strong>
@@ -154,11 +153,11 @@
                 <div class="perspective-guide">
                     <div class="perspective-definition intervention-definition">
                         <span>Intervention-oriented (pro-government)</span>
-                        <p>Expects active government action to correct market failures, reduce inequality, or expand social insurance. <strong>Intervention-truth</strong> means the published sign matches this expectation.</p>
+                        <p>Expects active government action to correct market failures, reduce inequality, or expand social insurance. <strong>Intervention-aligned truth</strong> means the published effect matches that expectation.</p>
                     </div>
                     <div class="perspective-definition market-definition">
                         <span>Market-oriented (pro-market)</span>
-                        <p>Expects market allocation and individual incentives to dominate, with limited government intervention. <strong>Market-truth</strong> means the published sign matches this expectation.</p>
+                        <p>Expects market allocation and individual incentives to dominate, with limited government intervention. <strong>Market-aligned truth</strong> means the published effect matches that expectation.</p>
                     </div>
                 </div>
             </article>
@@ -166,21 +165,19 @@
 
         <section id="findings" class="content-section section-shell" aria-labelledby="findings-heading">
             <div class="section-heading centered-heading">
-                <span class="section-index">02 · Main findings</span>
-                <h2 id="findings-heading">One benchmark. Two directional failures.</h2>
-                <p>Across 20 LLMs, both accuracy and error patterns systematically favor intervention-oriented expectations.</p>
+                <h2 id="findings-heading">Main results across 20 language models</h2>
             </div>
 
             <article class="model-benchmark" aria-labelledby="model-benchmark-heading">
                 <div class="model-benchmark-header">
                     <div>
                         <span class="figure-label">All-model accuracy</span>
-                        <h3 id="model-benchmark-heading">18 of 20 models are more accurate on intervention-truth cases.</h3>
-                        <p>Each pair compares accuracy on intervention-truth and market-truth cases, grouped by model family as reported in the paper. Select any model for its full result, ICL sensitivity, and two concrete examples.</p>
+                        <h3 id="model-benchmark-heading">18 of 20 models are more accurate on intervention-aligned truth cases.</h3>
+                        <p>Each pair shows accuracy on intervention-aligned truth and market-aligned truth cases, grouped by model family as reported in the paper. Select any model for its full result, ICL sensitivity, and two concrete examples.</p>
                     </div>
                     <div class="model-benchmark-legend" role="list" aria-label="Accuracy series">
-                        <span role="listitem"><i class="intervention-score-key" aria-hidden="true"></i>Intervention-truth</span>
-                        <span role="listitem"><i class="market-score-key" aria-hidden="true"></i>Market-truth</span>
+                        <span role="listitem"><i class="intervention-score-key" aria-hidden="true"></i>Intervention-aligned truth</span>
+                        <span role="listitem"><i class="market-score-key" aria-hidden="true"></i>Market-aligned truth</span>
                     </div>
                 </div>
 
@@ -195,27 +192,27 @@
                             <span>5 models</span>
                         </div>
                         <div class="model-family-scale" aria-hidden="true"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-4o-mini: intervention-truth accuracy 69.5 percent, market-truth accuracy 46.0 percent, gap plus 23.5 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-4o-mini: intervention-aligned truth accuracy 69.5 percent, market-aligned truth accuracy 46.0 percent, gap plus 23.5 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>GPT-4o-mini</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 69.5%"><strong>69.5</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 46%"><strong>46.0</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+23.5<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-4o: intervention-truth accuracy 72.5 percent, market-truth accuracy 57.1 percent, gap plus 15.3 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-4o: intervention-aligned truth accuracy 72.5 percent, market-aligned truth accuracy 57.1 percent, gap plus 15.3 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>GPT-4o</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 72.5%"><strong>72.5</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 57.1%"><strong>57.1</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+15.3<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-5-nano: intervention-truth accuracy 66.7 percent, market-truth accuracy 53.0 percent, gap plus 13.7 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-5-nano: intervention-aligned truth accuracy 66.7 percent, market-aligned truth accuracy 53.0 percent, gap plus 13.7 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>GPT-5-nano</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 66.7%"><strong>66.7</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 53%"><strong>53.0</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+13.7<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-5-mini: intervention-truth accuracy 65.6 percent, market-truth accuracy 57.8 percent, gap plus 7.8 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-5-mini: intervention-aligned truth accuracy 65.6 percent, market-aligned truth accuracy 57.8 percent, gap plus 7.8 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>GPT-5-mini</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 65.6%"><strong>65.6</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 57.8%"><strong>57.8</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+7.8<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-5.2: intervention-truth accuracy 73.9 percent, market-truth accuracy 63.2 percent, gap plus 10.7 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="OpenAI GPT-5.2: intervention-aligned truth accuracy 73.9 percent, market-aligned truth accuracy 63.2 percent, gap plus 10.7 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>GPT-5.2</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 73.9%"><strong>73.9</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 63.2%"><strong>63.2</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+10.7<small>pp</small></strong>
@@ -227,17 +224,17 @@
                             <span>3 models</span>
                         </div>
                         <div class="model-family-scale" aria-hidden="true"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-                        <div class="model-score-row" role="group" aria-label="Claude Haiku 4.5: intervention-truth accuracy 67.4 percent, market-truth accuracy 56.2 percent, gap plus 11.2 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Claude Haiku 4.5: intervention-aligned truth accuracy 67.4 percent, market-aligned truth accuracy 56.2 percent, gap plus 11.2 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>Haiku 4.5</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 67.4%"><strong>67.4</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 56.2%"><strong>56.2</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+11.2<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row market-leading" role="group" aria-label="Claude Sonnet 4.6: intervention-truth accuracy 67.0 percent, market-truth accuracy 68.9 percent, gap minus 1.9 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Claude Sonnet 4.6: intervention-aligned truth accuracy 67.0 percent, market-aligned truth accuracy 68.9 percent, gap minus 1.9 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>Sonnet 4.6</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 67%"><strong>67.0</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 68.9%"><strong>68.9</strong></span></div></div>
                             <strong class="model-gap negative-gap" aria-hidden="true">−1.9<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row market-leading" role="group" aria-label="Claude Opus 4.6: intervention-truth accuracy 67.7 percent, market-truth accuracy 68.3 percent, gap minus 0.6 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Claude Opus 4.6: intervention-aligned truth accuracy 67.7 percent, market-aligned truth accuracy 68.3 percent, gap minus 0.6 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>Opus 4.6</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 67.7%"><strong>67.7</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 68.3%"><strong>68.3</strong></span></div></div>
                             <strong class="model-gap negative-gap" aria-hidden="true">−0.6<small>pp</small></strong>
@@ -249,12 +246,12 @@
                             <span>2 models</span>
                         </div>
                         <div class="model-family-scale" aria-hidden="true"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-                        <div class="model-score-row" role="group" aria-label="Gemini 2.5 Flash: intervention-truth accuracy 75.7 percent, market-truth accuracy 65.4 percent, gap plus 10.3 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Gemini 2.5 Flash: intervention-aligned truth accuracy 75.7 percent, market-aligned truth accuracy 65.4 percent, gap plus 10.3 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>2.5 Flash</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 75.7%"><strong>75.7</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 65.4%"><strong>65.4</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+10.3<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Gemini 3 Flash: intervention-truth accuracy 82.6 percent, market-truth accuracy 81.6 percent, gap plus 1.0 percentage point.">
+                        <div class="model-score-row" role="group" aria-label="Gemini 3 Flash: intervention-aligned truth accuracy 82.6 percent, market-aligned truth accuracy 81.6 percent, gap plus 1.0 percentage point.">
                             <div class="model-score-name" aria-hidden="true"><strong>3 Flash</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 82.6%"><strong>82.6</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 81.6%"><strong>81.6</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+1.0<small>pp</small></strong>
@@ -266,17 +263,17 @@
                             <span>3 models</span>
                         </div>
                         <div class="model-family-scale" aria-hidden="true"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-                        <div class="model-score-row" role="group" aria-label="Grok 3-mini: intervention-truth accuracy 81.7 percent, market-truth accuracy 64.1 percent, gap plus 17.5 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Grok 3-mini: intervention-aligned truth accuracy 81.7 percent, market-aligned truth accuracy 64.1 percent, gap plus 17.5 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3-mini</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 81.7%"><strong>81.7</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 64.1%"><strong>64.1</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+17.5<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Grok 3: intervention-truth accuracy 77.3 percent, market-truth accuracy 63.8 percent, gap plus 13.5 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Grok 3: intervention-aligned truth accuracy 77.3 percent, market-aligned truth accuracy 63.8 percent, gap plus 13.5 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 77.3%"><strong>77.3</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 63.8%"><strong>63.8</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+13.5<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Grok 4-1 Fast: intervention-truth accuracy 79.6 percent, market-truth accuracy 74.9 percent, gap plus 4.7 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Grok 4-1 Fast: intervention-aligned truth accuracy 79.6 percent, market-aligned truth accuracy 74.9 percent, gap plus 4.7 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>4-1 Fast</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 79.6%"><strong>79.6</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 74.9%"><strong>74.9</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+4.7<small>pp</small></strong>
@@ -293,22 +290,22 @@
                             <span>4 models</span>
                         </div>
                         <div class="model-family-scale" aria-hidden="true"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-                        <div class="model-score-row" role="group" aria-label="Llama 3.1-8B: intervention-truth accuracy 51.4 percent, market-truth accuracy 41.9 percent, gap plus 9.5 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Llama 3.1-8B: intervention-aligned truth accuracy 51.4 percent, market-aligned truth accuracy 41.9 percent, gap plus 9.5 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3.1-8B</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 51.4%"><strong>51.4</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 41.9%"><strong>41.9</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+9.5<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Llama 3.2-1B: intervention-truth accuracy 61.2 percent, market-truth accuracy 50.8 percent, gap plus 10.4 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Llama 3.2-1B: intervention-aligned truth accuracy 61.2 percent, market-aligned truth accuracy 50.8 percent, gap plus 10.4 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3.2-1B</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 61.2%"><strong>61.2</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 50.8%"><strong>50.8</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+10.4<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Llama 3.2-3B: intervention-truth accuracy 62.8 percent, market-truth accuracy 49.2 percent, gap plus 13.6 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Llama 3.2-3B: intervention-aligned truth accuracy 62.8 percent, market-aligned truth accuracy 49.2 percent, gap plus 13.6 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3.2-3B</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 62.8%"><strong>62.8</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 49.2%"><strong>49.2</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+13.6<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Llama 3.3-70B: intervention-truth accuracy 76.6 percent, market-truth accuracy 56.2 percent, gap plus 20.4 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Llama 3.3-70B: intervention-aligned truth accuracy 76.6 percent, market-aligned truth accuracy 56.2 percent, gap plus 20.4 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3.3-70B</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 76.6%"><strong>76.6</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 56.2%"><strong>56.2</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+20.4<small>pp</small></strong>
@@ -320,17 +317,17 @@
                             <span>3 models</span>
                         </div>
                         <div class="model-family-scale" aria-hidden="true"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div>
-                        <div class="model-score-row" role="group" aria-label="Qwen 3-8B: intervention-truth accuracy 77.5 percent, market-truth accuracy 55.9 percent, gap plus 21.6 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Qwen 3-8B: intervention-aligned truth accuracy 77.5 percent, market-aligned truth accuracy 55.9 percent, gap plus 21.6 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3-8B</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 77.5%"><strong>77.5</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 55.9%"><strong>55.9</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+21.6<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Qwen 3-14B: intervention-truth accuracy 68.1 percent, market-truth accuracy 52.4 percent, gap plus 15.7 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Qwen 3-14B: intervention-aligned truth accuracy 68.1 percent, market-aligned truth accuracy 52.4 percent, gap plus 15.7 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3-14B</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 68.1%"><strong>68.1</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 52.4%"><strong>52.4</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+15.7<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Qwen 3-32B: intervention-truth accuracy 73.2 percent, market-truth accuracy 58.7 percent, gap plus 14.4 percentage points.">
+                        <div class="model-score-row" role="group" aria-label="Qwen 3-32B: intervention-aligned truth accuracy 73.2 percent, market-aligned truth accuracy 58.7 percent, gap plus 14.4 percentage points.">
                             <div class="model-score-name" aria-hidden="true"><strong>3-32B</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 73.2%"><strong>73.2</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 58.7%"><strong>58.7</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+14.4<small>pp</small></strong>
@@ -338,103 +335,105 @@
                     </section>
                 </div>
 
-                <p class="model-benchmark-note">Accuracy (%) on the 751 cases where published evidence matches one perspective. Gap = intervention-truth minus market-truth accuracy; reported gaps use the paper's unrounded estimates.</p>
+                <p class="model-benchmark-note">Accuracy (%) on the 751 cases where published evidence matches one perspective. Gap = intervention-aligned truth minus market-aligned truth accuracy; reported gaps use the paper's unrounded estimates.</p>
             </article>
 
-            <aside class="error-summary" aria-labelledby="error-summary-heading">
-                <div class="error-summary-copy">
-                    <span class="figure-label">Directional errors</span>
-                    <h3 id="error-summary-heading"><strong>15 / 20</strong> models make intervention-leaning mistakes.</h3>
-                    <p>Incorrect predictions also disproportionately align with intervention-oriented expectations.</p>
-                </div>
-                <div class="error-dot-grid" aria-hidden="true">
-                    <span class="active"></span><span class="active"></span><span class="active"></span><span class="active"></span><span class="active"></span>
-                    <span class="active"></span><span class="active"></span><span class="active"></span><span class="active"></span><span class="active"></span>
-                    <span class="active"></span><span class="active"></span><span class="active"></span><span class="active"></span><span class="active"></span>
-                    <span></span><span></span><span></span><span></span><span></span>
-                </div>
-                <div class="error-means">
-                    <div><span>Closed mean</span><strong>+2.9</strong></div>
-                    <div><span>Open mean</span><strong>+8.8</strong></div>
-                </div>
-            </aside>
+            <article class="bias-ranking" aria-labelledby="bias-ranking-heading">
+                <header class="bias-ranking-header">
+                    <div>
+                        <span class="figure-label">Error-direction bias</span>
+                        <h3 id="bias-ranking-heading">Models ranked by <span aria-label="B dir">B<sub>dir</sub></span></h3>
+                    </div>
+                    <p>Signed scores state whether prediction errors lean intervention-oriented or market-oriented.</p>
+                </header>
+                <div class="bias-ranking-axis" aria-hidden="true"><span>Market-oriented</span><span>0</span><span>Intervention-oriented</span></div>
+                <ol id="bias-ranking-list" class="bias-ranking-list">
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="llama-3-3-70b" aria-label="Rank 1 of 20, Llama 3.3-70B, B dir +17.9, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">1</span><span class="bias-model-name">Llama 3.3-70B</span><span class="bias-static-score">+17.9</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="qwen-3-8b" aria-label="Rank 2 of 20, Qwen 3-8B, B dir +17.7, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">2</span><span class="bias-model-name">Qwen 3-8B</span><span class="bias-static-score">+17.7</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-4o-mini" aria-label="Rank 3 of 20, OpenAI GPT-4o-mini, B dir +15.5, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">3</span><span class="bias-model-name">OpenAI GPT-4o-mini</span><span class="bias-static-score">+15.5</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="grok-3-mini" aria-label="Rank 4 of 20, Grok 3-mini, B dir +13.5, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">4</span><span class="bias-model-name">Grok 3-mini</span><span class="bias-static-score">+13.5</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="qwen-3-32b" aria-label="Rank 5 of 20, Qwen 3-32B, B dir +10.1, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">5</span><span class="bias-model-name">Qwen 3-32B</span><span class="bias-static-score">+10.1</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-5-nano" aria-label="Rank 6 of 20, OpenAI GPT-5-nano, B dir +9.9, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">6</span><span class="bias-model-name">OpenAI GPT-5-nano</span><span class="bias-static-score">+9.9</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="qwen-3-14b" aria-label="Rank 7 of 20, Qwen 3-14B, B dir +8.0, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">7</span><span class="bias-model-name">Qwen 3-14B</span><span class="bias-static-score">+8.0</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-4o" aria-label="Rank 8 of 20, OpenAI GPT-4o, B dir +7.8, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">8</span><span class="bias-model-name">OpenAI GPT-4o</span><span class="bias-static-score">+7.8</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="llama-3-2-3b" aria-label="Rank 9 of 20, Llama 3.2-3B, B dir +6.8, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">9</span><span class="bias-model-name">Llama 3.2-3B</span><span class="bias-static-score">+6.8</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gemini-2-5-flash" aria-label="Rank 10 of 20, Gemini 2.5 Flash, B dir +6.5, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">10</span><span class="bias-model-name">Gemini 2.5 Flash</span><span class="bias-static-score">+6.5</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="grok-3" aria-label="Rank 11 of 20, Grok 3, B dir +4.7, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">11</span><span class="bias-model-name">Grok 3</span><span class="bias-static-score">+4.7</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-5-mini" aria-label="Rank 12 of 20, OpenAI GPT-5-mini, B dir +2.8, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">12</span><span class="bias-model-name">OpenAI GPT-5-mini</span><span class="bias-static-score">+2.8</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="llama-3-2-1b" aria-label="Rank 13 of 20, Llama 3.2-1B, B dir +1.9, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">13</span><span class="bias-model-name">Llama 3.2-1B</span><span class="bias-static-score">+1.9</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="grok-4-1-fast" aria-label="Rank 14 of 20, Grok 4-1 Fast, B dir +1.8, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">14</span><span class="bias-model-name">Grok 4-1 Fast</span><span class="bias-static-score">+1.8</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="claude-haiku-4-5" aria-label="Rank 15 of 20, Claude Haiku 4.5, B dir +1.4, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">15</span><span class="bias-model-name">Claude Haiku 4.5</span><span class="bias-static-score">+1.4</span><span class="bias-direction">Intervention-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="llama-3-1-8b" aria-label="Rank 16 of 20, Llama 3.1-8B, B dir −1.0, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">16</span><span class="bias-model-name">Llama 3.1-8B</span><span class="bias-static-score">−1.0</span><span class="bias-direction">Market-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="gpt-5-2" aria-label="Rank 17 of 20, OpenAI GPT-5.2, B dir −2.6, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">17</span><span class="bias-model-name">OpenAI GPT-5.2</span><span class="bias-static-score">−2.6</span><span class="bias-direction">Market-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="gemini-3-flash" aria-label="Rank 18 of 20, Gemini 3 Flash, B dir −6.0, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">18</span><span class="bias-model-name">Gemini 3 Flash</span><span class="bias-static-score">−6.0</span><span class="bias-direction">Market-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="claude-opus-4-6" aria-label="Rank 19 of 20, Claude Opus 4.6, B dir −8.7, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">19</span><span class="bias-model-name">Claude Opus 4.6</span><span class="bias-static-score">−8.7</span><span class="bias-direction">Market-oriented</span></button></li>
+                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="claude-sonnet-4-6" aria-label="Rank 20 of 20, Claude Sonnet 4.6, B dir −8.7, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">20</span><span class="bias-model-name">Claude Sonnet 4.6</span><span class="bias-static-score">−8.7</span><span class="bias-direction">Market-oriented</span></button></li>
+                </ol>
+            </article>
         </section>
 
         <section id="release-bias" class="content-section section-shell" aria-labelledby="release-bias-heading">
-            <div class="section-heading split-heading release-heading">
-                <div>
-                    <span class="figure-label">Bias across model releases</span>
-                    <h2 id="release-bias-heading">Directional bias does not disappear in newer releases.</h2>
-                </div>
-                <p>Each point combines a model's first official public release date with its canonical error-direction bias, <em>B</em><sub>dir</sub>, from Equation 2 and Table 5 of the public arXiv v2 paper.</p>
+            <div class="section-heading centered-heading release-heading">
+                <h2 id="release-bias-heading">Directional bias across model releases</h2>
             </div>
 
-            <article class="release-panel" aria-labelledby="release-chart-title">
+            <article class="release-panel" aria-label="Directional bias by model release date">
                 <div class="release-panel-header">
-                    <div>
-                        <h3 id="release-chart-title">Release date vs. error-direction bias</h3>
-                        <p><em>B</em><sub>dir</sub> divides the difference between intervention-leaning and market-leaning errors by all prediction errors among the 751 ideology-contested cases whose empirical sign matches either expectation. Positive values lean intervention-oriented; negative values lean market-oriented.</p>
-                    </div>
+                    <p><span aria-label="B dir">B<sub>dir</sub></span> measures the direction of prediction errors. Positive values indicate intervention-oriented bias; negative values indicate market-oriented bias.</p>
                     <div id="release-family-legend" class="release-family-legend" aria-label="Model family legend"></div>
                 </div>
-                <div id="release-chart" class="release-chart" role="group" aria-label="Interactive plot of release date and error-direction bias for 20 models">
-                    <p class="release-chart-fallback">The interactive release view is loading. The paper-reported accuracy values above and the full paper link below remain available without JavaScript.</p>
-                </div>
-                <div class="release-chart-footer">
-                    <p><strong>How to read it:</strong> select a point for the model's complete result. Thin colored connectors only show release order <em>within the same family</em>; they are not a causal or long-run trend line. Where tap targets would overlap, a gray leader connects the offset marker to its exact data coordinate.</p>
-                    <details class="release-data-details">
-                        <summary>View the 20-point data table</summary>
-                        <div id="release-data-table" class="release-data-table"></div>
-                    </details>
-                </div>
+                <div id="release-chart" class="release-chart" role="group" aria-label="Interactive plot of release date and error-direction bias for 20 models. Connectors join models only within the same provider family and do not represent a global time trend."></div>
             </article>
         </section>
 
         <section class="content-section section-shell" aria-labelledby="subfields-heading">
             <div class="section-heading split-heading">
                 <div>
-                    <span class="section-index">03 · Where is it strongest?</span>
-                    <h2 id="subfields-heading">The asymmetry is concentrated, not uniform.</h2>
+                    <h2 id="subfields-heading">Average accuracy gap by economic subfield</h2>
                 </div>
-                <p>Intervention-truth accuracy is higher in six of seven economic subfields. Healthcare and welfare show the largest gaps; taxation slightly reverses.</p>
             </div>
 
-            <div class="subfield-panel" role="img" aria-label="Intervention minus market accuracy gap by subfield: healthcare 20.9 points, welfare and redistribution 18, education 10.6, labor 9.4, financial regulation 8.2, trade 5, and taxation minus 1 point">
-                <div class="subfield-axis" aria-hidden="true"><span>Market advantage</span><span>0</span><span>Intervention advantage</span></div>
-                <div class="subfield-row">
+            <div class="subfield-panel" role="region" aria-labelledby="subfields-heading">
+                <div class="subfield-axis" aria-hidden="true"><span><span class="axis-wide">Market-aligned advantage</span><span class="axis-compact">Market</span></span><span>0 pp</span><span><span class="axis-wide">Intervention-aligned advantage</span><span class="axis-compact">Intervention</span></span></div>
+                <button class="subfield-row" type="button" data-subfield-name="Healthcare" data-sample-size="91" data-intervention-accuracy="70.17241379310345" data-market-accuracy="49.24137931034483" data-gap="20.9" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Healthcare <small>n=91</small></span>
-                    <div class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:83.6%"></span></div>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:83.6%"></span></span>
                     <strong>+20.9</strong>
-                </div>
-                <div class="subfield-row">
+                </button>
+                <button class="subfield-row" type="button" data-subfield-name="Welfare &amp; redistribution" data-sample-size="87" data-intervention-accuracy="79.49029126213594" data-market-accuracy="61.523809523809526" data-gap="18.0" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Welfare &amp; redistribution <small>n=87</small></span>
-                    <div class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:72%"></span></div>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:72%"></span></span>
                     <strong>+18.0</strong>
-                </div>
-                <div class="subfield-row">
+                </button>
+                <button class="subfield-row" type="button" data-subfield-name="Education" data-sample-size="56" data-intervention-accuracy="75.17964071856287" data-market-accuracy="64.5945945945946" data-gap="10.6" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Education <small>n=56</small></span>
-                    <div class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:42.4%"></span></div>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:42.4%"></span></span>
                     <strong>+10.6</strong>
-                </div>
-                <div class="subfield-row">
+                </button>
+                <button class="subfield-row" type="button" data-subfield-name="Labor" data-sample-size="183" data-intervention-accuracy="70.27675276752767" data-market-accuracy="60.87855297157623" data-gap="9.4" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Labor <small>n=183</small></span>
-                    <div class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:37.6%"></span></div>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:37.6%"></span></span>
                     <strong>+9.4</strong>
-                </div>
-                <div class="subfield-row">
+                </button>
+                <button class="subfield-row" type="button" data-subfield-name="Financial regulation" data-sample-size="172" data-intervention-accuracy="69.52830188679245" data-market-accuracy="61.33064516129032" data-gap="8.2" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Financial regulation <small>n=172</small></span>
-                    <div class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:32.8%"></span></div>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:32.8%"></span></span>
                     <strong>+8.2</strong>
-                </div>
-                <div class="subfield-row">
+                </button>
+                <button class="subfield-row" type="button" data-subfield-name="Trade" data-sample-size="30" data-intervention-accuracy="63.68421052631579" data-market-accuracy="58.7037037037037" data-gap="5.0" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Trade <small>n=30</small></span>
-                    <div class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:20%"></span></div>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:20%"></span></span>
                     <strong>+5.0</strong>
-                </div>
-                <div class="subfield-row">
+                </button>
+                <button class="subfield-row" type="button" data-subfield-name="Taxation" data-sample-size="73" data-intervention-accuracy="66.82051282051282" data-market-accuracy="67.83216783216782" data-gap="-1.0" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Taxation <small>n=73</small></span>
-                    <div class="subfield-track"><i class="zero-line"></i><span class="subfield-bar negative" style="--bar-width:4%"></span></div>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar negative" style="--bar-width:4%"></span></span>
                     <strong class="negative-value">−1.0</strong>
+                </button>
+                <div id="subfield-detail" class="subfield-detail" aria-live="polite" aria-atomic="true">
+                    <span class="subfield-detail-kicker">Subfield detail</span>
+                    <strong>Select a subfield</strong>
+                    <p>Hover, focus, or activate a row to inspect its sample and accuracy-gap direction.</p>
                 </div>
             </div>
         </section>
@@ -492,41 +491,18 @@
                 </div>
                 <button class="icon-button" type="button" data-dialog-close aria-label="Close model details">×</button>
             </header>
-            <div class="model-detail-actions">
-                <button id="model-compare-toggle" class="button button-primary" type="button">Add to compare</button>
-                <a id="model-release-source" class="button button-secondary" href="#" target="_blank" rel="noopener noreferrer">Release source <span aria-hidden="true">↗</span></a>
-            </div>
             <div class="model-tabs" role="tablist" aria-label="Model detail views">
                 <button id="model-tab-overview" type="button" role="tab" aria-selected="true" aria-controls="model-panel-overview" data-model-tab="overview">Overview</button>
                 <button id="model-tab-icl" type="button" role="tab" aria-selected="false" aria-controls="model-panel-icl" data-model-tab="icl" tabindex="-1">ICL</button>
                 <button id="model-tab-examples" type="button" role="tab" aria-selected="false" aria-controls="model-panel-examples" data-model-tab="examples" tabindex="-1">Examples</button>
+                <button id="model-tab-subfields" type="button" role="tab" aria-selected="false" aria-controls="model-panel-subfields" data-model-tab="subfields" tabindex="-1">By subfield</button>
             </div>
             <div id="model-panel-overview" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-overview" data-model-panel="overview"></div>
             <div id="model-panel-icl" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-icl" data-model-panel="icl" hidden></div>
             <div id="model-panel-examples" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-examples" data-model-panel="examples" hidden></div>
+            <div id="model-panel-subfields" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-subfields" data-model-panel="subfields" hidden></div>
         </div>
     </dialog>
-
-    <aside id="compare-tray" class="compare-tray" aria-labelledby="compare-title" hidden>
-        <div class="compare-tray-header">
-            <div>
-                <span class="figure-label">Model compare</span>
-                <h2 id="compare-title">Compare selected models</h2>
-            </div>
-            <button id="compare-clear" class="text-button" type="button">Clear all</button>
-        </div>
-        <div class="compare-controls">
-            <label for="compare-sort">Order by</label>
-            <select id="compare-sort">
-                <option value="selection">Selection order</option>
-                <option value="intervention">Intervention accuracy</option>
-                <option value="market">Market accuracy</option>
-                <option value="gap">Accuracy gap</option>
-                <option value="b_dir">B_dir</option>
-            </select>
-        </div>
-        <div id="compare-grid" class="compare-grid"></div>
-    </aside>
 
     <footer class="paper-footer">
         <div class="section-shell footer-inner">

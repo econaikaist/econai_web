@@ -77,23 +77,19 @@ MODEL_SPECS = (
 )
 
 EXAMPLE_SPECS = {
-    "t1_9849": {
-        "context_summary": (
-            "Brazilian employer–employee and household data track minimum-wage "
-            "changes and worker retention, using cross-state differences in how "
-            "binding the federal wage floor was."
-        ),
-        "context_summary_type": "editorial_paraphrase",
-    },
-    "t1_515": {
-        "context_summary": (
-            "U.S. Medicare heart-attack records from 1985–1994 link changes in "
-            "local hospital competition to treatment intensity, spending, "
-            "mortality, and rehospitalization."
-        ),
-        "context_summary_type": "editorial_paraphrase",
-    },
+    "t1_9849": "28831|minimum wage increase|probability of remaining employed",
+    "t1_515": "7266|hospital competition|social welfare",
 }
+
+SUBFIELD_THEMES = (
+    ("healthcare", "Healthcare"),
+    ("welfare_redistribution", "Welfare & Redistribution"),
+    ("education", "Education"),
+    ("labor", "Labor"),
+    ("financial_regulation", "Financial Regulation"),
+    ("trade", "Trade"),
+    ("taxation", "Taxation"),
+)
 
 CAMERA_READY_TABLE_DIR = Path("COLM_EconCausal_Ideology_Bias_camera_ready/Tables")
 BIAS_CSV_PATH = Path(
@@ -104,6 +100,20 @@ ANALYSIS_JSONL_PATH = Path(
     "extended/ideology_bias_outputs_task1_ideology_subset_1056/"
     "analysis_datasets/task1_analysis_rows.jsonl"
 )
+SUBFIELD_ACCURACY_CSV_PATH = Path(
+    "extended/ideology_bias_outputs_task1_ideology_subset_1056/tables/"
+    "task1_accuracy_by_model_vote_theme_and_ground_truth_side.csv"
+)
+SUBFIELD_BIAS_CSV_PATH = Path(
+    "extended/ideology_bias_outputs_task1_ideology_subset_1056/tables/"
+    "task1_bias_by_model_and_vote_theme.csv"
+)
+EXAMPLE_EXPORT_DIR = Path(
+    "extended/ideology_bias_outputs/task1_triplet_model_exports/"
+    "task1_triplets_model_results_751_and_1056/ideology_contested_751"
+)
+EXAMPLE_TRIPLETS_CSV_PATH = EXAMPLE_EXPORT_DIR / "causal_triplets.csv"
+EXAMPLE_RESULTS_CSV_PATH = EXAMPLE_EXPORT_DIR / "model_results_all_models.csv"
 
 
 class ValidationError(RuntimeError):
@@ -149,55 +159,169 @@ def _bias_by_source_model(path: Path) -> dict[str, float]:
     return {row["model"]: float(row["bias_score"]) * 100 for row in rows}
 
 
-def _short_explanation(text: str, max_chars: int = 220) -> str:
-    normalized = " ".join(text.split())
-    first_sentence = re.split(r"(?<=[.!?])\s+", normalized, maxsplit=1)[0]
-    if len(first_sentence) <= max_chars:
-        return first_sentence
-    shortened = first_sentence[: max_chars - 1].rsplit(" ", 1)[0]
-    return f"{shortened}…"
-
-
-def _example_rows(path: Path) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, dict[str, Any]]]]:
+def _example_rows(
+    triplets_path: Path, results_path: Path
+) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, dict[str, Any]]]]:
+    """Load the two public examples verbatim from the 751-case CSV export."""
     case_metadata: dict[str, dict[str, Any]] = {}
     outputs: dict[str, dict[str, dict[str, Any]]] = {
         case_id: {} for case_id in EXAMPLE_SPECS
     }
+    triplet_to_case = {triplet_key: case_id for case_id, triplet_key in EXAMPLE_SPECS.items()}
     wanted_source_ids = {spec[1] for spec in MODEL_SPECS}
 
-    with path.open(encoding="utf-8") as handle:
-        for line in handle:
-            row = json.loads(line)
-            case_id = row.get("case_id")
-            source_model_id = row.get("model")
-            if case_id not in EXAMPLE_SPECS or source_model_id not in wanted_source_ids:
+    with triplets_path.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            case_id = triplet_to_case.get(row["triplet_key"])
+            if case_id is None:
                 continue
-            case_metadata.setdefault(
-                case_id,
-                {
-                    "case_id": case_id,
-                    "triplet_key": row["triplet_key"],
-                    "title": row["title"],
-                    "paper_url": row["paper_url"],
-                    "treatment": row["treatment"],
-                    "outcome": row["outcome"],
-                    "context_summary": EXAMPLE_SPECS[case_id]["context_summary"],
-                    "context_summary_type": EXAMPLE_SPECS[case_id]["context_summary_type"],
-                    "empirical_sign": row["expected_sign"],
-                    "intervention_sign": row["economic_liberal_preferred_sign"],
-                    "market_sign": row["economic_conservative_preferred_sign"],
-                    "ground_truth_side": (
-                        "intervention" if row["ground_truth_side"] == "liberal" else "market"
-                    ),
-                },
-            )
-            outputs[case_id][source_model_id] = {
-                "predicted_sign": row["predicted_sign"],
-                "correct": bool(row["correct"]),
-                "explanation": _short_explanation(row.get("reasoning") or "No explanation returned."),
+            if case_id in case_metadata:
+                raise ValidationError(f"duplicate causal-triplet row for {case_id}")
+            case_metadata[case_id] = {
+                "case_id": case_id,
+                "triplet_key": row["triplet_key"],
+                "title": row["title"],
+                "paper_url": row["paper_url"],
+                "treatment": row["treatment"],
+                "outcome": row["outcome"],
+                "context": row["context"],
+                "empirical_sign": row["expected_sign"],
+                "intervention_sign": row["economic_liberal_preferred_sign"],
+                "market_sign": row["economic_conservative_preferred_sign"],
+                "ground_truth_side": (
+                    "intervention" if row["ground_truth_side"] == "liberal" else "market"
+                ),
             }
 
+    blank_sign_rows: set[tuple[str, str]] = set()
+    with results_path.open(encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            case_id = triplet_to_case.get(row["triplet_key"])
+            source_model_id = row["model"]
+            if case_id is None or source_model_id not in wanted_source_ids:
+                continue
+            if source_model_id in outputs[case_id]:
+                raise ValidationError(
+                    f"duplicate example output for {case_id}/{source_model_id}"
+                )
+            metadata = case_metadata.get(case_id)
+            if metadata is None:
+                raise ValidationError(f"missing causal-triplet metadata for {case_id}")
+            for field in ("treatment", "outcome", "context", "expected_sign"):
+                expected_value = (
+                    metadata["empirical_sign"] if field == "expected_sign" else metadata[field]
+                )
+                if row[field] != expected_value:
+                    raise ValidationError(
+                        f"example export mismatch for {case_id}/{source_model_id}/{field}"
+                    )
+            predicted_sign = row["predicted_sign"]
+            if predicted_sign == "":
+                blank_sign_rows.add((case_id, source_model_id))
+                predicted_sign = "None"
+            if row["correct"] not in {"0", "1"}:
+                raise ValidationError(
+                    f"invalid correct flag for {case_id}/{source_model_id}: {row['correct']!r}"
+                )
+            outputs[case_id][source_model_id] = {
+                "predicted_sign": predicted_sign,
+                "correct": row["correct"] == "1",
+                "rationale": row["reasoning"],
+            }
+
+    expected_blank_sign_rows = {
+        ("t1_9849", "gemini-3-flash-preview"),
+        ("t1_515", "meta-llama/llama-3.1-8b-instruct"),
+    }
+    if blank_sign_rows != expected_blank_sign_rows:
+        raise ValidationError(
+            "blank predicted_sign normalization changed: "
+            f"expected {sorted(expected_blank_sign_rows)}, found {sorted(blank_sign_rows)}"
+        )
+    if set(case_metadata) != set(EXAMPLE_SPECS):
+        raise ValidationError(
+            f"example causal-triplet coverage mismatch: {sorted(case_metadata)}"
+        )
+    for case_id, rows in outputs.items():
+        if set(rows) != wanted_source_ids:
+            raise ValidationError(
+                f"example model coverage mismatch for {case_id}: "
+                f"missing={sorted(wanted_source_ids - set(rows))}, "
+                f"extra={sorted(set(rows) - wanted_source_ids)}"
+            )
+
     return case_metadata, outputs
+
+
+def _subfield_rows(accuracy_path: Path, bias_path: Path) -> dict[str, list[dict[str, Any]]]:
+    """Build the fixed seven-theme per-model panel from the weighted source CSVs."""
+    with accuracy_path.open(encoding="utf-8", newline="") as handle:
+        accuracy_rows = list(csv.DictReader(handle))
+    with bias_path.open(encoding="utf-8", newline="") as handle:
+        bias_rows = list(csv.DictReader(handle))
+
+    accuracy_index: dict[tuple[str, str, str], dict[str, str]] = {}
+    for row in accuracy_rows:
+        key = (row["model"], row["jel_policy_theme"], row["ground_truth_side"])
+        if key in accuracy_index:
+            raise ValidationError(f"duplicate subfield accuracy row: {key}")
+        accuracy_index[key] = row
+
+    bias_index: dict[tuple[str, str], dict[str, str]] = {}
+    for row in bias_rows:
+        key = (row["model"], row["jel_policy_theme"])
+        if key in bias_index:
+            raise ValidationError(f"duplicate subfield bias row: {key}")
+        bias_index[key] = row
+
+    source_model_ids = {spec[1] for spec in MODEL_SPECS}
+    expected_themes = {theme for theme, _ in SUBFIELD_THEMES} | {"other"}
+    if {row["model"] for row in accuracy_rows} != source_model_ids:
+        raise ValidationError("subfield accuracy model set differs from the paper baseline")
+    if {row["model"] for row in bias_rows} != source_model_ids:
+        raise ValidationError("subfield bias model set differs from the paper baseline")
+    if {row["jel_policy_theme"] for row in accuracy_rows} != expected_themes:
+        raise ValidationError("subfield accuracy theme set is not seven named themes plus Other")
+    if {row["jel_policy_theme"] for row in bias_rows} != expected_themes:
+        raise ValidationError("subfield bias theme set is not seven named themes plus Other")
+
+    by_model: dict[str, list[dict[str, Any]]] = {}
+    for _, source_model_id, _, _, _ in MODEL_SPECS:
+        themes: list[dict[str, Any]] = []
+        for theme_id, theme_name in SUBFIELD_THEMES:
+            intervention = accuracy_index[(source_model_id, theme_id, "liberal")]
+            market = accuracy_index[(source_model_id, theme_id, "conservative")]
+            bias = bias_index[(source_model_id, theme_id)]
+            intervention_sample = float(intervention["n_predictions"])
+            market_sample = float(market["n_predictions"])
+            total_sample = float(bias["n_predictions"])
+            if not math.isclose(
+                intervention_sample + market_sample, total_sample, abs_tol=1e-9
+            ):
+                raise ValidationError(
+                    f"subfield sample mismatch for {source_model_id}/{theme_id}"
+                )
+            intervention_accuracy = float(intervention["accuracy"]) * 100
+            market_accuracy = float(market["accuracy"]) * 100
+            themes.append(
+                {
+                    "id": theme_id,
+                    "name": theme_name,
+                    "sample_size": total_sample,
+                    "n_triplets": int(bias["n_triplets"]),
+                    "intervention_sample_size": intervention_sample,
+                    "market_sample_size": market_sample,
+                    "intervention_accuracy": round(intervention_accuracy, 6),
+                    "market_accuracy": round(market_accuracy, 6),
+                    "accuracy_gap_pp": round(
+                        intervention_accuracy - market_accuracy, 6
+                    ),
+                    "b_dir_pct": round(float(bias["bias_score"]) * 100, 6),
+                }
+            )
+        by_model[source_model_id] = themes
+
+    return by_model
 
 
 def _paper_denominators(path: Path) -> dict[str, int]:
@@ -260,7 +384,14 @@ def build_expected_payload(
     table_5 = _table_rows(table_5_path, expected_cells=6)
     table_2 = _table_rows(table_2_path, expected_cells=10)
     bias_scores = _bias_by_source_model(econ_root / BIAS_CSV_PATH)
-    case_metadata, example_outputs = _example_rows(econ_root / ANALYSIS_JSONL_PATH)
+    case_metadata, example_outputs = _example_rows(
+        econ_root / EXAMPLE_TRIPLETS_CSV_PATH,
+        econ_root / EXAMPLE_RESULTS_CSV_PATH,
+    )
+    subfields_by_model = _subfield_rows(
+        econ_root / SUBFIELD_ACCURACY_CSV_PATH,
+        econ_root / SUBFIELD_BIAS_CSV_PATH,
+    )
     denominators = _paper_denominators(econ_root / ANALYSIS_JSONL_PATH)
 
     models: list[dict[str, Any]] = []
@@ -324,6 +455,7 @@ def build_expected_payload(
                         "delta_example": t2[9],
                     },
                 },
+                "subfields": subfields_by_model[source_id],
             }
         )
 
@@ -357,7 +489,18 @@ def build_expected_payload(
             "table_5": str(table_5_path),
             "table_2": str(table_2_path),
             "task1_bias": str(BIAS_CSV_PATH),
-            "task1_examples": str(ANALYSIS_JSONL_PATH),
+            "task1_examples": {
+                "causal_triplets": str(EXAMPLE_TRIPLETS_CSV_PATH),
+                "model_results": str(EXAMPLE_RESULTS_CSV_PATH),
+                "field_mapping": {
+                    "context": "causal_triplets.context",
+                    "rationale": "model_results.reasoning",
+                },
+            },
+            "task1_subfields": {
+                "accuracy": str(SUBFIELD_ACCURACY_CSV_PATH),
+                "bias": str(SUBFIELD_BIAS_CSV_PATH),
+            },
             "notes": (
                 "The camera-ready TeX is used as a machine-readable superset of the "
                 "arXiv v2 tables; this dataset includes only the 20 arXiv v2 models."
@@ -372,10 +515,17 @@ def build_expected_payload(
                 "None uses the 751 directional cases; example conditions use "
                 "ensemble-oriented matched rows and must not be compared as a shared denominator."
             ),
+            "subfield_note": (
+                "Exactly seven named themes are included; Other is excluded. Overlapping theme "
+                "assignments are fractionally weighted, so sample_size may be non-integer."
+            ),
         },
         "public_content_policy": {
-            "context": "short editorial paraphrase, not source-paper prose",
-            "explanation": "first-sentence excerpt from the model-generated evaluation rationale",
+            "context": "exact context field from the public 751-case export",
+            "rationale": (
+                "exact visible model-generated reasoning field from the public evaluation export; "
+                "this is an answer rationale, not hidden chain-of-thought"
+            ),
             "excluded": ["raw prompt", "long source text", "hidden chain-of-thought", "PII"],
         },
         "models": models,
@@ -406,6 +556,13 @@ def validate(payload: dict[str, Any], expected: dict[str, Any]) -> tuple[list[st
     )
     _assert_equal(payload.get("reported_in_paper"), True, "reported_in_paper", errors)
     _assert_equal(payload.get("denominators"), expected["denominators"], "denominators", errors)
+    for source_name in ("task1_examples", "task1_subfields"):
+        _assert_equal(
+            (payload.get("source") or {}).get(source_name),
+            expected["source"][source_name],
+            f"source.{source_name}",
+            errors,
+        )
     _assert_equal(
         (payload.get("definitions") or {}).get("b_dir_pct"),
         B_DIR_DEFINITION,
@@ -450,13 +607,42 @@ def validate(payload: dict[str, Any], expected: dict[str, Any]) -> tuple[list[st
         ):
             if required_field not in model:
                 errors.append(f"models.{model_id}: missing field {required_field}")
-        for section in ("overview", "icl"):
+        for section in ("overview", "icl", "subfields"):
             _assert_equal(
                 model.get(section),
                 expected_model[section],
                 f"models.{model_id}.{section}",
                 errors,
             )
+        subfields = model.get("subfields")
+        expected_theme_ids = [theme_id for theme_id, _ in SUBFIELD_THEMES]
+        if not isinstance(subfields, list) or len(subfields) != 7:
+            errors.append(
+                f"models.{model_id}.subfields: expected exactly 7 named themes"
+            )
+        elif [theme.get("id") for theme in subfields] != expected_theme_ids:
+            errors.append(
+                f"models.{model_id}.subfields: expected fixed order {expected_theme_ids}"
+            )
+        else:
+            required_subfield_fields = {
+                "id",
+                "name",
+                "sample_size",
+                "n_triplets",
+                "intervention_sample_size",
+                "market_sample_size",
+                "intervention_accuracy",
+                "market_accuracy",
+                "accuracy_gap_pp",
+                "b_dir_pct",
+            }
+            for theme in subfields:
+                if set(theme) != required_subfield_fields:
+                    errors.append(
+                        f"models.{model_id}.subfields.{theme.get('id')}: "
+                        f"expected fields {sorted(required_subfield_fields)}"
+                    )
         for side in ("intervention_truth", "market_truth"):
             icl = (model.get("icl") or {}).get(side) or {}
             if all(key in icl for key in ("intervention_ex", "market_ex", "delta_example")):
@@ -527,8 +713,7 @@ def validate(payload: dict[str, Any], expected: dict[str, Any]) -> tuple[list[st
             "paper_url",
             "treatment",
             "outcome",
-            "context_summary",
-            "context_summary_type",
+            "context",
             "empirical_sign",
             "intervention_sign",
             "market_sign",
@@ -557,11 +742,27 @@ def validate(payload: dict[str, Any], expected: dict[str, Any]) -> tuple[list[st
                 f"examples.{case_id}.model_outputs.{model_id}",
                 errors,
             )
-            explanation = (actual_outputs.get(model_id) or {}).get("explanation", "")
-            if len(explanation) > 220:
+            rationale = (actual_outputs.get(model_id) or {}).get("rationale")
+            if not isinstance(rationale, str) or not rationale:
                 errors.append(
-                    f"examples.{case_id}.model_outputs.{model_id}.explanation exceeds 220 chars"
+                    f"examples.{case_id}.model_outputs.{model_id}.rationale is empty"
                 )
+
+    none_sign_expectations = {
+        ("t1_9849", "gemini-3-flash"),
+        ("t1_515", "llama-3-1-8b"),
+    }
+    actual_none_signs = {
+        (example["case_id"], output["model_id"])
+        for example in examples
+        for output in example.get("model_outputs", [])
+        if output.get("predicted_sign") == "None"
+    }
+    if actual_none_signs != none_sign_expectations:
+        errors.append(
+            "examples: literal None predicted-sign coverage changed: "
+            f"expected {sorted(none_sign_expectations)}, found {sorted(actual_none_signs)}"
+        )
 
     serialized = json.dumps(payload, ensure_ascii=False).lower()
     for forbidden_key in ('"email"', '"phone"', '"raw_prompt"', '"chain_of_thought"'):
@@ -630,7 +831,8 @@ def main() -> int:
         "aligned ideology-contested cases"
     )
     print("PASS: Table 2 ICL cells and recomputed delta_example values match")
-    print("PASS: both public examples cover all 20 models with short explanations")
+    print("PASS: 20 models × 7 named subfields match the weighted accuracy/bias sources")
+    print("PASS: both public examples exactly match the full CSV context/rationale fields")
     return 0
 
 

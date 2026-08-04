@@ -35,6 +35,41 @@ function formatSigned(value, suffix = '') {
     return `${sign}${formatOne(Math.abs(number))}${suffix}`;
 }
 
+function signedTone(value) {
+    const number = Number(value);
+    if (number > 0) return 'is-intervention';
+    if (number < 0) return 'is-market';
+    return 'is-neutral';
+}
+
+function biasDirection(value) {
+    const number = Number(value);
+    if (number > 0) return 'Intervention-oriented';
+    if (number < 0) return 'Market-oriented';
+    return 'Balanced';
+}
+
+function gapDirection(value) {
+    const number = Number(value);
+    if (number > 0) return 'Intervention-aligned advantage';
+    if (number < 0) return 'Market-aligned advantage';
+    return 'No accuracy advantage';
+}
+
+function exampleDirection(value) {
+    const number = Number(value);
+    if (number > 0) return 'Intervention-Ex advantage';
+    if (number < 0) return 'Market-Ex advantage';
+    return 'No example advantage';
+}
+
+function signCategoryClass(sign) {
+    if (sign === '+') return 'sign-positive';
+    if (sign === '-') return 'sign-negative';
+    if (sign === 'None') return 'sign-none';
+    return 'sign-mixed';
+}
+
 function fullModelName(model) {
     return `${model.family} ${model.display_name}`;
 }
@@ -58,11 +93,12 @@ function signLabel(sign) {
     return labels[sign] || String(sign);
 }
 
-function metricCard(label, value, className = '') {
+function metricCard(label, value, className = '', direction = '') {
     return `
         <div class="metric-card ${className}">
             <dt>${escapeHtml(label)}</dt>
             <dd>${value}</dd>
+            ${direction ? `<span class="metric-direction">${escapeHtml(direction)}</span>` : ''}
         </div>`;
 }
 
@@ -150,26 +186,20 @@ export async function initPaperExplorer({ announce }) {
     const dialogTitle = document.getElementById('model-detail-title');
     const dialogFamily = document.getElementById('model-detail-family');
     const dialogRelease = document.getElementById('model-detail-release');
-    const releaseSourceLink = document.getElementById('model-release-source');
-    const compareToggle = document.getElementById('model-compare-toggle');
-    const compareTray = document.getElementById('compare-tray');
-    const compareGrid = document.getElementById('compare-grid');
-    const compareClear = document.getElementById('compare-clear');
-    const compareSort = document.getElementById('compare-sort');
     const releaseChart = document.getElementById('release-chart');
     const releaseLegend = document.getElementById('release-family-legend');
-    const releaseTable = document.getElementById('release-data-table');
-    const mobileQuery = window.matchMedia('(max-width: 680px)');
+    const biasRankingList = document.getElementById('bias-ranking-list');
+    const aggregateSubfieldRows = [...document.querySelectorAll('.subfield-row')];
+    const aggregateSubfieldDetail = document.getElementById('subfield-detail');
 
-    if (!tooltip || !dialog || !releaseChart) {
+    if (!tooltip || !dialog || !releaseChart || !biasRankingList || !aggregateSubfieldDetail) {
         throw new Error('Interactive paper UI containers are missing.');
     }
 
-    let currentModelId = null;
     let lastDialogTrigger = null;
-    let comparedModelIds = [];
     let chartResizeTimer;
     let quickDetailContext = null;
+    let pinnedSubfieldRow = null;
 
     function hideQuickDetail() {
         tooltip.hidden = true;
@@ -179,12 +209,17 @@ export async function initPaperExplorer({ announce }) {
     function showQuickDetail(trigger, model, releaseView = false) {
         quickDetailContext = { trigger, model, releaseView };
         const overview = model.overview;
-        tooltip.innerHTML = releaseView
-            ? `<strong>${escapeHtml(fullModelName(model))}</strong>
-               <span>${escapeHtml(formatDate(model.release_date))} · <em>B</em><sub>dir</sub> ${escapeHtml(formatSigned(overview.b_dir_pct))}</span>`
-            : `<strong>${escapeHtml(fullModelName(model))}</strong>
-               <span>Intervention ${formatPercent(overview.intervention_accuracy)} · Market ${formatPercent(overview.market_accuracy)}</span>
-               <span>Gap ${escapeHtml(formatSigned(overview.accuracy_gap_pp, ' pp'))} · <em>B</em><sub>dir</sub> ${escapeHtml(formatSigned(overview.b_dir_pct))}</span>`;
+        tooltip.innerHTML = `
+            <header class="quick-detail-header">
+                <strong>${escapeHtml(fullModelName(model))}</strong>
+                ${releaseView ? `<time datetime="${escapeHtml(model.release_date)}">${escapeHtml(formatDate(model.release_date))}</time>` : ''}
+            </header>
+            <dl class="quick-detail-grid">
+                <div><dt>Intervention-aligned</dt><dd>${formatPercent(overview.intervention_accuracy)}</dd></div>
+                <div><dt>Market-aligned</dt><dd>${formatPercent(overview.market_accuracy)}</dd></div>
+                <div class="${signedTone(overview.accuracy_gap_pp)}"><dt>Accuracy gap</dt><dd>${escapeHtml(formatSigned(overview.accuracy_gap_pp, ' pp'))}<small>${escapeHtml(gapDirection(overview.accuracy_gap_pp))}</small></dd></div>
+                <div class="${signedTone(overview.b_dir_pct)}"><dt aria-label="B dir">B<sub>dir</sub></dt><dd>${escapeHtml(formatSigned(overview.b_dir_pct))}<small>${escapeHtml(biasDirection(overview.b_dir_pct))}</small></dd></div>
+            </dl>`;
         tooltip.hidden = false;
 
         const triggerRect = trigger.getBoundingClientRect();
@@ -216,40 +251,50 @@ export async function initPaperExplorer({ announce }) {
         const overview = model.overview;
         document.getElementById('model-panel-overview').innerHTML = `
             <dl class="metric-grid">
-                ${metricCard('Non-contested accuracy', formatPercent(overview.non_contested_accuracy))}
-                ${metricCard('Contested accuracy', formatPercent(overview.contested_accuracy))}
-                ${metricCard('Intervention-truth', formatPercent(overview.intervention_accuracy), 'intervention-metric')}
-                ${metricCard('Market-truth', formatPercent(overview.market_accuracy), 'market-metric')}
-                ${metricCard('Accuracy gap', `${escapeHtml(formatSigned(overview.accuracy_gap_pp))}<small>pp</small>`)}
-                ${metricCard('Error-direction bias, B_dir', escapeHtml(formatSigned(overview.b_dir_pct)))}
+                ${metricCard('Views agree', formatPercent(overview.non_contested_accuracy))}
+                ${metricCard('Views differ', formatPercent(overview.contested_accuracy))}
+                ${metricCard('Intervention-aligned truth', formatPercent(overview.intervention_accuracy), 'intervention-metric')}
+                ${metricCard('Market-aligned truth', formatPercent(overview.market_accuracy), 'market-metric')}
+                ${metricCard('Accuracy gap', `${escapeHtml(formatSigned(overview.accuracy_gap_pp))}<small>pp</small>`, signedTone(overview.accuracy_gap_pp), gapDirection(overview.accuracy_gap_pp))}
+                ${metricCard('Error-direction bias, B dir', escapeHtml(formatSigned(overview.b_dir_pct)), signedTone(overview.b_dir_pct), biasDirection(overview.b_dir_pct))}
             </dl>
-            <p class="metric-definition">Non-contested and contested accuracy use the paper's Table 5 subsets. Accuracy gap = intervention-truth accuracy − market-truth accuracy. <em>B</em><sub>dir</sub> = 100 × (intervention-leaning errors − market-leaning errors) / all prediction errors among the 751 ideology-contested cases whose empirical sign matches either the intervention or market expectation.</p>`;
+            <div class="metric-definition-grid">
+                <section><strong>Views agree</strong><p aria-label="Intervention expectation equals market expectation"><span aria-hidden="true">Expectation<sub>intervention</sub> = Expectation<sub>market</sub></span></p></section>
+                <section><strong>Views differ</strong><p aria-label="Intervention expectation does not equal market expectation"><span aria-hidden="true">Expectation<sub>intervention</sub> ≠ Expectation<sub>market</sub></span></p></section>
+                <section><strong>Accuracy gap</strong><p aria-label="Intervention-aligned truth accuracy minus market-aligned truth accuracy"><span aria-hidden="true">Acc<sub>intervention</sub> − Acc<sub>market</sub></span></p></section>
+                <section><strong aria-label="B dir">B<sub aria-hidden="true">dir</sub></strong><p aria-label="One hundred times intervention-leaning errors minus market-leaning errors, divided by all prediction errors"><span aria-hidden="true">100 × (Errors<sub>intervention</sub> − Errors<sub>market</sub>) / Errors<sub>total</sub></span></p></section>
+            </div>
+            <p class="definition-hint">Intervention-aligned truth or market-aligned truth means the published effect matches that expectation.</p>`;
     }
 
-    function iclTargetCard(title, values) {
+    function iclTargetCard(title, values, alignmentClass) {
         const conditions = [
-            ['None', values.none],
-            ['Non-contested', values.non_contested],
-            ['Intervention-Ex', values.intervention_ex],
-            ['Market-Ex', values.market_ex],
+            ['None', values.none, 'is-neutral'],
+            ['Views agree', values.non_contested, 'is-neutral'],
+            ['Intervention-Ex', values.intervention_ex, 'is-intervention'],
+            ['Market-Ex', values.market_ex, 'is-market'],
         ];
         return `
-            <section class="icl-target-card">
+            <section class="icl-target-card ${alignmentClass}">
                 <h3>${escapeHtml(title)}</h3>
                 <dl class="icl-condition-grid">
-                    ${conditions.map(([label, value]) => `
-                        <div><dt>${escapeHtml(label)}</dt><dd>${formatPercent(value)}</dd></div>`).join('')}
+                    ${conditions.map(([label, value, className]) => `
+                        <div class="${className}"><dt>${escapeHtml(label)}</dt><dd>${formatPercent(value)}</dd></div>`).join('')}
                 </dl>
-                <div class="icl-delta"><span>Δ<sub>example</sub></span><strong>${escapeHtml(formatSigned(values.delta_example, ' pp'))}</strong></div>
+                <div class="icl-delta ${signedTone(values.delta_example)}"><span aria-label="Delta example">Δ<sub>example</sub></span><strong>${escapeHtml(formatSigned(values.delta_example, ' pp'))}<small>${escapeHtml(exampleDirection(values.delta_example))}</small></strong></div>
             </section>`;
     }
 
     function renderIcl(model) {
         document.getElementById('model-panel-icl').innerHTML = `
-            <p class="icl-definition"><strong>Δ<sub>example</sub></strong> = Intervention-Ex accuracy − Market-Ex accuracy for the same target side. “None” is no in-context example; “Non-contested” uses an example on which the two economic perspectives agree. Example-condition rows use matched subsets, so compare conditions within a target rather than treating them as one shared denominator.</p>
+            <section class="formula-card icl-formula-card">
+                <span>Example contrast</span>
+                <p aria-label="Delta example equals Intervention-Ex accuracy minus Market-Ex accuracy for the same target"><span aria-hidden="true">Δ<sub>example</sub> = Acc<sub>Intervention-Ex</sub> − Acc<sub>Market-Ex</sub></span></p>
+            </section>
+            <p class="icl-definition">None uses no in-context example. Views agree uses an example for which the perspectives predict the same sign. Example conditions use matched subsets; assess conditions within each target.</p>
             <div class="icl-targets">
-                ${iclTargetCard('Intervention-truth target', model.icl.intervention_truth)}
-                ${iclTargetCard('Market-truth target', model.icl.market_truth)}
+                ${iclTargetCard('Intervention-aligned truth', model.icl.intervention_truth, 'intervention-target')}
+                ${iclTargetCard('Market-aligned truth', model.icl.market_truth, 'market-target')}
             </div>`;
     }
 
@@ -257,54 +302,78 @@ export async function initPaperExplorer({ announce }) {
         const cards = data.examples.map((example) => {
             const output = example.model_outputs.find((row) => row.model_id === model.id);
             const correctness = output.correct ? 'Correct' : 'Incorrect';
+            const signChip = (label, sign, identityClass = '') => `
+                <div class="example-sign-chip ${signCategoryClass(sign)} ${identityClass}"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(signLabel(sign))}</dd></div>`;
             return `
                 <article class="example-card">
                     <header class="example-card-header">
-                        <div>
-                            <span class="example-id">${escapeHtml(example.case_id)}</span>
-                            <h3>${escapeHtml(example.treatment)} → ${escapeHtml(example.outcome)}</h3>
-                        </div>
+                        <h3>${escapeHtml(example.treatment)} → ${escapeHtml(example.outcome)}</h3>
                         <span class="correctness-badge ${output.correct ? 'correct' : 'incorrect'}">${correctness}</span>
                     </header>
-                    <p class="example-context">${escapeHtml(example.context_summary)}</p>
-                    <dl class="example-signs">
-                        <div><dt>Empirical sign</dt><dd>${escapeHtml(signLabel(example.empirical_sign))}</dd></div>
-                        <div><dt>Intervention expectation</dt><dd>${escapeHtml(signLabel(example.intervention_sign))}</dd></div>
-                        <div><dt>Market expectation</dt><dd>${escapeHtml(signLabel(example.market_sign))}</dd></div>
-                        <div><dt>Model prediction</dt><dd>${escapeHtml(signLabel(output.predicted_sign))}</dd></div>
-                    </dl>
-                    <p class="example-explanation"><strong>Short model-generated explanation:</strong> ${escapeHtml(output.explanation)}</p>
-                    <a class="example-source" href="${escapeHtml(example.paper_url)}" target="_blank" rel="noopener noreferrer">Original study: ${escapeHtml(example.title)} <span aria-hidden="true">↗</span></a>
+                    <p class="example-context"><strong>Study context</strong>${escapeHtml(example.context)}</p>
+                    <div class="example-blocks">
+                        <section class="example-reference-block">
+                            <span class="example-block-label">Reference</span>
+                            <dl class="example-signs">
+                                ${signChip('Empirical sign', example.empirical_sign)}
+                                ${signChip('Intervention expectation', example.intervention_sign, 'perspective-intervention')}
+                                ${signChip('Market expectation', example.market_sign, 'perspective-market')}
+                            </dl>
+                            <a class="example-source" href="${escapeHtml(example.paper_url)}" target="_blank" rel="noopener noreferrer">Original study: ${escapeHtml(example.title)} <span aria-hidden="true">↗</span></a>
+                        </section>
+                        <section class="example-model-block">
+                            <span class="example-block-label">Selected model</span>
+                            <dl class="example-signs example-model-sign">
+                                ${signChip('Prediction', output.predicted_sign)}
+                            </dl>
+                            <div class="example-rationale">
+                                <strong>Full model-generated rationale</strong>
+                                <p>${escapeHtml(output.rationale)}</p>
+                            </div>
+                        </section>
+                    </div>
                 </article>`;
         });
         document.getElementById('model-panel-examples').innerHTML = `
-            <p class="icl-definition">Two representative public cases are shown as short editorial summaries. Explanations are brief excerpts from the returned rationale; prompts, source-paper prose, and hidden chain-of-thought are not displayed.</p>
+            <p class="icl-definition">Reference evidence and the selected model's returned prediction are shown side by side.</p>
             <div class="example-list">${cards.join('')}</div>`;
     }
 
-    function refreshCompareToggle() {
-        if (!currentModelId) return;
-        const selected = comparedModelIds.includes(currentModelId);
-        compareToggle.textContent = selected ? 'Remove from compare' : 'Add to compare';
-        compareToggle.setAttribute('aria-pressed', String(selected));
+    function renderModelSubfields(model) {
+        const panel = document.getElementById('model-panel-subfields');
+        const subfields = Array.isArray(model.subfields) ? model.subfields : [];
+        if (!subfields.length) {
+            panel.innerHTML = '<p class="model-subfield-empty">Subfield results are unavailable for this model.</p>';
+            return;
+        }
+        panel.innerHTML = `
+            <div class="model-subfield-columns" aria-hidden="true"><span>Subfield</span><span>Intervention</span><span>Market</span><span>Gap</span></div>
+            <ul class="model-subfield-list">
+                ${subfields.map((subfield) => `
+                    <li class="model-subfield-card">
+                        <header><h3>${escapeHtml(subfield.name)}</h3><span>n=${escapeHtml(subfield.n_triplets)}</span></header>
+                        <dl>
+                            <div class="is-intervention"><dt class="visually-hidden">Intervention-aligned accuracy</dt><dd>${formatPercent(subfield.intervention_accuracy)}</dd></div>
+                            <div class="is-market"><dt class="visually-hidden">Market-aligned accuracy</dt><dd>${formatPercent(subfield.market_accuracy)}</dd></div>
+                            <div class="${signedTone(subfield.accuracy_gap_pp)}"><dt class="visually-hidden">Accuracy gap</dt><dd>${escapeHtml(formatSigned(subfield.accuracy_gap_pp, ' pp'))}<span class="visually-hidden">, ${escapeHtml(gapDirection(subfield.accuracy_gap_pp))}</span></dd></div>
+                        </dl>
+                    </li>`).join('')}
+            </ul>`;
     }
 
     function openModel(modelId, trigger) {
         const model = modelsById.get(modelId);
         if (!model) return;
-        currentModelId = modelId;
         dialog.dataset.modelId = modelId;
         lastDialogTrigger = trigger || document.activeElement;
         dialogFamily.textContent = `${model.family} · ${model.access}-source model`;
         dialogTitle.textContent = fullModelName(model);
         dialogRelease.textContent = `Official release: ${formatDate(model.release_date)}`;
-        releaseSourceLink.href = model.release_date_source.url;
-        releaseSourceLink.setAttribute('aria-label', `Open official release source for ${fullModelName(model)}`);
         renderOverview(model);
         renderIcl(model);
         renderExamples(model);
+        renderModelSubfields(model);
         activateTab('overview');
-        refreshCompareToggle();
         hideQuickDetail();
         if (!dialog.open) dialog.showModal();
         window.requestAnimationFrame(() => dialog.querySelector('[data-dialog-close]').focus());
@@ -313,10 +382,12 @@ export async function initPaperExplorer({ announce }) {
     dialog.querySelector('[data-dialog-close]').addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => {
         if (!dialog.open) {
-            currentModelId = null;
             delete dialog.dataset.modelId;
             if (lastDialogTrigger?.isConnected) lastDialogTrigger.focus();
         }
+    });
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
     });
     dialog.addEventListener('keydown', (event) => {
         if (event.key !== 'Tab') return;
@@ -380,124 +451,101 @@ export async function initPaperExplorer({ announce }) {
         });
     }
 
-    function maxComparedModels() {
-        return mobileQuery.matches ? 2 : 3;
-    }
-
-    function syncCompareUrl() {
-        const url = new URL(window.location.href);
-        if (comparedModelIds.length) url.searchParams.set('compare', comparedModelIds.join(','));
-        else url.searchParams.delete('compare');
-        window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
-    }
-
-    function updateComparedClasses() {
-        document.querySelectorAll('[data-model-id]').forEach((element) => {
-            const selected = comparedModelIds.includes(element.dataset.modelId);
-            if (element.classList.contains('model-score-row') || element.classList.contains('release-point-button')) {
-                element.classList.toggle('is-compared', selected);
-            }
+    function renderBiasRanking() {
+        const ordered = [...data.models].sort((first, second) => (
+            second.overview.b_dir_pct - first.overview.b_dir_pct
+            || fullModelName(first).localeCompare(fullModelName(second))
+        ));
+        const maxMagnitude = Math.max(20, ...ordered.map((model) => Math.abs(model.overview.b_dir_pct)));
+        biasRankingList.innerHTML = ordered.map((model, index) => {
+            const score = model.overview.b_dir_pct;
+            const direction = biasDirection(score);
+            const width = (Math.abs(score) / maxMagnitude) * 50;
+            return `
+                <li>
+                    <button class="bias-ranking-row ${signedTone(score)}" type="button" data-model-id="${escapeHtml(model.id)}" aria-label="Rank ${index + 1} of 20, ${escapeHtml(fullModelName(model))}, B dir ${escapeHtml(formatSigned(score))}, ${direction}. Open model details.">
+                        <span class="bias-rank" aria-hidden="true">${index + 1}</span>
+                        <span class="bias-model-name">${escapeHtml(fullModelName(model))}</span>
+                        <span class="bias-diverging-track" aria-hidden="true"><i class="bias-zero-line"></i><i class="bias-value-bar" style="--bias-width:${width}%"></i></span>
+                        <strong>${escapeHtml(formatSigned(score))}</strong>
+                        <span class="bias-direction">${direction}</span>
+                    </button>
+                </li>`;
+        }).join('');
+        biasRankingList.querySelectorAll('.bias-ranking-row').forEach((button) => {
+            const model = modelsById.get(button.dataset.modelId);
+            button.setAttribute('aria-describedby', tooltip.id);
+            button.addEventListener('mouseenter', () => showQuickDetail(button, model));
+            button.addEventListener('mouseleave', hideQuickDetail);
+            button.addEventListener('focus', () => showQuickDetail(button, model));
+            button.addEventListener('blur', hideQuickDetail);
+            button.addEventListener('click', () => openModel(model.id, button));
         });
     }
 
-    function compareCard(model) {
-        const overview = model.overview;
-        return `
-            <article class="compare-card" data-compare-model="${escapeHtml(model.id)}">
-                <h3>${escapeHtml(fullModelName(model))}</h3>
-                <button class="compare-remove" type="button" data-remove-model="${escapeHtml(model.id)}" aria-label="Remove ${escapeHtml(fullModelName(model))} from comparison">×</button>
-                <dl class="compare-metrics">
-                    <div><dt>Non-contested</dt><dd>${formatPercent(overview.non_contested_accuracy)}</dd></div>
-                    <div><dt>Contested</dt><dd>${formatPercent(overview.contested_accuracy)}</dd></div>
-                    <div><dt>Intervention</dt><dd>${formatPercent(overview.intervention_accuracy)}</dd></div>
-                    <div><dt>Market</dt><dd>${formatPercent(overview.market_accuracy)}</dd></div>
-                    <div><dt>Gap</dt><dd>${escapeHtml(formatSigned(overview.accuracy_gap_pp, ' pp'))}</dd></div>
-                    <div><dt>B_dir</dt><dd>${escapeHtml(formatSigned(overview.b_dir_pct))}</dd></div>
-                </dl>
-            </article>`;
+    function renderAggregateSubfieldDetail(row, pinned = false) {
+        if (!row) {
+            aggregateSubfieldDetail.innerHTML = `
+                <span class="subfield-detail-kicker">Subfield detail</span>
+                <strong>Select a subfield</strong>
+                <p>Hover, focus, or activate a row to inspect its sample and accuracy-gap direction.</p>`;
+            return;
+        }
+        const name = row.dataset.subfieldName;
+        const sampleSize = Number(row.dataset.sampleSize);
+        const interventionAccuracy = Number(row.dataset.interventionAccuracy);
+        const marketAccuracy = Number(row.dataset.marketAccuracy);
+        const gap = Number(row.dataset.gap);
+        aggregateSubfieldDetail.innerHTML = `
+            <span class="subfield-detail-kicker">${pinned ? 'Pinned selection' : 'Preview'}</span>
+            <strong>${escapeHtml(name)}</strong>
+            <dl>
+                <div><dt>Directional cases</dt><dd>n=${escapeHtml(sampleSize)}</dd></div>
+                <div class="is-intervention"><dt>Intervention-aligned</dt><dd>${formatPercent(interventionAccuracy)}</dd></div>
+                <div class="is-market"><dt>Market-aligned</dt><dd>${formatPercent(marketAccuracy)}</dd></div>
+                <div class="${signedTone(gap)}"><dt>Accuracy gap</dt><dd>${escapeHtml(formatSigned(gap, ' pp'))}</dd></div>
+            </dl>`;
     }
 
-    function renderCompare() {
-        compareTray.hidden = comparedModelIds.length === 0;
-        let ordered = comparedModelIds.map((id) => modelsById.get(id)).filter(Boolean);
-        const sortKey = compareSort.value;
-        const keyMap = {
-            intervention: 'intervention_accuracy',
-            market: 'market_accuracy',
-            gap: 'accuracy_gap_pp',
-            b_dir: 'b_dir_pct',
-        };
-        if (keyMap[sortKey]) {
-            ordered = [...ordered].sort((a, b) => b.overview[keyMap[sortKey]] - a.overview[keyMap[sortKey]]);
-        }
-        compareGrid.innerHTML = ordered.map(compareCard).join('');
-        compareGrid.querySelectorAll('[data-remove-model]').forEach((button) => {
-            button.addEventListener('click', () => toggleCompare(button.dataset.removeModel));
+    function initializeAggregateSubfields() {
+        aggregateSubfieldRows.forEach((row) => {
+            const name = row.dataset.subfieldName;
+            const gap = Number(row.dataset.gap);
+            row.setAttribute('aria-label', `${name}: accuracy gap ${formatSigned(gap, ' percentage points')}. Show subfield detail.`);
+            const preview = () => renderAggregateSubfieldDetail(row, row === pinnedSubfieldRow);
+            const restore = () => renderAggregateSubfieldDetail(pinnedSubfieldRow, Boolean(pinnedSubfieldRow));
+            row.addEventListener('mouseenter', preview);
+            row.addEventListener('mouseleave', restore);
+            row.addEventListener('focus', preview);
+            row.addEventListener('blur', restore);
+            row.addEventListener('click', () => {
+                const nextPinned = pinnedSubfieldRow === row ? null : row;
+                aggregateSubfieldRows.forEach((candidate) => {
+                    const selected = candidate === nextPinned;
+                    candidate.classList.toggle('is-pinned', selected);
+                    candidate.setAttribute('aria-expanded', String(selected));
+                });
+                pinnedSubfieldRow = nextPinned;
+                renderAggregateSubfieldDetail(pinnedSubfieldRow, Boolean(pinnedSubfieldRow));
+            });
+            row.addEventListener('keydown', (event) => {
+                if (event.key !== 'Escape' || !pinnedSubfieldRow) return;
+                event.preventDefault();
+                pinnedSubfieldRow.classList.remove('is-pinned');
+                pinnedSubfieldRow.setAttribute('aria-expanded', 'false');
+                pinnedSubfieldRow = null;
+                renderAggregateSubfieldDetail(null);
+                row.focus();
+            });
         });
-        updateComparedClasses();
-        refreshCompareToggle();
+        renderAggregateSubfieldDetail(null);
     }
-
-    function setComparedModels(ids, shouldSync = true) {
-        const unique = [...new Set(ids)].filter((id) => modelsById.has(id));
-        comparedModelIds = unique.slice(0, maxComparedModels());
-        if (shouldSync) syncCompareUrl();
-        renderCompare();
-    }
-
-    function toggleCompare(modelId) {
-        if (comparedModelIds.includes(modelId)) {
-            setComparedModels(comparedModelIds.filter((id) => id !== modelId));
-            announce(`${fullModelName(modelsById.get(modelId))} removed from comparison.`);
-            return;
-        }
-        const limit = maxComparedModels();
-        if (comparedModelIds.length >= limit) {
-            announce(`Compare up to ${limit} models on ${mobileQuery.matches ? 'mobile' : 'desktop'}.`);
-            return;
-        }
-        setComparedModels([...comparedModelIds, modelId]);
-        announce(`${fullModelName(modelsById.get(modelId))} added to comparison.`);
-    }
-
-    compareToggle.addEventListener('click', () => {
-        if (currentModelId) toggleCompare(currentModelId);
-    });
-    compareClear.addEventListener('click', () => {
-        setComparedModels([]);
-        announce('Model comparison cleared.');
-    });
-    compareSort.addEventListener('change', renderCompare);
-    mobileQuery.addEventListener('change', () => {
-        if (comparedModelIds.length > maxComparedModels()) {
-            setComparedModels(comparedModelIds.slice(0, maxComparedModels()));
-            announce('Comparison was limited to two models for the mobile layout.');
-        } else {
-            renderCompare();
-        }
-    });
 
     function renderLegend() {
         releaseLegend.innerHTML = Object.entries(FAMILY_STYLES).map(([family, style]) => `
             <span class="release-legend-item">
                 <i class="release-legend-mark family-marker-${style.marker}" style="--family-color:${style.color}" aria-hidden="true"></i>${escapeHtml(family)}
             </span>`).join('');
-    }
-
-    function renderReleaseTable() {
-        const ordered = [...data.models].sort((a, b) => a.release_date.localeCompare(b.release_date));
-        releaseTable.innerHTML = `
-            <table>
-                <caption class="visually-hidden">Official release dates and paper-reported error-direction bias for 20 models</caption>
-                <thead><tr><th>Model</th><th>Official release</th><th>Primary source</th><th>B_dir</th></tr></thead>
-                <tbody>${ordered.map((model) => `
-                    <tr>
-                        <td>${escapeHtml(fullModelName(model))}</td>
-                        <td><time datetime="${escapeHtml(model.release_date)}">${escapeHtml(formatDate(model.release_date))}</time></td>
-                        <td><a href="${escapeHtml(model.release_date_source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(model.release_date_source.title)}</a></td>
-                        <td>${escapeHtml(formatSigned(model.overview.b_dir_pct))}</td>
-                    </tr>`).join('')}</tbody>
-            </table>`;
     }
 
     function renderReleaseChart() {
@@ -644,7 +692,7 @@ export async function initPaperExplorer({ announce }) {
                 cx: point.actualX,
                 cy: point.actualY,
                 r: 3,
-                class: 'release-data-anchor',
+                class: 'release-anchor-dot',
                 'data-model-id': point.model.id,
             }));
         });
@@ -680,7 +728,6 @@ export async function initPaperExplorer({ announce }) {
             Number(releaseChart.dataset.layoutGeneration || 0) + 1,
         );
         releaseChart.dataset.pointLayoutReady = 'true';
-        updateComparedClasses();
         if (focusedReleaseModelId) {
             releaseChart.querySelector(
                 `.release-point-button[data-model-id="${focusedReleaseModelId}"]`,
@@ -688,20 +735,11 @@ export async function initPaperExplorer({ announce }) {
         }
     }
 
-    function initializeCompareFromUrl() {
-        const raw = new URL(window.location.href).searchParams.get('compare') || '';
-        const requested = raw.split(',').map((id) => id.trim()).filter(Boolean);
-        const valid = [...new Set(requested)].filter((id) => modelsById.has(id));
-        const limited = valid.slice(0, maxComparedModels());
-        setComparedModels(limited, false);
-        if (requested.join(',') !== limited.join(',')) syncCompareUrl();
-    }
-
     enhanceMainResults();
+    renderBiasRanking();
+    initializeAggregateSubfields();
     renderLegend();
-    renderReleaseTable();
     renderReleaseChart();
-    initializeCompareFromUrl();
 
     if ('ResizeObserver' in window) {
         const observer = new ResizeObserver(() => {
