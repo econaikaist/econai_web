@@ -56,13 +56,6 @@ function gapDirection(value) {
     return 'No accuracy advantage';
 }
 
-function exampleDirection(value) {
-    const number = Number(value);
-    if (number > 0) return 'Intervention-Ex advantage';
-    if (number < 0) return 'Market-Ex advantage';
-    return 'No example advantage';
-}
-
 function signCategoryClass(sign) {
     if (sign === '+') return 'sign-positive';
     if (sign === '-') return 'sign-negative';
@@ -156,6 +149,25 @@ function layoutReleasePoints(points, bounds) {
         point.displayY = displayPoint.y;
     });
 
+    const pointsByFamily = new Map();
+    points.forEach((point) => {
+        if (!pointsByFamily.has(point.model.family)) pointsByFamily.set(point.model.family, []);
+        pointsByFamily.get(point.model.family).push(point);
+    });
+    pointsByFamily.forEach((familyPoints) => {
+        const chronologicalPoints = [...familyPoints].sort((first, second) => (
+            first.releaseTimestamp - second.releaseTimestamp
+            || first.originalIndex - second.originalIndex
+        ));
+        const displayPositions = familyPoints
+            .map((point) => ({ x: point.displayX, y: point.displayY }))
+            .sort((first, second) => first.x - second.x || first.y - second.y);
+        chronologicalPoints.forEach((point, index) => {
+            point.displayX = displayPositions[index].x;
+            point.displayY = displayPositions[index].y;
+        });
+    });
+
     return points;
 }
 
@@ -217,7 +229,7 @@ export async function initPaperExplorer({ announce }) {
             <dl class="quick-detail-grid">
                 <div><dt>Intervention-aligned</dt><dd>${formatPercent(overview.intervention_accuracy)}</dd></div>
                 <div><dt>Market-aligned</dt><dd>${formatPercent(overview.market_accuracy)}</dd></div>
-                <div class="is-gap-neutral"><dt>Accuracy gap</dt><dd>${escapeHtml(formatSigned(overview.accuracy_gap_pp, ' pp'))}<small>${escapeHtml(gapDirection(overview.accuracy_gap_pp))}</small></dd></div>
+                <div class="${signedTone(overview.accuracy_gap_pp)}"><dt>Accuracy gap</dt><dd>${escapeHtml(formatSigned(overview.accuracy_gap_pp, ' pp'))}<small>${escapeHtml(gapDirection(overview.accuracy_gap_pp))}</small></dd></div>
                 <div class="${signedTone(overview.b_dir_pct)}"><dt aria-label="B dir">B<sub>dir</sub></dt><dd>${escapeHtml(formatSigned(overview.b_dir_pct))}<small>${escapeHtml(biasDirection(overview.b_dir_pct))}</small></dd></div>
             </dl>`;
         tooltip.hidden = false;
@@ -251,51 +263,20 @@ export async function initPaperExplorer({ announce }) {
         const overview = model.overview;
         document.getElementById('model-panel-overview').innerHTML = `
             <dl class="metric-grid">
-                ${metricCard('Views agree', formatPercent(overview.non_contested_accuracy))}
-                ${metricCard('Views differ', formatPercent(overview.contested_accuracy))}
+                ${metricCard('Same-sign accuracy', formatPercent(overview.non_contested_accuracy))}
+                ${metricCard('Different-sign accuracy', formatPercent(overview.contested_accuracy))}
                 ${metricCard('Intervention-aligned truth', formatPercent(overview.intervention_accuracy), 'intervention-metric')}
                 ${metricCard('Market-aligned truth', formatPercent(overview.market_accuracy), 'market-metric')}
-                ${metricCard('Accuracy gap', `${escapeHtml(formatSigned(overview.accuracy_gap_pp))}<small>pp</small>`, 'is-gap-neutral', gapDirection(overview.accuracy_gap_pp))}
+                ${metricCard('Accuracy gap', `${escapeHtml(formatSigned(overview.accuracy_gap_pp))}<small>pp</small>`, signedTone(overview.accuracy_gap_pp), gapDirection(overview.accuracy_gap_pp))}
                 ${metricCard('Error-direction bias, B dir', escapeHtml(formatSigned(overview.b_dir_pct)), signedTone(overview.b_dir_pct), biasDirection(overview.b_dir_pct))}
             </dl>
             <div class="metric-definition-grid">
-                <section><strong>Views agree</strong><p aria-label="Intervention expectation equals market expectation"><span aria-hidden="true">Expectation<sub>intervention</sub> = Expectation<sub>market</sub></span></p></section>
-                <section><strong>Views differ</strong><p aria-label="Intervention expectation does not equal market expectation"><span aria-hidden="true">Expectation<sub>intervention</sub> ≠ Expectation<sub>market</sub></span></p></section>
+                <section><strong>Same predicted sign</strong><p aria-label="Intervention-oriented sign equals market-oriented sign"><span aria-hidden="true">Sign<sub>intervention</sub> = Sign<sub>market</sub></span></p></section>
+                <section><strong>Different predicted signs</strong><p aria-label="Intervention-oriented sign does not equal market-oriented sign"><span aria-hidden="true">Sign<sub>intervention</sub> ≠ Sign<sub>market</sub></span></p></section>
                 <section><strong>Accuracy gap</strong><p aria-label="Intervention-aligned truth accuracy minus market-aligned truth accuracy"><span aria-hidden="true">Acc<sub>intervention</sub> − Acc<sub>market</sub></span></p></section>
                 <section><strong aria-label="B dir">B<sub aria-hidden="true">dir</sub></strong><p aria-label="One hundred times intervention-leaning errors minus market-leaning errors, divided by all prediction errors"><span aria-hidden="true">100 × (Errors<sub>intervention</sub> − Errors<sub>market</sub>) / Errors<sub>total</sub></span></p></section>
             </div>
-            <p class="definition-hint">Intervention-aligned truth or market-aligned truth means the published effect matches that expectation.</p>`;
-    }
-
-    function iclTargetCard(title, values, alignmentClass) {
-        const conditions = [
-            ['None', values.none, 'is-neutral'],
-            ['Views agree', values.non_contested, 'is-neutral'],
-            ['Intervention-Ex', values.intervention_ex, 'is-intervention'],
-            ['Market-Ex', values.market_ex, 'is-market'],
-        ];
-        return `
-            <section class="icl-target-card ${alignmentClass}">
-                <h3>${escapeHtml(title)}</h3>
-                <dl class="icl-condition-grid">
-                    ${conditions.map(([label, value, className]) => `
-                        <div class="${className}"><dt>${escapeHtml(label)}</dt><dd>${formatPercent(value)}</dd></div>`).join('')}
-                </dl>
-                <div class="icl-delta ${signedTone(values.delta_example)}"><span aria-label="Delta example">Δ<sub>example</sub></span><strong>${escapeHtml(formatSigned(values.delta_example, ' pp'))}<small>${escapeHtml(exampleDirection(values.delta_example))}</small></strong></div>
-            </section>`;
-    }
-
-    function renderIcl(model) {
-        document.getElementById('model-panel-icl').innerHTML = `
-            <section class="formula-card icl-formula-card">
-                <span>Example contrast</span>
-                <p aria-label="Delta example equals Intervention-Ex accuracy minus Market-Ex accuracy for the same target"><span aria-hidden="true">Δ<sub>example</sub> = Acc<sub>Intervention-Ex</sub> − Acc<sub>Market-Ex</sub></span></p>
-            </section>
-            <p class="icl-definition">None uses no in-context example. Views agree uses an example for which the perspectives predict the same sign. Example conditions use matched subsets; assess conditions within each target.</p>
-            <div class="icl-targets">
-                ${iclTargetCard('Intervention-aligned truth', model.icl.intervention_truth, 'intervention-target')}
-                ${iclTargetCard('Market-aligned truth', model.icl.market_truth, 'market-target')}
-            </div>`;
+            <p class="definition-hint">Same-sign and different-sign accuracies group cases by whether the intervention-oriented and market-oriented perspectives predict the same or different causal signs.</p>`;
     }
 
     function renderExamples(model) {
@@ -335,7 +316,7 @@ export async function initPaperExplorer({ announce }) {
                 </article>`;
         });
         document.getElementById('model-panel-examples').innerHTML = `
-            <p class="icl-definition">Reference evidence and the selected model's returned prediction are shown side by side.</p>
+            <p class="example-intro">Reference evidence appears first, followed by the selected model's prediction and full model-generated rationale.</p>
             <div class="example-list">${cards.join('')}</div>`;
     }
 
@@ -346,12 +327,22 @@ export async function initPaperExplorer({ announce }) {
             panel.innerHTML = '<p class="model-subfield-empty">Subfield results are unavailable for this model.</p>';
             return;
         }
+        const rows = [
+            ...subfields.map((subfield) => ({ ...subfield, isTotal: false })),
+            {
+                name: 'Total',
+                intervention_accuracy: model.overview.intervention_accuracy,
+                market_accuracy: model.overview.market_accuracy,
+                accuracy_gap_pp: model.overview.accuracy_gap_pp,
+                isTotal: true,
+            },
+        ];
         panel.innerHTML = `
             <div class="model-subfield-columns" aria-hidden="true"><span>Subfield</span><span>Intervention</span><span>Market</span><span>Gap</span></div>
             <ul class="model-subfield-list">
-                ${subfields.map((subfield) => `
-                    <li class="model-subfield-card">
-                        <header><h3>${escapeHtml(subfield.name)}</h3><span>n=${escapeHtml(subfield.n_triplets)}</span></header>
+                ${rows.map((subfield) => `
+                    <li class="model-subfield-card${subfield.isTotal ? ' is-total' : ''}">
+                        <header><h3>${escapeHtml(subfield.name)}</h3></header>
                         <dl>
                             <div class="is-intervention"><dt class="visually-hidden">Intervention-aligned accuracy</dt><dd>${formatPercent(subfield.intervention_accuracy)}</dd></div>
                             <div class="is-market"><dt class="visually-hidden">Market-aligned accuracy</dt><dd>${formatPercent(subfield.market_accuracy)}</dd></div>
@@ -370,7 +361,6 @@ export async function initPaperExplorer({ announce }) {
         dialogTitle.textContent = fullModelName(model);
         dialogRelease.textContent = `Official release: ${formatDate(model.release_date)}`;
         renderOverview(model);
-        renderIcl(model);
         renderExamples(model);
         renderModelSubfields(model);
         activateTab('overview');
@@ -576,18 +566,24 @@ export async function initPaperExplorer({ announce }) {
         const yMax = 20;
         const xScale = (date) => margin.left + ((date - xMin) / (xMax - xMin)) * plotWidth;
         const yScale = (value) => margin.top + ((yMax - value) / (yMax - yMin)) * plotHeight;
-        const releasePoints = layoutReleasePoints(data.models.map((model) => ({
-            model,
-            actualX: xScale(Date.parse(`${model.release_date}T00:00:00Z`)),
-            actualY: yScale(model.overview.b_dir_pct),
-        })), {
+        const releasePointInputs = data.models
+            .map((model, originalIndex) => ({
+                model,
+                originalIndex,
+                releaseTimestamp: Date.parse(`${model.release_date}T00:00:00Z`),
+                actualX: xScale(Date.parse(`${model.release_date}T00:00:00Z`)),
+                actualY: yScale(model.overview.b_dir_pct),
+            }))
+            .sort((first, second) => (
+                first.releaseTimestamp - second.releaseTimestamp
+                || first.originalIndex - second.originalIndex
+            ));
+        const releasePoints = layoutReleasePoints(releasePointInputs, {
             minX: Math.max(margin.left, RELEASE_POINT_RADIUS),
             maxX: Math.min(width - margin.right, width - RELEASE_POINT_RADIUS),
             minY: Math.max(margin.top, RELEASE_POINT_RADIUS),
             maxY: Math.min(height - margin.bottom, height - RELEASE_POINT_RADIUS),
         });
-        const releasePointsById = new Map(releasePoints.map((point) => [point.model.id, point]));
-
         releaseChart.textContent = '';
         const svg = svgElement('svg', {
             class: 'release-chart-svg',
@@ -655,48 +651,23 @@ export async function initPaperExplorer({ announce }) {
         }, 'Error-direction bias, B_dir'));
 
         Object.keys(FAMILY_STYLES).forEach((family) => {
-            const familyModels = data.models
-                .filter((model) => model.family === family)
-                .sort((a, b) => a.release_date.localeCompare(b.release_date));
-            const points = familyModels.map((model) => {
-                const point = releasePointsById.get(model.id);
-                return `${point.actualX},${point.actualY}`;
-            }).join(' ');
+            const familyPoints = releasePoints
+                .filter((point) => point.model.family === family)
+                .sort((first, second) => (
+                    first.releaseTimestamp - second.releaseTimestamp
+                    || first.originalIndex - second.originalIndex
+                ));
+            const points = familyPoints
+                .map((point) => `${point.displayX},${point.displayY}`)
+                .join(' ');
             const line = svgElement('polyline', {
                 points,
                 class: 'release-family-line',
                 stroke: FAMILY_STYLES[family].color,
+                'data-family': family,
             });
             svg.appendChild(line);
         });
-
-        const leaderLayer = svgElement('g', {
-            class: 'release-leader-layer',
-            'aria-hidden': 'true',
-        });
-        releasePoints.forEach((point) => {
-            const displacement = Math.hypot(
-                point.displayX - point.actualX,
-                point.displayY - point.actualY,
-            );
-            if (displacement < 1) return;
-            leaderLayer.appendChild(svgElement('line', {
-                x1: point.actualX,
-                y1: point.actualY,
-                x2: point.displayX,
-                y2: point.displayY,
-                class: 'release-leader-line',
-                'data-model-id': point.model.id,
-            }));
-            leaderLayer.appendChild(svgElement('circle', {
-                cx: point.actualX,
-                cy: point.actualY,
-                r: 3,
-                class: 'release-anchor-dot',
-                'data-model-id': point.model.id,
-            }));
-        });
-        svg.appendChild(leaderLayer);
         releaseChart.appendChild(svg);
 
         releasePoints.forEach((point) => {
@@ -706,6 +677,7 @@ export async function initPaperExplorer({ announce }) {
             button.type = 'button';
             button.className = `release-point-button family-marker-${style.marker}`;
             button.dataset.modelId = model.id;
+            button.dataset.family = model.family;
             button.dataset.actualX = point.actualX.toFixed(3);
             button.dataset.actualY = point.actualY.toFixed(3);
             button.dataset.displayX = point.displayX.toFixed(3);

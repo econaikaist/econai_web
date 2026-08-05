@@ -24,7 +24,7 @@
 
     <link rel="icon" href="../img/Logo_blue.svg" type="image/svg+xml">
     <link rel="preload" as="image" href="assets/paper-overview.webp" type="image/webp" fetchpriority="high">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=20260805a">
 
     <script type="application/ld+json">
     {
@@ -173,7 +173,7 @@
                     <div>
                         <span class="figure-label">All-model accuracy</span>
                         <h3 id="model-benchmark-heading">18 of 20 models are more accurate on intervention-aligned truth cases.</h3>
-                        <p>Each pair shows accuracy on intervention-aligned truth and market-aligned truth cases, grouped by model family as reported in the paper. Select any model for its full result, ICL sensitivity, and two concrete examples.</p>
+                        <p>Each pair shows accuracy on intervention-aligned truth and market-aligned truth cases, grouped by model family as reported in the paper. Select any model for its full result, two concrete examples, and subfield breakdown.</p>
                     </div>
                     <div class="model-benchmark-legend" role="list" aria-label="Accuracy series">
                         <span role="listitem"><i class="intervention-score-key" aria-hidden="true"></i>Intervention-aligned truth</span>
@@ -493,12 +493,10 @@
             </header>
             <div class="model-tabs" role="tablist" aria-label="Model detail views">
                 <button id="model-tab-overview" type="button" role="tab" aria-selected="true" aria-controls="model-panel-overview" data-model-tab="overview">Overview</button>
-                <button id="model-tab-icl" type="button" role="tab" aria-selected="false" aria-controls="model-panel-icl" data-model-tab="icl" tabindex="-1">ICL</button>
                 <button id="model-tab-examples" type="button" role="tab" aria-selected="false" aria-controls="model-panel-examples" data-model-tab="examples" tabindex="-1">Examples</button>
                 <button id="model-tab-subfields" type="button" role="tab" aria-selected="false" aria-controls="model-panel-subfields" data-model-tab="subfields" tabindex="-1">By subfield</button>
             </div>
             <div id="model-panel-overview" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-overview" data-model-panel="overview"></div>
-            <div id="model-panel-icl" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-icl" data-model-panel="icl" hidden></div>
             <div id="model-panel-examples" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-examples" data-model-panel="examples" hidden></div>
             <div id="model-panel-subfields" class="model-tab-panel" role="tabpanel" aria-labelledby="model-tab-subfields" data-model-panel="subfields" hidden></div>
         </div>
@@ -515,6 +513,6 @@
     </footer>
 
     <div class="copy-status" role="status" aria-live="polite" aria-atomic="true"></div>
-    <script type="module" src="script.js"></script>
+    <script type="module" src="script.js?v=20260805a"></script>
 </body>
 </html>

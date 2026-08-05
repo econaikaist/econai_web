@@ -192,7 +192,7 @@ class PaperPageStaticTests(unittest.TestCase):
         ):
             self.assertNotIn("\ufffd", decoded, f"replacement glyph in {path}")
         self.assertTrue(self.html.startswith("<!DOCTYPE html>"))
-        for character in ("×", "−", "→", "Δ", "’"):
+        for character in ("×", "−", "→", "≠", "’"):
             self.assertIn(character, "\n".join((self.html, self.explorer, self.data_text)))
 
     def test_public_arxiv_v2_has_exactly_the_twenty_paper_models(self):
@@ -282,14 +282,14 @@ class PaperPageStaticTests(unittest.TestCase):
             "intervention_ex - market_ex for the same target side",
         )
 
-    def test_overview_uses_compact_metrics_and_four_accessible_equations(self):
+    def test_overview_uses_direct_sign_terms_and_four_accessible_equations(self):
         overview_renderer = self.explorer.split("function renderOverview(model)", 1)[1].split(
-            "function iclTargetCard", 1
+            "function renderExamples", 1
         )[0]
-        self.assertIn("metricCard('Views agree'", overview_renderer)
-        self.assertIn("metricCard('Views differ'", overview_renderer)
-        self.assertNotIn("Views agree (non-contested)", overview_renderer)
-        self.assertNotIn("Views differ (ideology-contested)", overview_renderer)
+        self.assertIn("metricCard('Same-sign accuracy'", overview_renderer)
+        self.assertIn("metricCard('Different-sign accuracy'", overview_renderer)
+        for asset in (self.html, self.explorer):
+            self.assertNotRegex(asset, r"(?i)\bviews?\s+(?:agree|differ)\b")
 
         definition_grid = re.search(
             r'<div class="metric-definition-grid">(?P<body>.*?)</div>',
@@ -299,13 +299,20 @@ class PaperPageStaticTests(unittest.TestCase):
         self.assertIsNotNone(definition_grid)
         definition_body = definition_grid.group("body")
         self.assertEqual(definition_body.count("<section>"), 4)
-        for heading in ("Views agree", "Views differ", "Accuracy gap"):
-            self.assertIn(f"<strong>{heading}</strong>", definition_body)
+        self.assertRegex(
+            definition_body,
+            r"<strong>(?:Same-sign accuracy|Same predicted sign)</strong>",
+        )
+        self.assertRegex(
+            definition_body,
+            r"<strong>(?:Different-sign accuracy|Different predicted signs)</strong>",
+        )
+        self.assertIn("<strong>Accuracy gap</strong>", definition_body)
         self.assertIn('<strong aria-label="B dir">', definition_body)
 
         accessible_equations = (
-            "Intervention expectation equals market expectation",
-            "Intervention expectation does not equal market expectation",
+            "Intervention-oriented sign equals market-oriented sign",
+            "Intervention-oriented sign does not equal market-oriented sign",
             "Intervention-aligned truth accuracy minus market-aligned truth accuracy",
             "One hundred times intervention-leaning errors minus market-leaning errors, "
             "divided by all prediction errors",
@@ -314,52 +321,95 @@ class PaperPageStaticTests(unittest.TestCase):
         for label in accessible_equations:
             self.assertIn(f'aria-label="{label}"', definition_body)
         for equation in (
-            "Expectation<sub>intervention</sub> = Expectation<sub>market</sub>",
-            "Expectation<sub>intervention</sub> ≠ Expectation<sub>market</sub>",
+            "Sign<sub>intervention</sub> = Sign<sub>market</sub>",
+            "Sign<sub>intervention</sub> ≠ Sign<sub>market</sub>",
             "Acc<sub>intervention</sub> − Acc<sub>market</sub>",
             "100 × (Errors<sub>intervention</sub> − Errors<sub>market</sub>) / "
             "Errors<sub>total</sub>",
         ):
             self.assertIn(equation, definition_body)
+        self.assertNotIn("Expectation<sub>", definition_body)
+
+        definition_hint = re.search(
+            r'<p class="definition-hint">(?P<body>.*?)</p>',
+            overview_renderer,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(definition_hint)
+        hint_text = normalized_markup_text(definition_hint.group("body")).lower()
+        self.assertIn("accuracies", hint_text)
+        self.assertRegex(hint_text, r"\bgroup(?:ed|s)?\b")
+        direct_sign_hint = hint_text.replace("-", " ")
+        self.assertRegex(direct_sign_hint, r"\bsame(?: causal)? signs?\b")
+        self.assertRegex(direct_sign_hint, r"\bdifferent(?: causal)? signs?\b")
 
         self.assertNotIn("view-definition-grid", self.explorer)
         self.assertNotIn("truth-definition", self.explorer)
         self.assertNotIn(".view-definition-grid", self.css)
         self.assertNotIn(".truth-definition", self.css)
 
-    def test_accuracy_gap_is_neutral_while_b_dir_keeps_signed_tone(self):
+    def test_accuracy_gap_and_b_dir_use_signed_tones_without_tinted_cards(self):
         quick_detail_renderer = self.explorer.split(
             "function showQuickDetail", 1
         )[1].split("function activateTab", 1)[0]
         overview_renderer = self.explorer.split(
             "function renderOverview(model)", 1
-        )[1].split("function iclTargetCard", 1)[0]
+        )[1].split("function renderExamples", 1)[0]
 
         self.assertIn(
-            '<div class="is-gap-neutral"><dt>Accuracy gap</dt>',
+            '<div class="${signedTone(overview.accuracy_gap_pp)}"><dt>Accuracy gap</dt>',
             quick_detail_renderer,
-        )
-        self.assertNotIn(
-            "signedTone(overview.accuracy_gap_pp)", quick_detail_renderer
         )
         self.assertIn("signedTone(overview.b_dir_pct)", quick_detail_renderer)
 
         self.assertRegex(
             overview_renderer,
-            r"metricCard\('Accuracy gap',.*?'is-gap-neutral',\s*"
+            r"metricCard\('Accuracy gap',.*?signedTone\(overview\.accuracy_gap_pp\),\s*"
             r"gapDirection\(overview\.accuracy_gap_pp\)\)",
         )
-        self.assertNotIn("signedTone(overview.accuracy_gap_pp)", overview_renderer)
         self.assertIn("signedTone(overview.b_dir_pct)", overview_renderer)
 
+        positive_gap_rule = extract_braced_block(self.css, ".positive-gap {")
         negative_gap_rule = extract_braced_block(self.css, ".negative-gap {")
-        self.assertRegex(negative_gap_rule, r"color:\s*var\(--ink\)")
-        self.assertNotRegex(negative_gap_rule, r"var\(--market\)")
-        self.assertIn(".quick-detail-grid .is-gap-neutral dd { color: #fff; }", self.css)
-        neutral_metric_rule = extract_braced_block(
-            self.css, ".metric-card.is-gap-neutral dd {"
+        self.assertRegex(positive_gap_rule, r"color:\s*var\(--intervention\)")
+        self.assertRegex(negative_gap_rule, r"color:\s*var\(--market\)")
+        for asset in (self.html, self.css, self.explorer):
+            self.assertNotIn("is-gap-neutral", asset)
+
+        metric_card_rule = extract_braced_block(self.css, ".metric-card {")
+        self.assertRegex(metric_card_rule, r"background:\s*#f8fafc")
+        for selector in (
+            r"\.metric-card\.is-intervention",
+            r"\.metric-card\.is-market",
+            r"\.metric-card\.intervention-metric",
+            r"\.metric-card\.market-metric",
+        ):
+            for rule in re.findall(rf"{selector}[^{{]*\{{[^}}]*\}}", self.css):
+                self.assertNotRegex(rule, r"\bbackground(?:-color)?:")
+
+        model_row_tags = re.findall(r'<div class="model-score-row[^"]*"', self.html)
+        self.assertEqual(len(model_row_tags), 20)
+        self.assertEqual(len(set(model_row_tags)), 1)
+
+    def test_model_score_bars_have_no_repeating_grid_background(self):
+        score_bars_rule = extract_braced_block(self.css, ".model-score-bars {")
+        self.assertNotRegex(
+            score_bars_rule,
+            r"(?:repeating-)?(?:linear|radial)-gradient",
         )
-        self.assertRegex(neutral_metric_rule, r"color:\s*var\(--ink\)")
+        background_image = re.search(r"background-image:\s*([^;]+)", score_bars_rule)
+        if background_image:
+            self.assertEqual(background_image.group(1).strip(), "none")
+
+    def test_interactive_assets_use_matching_cache_busters(self):
+        asset_version = "20260805a"
+        self.assertIn(f'href="styles.css?v={asset_version}"', self.html)
+        self.assertIn(f'src="script.js?v={asset_version}"', self.html)
+        entrypoint = (PAGE_ROOT / "script.js").read_text(encoding="utf-8")
+        self.assertIn(
+            f"import('./modules/paper-explorer.v2.js?v={asset_version}')",
+            entrypoint,
+        )
 
     def test_signs_and_direction_labels_are_explicit_and_semantically_distinct(self):
         expected_direction_text = (
@@ -369,9 +419,6 @@ class PaperPageStaticTests(unittest.TestCase):
             "Intervention-aligned advantage",
             "Market-aligned advantage",
             "No accuracy advantage",
-            "Intervention-Ex advantage",
-            "Market-Ex advantage",
-            "No example advantage",
         )
         for label in expected_direction_text:
             self.assertIn(f"return '{label}'", self.explorer)
@@ -386,7 +433,6 @@ class PaperPageStaticTests(unittest.TestCase):
         self.assertIn('class="metric-direction"', self.explorer)
         self.assertIn("gapDirection(overview.accuracy_gap_pp)", self.explorer)
         self.assertIn("biasDirection(overview.b_dir_pct)", self.explorer)
-        self.assertIn("exampleDirection(values.delta_example)", self.explorer)
         self.assertIn("gapDirection(subfield.accuracy_gap_pp)", self.explorer)
 
     def test_every_model_has_the_same_seven_named_subfields(self):
@@ -507,6 +553,79 @@ class PaperPageStaticTests(unittest.TestCase):
         self.assertNotIn("context_summary", self.explorer)
         self.assertNotIn("output.explanation", self.explorer)
 
+    def test_examples_stack_full_width_reference_before_selected_model(self):
+        examples_renderer = self.explorer.split(
+            "function renderExamples(model)", 1
+        )[1].split("function renderModelSubfields", 1)[0]
+        reference_position = examples_renderer.index(
+            '<section class="example-reference-block">'
+        )
+        model_position = examples_renderer.index(
+            '<section class="example-model-block">'
+        )
+        self.assertLess(reference_position, model_position)
+
+        intro = re.search(
+            r'<p class="(?P<class>[^"]+)">(?P<body>[^<]+)</p>',
+            examples_renderer,
+        )
+        self.assertIsNotNone(intro)
+        self.assertNotIn("icl", intro.group("class").lower())
+        intro_text = normalized_markup_text(intro.group("body")).lower()
+        self.assertIn("reference", intro_text)
+        self.assertIn("selected model", intro_text)
+        self.assertNotIn("side by side", intro_text)
+        self.assertNotIn("side-by-side", intro_text)
+
+        example_block_rules = re.findall(r"\.example-blocks\s*\{[^}]*\}", self.css)
+        self.assertTrue(example_block_rules)
+        for rule in example_block_rules:
+            columns = re.search(r"grid-template-columns:\s*([^;]+)", rule)
+            if columns:
+                self.assertRegex(
+                    columns.group(1).strip(),
+                    r"^(?:minmax\(0,\s*)?1fr\)?$",
+                )
+        self.assertRegex(
+            extract_braced_block(self.css, ".example-blocks {"),
+            r"grid-template-columns:\s*(?:minmax\(0,\s*)?1fr\)?",
+        )
+
+    def test_model_subfield_dialog_renders_seven_named_rows_plus_overview_total(self):
+        renderer = self.explorer.split(
+            "function renderModelSubfields(model)", 1
+        )[1].split("function openModel", 1)[0]
+
+        for model in self.data["models"]:
+            visible_names = [row["name"] for row in model["subfields"]] + ["Total"]
+            self.assertEqual(len(visible_names), 8)
+            self.assertEqual(tuple(visible_names[:7]), tuple(name for _, name in EXPECTED_SUBFIELDS))
+            self.assertEqual(visible_names[-1], "Total")
+
+        rows_definition = re.search(
+            r"const rows = \[(?P<body>.*?)\n\s*\];",
+            renderer,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(rows_definition)
+        self.assertIn("...subfields.map", rows_definition.group("body"))
+        self.assertIn("name: 'Total'", rows_definition.group("body"))
+        self.assertLess(
+            rows_definition.group("body").index("...subfields.map"),
+            rows_definition.group("body").index("name: 'Total'"),
+        )
+        self.assertIn("${rows.map((subfield)", renderer)
+        for field in (
+            "intervention_accuracy",
+            "market_accuracy",
+            "accuracy_gap_pp",
+        ):
+            self.assertRegex(renderer, rf"overview\.{field}\b")
+        self.assertNotRegex(renderer, r">\s*n\s*=")
+        self.assertNotIn("n_triplets", renderer)
+        self.assertNotRegex(renderer, r"\.(?:reduce|sum)\s*\(")
+        self.assertIn("signedTone(subfield.accuracy_gap_pp)", renderer)
+
     def test_exact_section_order_headings_caption_and_benchmark_copy(self):
         markers = (
             'class="hero section-shell"',
@@ -592,6 +711,69 @@ class PaperPageStaticTests(unittest.TestCase):
         ):
             self.assertNotIn(removed, release_html)
 
+    def test_release_family_connectors_follow_display_centers_monotonically(self):
+        layout = self.explorer.split(
+            "function layoutReleasePoints(points, bounds)", 1
+        )[1].split("function ensurePaperBaseline", 1)[0]
+        chart = self.explorer.split("function renderReleaseChart()", 1)[1]
+
+        self.assertIn("const pointsByFamily = new Map()", layout)
+        self.assertIn("const chronologicalPoints = [...familyPoints].sort", layout)
+        self.assertIn("const displayPositions = familyPoints", layout)
+        self.assertIn(".sort((first, second) => first.x - second.x", layout)
+        self.assertIn("point.displayX = displayPositions[index].x", layout)
+        self.assertIn("point.displayY = displayPositions[index].y", layout)
+
+        self.assertIn("releaseTimestamp", chart)
+        self.assertIn("originalIndex", chart)
+        chronological_sort = re.compile(
+            r"\.sort\(\(first, second\) => \(\s*"
+            r"first\.releaseTimestamp - second\.releaseTimestamp\s*"
+            r"\|\| first\.originalIndex - second\.originalIndex\s*"
+            r"\)\)",
+            flags=re.DOTALL,
+        )
+        self.assertGreaterEqual(len(chronological_sort.findall(chart)), 2)
+
+        family_connector = re.search(
+            r"const familyPoints = releasePoints(?P<body>.*?)"
+            r"const line = svgElement\('polyline'",
+            chart,
+            flags=re.DOTALL,
+        )
+        self.assertIsNotNone(family_connector)
+        connector_body = family_connector.group("body")
+        self.assertIn(
+            ".filter((point) => point.model.family === family)", connector_body
+        )
+        self.assertIn(
+            ".map((point) => `${point.displayX},${point.displayY}`)",
+            connector_body,
+        )
+        self.assertNotRegex(
+            connector_body,
+            r"\.map\(\(point\) => `\$\{point\.actual[XY]",
+        )
+
+        grok_four = next(
+            model for model in self.data["models"] if model["id"] == "grok-4-1-fast"
+        )
+        self.assertEqual(grok_four["family"], "Grok")
+        self.assertIn("'data-family': family", chart)
+        self.assertIn("button.dataset.family = model.family", chart)
+        self.assertIn("button.dataset.displayX = point.displayX.toFixed(3)", chart)
+        self.assertIn("button.dataset.displayY = point.displayY.toFixed(3)", chart)
+        self.assertIn("button.style.left = `${point.displayX}px`", chart)
+        self.assertIn("button.style.top = `${point.displayY}px`", chart)
+
+        for obsolete_layer in (
+            "release-leader-layer",
+            "release-leader-line",
+            "release-anchor-dot",
+        ):
+            self.assertNotIn(obsolete_layer, self.explorer)
+            self.assertNotIn(obsolete_layer, self.css)
+
     def test_progressive_html_keeps_twenty_main_rows_and_paper_resources(self):
         self.assertEqual(self.html.count('class="model-score-row'), 20)
         for value in (
@@ -599,7 +781,7 @@ class PaperPageStaticTests(unittest.TestCase):
             'href="https://arxiv.org/abs/2604.21334"',
             'content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png"',
             'data-copy-target="bibtex"',
-            'type="module" src="script.js"',
+            'type="module" src="script.js?v=20260805a"',
         ):
             self.assertIn(value, self.html)
 
@@ -680,16 +862,15 @@ class PaperPageStaticTests(unittest.TestCase):
         ):
             self.assertNotIn(token, self.css)
 
-    def test_dialog_has_four_accessible_tabs_contained_at_320px(self):
+    def test_dialog_has_exactly_three_accessible_tabs_and_no_icl_ui(self):
         tab_tags = re.findall(
             r'<button\b(?=[^>]*data-model-tab="[^"]+")[^>]*>.*?</button>',
             self.html,
             flags=re.DOTALL,
         )
-        self.assertEqual(len(tab_tags), 4)
+        self.assertEqual(len(tab_tags), 3)
         expected_tabs = (
             ("overview", "Overview"),
-            ("icl", "ICL"),
             ("examples", "Examples"),
             ("subfields", "By subfield"),
         )
@@ -712,11 +893,25 @@ class PaperPageStaticTests(unittest.TestCase):
         self.assertRegex(tabs_rule, r"overflow-x:\s*auto")
         min_width = int(re.search(r"min-width:\s*(\d+)px", tab_button_rule).group(1))
         min_height = int(re.search(r"min-height:\s*(\d+)px", tab_button_rule).group(1))
-        self.assertGreater(min_width * 4, 320)
+        self.assertGreater(min_width, 0)
         self.assertGreaterEqual(min_height, 44)
         self.assertIn("@media (max-width: 340px)", self.css)
         for key in ("ArrowLeft", "ArrowRight", "Home", "End"):
             self.assertIn(f"'{key}'", self.explorer)
+
+        self.assertNotRegex(self.html, r'(?i)\bICL\b')
+        for token in (
+            "model-panel-icl",
+            'data-model-tab="icl"',
+            "function renderIcl",
+            "function iclTargetCard",
+            "exampleDirection",
+            "model.icl",
+        ):
+            self.assertNotIn(token, self.html)
+            self.assertNotIn(token, self.explorer)
+        self.assertNotRegex(self.css, r"(?i)\.icl[-_]")
+        self.assertNotIn(".formula-card", self.css)
 
     def test_aggregate_subfields_are_accessible_interactive_buttons(self):
         section_match = re.search(

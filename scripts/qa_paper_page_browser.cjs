@@ -80,6 +80,7 @@ async function validateReleasePointLayoutAndClicks(page, width) {
             const rect = button.getBoundingClientRect();
             return {
                 id: button.dataset.modelId,
+                family: button.dataset.family,
                 centerX: rect.left + rect.width / 2,
                 centerY: rect.top + rect.height / 2,
                 left: rect.left,
@@ -121,28 +122,32 @@ async function validateReleasePointLayoutAndClicks(page, width) {
             ) >= 1)
             .map((point) => point.id)
             .sort();
-        const leaderIds = [...document.querySelectorAll('.release-leader-line')]
-            .map((line) => line.dataset.modelId)
-            .sort();
-        const anchorIds = [...document.querySelectorAll('.release-anchor-dot')]
-            .map((anchor) => anchor.dataset.modelId)
-            .sort();
         return {
             chart: { left: chart.left, right: chart.right, top: chart.top, bottom: chart.bottom },
             points,
             minimumCenterSpacing,
             minimumActualSpacing,
             displacedIds,
-            leaderIds,
-            anchorIds,
             familyConnectors: [...document.querySelectorAll('.release-family-line')].map((line) => {
                 const style = getComputedStyle(line);
+                const matrix = line.getScreenCTM();
+                const vertices = Array.from(line.points).map((point) => ({
+                    x: point.x,
+                    y: point.y,
+                    screenX: point.x * matrix.a + point.y * matrix.c + matrix.e,
+                    screenY: point.x * matrix.b + point.y * matrix.d + matrix.f,
+                }));
                 return {
+                    family: line.dataset.family,
                     stroke: style.stroke,
                     strokeWidth: parseFloat(style.strokeWidth),
                     opacity: parseFloat(style.opacity),
+                    vertices,
                 };
             }),
+            obsoleteConnectorArtifacts: document.querySelectorAll(
+                '.release-leader-layer, .release-leader-line, .release-anchor-dot',
+            ).length,
             declaredSpacing: Number(document.querySelector('#release-chart').dataset.minimumPointSpacing),
         };
     });
@@ -150,10 +155,46 @@ async function validateReleasePointLayoutAndClicks(page, width) {
     assert.equal(geometry.points.length, 20, `${width}px release geometry point count`);
     assert.equal(new Set(geometry.points.map((point) => point.id)).size, 20, `${width}px release ids`);
     assert.equal(geometry.familyConnectors.length, 6, `${width}px family connectors`);
+    assert.equal(new Set(geometry.familyConnectors.map((connector) => connector.family)).size, 6);
+    assert.equal(geometry.obsoleteConnectorArtifacts, 0, `${width}px obsolete leader/anchor artifacts`);
+    const pointsById = new Map(geometry.points.map((point) => [point.id, point]));
     geometry.familyConnectors.forEach((connector, index) => {
         assert.notEqual(connector.stroke, 'none', `${width}px family connector ${index + 1} stroke`);
         assert.ok(connector.strokeWidth >= 1, `${width}px family connector ${index + 1} width`);
         assert.ok(connector.opacity >= 0.4, `${width}px family connector ${index + 1} opacity`);
+        const expectedModels = paperData.models
+            .map((model, originalIndex) => ({ model, originalIndex }))
+            .filter(({ model }) => model.family === connector.family)
+            .sort((first, second) => (
+                first.model.release_date.localeCompare(second.model.release_date)
+                || first.originalIndex - second.originalIndex
+            ));
+        assert.equal(connector.vertices.length, expectedModels.length, `${width}px ${connector.family} vertex count`);
+        connector.vertices.forEach((vertex, vertexIndex) => {
+            const expectedModel = expectedModels[vertexIndex].model;
+            const point = pointsById.get(expectedModel.id);
+            assert.equal(point.family, connector.family, `${width}px ${expectedModel.id} family mapping`);
+            assert.ok(Math.abs(vertex.x - point.displayX) <= 0.001, `${width}px ${expectedModel.id} local connector x`);
+            assert.ok(Math.abs(vertex.y - point.displayY) <= 0.001, `${width}px ${expectedModel.id} local connector y`);
+            assert.ok(Math.abs(vertex.screenX - point.centerX) < 1, `${width}px ${expectedModel.id} connector center x`);
+            assert.ok(Math.abs(vertex.screenY - point.centerY) < 1, `${width}px ${expectedModel.id} connector center y`);
+            if (vertexIndex > 0) {
+                assert.ok(
+                    vertex.x >= connector.vertices[vertexIndex - 1].x - 0.001,
+                    `${width}px ${connector.family} connector doubles back`,
+                );
+            }
+        });
+        if (connector.family === 'Grok') {
+            const grokIndex = expectedModels.findIndex(({ model }) => model.id === 'grok-4-1-fast');
+            assert.ok(grokIndex >= 0, `${width}px Grok 4-1 missing from expected family`);
+            const grokPoint = pointsById.get('grok-4-1-fast');
+            assert.ok(
+                Math.abs(connector.vertices[grokIndex].screenX - grokPoint.centerX) < 1
+                && Math.abs(connector.vertices[grokIndex].screenY - grokPoint.centerY) < 1,
+                `${width}px Grok 4-1 is detached from the Grok connector`,
+            );
+        }
     });
     assert.equal(geometry.declaredSpacing, 48, `${width}px declared release spacing`);
     assert.ok(
@@ -170,8 +211,6 @@ async function validateReleasePointLayoutAndClicks(page, width) {
     if (geometry.minimumActualSpacing < geometry.declaredSpacing) {
         assert.ok(geometry.displacedIds.length > 0, `${width}px overlapping data points were not offset`);
     }
-    assert.deepEqual(geometry.leaderIds, geometry.displacedIds, `${width}px leader lines`);
-    assert.deepEqual(geometry.anchorIds, geometry.displacedIds, `${width}px exact-coordinate anchors`);
 
     const dialog = page.locator('#model-detail-dialog');
     for (const modelId of geometry.points.map((point) => point.id)) {
@@ -375,30 +414,37 @@ async function validateModelDialog(page, width) {
     await page.locator('#model-detail-dialog[open]').waitFor();
     assert.equal(await dialog.getAttribute('data-model-id'), model.id);
     assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)), `${width}px focus entered dialog`);
-    assert.equal(await page.locator('[data-model-tab]').count(), 4, `${width}px dialog tab count`);
+    assert.equal(await page.locator('[data-model-tab]').count(), 3, `${width}px dialog tab count`);
+    assert.equal(await page.locator('#model-tab-icl, #model-panel-icl').count(), 0, `${width}px ICL UI remains`);
     assert.equal(await page.locator('#model-panel-overview .metric-card').count(), 6);
     const overviewText = await page.locator('#model-panel-overview').innerText();
-    assert.match(overviewText, /Views agree/);
-    assert.match(overviewText, /Views differ/);
-    assert.doesNotMatch(overviewText, /non-contested|ideology-contested/);
+    assert.match(overviewText, /Same-sign accuracy/);
+    assert.match(overviewText, /Different-sign accuracy/);
+    assert.match(overviewText, /Same predicted sign/);
+    assert.match(overviewText, /Different predicted signs/);
+    assert.doesNotMatch(overviewText, /views agree|views differ|non-contested|ideology-contested/i);
     assert.match(overviewText, /Accuracy gap/);
     assert.match(overviewText, /Error-direction bias/);
     assert.equal(await page.locator('#model-panel-overview .metric-definition-grid > section').count(), 4);
-    assert.equal(await page.locator('#model-panel-overview [aria-label="Intervention expectation equals market expectation"]').count(), 1);
-    assert.equal(await page.locator('#model-panel-overview [aria-label="Intervention expectation does not equal market expectation"]').count(), 1);
+    assert.equal(await page.locator('#model-panel-overview [aria-label="Intervention-oriented sign equals market-oriented sign"]').count(), 1);
+    assert.equal(await page.locator('#model-panel-overview [aria-label="Intervention-oriented sign does not equal market-oriented sign"]').count(), 1);
     assert.equal(await page.locator('#model-panel-overview [aria-label*="divided by all prediction errors"]').count(), 1);
     const neutralMetricColor = await page.locator('#model-panel-overview .metric-card').first().evaluate(
         (card) => getComputedStyle(card.querySelector('dd')).color,
     );
+    const overviewBackgrounds = await page.locator('#model-panel-overview .metric-card').evaluateAll(
+        (cards) => cards.map((card) => getComputedStyle(card).backgroundColor),
+    );
+    assert.equal(new Set(overviewBackgrounds).size, 1, `${width}px positive-model metric backgrounds differ`);
+    const neutralMetricBackground = overviewBackgrounds[0];
     const signedOverview = await page.locator('#model-panel-overview .metric-card').nth(4).evaluate((card) => ({
         className: card.className,
         color: getComputedStyle(card.querySelector('dd')).color,
         direction: card.querySelector('.metric-direction')?.textContent.trim(),
     }));
-    assert.match(signedOverview.className, /is-gap-neutral/);
-    assert.doesNotMatch(signedOverview.className, /is-intervention|is-market/);
+    assert.match(signedOverview.className, /is-intervention/);
     assert.equal(signedOverview.direction, 'Intervention-aligned advantage');
-    assert.equal(signedOverview.color, neutralMetricColor);
+    assert.notEqual(signedOverview.color, neutralMetricColor);
     const signedBias = await page.locator('#model-panel-overview .metric-card').nth(5).evaluate((card) => ({
         className: card.className,
         color: getComputedStyle(card.querySelector('dd')).color,
@@ -408,27 +454,12 @@ async function validateModelDialog(page, width) {
     assert.equal(signedBias.direction, 'Intervention-oriented');
     assert.notEqual(signedBias.color, neutralMetricColor);
 
-    await page.locator('#model-tab-icl').click();
-    assert.equal(await page.locator('#model-panel-icl .icl-target-card').count(), 2);
-    assert.match(await page.locator('#model-panel-icl').innerText(), /Intervention-aligned truth/);
-    assert.match(await page.locator('#model-panel-icl').innerText(), /Market-aligned truth/);
-    assert.equal(await page.locator('#model-panel-icl [aria-label^="Delta example equals"]').count(), 1);
-    const iclSemantics = await page.locator('#model-panel-icl .icl-target-card').evaluateAll((cards) => cards.map((card) => ({
-        headingColor: getComputedStyle(card.querySelector('h3')).color,
-        deltaClass: card.querySelector('.icl-delta').className,
-        deltaText: card.querySelector('.icl-delta strong').innerText,
-    })));
-    assert.notEqual(iclSemantics[0].headingColor, iclSemantics[1].headingColor);
-    iclSemantics.forEach((entry) => {
-        assert.match(entry.deltaClass, /is-(?:intervention|market|neutral)/);
-        assert.match(entry.deltaText, /(?:Intervention-Ex advantage|Market-Ex advantage|No example advantage)/);
-    });
-
     await page.locator('#model-tab-examples').click();
     assert.equal(await page.locator('#model-panel-examples .example-card').count(), 2);
     const examplesText = await page.locator('#model-panel-examples').innerText();
     assert.doesNotMatch(examplesText, /t1_(?:9849|515)/);
     assert.doesNotMatch(examplesText, /excerpt|hidden reasoning/i);
+    assert.doesNotMatch(examplesText, /side by side/i);
     assert.equal(await page.locator('.example-reference-block').count(), 2);
     assert.equal(await page.locator('.example-model-block').count(), 2);
     assert.equal(await page.locator('.example-sign-chip.sign-positive, .example-sign-chip.sign-negative, .example-sign-chip.sign-none, .example-sign-chip.sign-mixed').count(), 8);
@@ -441,6 +472,24 @@ async function validateModelDialog(page, width) {
         assert.match(chip.className, /sign-(?:positive|negative|none|mixed)/);
         assert.notEqual(chip.background, 'rgba(0, 0, 0, 0)');
         assert.notEqual(chip.border, 'rgba(0, 0, 0, 0)');
+    });
+    const exampleBlockLayouts = await page.locator('.example-card').evaluateAll((cards) => cards.map((card) => {
+        const container = card.querySelector('.example-blocks').getBoundingClientRect();
+        const reference = card.querySelector('.example-reference-block').getBoundingClientRect();
+        const selectedModel = card.querySelector('.example-model-block').getBoundingClientRect();
+        return {
+            gridTemplateColumns: getComputedStyle(card.querySelector('.example-blocks')).gridTemplateColumns,
+            reference: { left: reference.left, right: reference.right, top: reference.top, bottom: reference.bottom, width: reference.width },
+            selectedModel: { left: selectedModel.left, right: selectedModel.right, top: selectedModel.top, bottom: selectedModel.bottom, width: selectedModel.width },
+            containerWidth: container.width,
+        };
+    }));
+    exampleBlockLayouts.forEach((layout, index) => {
+        assert.ok(layout.selectedModel.top >= layout.reference.bottom, `${width}px example ${index + 1} blocks do not stack`);
+        assert.ok(Math.abs(layout.reference.left - layout.selectedModel.left) < 1, `${width}px example ${index + 1} left edges`);
+        assert.ok(Math.abs(layout.reference.width - layout.selectedModel.width) < 1, `${width}px example ${index + 1} full widths`);
+        assert.ok(Math.abs(layout.reference.width - layout.containerWidth) < 1, `${width}px example ${index + 1} reference width`);
+        assert.equal(layout.gridTemplateColumns.trim().split(/\s+/).length, 1, `${width}px example ${index + 1} grid columns`);
     });
     const renderedExamples = await page.locator('.example-card').evaluateAll((cards) => cards.map((card) => {
         const context = card.querySelector('.example-context').cloneNode(true);
@@ -460,13 +509,14 @@ async function validateModelDialog(page, width) {
 
     await page.locator('#model-tab-subfields').scrollIntoViewIfNeeded();
     await page.locator('#model-tab-subfields').click();
-    assert.equal(await page.locator('#model-panel-subfields .model-subfield-card').count(), 7);
-    assert.doesNotMatch(await page.locator('#model-panel-subfields').innerText(), /Other/);
+    assert.equal(await page.locator('#model-panel-subfields .model-subfield-card').count(), 8);
+    const subfieldsText = await page.locator('#model-panel-subfields').innerText();
+    assert.doesNotMatch(subfieldsText, /Other/);
+    assert.doesNotMatch(subfieldsText, /\bn\s*=\s*\d+/i);
     const renderedSubfields = await page.locator('.model-subfield-card').allInnerTexts();
     model.subfields.forEach((subfield, index) => {
         for (const value of [
             subfield.name,
-            `n=${subfield.n_triplets}`,
             `${one(subfield.intervention_accuracy)}%`,
             `${one(subfield.market_accuracy)}%`,
             signed(subfield.accuracy_gap_pp, ' pp'),
@@ -474,6 +524,18 @@ async function validateModelDialog(page, width) {
             assert.ok(renderedSubfields[index].includes(value), `${width}px model subfield is missing ${value}`);
         }
     });
+    for (const value of [
+        'Total',
+        `${one(model.overview.intervention_accuracy)}%`,
+        `${one(model.overview.market_accuracy)}%`,
+        signed(model.overview.accuracy_gap_pp, ' pp'),
+    ]) {
+        assert.ok(renderedSubfields[7].includes(value), `${width}px Total row is missing ${value}`);
+    }
+    assert.match(
+        await page.locator('#model-panel-subfields .model-subfield-card').nth(7).getAttribute('class'),
+        /is-total/,
+    );
     const subfieldLayout = await page.locator('#model-panel-subfields').evaluate((panel) => {
         const rows = [...panel.querySelectorAll('.model-subfield-card')];
         return {
@@ -532,11 +594,14 @@ async function validateModelDialog(page, width) {
     assert.ok(await trigger.evaluate((element) => element === document.activeElement), `${width}px Escape did not restore focus`);
 
     const negativeTrigger = page.locator('.model-open-button[data-model-id="claude-sonnet-4-6"]');
+    await page.mouse.move(1, 1);
     await negativeTrigger.focus();
     await negativeTrigger.dispatchEvent('mouseenter');
     await page.waitForFunction(() => (
         !document.querySelector('#model-quick-detail').hidden
         && document.querySelector('#model-quick-detail .quick-detail-header strong')?.textContent.includes('Claude Sonnet 4.6')
+        && document.querySelector('#model-quick-detail .quick-detail-grid > div:nth-child(3)')?.classList.contains('is-market')
+        && document.querySelector('#model-quick-detail .quick-detail-grid > div:nth-child(3) dd')?.textContent.includes('1.9')
     ));
     const negativeQuickState = await page.evaluate(() => {
         const metrics = [...document.querySelectorAll('#model-quick-detail .quick-detail-grid > div')];
@@ -551,12 +616,12 @@ async function validateModelDialog(page, width) {
     });
     const negativeQuickMetrics = negativeQuickState.signedMetrics;
     const quickNeutralColor = negativeQuickState.neutralColor;
-    assert.match(negativeQuickMetrics[0].className, /is-gap-neutral/);
-    assert.doesNotMatch(negativeQuickMetrics[0].className, /is-market|is-intervention/);
-    assert.equal(negativeQuickMetrics[0].color, quickNeutralColor);
+    assert.match(negativeQuickMetrics[0].className, /is-market/);
+    assert.notEqual(negativeQuickMetrics[0].color, quickNeutralColor);
     assert.match(negativeQuickMetrics[0].text, /[−-]1\.9/);
     assert.match(negativeQuickMetrics[1].className, /is-market/);
     assert.notEqual(negativeQuickMetrics[1].color, quickNeutralColor);
+    assert.equal(negativeQuickMetrics[0].color, negativeQuickMetrics[1].color);
 
     await negativeTrigger.press('Enter');
     await page.locator('#model-detail-dialog[open]').waitFor();
@@ -567,13 +632,14 @@ async function validateModelDialog(page, width) {
         value: cards[index].querySelector('dd').innerText,
         direction: cards[index].querySelector('.metric-direction')?.textContent.trim(),
     })));
-    assert.match(negativeMetrics[0].className, /is-gap-neutral/);
-    assert.doesNotMatch(negativeMetrics[0].className, /is-market|is-intervention/);
-    assert.equal(negativeMetrics[0].color, neutralMetricColor);
+    assert.match(negativeMetrics[0].className, /is-market/);
+    assert.notEqual(negativeMetrics[0].color, neutralMetricColor);
     assert.match(negativeMetrics[0].value, /[−-]1\.9/);
     assert.match(negativeMetrics[1].className, /is-market/);
     assert.notEqual(negativeMetrics[1].color, neutralMetricColor);
+    assert.equal(negativeMetrics[0].color, negativeMetrics[1].color);
     assert.equal(negativeMetrics[0].background, negativeMetrics[1].background);
+    assert.equal(negativeMetrics[0].background, neutralMetricBackground);
     assert.equal(negativeMetrics[0].direction, 'Market-aligned advantage');
     assert.equal(negativeMetrics[1].direction, 'Market-oriented');
     await closeDialog(page);
@@ -662,11 +728,19 @@ async function validateViewport(browser, width) {
     assert.equal(rowBackgrounds['claude-opus-4-6'], rowBackgrounds['gpt-4o-mini'], `${width}px Opus row background`);
 
     const mainGapColors = await page.evaluate(() => {
-        const neutralInk = getComputedStyle(document.querySelector('.model-score-name strong')).color;
-        const marketAccent = getComputedStyle(document.querySelector('.market-score strong')).color;
+        const interventionAccent = getComputedStyle(document.querySelector('.bias-ranking-row.is-intervention > strong, .bias-ranking-row.is-intervention .bias-static-score')).color;
+        const marketAccent = getComputedStyle(document.querySelector('.bias-ranking-row.is-market > strong, .bias-ranking-row.is-market .bias-static-score')).color;
+        const firstScoreBars = getComputedStyle(document.querySelector('.model-score-bars'));
         return {
-            neutralInk,
+            interventionAccent,
             marketAccent,
+            scoreBarsBackgroundImage: firstScoreBars.backgroundImage,
+            positive: {
+                color: getComputedStyle(document.querySelector('.model-open-button[data-model-id="gpt-4o-mini"]')
+                    .closest('.model-score-row').querySelector('.model-gap')).color,
+                text: document.querySelector('.model-open-button[data-model-id="gpt-4o-mini"]')
+                    .closest('.model-score-row').querySelector('.model-gap').innerText,
+            },
             sonnet: {
                 color: getComputedStyle(document.querySelector('.model-open-button[data-model-id="claude-sonnet-4-6"]')
                     .closest('.model-score-row').querySelector('.model-gap')).color,
@@ -681,9 +755,11 @@ async function validateViewport(browser, width) {
             },
         };
     });
+    assert.equal(mainGapColors.scoreBarsBackgroundImage, 'none', `${width}px main score grid background remains`);
+    assert.equal(mainGapColors.positive.color, mainGapColors.interventionAccent, `${width}px positive gap is not intervention green`);
+    assert.match(mainGapColors.positive.text, /\+/);
     for (const [name, metric] of Object.entries({ Sonnet: mainGapColors.sonnet, Opus: mainGapColors.opus })) {
-        assert.equal(metric.color, mainGapColors.neutralInk, `${width}px ${name} gap is not neutral ink`);
-        assert.notEqual(metric.color, mainGapColors.marketAccent, `${width}px ${name} gap still uses market orange`);
+        assert.equal(metric.color, mainGapColors.marketAccent, `${width}px ${name} gap is not market orange`);
         assert.match(metric.text, /[−-]/, `${width}px ${name} gap lost its minus sign`);
     }
 
