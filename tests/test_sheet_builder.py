@@ -820,7 +820,7 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertIn('class="site-header"', page_source)
             self.assertIn('class="desktop-nav"', page_source)
             self.assertIn('class="mobile-nav"', page_source)
-            self.assertIn("site.css?v=20260804-unified-shell", page_source)
+            self.assertIn("site.css?v=20260805-alumni-links", page_source)
             self.assertNotIn("fixed-top", page_source)
             self.assertNotIn("bootstrap", page_source.lower())
 
@@ -1039,6 +1039,60 @@ class SheetBuilderTests(unittest.TestCase):
         self.assertIn(
             '<strong class="publication-lab-author">Legacy Author</strong>',
             publication_html,
+        )
+
+    def test_alumni_profile_links_use_the_shared_member_sheet_columns(self) -> None:
+        self._allow_small_fixtures("Members")
+        rows = [
+            {
+                "publish": "TRUE",
+                "section": "Alumni",
+                "name_en": "Linked Alumni",
+                "role": "M.S. 2026",
+                "details": "Data Scientist, Example Company",
+                "email": "alumni@example.com",
+                "website": "https://example.com/alumni",
+                "scholar": "https://scholar.google.com/citations?user=example",
+                "linkedin": "https://www.linkedin.com/in/example-alumni",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Pre-EconAI Alumni",
+                "name_en": "Legacy Alumni",
+                "details": "Research Fellow, Example Institute",
+                "linkedin": "https://www.linkedin.com/in/legacy-alumni",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Alumni",
+                "name_en": "Unlinked Alumni",
+                "details": "Researcher, Example Lab",
+            },
+        ]
+        members = builder._read_csv_text(
+            _csv_text(MEMBER_COLUMNS, rows), "Members"
+        )
+
+        rendered = builder.render_members(members, REPOSITORY_ROOT / "main_site")
+
+        self.assertEqual(site_validator._classes(rendered, "alumni-item"), 3)
+        self.assertEqual(site_validator._classes(rendered, "member-links"), 2)
+        self.assertEqual(site_validator._classes(rendered, "member-link-btn"), 5)
+        self.assertIn('href="mailto:alumni@example.com"', rendered)
+        self.assertIn(
+            'aria-label="LinkedIn Linked Alumni"', rendered
+        )
+        self.assertIn(
+            'aria-label="Google Scholar Linked Alumni"', rendered
+        )
+        self.assertIn(
+            'aria-label="LinkedIn Legacy Alumni"', rendered
+        )
+        self.assertNotIn('aria-label="Email Unlinked Alumni"', rendered)
+        self.assertIn(
+            '<div class="alumni-summary"><strong>Linked Alumni</strong> — '
+            "M.S. 2026 · Data Scientist, Example Company</div>",
+            rendered,
         )
 
     def test_internship_terms_are_visible_and_staff_uses_canonical_position(self) -> None:

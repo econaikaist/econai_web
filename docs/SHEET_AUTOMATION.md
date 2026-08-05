@@ -212,8 +212,8 @@ reported in the publisher log.
 | `role` | Current role shown directly below a card name; for Staff, use a descriptive function such as `Lab Administration & Operations` rather than the generic `Staff` |
 | `details` | Optional longer description for Faculty/Student/Staff cards; required current position for alumni |
 | `photo` | Local image path for Faculty/Student cards; optional for Staff, which falls back to the basic profile image |
-| `email` | Public email address |
-| `website`, `scholar`, `linkedin` | Optional HTTPS profile links |
+| `email` | Optional public email address for any member or alumnus |
+| `website`, `scholar`, `linkedin` | Optional HTTPS profile links for any member or alumnus |
 | `phone`, `address` | Optional public faculty contact fields |
 | `affiliations` | Faculty footer affiliations separated by `|` |
 | `joint_supervisor`, `joint_supervisor_url` | Optional paired alumni footnote label and HTTPS profile URL |
@@ -229,6 +229,12 @@ including `Pre-EconAI Alumni`, so no manual highlight flag is needed. Repeated
 joint-supervisor pairs are rendered once as a linked footnote below that alumni
 section. The first checked Faculty row also supplies Contact and every page's footer
 affiliations.
+
+Alumni and Pre-EconAI Alumni use the same `email`, `website`, `scholar`, and
+`linkedin` cells as current members. Every nonblank value becomes the same profile
+icon button at the right of that alumnus's current-position row; blank cells simply
+omit their button. Sheet edits are picked up by the normal publisher without a code
+change.
 
 The Members tab is publicly downloadable because the site builder reads it without
 Google credentials. Store only information intended for public display.

@@ -1095,6 +1095,22 @@ a {
   border-bottom: 0;
 }
 
+.alumni-list li.alumni-item {
+  align-items: center;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.alumni-summary {
+  min-width: 0;
+}
+
+.alumni-item .member-links {
+  flex: 0 0 auto;
+  position: static;
+}
+
 .alumni-list strong {
   color: var(--blue);
   font-weight: 800;
@@ -1611,6 +1627,17 @@ summary:focus-visible {
     justify-content: flex-end;
     margin-top: 14px;
     position: static;
+  }
+
+  .alumni-list li.alumni-item {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .alumni-item .member-links {
+    align-self: flex-end;
+    margin-top: 10px;
   }
 
   .internship-term {

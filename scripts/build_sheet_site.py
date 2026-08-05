@@ -1998,7 +1998,7 @@ def _member_link_lines(row: Mapping[str, str]) -> List[str]:
         target = ' target="_blank" rel="noopener noreferrer"' if not url.startswith("mailto:") else ""
         aria = _escape(f'{label} {_member_name(row)}', quote=True)
         lines.append(
-            f'                            <a href="{_escape(url, quote=True)}"{target} class="member-link-btn" aria-label="{aria}"><i class="{icon}"></i></a>'
+            f'                            <a href="{_escape(url, quote=True)}"{target} class="member-link-btn" aria-label="{aria}"><i class="{icon}" aria-hidden="true"></i></a>'
         )
     lines.append("                        </div>")
     return lines
@@ -2088,8 +2088,13 @@ def render_members(
                 alumni_detail = " · ".join(
                     value for value in (row.get("role", ""), row["details"]) if value
                 )
-                lines.append(
-                    f'                    <li class="sheet-member-item"><strong>{_alumni_name_html(row)}</strong> — {_escape(alumni_detail)}</li>'
+                lines.extend(
+                    [
+                        '                    <li class="alumni-item sheet-member-item">',
+                        f'                        <div class="alumni-summary"><strong>{_alumni_name_html(row)}</strong> — {_escape(alumni_detail)}</div>',
+                        *_member_link_lines(row),
+                        "                    </li>",
+                    ]
                 )
                 if row.get("joint_supervisor"):
                     note = (row["joint_supervisor"], row["joint_supervisor_url"])
