@@ -580,6 +580,154 @@ class SheetBuilderTests(unittest.TestCase):
                 archive.writestr(name, payload)
         return output.getvalue()
 
+    def _member_workbook(
+        self,
+        member_rows: list[dict[str, str]],
+        image_payloads: dict[str, bytes],
+        *,
+        duplicate_image_for: str = "",
+    ) -> bytes:
+        def column_name(index: int) -> str:
+            value = index + 1
+            result = ""
+            while value:
+                value, remainder = divmod(value - 1, 26)
+                result = chr(ord("A") + remainder) + result
+            return result
+
+        def inline_cell(row: int, column: int, value: str) -> str:
+            reference = f"{column_name(column)}{row}"
+            return (
+                f'<c r="{reference}" t="inlineStr"><is><t>'
+                f"{xml_escape(value)}</t></is></c>"
+            )
+
+        worksheet_rows = [
+            '<row r="1">'
+            + "".join(
+                inline_cell(1, column, header)
+                for column, header in enumerate(MEMBER_COLUMNS)
+            )
+            + "</row>"
+        ]
+        for sheet_row, row in enumerate(member_rows, start=2):
+            worksheet_rows.append(
+                f'<row r="{sheet_row}">'
+                + "".join(
+                    inline_cell(sheet_row, column, row.get(header, ""))
+                    for column, header in enumerate(MEMBER_COLUMNS)
+                    if header != "photo" or row.get(header, "")
+                )
+                + "</row>"
+            )
+
+        anchors: list[str] = []
+        image_relationships: list[str] = []
+        media: list[tuple[str, bytes]] = []
+        relationship_index = 0
+        for sheet_row, row in enumerate(member_rows, start=2):
+            payload = image_payloads.get(row.get("name_en", ""))
+            if payload is None:
+                continue
+            copies = 2 if row.get("name_en") == duplicate_image_for else 1
+            for _ in range(copies):
+                relationship_index += 1
+                extension = "jpg" if payload.startswith(b"\xff\xd8\xff") else "png"
+                media_name = f"member{relationship_index}.{extension}"
+                anchors.append(
+                    '<xdr:oneCellAnchor><xdr:from>'
+                    '<xdr:col>7</xdr:col><xdr:colOff>0</xdr:colOff>'
+                    f'<xdr:row>{sheet_row - 1}</xdr:row><xdr:rowOff>0</xdr:rowOff>'
+                    '</xdr:from><xdr:ext cx="2000000" cy="2000000"/>'
+                    '<xdr:pic><xdr:nvPicPr><xdr:cNvPr id="0" '
+                    f'name="{media_name}"/><xdr:cNvPicPr/></xdr:nvPicPr>'
+                    '<xdr:blipFill><a:blip '
+                    f'r:embed="rId{relationship_index}"/>'
+                    '<a:stretch><a:fillRect/></a:stretch></xdr:blipFill>'
+                    '<xdr:spPr><a:prstGeom prst="rect"><a:avLst/>'
+                    '</a:prstGeom></xdr:spPr></xdr:pic><xdr:clientData/>'
+                    '</xdr:oneCellAnchor>'
+                )
+                image_relationships.append(
+                    '<Relationship '
+                    f'Id="rId{relationship_index}" '
+                    'Type="http://schemas.openxmlformats.org/officeDocument/'
+                    '2006/relationships/image" '
+                    f'Target="../media/{media_name}"/>'
+                )
+                media.append((f"xl/media/{media_name}", payload))
+
+        workbook_xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<workbook xmlns="http://schemas.openxmlformats.org/'
+            'spreadsheetml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/'
+            '2006/relationships"><sheets><sheet name="Members" '
+            'sheetId="1" r:id="rId1"/></sheets></workbook>'
+        )
+        workbook_relationships = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/'
+            '2006/relationships"><Relationship Id="rId1" '
+            'Type="http://schemas.openxmlformats.org/officeDocument/2006/'
+            'relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            '</Relationships>'
+        )
+        worksheet_xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<worksheet xmlns="http://schemas.openxmlformats.org/'
+            'spreadsheetml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/'
+            '2006/relationships"><sheetData>'
+            + "".join(worksheet_rows)
+            + '</sheetData><drawing r:id="rId1"/></worksheet>'
+        )
+        worksheet_relationships = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/'
+            '2006/relationships"><Relationship Id="rId1" '
+            'Type="http://schemas.openxmlformats.org/officeDocument/2006/'
+            'relationships/drawing" Target="../drawings/drawing1.xml"/>'
+            '</Relationships>'
+        )
+        drawing_xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/'
+            '2006/spreadsheetDrawing" '
+            'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" '
+            'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/'
+            'relationships">'
+            + "".join(anchors)
+            + '</xdr:wsDr>'
+        )
+        drawing_relationships = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<Relationships xmlns="http://schemas.openxmlformats.org/package/'
+            '2006/relationships">'
+            + "".join(image_relationships)
+            + '</Relationships>'
+        )
+
+        output = io.BytesIO()
+        with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("xl/workbook.xml", workbook_xml)
+            archive.writestr(
+                "xl/_rels/workbook.xml.rels", workbook_relationships
+            )
+            archive.writestr("xl/worksheets/sheet1.xml", worksheet_xml)
+            archive.writestr(
+                "xl/worksheets/_rels/sheet1.xml.rels",
+                worksheet_relationships,
+            )
+            archive.writestr("xl/drawings/drawing1.xml", drawing_xml)
+            archive.writestr(
+                "xl/drawings/_rels/drawing1.xml.rels",
+                drawing_relationships,
+            )
+            for name, payload in media:
+                archive.writestr(name, payload)
+        return output.getvalue()
+
     def test_publications_are_sorted_by_exact_date_descending(self) -> None:
         text = PUBLICATION_HEADER + "\n".join(
             [
@@ -1170,6 +1318,238 @@ class SheetBuilderTests(unittest.TestCase):
             rendered,
         )
         self.assertIn('src="img/basic_profile.png" alt="Sohyun Han"', rendered)
+
+    def test_member_cell_images_are_materialised_with_incremental_fallbacks(
+        self,
+    ) -> None:
+        tabs = self._publication_reference_tabs()
+        member_rows = [
+            {
+                "publish": "TRUE",
+                "section": "Faculty",
+                "name_en": "Example Author",
+                "role": "Professor",
+                "photo": "",
+                "email": "example-author@example.com",
+                "address": "KAIST N5, Daejeon, South Korea",
+                "affiliations": "KAIST School of Business and Technology Management",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Master's Students",
+                "name_en": "Legacy Student",
+                "role": "Master's Student",
+                "photo": "img/basic_profile.png",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Staff",
+                "name_en": "Uploaded Staff",
+                "role": "Lab Administration & Operations",
+                "photo": "",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Staff",
+                "name_en": "Fallback Staff",
+                "role": "Lab Operations",
+                "photo": "",
+            },
+        ]
+        tabs["Members"] = builder._read_csv_text(
+            _csv_text(MEMBER_COLUMNS, member_rows), "Members"
+        )
+        workbook = self._member_workbook(
+            member_rows,
+            {
+                "Example Author": TINY_PNG,
+                "Uploaded Staff": TINY_JPEG,
+            },
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            with mock.patch.object(
+                builder.urllib.request,
+                "urlopen",
+                side_effect=AssertionError(
+                    "embedded member photos must not request image URLs"
+                ),
+            ):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    output,
+                    "test-sheet",
+                    "offline_csv",
+                    publication_workbook=workbook,
+                )
+
+            assets = sorted((output / "img/sheet-members").iterdir())
+            self.assertEqual(len(assets), 2)
+            self.assertEqual(
+                sorted(asset.read_bytes() for asset in assets),
+                sorted((TINY_PNG, TINY_JPEG)),
+            )
+            member_text = (output / "members.html").read_text(encoding="utf-8")
+            for asset in assets:
+                self.assertIn(asset.relative_to(output).as_posix(), member_text)
+            self.assertIn('src="img/basic_profile.png" alt="Legacy Student"', member_text)
+            self.assertIn('src="img/basic_profile.png" alt="Fallback Staff"', member_text)
+            self.assertNotIn("googleusercontent.com", member_text)
+            self.assertNotIn("ggpht.com", member_text)
+            self.assertEqual(site_validator.validate(output), [])
+
+    def test_required_member_cell_image_fails_closed_when_missing(self) -> None:
+        tabs = self._publication_reference_tabs()
+        member_rows = [
+            {
+                "publish": "TRUE",
+                "section": "Faculty",
+                "name_en": "Example Author",
+                "role": "Professor",
+                "photo": "",
+                "affiliations": "KAIST School of Business and Technology Management",
+            }
+        ]
+        tabs["Members"] = builder._read_csv_text(
+            _csv_text(MEMBER_COLUMNS, member_rows), "Members"
+        )
+        workbook = self._member_workbook(member_rows, {})
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            with self.assertRaisesRegex(
+                builder.SheetBuildError,
+                "Example Author.*add a photo image",
+            ):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    Path(temporary_directory) / "output",
+                    "test-sheet",
+                    "offline_csv",
+                    publication_workbook=workbook,
+                )
+
+    def test_required_member_cell_image_requires_workbook_export(self) -> None:
+        tabs = self._publication_reference_tabs()
+        tabs["Members"][0]["photo"] = ""
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            with self.assertRaisesRegex(
+                builder.SheetBuildError,
+                "Members in-cell photos require an XLSX workbook export",
+            ):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    Path(temporary_directory) / "output",
+                    "test-sheet",
+                    "offline_csv",
+                )
+
+    def test_live_cli_fetches_workbook_for_member_cell_images(self) -> None:
+        tabs = self._publication_reference_tabs()
+        tabs["Members"][0]["photo"] = ""
+        args = mock.Mock(
+            sheet_id="test-sheet",
+            source_dir=REPOSITORY_ROOT / "main_site",
+            output_dir=REPOSITORY_ROOT / "_unused-test-output",
+            csv_dir=None,
+            xlsx_file=None,
+            timeout=12.5,
+        )
+        with (
+            mock.patch.object(builder, "parse_args", return_value=args),
+            mock.patch.object(builder, "load_sheet_tabs", return_value=tabs),
+            mock.patch.object(
+                builder, "_fetch_workbook", return_value=b"sheet-workbook"
+            ) as fetch_workbook,
+            mock.patch.object(builder, "build_site") as build_site,
+        ):
+            self.assertEqual(builder.main(), 0)
+
+        fetch_workbook.assert_called_once_with("test-sheet", 12.5)
+        self.assertEqual(
+            build_site.call_args.kwargs["publication_workbook"],
+            b"sheet-workbook",
+        )
+
+    def test_offline_cli_keeps_blank_staff_photo_fallback_without_workbook(
+        self,
+    ) -> None:
+        tabs = self._publication_reference_tabs()
+        tabs["Members"].append(
+            {
+                "publish": "TRUE",
+                "section": "Staff",
+                "group": "",
+                "name_en": "Fallback Staff",
+                "name_ko": "",
+                "role": "Lab Operations",
+                "details": "",
+                "photo": "",
+                "email": "",
+                "website": "",
+                "scholar": "",
+                "linkedin": "",
+                "phone": "",
+                "address": "",
+                "affiliations": "",
+                "joint_supervisor": "",
+                "joint_supervisor_url": "",
+            }
+        )
+        args = mock.Mock(
+            sheet_id="test-sheet",
+            source_dir=REPOSITORY_ROOT / "main_site",
+            output_dir=REPOSITORY_ROOT / "_unused-test-output",
+            csv_dir=REPOSITORY_ROOT / "tests/fixtures",
+            xlsx_file=None,
+            timeout=12.5,
+        )
+        with (
+            mock.patch.object(builder, "parse_args", return_value=args),
+            mock.patch.object(builder, "load_sheet_tabs", return_value=tabs),
+            mock.patch.object(builder, "_fetch_workbook") as fetch_workbook,
+            mock.patch.object(builder, "build_site") as build_site,
+        ):
+            self.assertEqual(builder.main(), 0)
+
+        fetch_workbook.assert_not_called()
+        self.assertIsNone(build_site.call_args.kwargs["publication_workbook"])
+
+    def test_duplicate_member_cell_image_is_rejected(self) -> None:
+        tabs = self._publication_reference_tabs()
+        member_rows = [
+            {
+                "publish": "TRUE",
+                "section": "Faculty",
+                "name_en": "Example Author",
+                "role": "Professor",
+                "photo": "",
+                "affiliations": "KAIST School of Business and Technology Management",
+            }
+        ]
+        tabs["Members"] = builder._read_csv_text(
+            _csv_text(MEMBER_COLUMNS, member_rows), "Members"
+        )
+        workbook = self._member_workbook(
+            member_rows,
+            {"Example Author": TINY_PNG},
+            duplicate_image_for="Example Author",
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            with self.assertRaisesRegex(
+                builder.SheetBuildError,
+                "Members photo for 'Example Author' is duplicated",
+            ):
+                builder.build_site(
+                    tabs,
+                    REPOSITORY_ROOT / "main_site",
+                    Path(temporary_directory) / "output",
+                    "test-sheet",
+                    "offline_csv",
+                    publication_workbook=workbook,
+                )
 
     def test_joint_supervisor_fields_must_be_paired(self) -> None:
         self._allow_small_fixtures("Members")

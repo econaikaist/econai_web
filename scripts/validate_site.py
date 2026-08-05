@@ -175,6 +175,10 @@ def validate(site_dir: Path) -> List[str]:
         errors.append("index.html news row count does not match Sheet metadata")
     if _classes(member_text, "sheet-member-item") != expected_counts.get("Members"):
         errors.append("members.html row count does not match Sheet metadata")
+    if _classes(member_text, "member-photo") != _classes(member_text, "member-card"):
+        errors.append("members.html member cards and photos do not match")
+    if "googleusercontent.com" in member_text or "ggpht.com" in member_text:
+        errors.append("members.html leaks a temporary Google image URL")
 
     selected_count = research_text.count('class="selected-figure-frame"')
     if selected_count and selected_count != research_text.count("loading=\"lazy\""):

@@ -51,6 +51,8 @@ PUBLICATION_WORKBOOK_MEMBER_LIMIT = 20 * 1024 * 1024
 PUBLICATION_WORKBOOK_MAX_MEMBERS = 2048
 PUBLICATION_IMAGE_ASSET_DIR = Path("img/sheet-publications")
 PUBLICATION_IMAGE_FILE_LIMIT = 10 * 1024 * 1024
+MEMBER_IMAGE_ASSET_DIR = Path("img/sheet-members")
+MEMBER_IMAGE_FILE_LIMIT = 10 * 1024 * 1024
 PUBLICATION_IMAGE_FORMULA_HOSTS = {
     "arxiv.org",
     "econai.kaist.ac.kr",
@@ -398,10 +400,6 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                 raise SheetBuildError(
                     f"{tab_name} row {index}: role is required for {section}"
                 )
-            if section in MEMBER_REQUIRED_PHOTO_SECTIONS and not row.get("photo"):
-                raise SheetBuildError(
-                    f"{tab_name} row {index}: photo is required for {section}"
-                )
             if section in {"Alumni", "Pre-EconAI Alumni"} and not row.get("details"):
                 raise SheetBuildError(
                     f"{tab_name} row {index}: details is required for alumni"
@@ -589,19 +587,19 @@ def _fetch_workbook(sheet_id: str, timeout: float) -> bytes:
             status = getattr(response, "status", 200)
             if status is not None and not 200 <= int(status) < 300:
                 raise SheetBuildError(
-                    "Publications workbook export returned an HTTP error"
+                    "Sheet workbook export returned an HTTP error"
                 )
             payload = _read_limited_response(
                 response,
                 PUBLICATION_WORKBOOK_LIMIT,
-                "Publications workbook export",
+                "Sheet workbook export",
             )
     except SheetBuildError:
         raise
     except Exception:
-        raise SheetBuildError("Publications workbook export failed") from None
+        raise SheetBuildError("Sheet workbook export failed") from None
     if not payload.startswith(b"PK"):
-        raise SheetBuildError("Publications workbook export is not an XLSX file")
+        raise SheetBuildError("Sheet workbook export is not an XLSX file")
     return payload
 
 
@@ -869,7 +867,7 @@ def _xlsx_resolve_target(source_path: str, target: str, label: str) -> str:
 def _validate_xlsx_archive(archive: zipfile.ZipFile) -> None:
     infos = archive.infolist()
     if len(infos) > PUBLICATION_WORKBOOK_MAX_MEMBERS:
-        raise SheetBuildError("Publications workbook contains too many files")
+        raise SheetBuildError("Sheet workbook contains too many files")
     seen: set[str] = set()
     total_size = 0
     for info in infos:
@@ -882,18 +880,18 @@ def _validate_xlsx_archive(archive: zipfile.ZipFile) -> None:
             or ".." in parts
             or name in seen
         ):
-            raise SheetBuildError("Publications workbook has an unsafe ZIP entry")
+            raise SheetBuildError("Sheet workbook has an unsafe ZIP entry")
         seen.add(name)
         if info.flag_bits & 0x1:
-            raise SheetBuildError("Publications workbook contains an encrypted file")
+            raise SheetBuildError("Sheet workbook contains an encrypted file")
         if ((info.external_attr >> 16) & 0o170000) == 0o120000:
-            raise SheetBuildError("Publications workbook contains a symbolic link")
+            raise SheetBuildError("Sheet workbook contains a symbolic link")
         if info.file_size > PUBLICATION_WORKBOOK_MEMBER_LIMIT:
-            raise SheetBuildError("Publications workbook file exceeds the size limit")
+            raise SheetBuildError("Sheet workbook file exceeds the size limit")
         total_size += info.file_size
         if total_size > PUBLICATION_WORKBOOK_UNCOMPRESSED_LIMIT:
             raise SheetBuildError(
-                "Publications workbook exceeds the uncompressed size limit"
+                "Sheet workbook exceeds the uncompressed size limit"
             )
 
 
@@ -968,21 +966,22 @@ def _xlsx_relationship_target(
     )
 
 
-def _xlsx_publications_sheet(
+def _xlsx_named_sheet(
     archive: zipfile.ZipFile,
+    sheet_name: str,
 ) -> Tuple[str, ElementTree.Element]:
     workbook_path = "xl/workbook.xml"
-    workbook = _xlsx_xml(archive, workbook_path, "Publications workbook")
+    workbook = _xlsx_xml(archive, workbook_path, "Sheet workbook")
     sheets = [
         node
         for node in workbook.findall(
             f".//{{{XLSX_MAIN_NS}}}sheet"
         )
-        if node.get("name") == "Publications"
+        if node.get("name") == sheet_name
     ]
     if len(sheets) != 1:
         raise SheetBuildError(
-            "Publications workbook must contain exactly one Publications sheet"
+            f"Sheet workbook must contain exactly one {sheet_name} sheet"
         )
     relationship_id = sheets[0].get(f"{{{XLSX_DOCUMENT_REL_NS}}}id", "")
     worksheet_path = _xlsx_relationship_target(
@@ -990,12 +989,18 @@ def _xlsx_publications_sheet(
         workbook_path,
         relationship_id,
         "worksheet",
-        "Publications workbook",
+        f"{sheet_name} workbook",
     )
     return (
         worksheet_path,
-        _xlsx_xml(archive, worksheet_path, "Publications worksheet"),
+        _xlsx_xml(archive, worksheet_path, f"{sheet_name} worksheet"),
     )
+
+
+def _xlsx_publications_sheet(
+    archive: zipfile.ZipFile,
+) -> Tuple[str, ElementTree.Element]:
+    return _xlsx_named_sheet(archive, "Publications")
 
 
 def _xlsx_shared_strings(archive: zipfile.ZipFile) -> List[str]:
@@ -1004,7 +1009,7 @@ def _xlsx_shared_strings(archive: zipfile.ZipFile) -> List[str]:
     root = _xlsx_xml(
         archive,
         "xl/sharedStrings.xml",
-        "Publications shared strings",
+        "Sheet shared strings",
     )
     return [
         "".join(
@@ -1018,7 +1023,7 @@ def _xlsx_shared_strings(archive: zipfile.ZipFile) -> List[str]:
 def _xlsx_column_index(cell_reference: str) -> int:
     match = re.fullmatch(r"([A-Z]+)([1-9]\d*)", cell_reference)
     if match is None:
-        raise SheetBuildError("Publications worksheet has an invalid cell reference")
+        raise SheetBuildError("XLSX worksheet has an invalid cell reference")
     result = 0
     for character in match.group(1):
         result = result * 26 + ord(character) - ord("A") + 1
@@ -1035,7 +1040,7 @@ def _xlsx_cell_values(
         match = re.fullmatch(r"([A-Z]+)([1-9]\d*)", reference)
         if match is None:
             raise SheetBuildError(
-                "Publications worksheet has an invalid cell reference"
+                "XLSX worksheet has an invalid cell reference"
             )
         column = _xlsx_column_index(reference)
         row = int(match.group(2)) - 1
@@ -1054,13 +1059,13 @@ def _xlsx_cell_values(
                     value = shared_strings[shared_index]
                 except (ValueError, IndexError) as exc:
                     raise SheetBuildError(
-                        "Publications worksheet has an invalid shared string"
+                        "XLSX worksheet has an invalid shared string"
                     ) from exc
             else:
                 value = raw_value or ""
         key = (row, column)
         if key in values:
-            raise SheetBuildError("Publications worksheet duplicated a cell")
+            raise SheetBuildError("XLSX worksheet duplicated a cell")
         values[key] = value.strip()
     return values
 
@@ -1077,11 +1082,11 @@ def _xlsx_cell_formulas(
         match = re.fullmatch(r"([A-Z]+)([1-9]\d*)", reference)
         if match is None:
             raise SheetBuildError(
-                "Publications worksheet has an invalid cell reference"
+                "XLSX worksheet has an invalid cell reference"
             )
         key = (int(match.group(2)) - 1, _xlsx_column_index(reference))
         if key in formulas:
-            raise SheetBuildError("Publications worksheet duplicated a formula cell")
+            raise SheetBuildError("XLSX worksheet duplicated a formula cell")
         formulas[key] = (formula_node.text or "").strip()
     return formulas
 
@@ -1357,6 +1362,178 @@ def _materialise_publication_images(
                 "alt": alt,
                 "credit": credit,
             }
+    return assets
+
+
+def _member_identity(row: Mapping[str, str]) -> Tuple[str, str, str]:
+    return (
+        row.get("section", ""),
+        row.get("group", ""),
+        row.get("name_en", ""),
+    )
+
+
+def _member_asset_key(identity: Tuple[str, str, str]) -> str:
+    return hashlib.sha256("\0".join(identity).encode("utf-8")).hexdigest()[:16]
+
+
+def _materialise_member_images(
+    workbook_payload: bytes,
+    members: Sequence[Dict[str, str]],
+    output_dir: Path,
+) -> Dict[Tuple[str, str, str], str]:
+    """Extract uploaded member photos from the Members ``photo`` cells.
+
+    Google renders an in-cell image as an empty value in the CSV feed, while
+    retaining its binary and cell anchor in the XLSX export.  Member identity,
+    rather than the physical row number, binds each extracted image to a card.
+    """
+
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(workbook_payload))
+    except zipfile.BadZipFile as exc:
+        raise SheetBuildError("Members workbook export is not a valid XLSX") from exc
+
+    with archive:
+        _validate_xlsx_archive(archive)
+        worksheet_path, worksheet = _xlsx_named_sheet(archive, "Members")
+        values = _xlsx_cell_values(worksheet, _xlsx_shared_strings(archive))
+        formulas = _xlsx_cell_formulas(worksheet)
+
+        headers: Dict[str, int] = {}
+        for (row, column), value in values.items():
+            if row != 0 or not value:
+                continue
+            if value in headers:
+                raise SheetBuildError(f"Members workbook duplicated header {value!r}")
+            headers[value] = column
+        for required in ("publish", "section", "group", "name_en", "photo"):
+            if required not in headers:
+                raise SheetBuildError(
+                    f"Members workbook is missing header {required!r}"
+                )
+
+        expected = {
+            _member_identity(row): row
+            for row in members
+            if row["section"] in MEMBER_CARD_SECTIONS
+        }
+        identity_rows: Dict[Tuple[str, str, str], int] = {}
+        worksheet_rows = {row for row, _ in values if row > 0}
+        for row in sorted(worksheet_rows):
+            publish = values.get((row, headers["publish"]), "").casefold()
+            if publish not in TRUTHY:
+                continue
+            identity = (
+                values.get((row, headers["section"]), ""),
+                values.get((row, headers["group"]), ""),
+                values.get((row, headers["name_en"]), ""),
+            )
+            if identity not in expected:
+                continue
+            if identity in identity_rows:
+                raise SheetBuildError(
+                    f"Members workbook duplicated published member {identity[2]!r}"
+                )
+            identity_rows[identity] = row
+
+        missing_rows = set(expected) - set(identity_rows)
+        if missing_rows:
+            labels = ", ".join(sorted(identity[2] for identity in missing_rows))
+            raise SheetBuildError(
+                f"Members workbook is out of sync for published cards: {labels}"
+            )
+
+        image_column = headers["photo"]
+        for identity, row in identity_rows.items():
+            if formulas.get((row, image_column), ""):
+                raise SheetBuildError(
+                    f"Members photo for {identity[2]!r} must be an image inserted in the cell"
+                )
+
+        drawing = worksheet.find(f"{{{XLSX_MAIN_NS}}}drawing")
+        if drawing is None:
+            return {}
+        drawing_relationship_id = drawing.get(
+            f"{{{XLSX_DOCUMENT_REL_NS}}}id", ""
+        )
+        drawing_path = _xlsx_relationship_target(
+            archive,
+            worksheet_path,
+            drawing_relationship_id,
+            "drawing",
+            "Members drawing",
+        )
+        drawing_root = _xlsx_xml(archive, drawing_path, "Members drawing")
+        row_to_identity = {row: identity for identity, row in identity_rows.items()}
+        image_targets: Dict[Tuple[str, str, str], str] = {}
+        for anchor in drawing_root.findall(
+            f"{{{XLSX_DRAWING_NS}}}oneCellAnchor"
+        ):
+            row_text = anchor.findtext(
+                f"{{{XLSX_DRAWING_NS}}}from/{{{XLSX_DRAWING_NS}}}row"
+            )
+            column_text = anchor.findtext(
+                f"{{{XLSX_DRAWING_NS}}}from/{{{XLSX_DRAWING_NS}}}col"
+            )
+            try:
+                row = int(row_text or "")
+                column = int(column_text or "")
+            except ValueError as exc:
+                raise SheetBuildError(
+                    "Members drawing has an invalid image anchor"
+                ) from exc
+            if column != image_column:
+                continue
+            identity = row_to_identity.get(row)
+            if identity is None:
+                continue
+            blip = anchor.find(f".//{{{XLSX_DRAWING_MAIN_NS}}}blip")
+            relationship_id = (
+                blip.get(f"{{{XLSX_DOCUMENT_REL_NS}}}embed", "")
+                if blip is not None
+                else ""
+            )
+            if not relationship_id:
+                raise SheetBuildError(
+                    f"Members photo for {identity[2]!r} has no embedded file"
+                )
+            if identity in image_targets:
+                raise SheetBuildError(
+                    f"Members photo for {identity[2]!r} is duplicated"
+                )
+            image_targets[identity] = _xlsx_relationship_target(
+                archive,
+                drawing_path,
+                relationship_id,
+                "image",
+                f"Members photo for {identity[2]!r}",
+            )
+
+        assets: Dict[Tuple[str, str, str], str] = {}
+        for identity, media_path in image_targets.items():
+            payload = _xlsx_read_member(
+                archive,
+                media_path,
+                f"Members photo for {identity[2]!r}",
+            )
+            if len(payload) > MEMBER_IMAGE_FILE_LIMIT:
+                raise SheetBuildError(
+                    f"Members photo for {identity[2]!r} exceeds the size limit"
+                )
+            extension, _ = _detect_image_format(payload)
+            digest = hashlib.sha256(payload).hexdigest()
+            relative_path = MEMBER_IMAGE_ASSET_DIR / (
+                f"{_member_asset_key(identity)}-{digest[:16]}.{extension}"
+            )
+            target = output_dir / relative_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if target.exists() and target.read_bytes() != payload:
+                raise SheetBuildError(
+                    f"Members photo for {identity[2]!r}: asset name collision"
+                )
+            target.write_bytes(payload)
+            assets[identity] = relative_path.as_posix()
     return assets
 
 
@@ -2004,8 +2181,18 @@ def _member_link_lines(row: Mapping[str, str]) -> List[str]:
     return lines
 
 
-def _member_card_lines(row: Mapping[str, str], output_dir: Path) -> List[str]:
-    photo = row.get("photo") or DEFAULT_MEMBER_PHOTO
+def _member_card_lines(
+    row: Mapping[str, str],
+    output_dir: Path,
+    member_images: Mapping[Tuple[str, str, str], str],
+) -> List[str]:
+    photo = member_images.get(_member_identity(row)) or row.get("photo", "")
+    if not photo:
+        if row["section"] in MEMBER_REQUIRED_PHOTO_SECTIONS:
+            raise SheetBuildError(
+                f'{row["name_en"]}: add a photo image in the Members sheet cell'
+            )
+        photo = DEFAULT_MEMBER_PHOTO
     photo_path = (output_dir / photo).resolve()
     try:
         photo_path.relative_to(output_dir.resolve())
@@ -2040,8 +2227,11 @@ def _member_card_lines(row: Mapping[str, str], output_dir: Path) -> List[str]:
 
 
 def render_members(
-    member_rows: Sequence[Dict[str, str]], output_dir: Path
+    member_rows: Sequence[Dict[str, str]],
+    output_dir: Path,
+    member_images: Mapping[Tuple[str, str, str], str] | None = None,
 ) -> str:
+    resolved_member_images = member_images or {}
     sections: Dict[str, List[Dict[str, str]]] = defaultdict(list)
     for row in member_rows:
         sections[row["section"]].append(row)
@@ -2055,7 +2245,9 @@ def render_members(
         if section in MEMBER_CARD_SECTIONS:
             lines.append('                <div class="members-grid">')
             for row in rows:
-                lines.extend(_member_card_lines(row, output_dir))
+                lines.extend(
+                    _member_card_lines(row, output_dir, resolved_member_images)
+                )
             lines.append("                </div>")
         elif section == "Lab Internship":
             lines.append('                <div class="internship-terms">')
@@ -2234,6 +2426,11 @@ def build_site(
     lab_authors = _lab_authors(members)
     research_image_schema = _research_image_schema(research[0].keys())
     publication_image_schema = _publication_image_schema(publications[0].keys())
+    member_image_candidates = [
+        row
+        for row in members
+        if row["section"] in MEMBER_CARD_SECTIONS and not row.get("photo")
+    ]
     research_images = (
         _materialise_research_images(
             research,
@@ -2258,6 +2455,22 @@ def build_site(
         )
         if publication_image_schema == "direct_cell"
         else None
+    )
+    if publication_workbook is None and any(
+        row["section"] in MEMBER_REQUIRED_PHOTO_SECTIONS
+        for row in member_image_candidates
+    ):
+        raise SheetBuildError(
+            "Members in-cell photos require an XLSX workbook export"
+        )
+    member_images = (
+        _materialise_member_images(
+            publication_workbook or b"",
+            members,
+            output_dir,
+        )
+        if publication_workbook is not None and member_image_candidates
+        else {}
     )
 
     _replace_block(
@@ -2305,7 +2518,7 @@ def build_site(
         output_dir / "members.html",
         "<!-- SHEET:MEMBERS:START -->",
         "<!-- SHEET:MEMBERS:END -->",
-        render_members(members, output_dir),
+        render_members(members, output_dir, member_images),
     )
     _replace_block(
         output_dir / "contact.html",
@@ -2358,8 +2571,8 @@ def parse_args() -> argparse.Namespace:
         "--xlsx-file",
         type=Path,
         help=(
-            "offline XLSX export used for Publications in-cell images; "
-            "required with --csv-dir when the direct image columns are present"
+            "offline XLSX export used for in-cell images; required with "
+            "--csv-dir when Publications or Members need embedded images"
         ),
     )
     parser.add_argument("--timeout", type=float, default=30.0)
@@ -2371,21 +2584,42 @@ def main() -> int:
     try:
         tabs = load_sheet_tabs(args.sheet_id, args.csv_dir, args.timeout)
         publication_workbook = None
-        if _publication_image_schema(tabs["Publications"][0].keys()) == "direct_cell":
+        required_member_image_candidates = any(
+            row["section"] in MEMBER_REQUIRED_PHOTO_SECTIONS
+            and not row.get("photo")
+            for row in tabs["Members"]
+        )
+        optional_member_image_candidates = any(
+            row["section"] == "Staff" and not row.get("photo")
+            for row in tabs["Members"]
+        )
+        member_image_candidates = (
+            required_member_image_candidates
+            or (
+                optional_member_image_candidates
+                and (args.csv_dir is None or args.xlsx_file is not None)
+            )
+        )
+        workbook_needed = (
+            _publication_image_schema(tabs["Publications"][0].keys())
+            == "direct_cell"
+            or member_image_candidates
+        )
+        if workbook_needed:
             if args.xlsx_file is not None:
                 try:
                     if args.xlsx_file.stat().st_size > PUBLICATION_WORKBOOK_LIMIT:
                         raise SheetBuildError(
-                            "Publications workbook file exceeds the size limit"
+                            "Sheet workbook file exceeds the size limit"
                         )
                     publication_workbook = args.xlsx_file.read_bytes()
                 except OSError as exc:
                     raise SheetBuildError(
-                        f"cannot read Publications workbook: {args.xlsx_file}"
+                        f"cannot read Sheet workbook: {args.xlsx_file}"
                     ) from exc
             elif args.csv_dir is not None:
                 raise SheetBuildError(
-                    "Publications direct home images require --xlsx-file with --csv-dir"
+                    "in-cell images require --xlsx-file with --csv-dir"
                 )
             else:
                 publication_workbook = _fetch_workbook(args.sheet_id, args.timeout)
