@@ -211,7 +211,7 @@ reported in the publisher log.
 | `name_en`, `name_ko` | English name and optional Korean name |
 | `role` | Current role shown directly below a card name; for Staff, use a descriptive function such as `Lab Administration & Operations` rather than the generic `Staff` |
 | `details` | Optional longer description for Faculty/Student/Staff cards; required current position for alumni |
-| `photo` | For a Faculty/Student/Staff card, use **Insert > Image > Insert image in cell** and upload the photo file. Staff may leave it blank to use the basic profile image |
+| `photo` | Optional for every Faculty/Student/Staff card. Use **Insert > Image > Insert image in cell** to upload a photo; leave it blank to use the basic profile image |
 | `email` | Optional public email address for any member or alumnus |
 | `website`, `scholar`, `linkedin` | Optional HTTPS profile links for any member or alumnus |
 | `phone`, `address` | Optional public faculty contact fields |
@@ -235,10 +235,10 @@ Select the person's `photo` cell and choose **Insert > Image > Insert image in
 cell**; replacing that cell's image later replaces the website photo on the next
 normal publisher run. The builder copies the uploaded binary into a hashed local
 asset and generates accessible alt text from `name_en`, so temporary Google image
-URLs are never exposed on the public site. Faculty, Ph.D. Students, and Master's
-Students must have either an uploaded cell image or a legacy local path while the
-Sheet is being migrated. Legacy paths remain accepted only to let the existing
-photos move over one row at a time.
+URLs are never exposed on the public site. A blank `photo` cell uses
+`img/basic_profile.png` in every card section. Legacy local paths and tightly
+restricted `IMAGE("https://econai.kaist.ac.kr/img/...")` formulas remain accepted
+only to let the existing server photos move into the Sheet one row at a time.
 
 Alumni and Pre-EconAI Alumni use the same `email`, `website`, `scholar`, and
 `linkedin` cells as current members. Every nonblank value becomes the same profile

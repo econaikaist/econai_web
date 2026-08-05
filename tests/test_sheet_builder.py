@@ -586,6 +586,7 @@ class SheetBuilderTests(unittest.TestCase):
         image_payloads: dict[str, bytes],
         *,
         duplicate_image_for: str = "",
+        formula_urls: dict[str, str] | None = None,
     ) -> bytes:
         def column_name(index: int) -> str:
             value = index + 1
@@ -602,6 +603,10 @@ class SheetBuilderTests(unittest.TestCase):
                 f"{xml_escape(value)}</t></is></c>"
             )
 
+        def formula_cell(row: int, column: int, formula: str) -> str:
+            reference = f"{column_name(column)}{row}"
+            return f'<c r="{reference}"><f>{xml_escape(formula)}</f><v></v></c>'
+
         worksheet_rows = [
             '<row r="1">'
             + "".join(
@@ -610,14 +615,26 @@ class SheetBuilderTests(unittest.TestCase):
             )
             + "</row>"
         ]
+        member_formula_urls = formula_urls or {}
         for sheet_row, row in enumerate(member_rows, start=2):
+            cells = []
+            for column, header in enumerate(MEMBER_COLUMNS):
+                formula_url = member_formula_urls.get(row.get("name_en", ""))
+                if header == "photo" and formula_url:
+                    cells.append(
+                        formula_cell(
+                            sheet_row,
+                            column,
+                            f'IMAGE("{formula_url}")',
+                        )
+                    )
+                elif header != "photo" or row.get(header, ""):
+                    cells.append(
+                        inline_cell(sheet_row, column, row.get(header, ""))
+                    )
             worksheet_rows.append(
                 f'<row r="{sheet_row}">'
-                + "".join(
-                    inline_cell(sheet_row, column, row.get(header, ""))
-                    for column, header in enumerate(MEMBER_COLUMNS)
-                    if header != "photo" or row.get(header, "")
-                )
+                + "".join(cells)
                 + "</row>"
             )
 
@@ -1400,7 +1417,7 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertNotIn("ggpht.com", member_text)
             self.assertEqual(site_validator.validate(output), [])
 
-    def test_required_member_cell_image_fails_closed_when_missing(self) -> None:
+    def test_blank_member_photos_use_default_for_every_card_section(self) -> None:
         tabs = self._publication_reference_tabs()
         member_rows = [
             {
@@ -1409,41 +1426,115 @@ class SheetBuilderTests(unittest.TestCase):
                 "name_en": "Example Author",
                 "role": "Professor",
                 "photo": "",
+                "email": "example-author@example.com",
+                "address": "KAIST N5, Daejeon, South Korea",
+                "affiliations": "KAIST School of Business and Technology Management",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Ph.D. Students",
+                "name_en": "Blank PhD Student",
+                "role": "Ph.D. Student",
+                "photo": "",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Master's Students",
+                "name_en": "Blank Master's Student",
+                "role": "Master's Student",
+                "photo": "",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Staff",
+                "name_en": "Blank Staff",
+                "role": "Lab Operations",
+                "photo": "",
+            },
+        ]
+        tabs["Members"] = builder._read_csv_text(
+            _csv_text(MEMBER_COLUMNS, member_rows), "Members"
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "output"
+            builder.build_site(
+                tabs,
+                REPOSITORY_ROOT / "main_site",
+                output,
+                "test-sheet",
+                "offline_csv",
+            )
+            member_text = (output / "members.html").read_text(encoding="utf-8")
+            self.assertEqual(member_text.count('src="img/basic_profile.png"'), 4)
+            self.assertEqual(site_validator.validate(output), [])
+
+    def test_member_formula_uses_existing_site_image_without_network(self) -> None:
+        tabs = self._publication_reference_tabs()
+        member_rows = [
+            {
+                "publish": "TRUE",
+                "section": "Faculty",
+                "name_en": "Example Author",
+                "role": "Professor",
+                "photo": "",
+                "email": "example-author@example.com",
+                "address": "KAIST N5, Daejeon, South Korea",
                 "affiliations": "KAIST School of Business and Technology Management",
             }
         ]
         tabs["Members"] = builder._read_csv_text(
             _csv_text(MEMBER_COLUMNS, member_rows), "Members"
         )
-        workbook = self._member_workbook(member_rows, {})
+        workbook = self._member_workbook(
+            member_rows,
+            {},
+            formula_urls={
+                "Example Author": "https://econai.kaist.ac.kr/img/prof_jihee.jpg"
+            },
+        )
         with tempfile.TemporaryDirectory() as temporary_directory:
-            with self.assertRaisesRegex(
-                builder.SheetBuildError,
-                "Example Author.*add a photo image",
+            output = Path(temporary_directory) / "output"
+            with mock.patch.object(
+                builder.urllib.request,
+                "urlopen",
+                side_effect=AssertionError(
+                    "member formula images must use the copied local asset"
+                ),
             ):
                 builder.build_site(
                     tabs,
                     REPOSITORY_ROOT / "main_site",
-                    Path(temporary_directory) / "output",
+                    output,
                     "test-sheet",
                     "offline_csv",
                     publication_workbook=workbook,
                 )
+            assets = list((output / "img/sheet-members").iterdir())
+            self.assertEqual(len(assets), 1)
+            self.assertEqual(
+                assets[0].read_bytes(),
+                (REPOSITORY_ROOT / "main_site/img/prof_jihee.jpg").read_bytes(),
+            )
+            member_text = (output / "members.html").read_text(encoding="utf-8")
+            self.assertIn(assets[0].relative_to(output).as_posix(), member_text)
+            self.assertNotIn("https://econai.kaist.ac.kr/img/", member_text)
+            self.assertEqual(site_validator.validate(output), [])
 
-    def test_required_member_cell_image_requires_workbook_export(self) -> None:
-        tabs = self._publication_reference_tabs()
-        tabs["Members"][0]["photo"] = ""
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            with self.assertRaisesRegex(
-                builder.SheetBuildError,
-                "Members in-cell photos require an XLSX workbook export",
+    def test_member_formula_rejects_external_or_unsafe_image_sources(self) -> None:
+        formulas = (
+            'IMAGE("https://example.com/img/profile.jpg")',
+            'IMAGE("https://econai.kaist.ac.kr/other/profile.jpg")',
+            'IMAGE("https://econai.kaist.ac.kr/img/../private.jpg")',
+            'IMAGE("https://econai.kaist.ac.kr/img/profile.jpg?token=secret")',
+        )
+        for formula in formulas:
+            with self.subTest(formula=formula), self.assertRaises(
+                builder.SheetBuildError
             ):
-                builder.build_site(
-                    tabs,
+                builder._member_formula_image_payload(
+                    formula,
+                    "Example Author",
                     REPOSITORY_ROOT / "main_site",
-                    Path(temporary_directory) / "output",
-                    "test-sheet",
-                    "offline_csv",
                 )
 
     def test_live_cli_fetches_workbook_for_member_cell_images(self) -> None:
@@ -1473,7 +1564,7 @@ class SheetBuilderTests(unittest.TestCase):
             b"sheet-workbook",
         )
 
-    def test_offline_cli_keeps_blank_staff_photo_fallback_without_workbook(
+    def test_offline_cli_keeps_blank_photo_fallback_without_workbook(
         self,
     ) -> None:
         tabs = self._publication_reference_tabs()

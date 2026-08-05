@@ -185,11 +185,6 @@ MEMBER_CARD_SECTIONS = {
     "Master's Students",
     "Staff",
 }
-MEMBER_REQUIRED_PHOTO_SECTIONS = {
-    "Faculty",
-    "Ph.D. Students",
-    "Master's Students",
-}
 DEFAULT_MEMBER_PHOTO = "img/basic_profile.png"
 
 
@@ -1377,16 +1372,69 @@ def _member_asset_key(identity: Tuple[str, str, str]) -> str:
     return hashlib.sha256("\0".join(identity).encode("utf-8")).hexdigest()[:16]
 
 
+def _member_formula_image_payload(
+    formula: str,
+    member_name: str,
+    output_dir: Path,
+) -> bytes:
+    label = f"Members photo for {member_name!r}"
+    match = re.fullmatch(
+        r'(?:_xlfn\.)?IMAGE\(\s*"([^"]+)"\s*\)',
+        formula,
+        flags=re.IGNORECASE,
+    )
+    if match is None:
+        raise SheetBuildError(
+            f'{label}: formula must use IMAGE("https://econai.kaist.ac.kr/img/...")'
+        )
+    try:
+        parsed = urllib.parse.urlsplit(match.group(1))
+        port = parsed.port
+        decoded_path = urllib.parse.unquote(parsed.path)
+    except ValueError:
+        raise SheetBuildError(f"{label}: formula URL is invalid") from None
+    if (
+        parsed.scheme != "https"
+        or (parsed.hostname or "").casefold() != "econai.kaist.ac.kr"
+        or parsed.username is not None
+        or parsed.password is not None
+        or port not in (None, 443)
+        or not decoded_path.startswith("/img/")
+        or "\\" in decoded_path
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise SheetBuildError(f"{label}: formula URL is not allowed")
+    relative_path = PurePosixPath(decoded_path.lstrip("/"))
+    if not relative_path.parts or ".." in relative_path.parts:
+        raise SheetBuildError(f"{label}: formula path is unsafe")
+    source = (output_dir / Path(*relative_path.parts)).resolve()
+    try:
+        source.relative_to(output_dir.resolve())
+    except ValueError as exc:
+        raise SheetBuildError(f"{label}: formula path leaves the site") from exc
+    try:
+        if not source.is_file() or source.stat().st_size > MEMBER_IMAGE_FILE_LIMIT:
+            raise SheetBuildError(f"{label}: source image is missing or too large")
+        payload = source.read_bytes()
+    except OSError as exc:
+        raise SheetBuildError(f"{label}: source image cannot be read") from exc
+    _detect_image_format(payload)
+    return payload
+
+
 def _materialise_member_images(
     workbook_payload: bytes,
     members: Sequence[Dict[str, str]],
     output_dir: Path,
 ) -> Dict[Tuple[str, str, str], str]:
-    """Extract uploaded member photos from the Members ``photo`` cells.
+    """Extract member photos from the Members ``photo`` cells.
 
     Google renders an in-cell image as an empty value in the CSV feed, while
     retaining its binary and cell anchor in the XLSX export.  Member identity,
     rather than the physical row number, binds each extracted image to a card.
+    During migration, a tightly scoped IMAGE formula may reference an existing
+    image under this site's own ``/img/`` directory.
     """
 
     try:
@@ -1445,31 +1493,29 @@ def _materialise_member_images(
             )
 
         image_column = headers["photo"]
-        for identity, row in identity_rows.items():
-            if formulas.get((row, image_column), ""):
-                raise SheetBuildError(
-                    f"Members photo for {identity[2]!r} must be an image inserted in the cell"
-                )
-
         drawing = worksheet.find(f"{{{XLSX_MAIN_NS}}}drawing")
-        if drawing is None:
-            return {}
-        drawing_relationship_id = drawing.get(
-            f"{{{XLSX_DOCUMENT_REL_NS}}}id", ""
-        )
-        drawing_path = _xlsx_relationship_target(
-            archive,
-            worksheet_path,
-            drawing_relationship_id,
-            "drawing",
-            "Members drawing",
-        )
-        drawing_root = _xlsx_xml(archive, drawing_path, "Members drawing")
+        drawing_path = ""
+        drawing_root = None
+        if drawing is not None:
+            drawing_relationship_id = drawing.get(
+                f"{{{XLSX_DOCUMENT_REL_NS}}}id", ""
+            )
+            drawing_path = _xlsx_relationship_target(
+                archive,
+                worksheet_path,
+                drawing_relationship_id,
+                "drawing",
+                "Members drawing",
+            )
+            drawing_root = _xlsx_xml(archive, drawing_path, "Members drawing")
         row_to_identity = {row: identity for identity, row in identity_rows.items()}
         image_targets: Dict[Tuple[str, str, str], str] = {}
-        for anchor in drawing_root.findall(
-            f"{{{XLSX_DRAWING_NS}}}oneCellAnchor"
-        ):
+        anchors = (
+            drawing_root.findall(f"{{{XLSX_DRAWING_NS}}}oneCellAnchor")
+            if drawing_root is not None
+            else []
+        )
+        for anchor in anchors:
             row_text = anchor.findtext(
                 f"{{{XLSX_DRAWING_NS}}}from/{{{XLSX_DRAWING_NS}}}row"
             )
@@ -1510,13 +1556,31 @@ def _materialise_member_images(
                 f"Members photo for {identity[2]!r}",
             )
 
-        assets: Dict[Tuple[str, str, str], str] = {}
-        for identity, media_path in image_targets.items():
-            payload = _xlsx_read_member(
-                archive,
-                media_path,
-                f"Members photo for {identity[2]!r}",
+        formula_payloads: Dict[Tuple[str, str, str], bytes] = {}
+        for identity, row in identity_rows.items():
+            formula = formulas.get((row, image_column), "")
+            if not formula:
+                continue
+            if identity in image_targets:
+                raise SheetBuildError(
+                    f"Members photo for {identity[2]!r} is both embedded and formula-based"
+                )
+            formula_payloads[identity] = _member_formula_image_payload(
+                formula,
+                identity[2],
+                output_dir,
             )
+
+        assets: Dict[Tuple[str, str, str], str] = {}
+        for identity in sorted(set(image_targets) | set(formula_payloads)):
+            if identity in image_targets:
+                payload = _xlsx_read_member(
+                    archive,
+                    image_targets[identity],
+                    f"Members photo for {identity[2]!r}",
+                )
+            else:
+                payload = formula_payloads[identity]
             if len(payload) > MEMBER_IMAGE_FILE_LIMIT:
                 raise SheetBuildError(
                     f"Members photo for {identity[2]!r} exceeds the size limit"
@@ -2188,10 +2252,6 @@ def _member_card_lines(
 ) -> List[str]:
     photo = member_images.get(_member_identity(row)) or row.get("photo", "")
     if not photo:
-        if row["section"] in MEMBER_REQUIRED_PHOTO_SECTIONS:
-            raise SheetBuildError(
-                f'{row["name_en"]}: add a photo image in the Members sheet cell'
-            )
         photo = DEFAULT_MEMBER_PHOTO
     photo_path = (output_dir / photo).resolve()
     try:
@@ -2456,13 +2516,6 @@ def build_site(
         if publication_image_schema == "direct_cell"
         else None
     )
-    if publication_workbook is None and any(
-        row["section"] in MEMBER_REQUIRED_PHOTO_SECTIONS
-        for row in member_image_candidates
-    ):
-        raise SheetBuildError(
-            "Members in-cell photos require an XLSX workbook export"
-        )
     member_images = (
         _materialise_member_images(
             publication_workbook or b"",
@@ -2584,21 +2637,13 @@ def main() -> int:
     try:
         tabs = load_sheet_tabs(args.sheet_id, args.csv_dir, args.timeout)
         publication_workbook = None
-        required_member_image_candidates = any(
-            row["section"] in MEMBER_REQUIRED_PHOTO_SECTIONS
-            and not row.get("photo")
-            for row in tabs["Members"]
-        )
-        optional_member_image_candidates = any(
-            row["section"] == "Staff" and not row.get("photo")
+        blank_member_photo_cells = any(
+            row["section"] in MEMBER_CARD_SECTIONS and not row.get("photo")
             for row in tabs["Members"]
         )
         member_image_candidates = (
-            required_member_image_candidates
-            or (
-                optional_member_image_candidates
-                and (args.csv_dir is None or args.xlsx_file is not None)
-            )
+            blank_member_photo_cells
+            and (args.csv_dir is None or args.xlsx_file is not None)
         )
         workbook_needed = (
             _publication_image_schema(tabs["Publications"][0].keys())
