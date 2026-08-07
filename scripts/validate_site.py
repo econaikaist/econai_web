@@ -10,35 +10,45 @@ import sys
 import urllib.parse
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import List, Sequence, Tuple
+from typing import Dict, List, Sequence, Tuple
 
 
+SITE_FOOTER_PAIR = (
+    "<!-- SITE:FOOTER:START -->",
+    "<!-- SITE:FOOTER:END -->",
+)
 MARKER_PAIRS = {
     "index.html": (
         ("<!-- SHEET:RESEARCH_FOCUS:START -->", "<!-- SHEET:RESEARCH_FOCUS:END -->"),
         ("<!-- SHEET:LATEST_PUBLICATIONS:START -->", "<!-- SHEET:LATEST_PUBLICATIONS:END -->"),
         ("<!-- SHEET:NEWS:START -->", "<!-- SHEET:NEWS:END -->"),
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
+        SITE_FOOTER_PAIR,
     ),
     "members.html": (
         ("<!-- SHEET:MEMBERS:START -->", "<!-- SHEET:MEMBERS:END -->"),
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
+        SITE_FOOTER_PAIR,
     ),
     "contact.html": (
         ("<!-- SHEET:CONTACT:START -->", "<!-- SHEET:CONTACT:END -->"),
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
+        SITE_FOOTER_PAIR,
     ),
     "research.html": (
         ("<!-- SHEET:RESEARCH_AREAS:START -->", "<!-- SHEET:RESEARCH_AREAS:END -->"),
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
+        SITE_FOOTER_PAIR,
     ),
     "projects.html": (
         ("<!-- SHEET:PROJECTS:START -->", "<!-- SHEET:PROJECTS:END -->"),
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
+        SITE_FOOTER_PAIR,
     ),
     "publications.html": (
         ("<!-- PUBLICATIONS:START -->", "<!-- PUBLICATIONS:END -->"),
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
+        SITE_FOOTER_PAIR,
     ),
 }
 EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel", "data"}
@@ -91,6 +101,7 @@ def _resolve_local_reference(site_dir: Path, html_path: Path, value: str) -> Pat
 
 def validate(site_dir: Path) -> List[str]:
     errors: List[str] = []
+    rendered_footers: Dict[str, str] = {}
     site_dir = site_dir.resolve()
     metadata_path = site_dir / "data/sheet-build.json"
     try:
@@ -127,6 +138,8 @@ def validate(site_dir: Path) -> List[str]:
 
         if _classes(text, "site-header") != 1:
             errors.append(f"{file_name}: canonical site header is missing")
+        if _classes(text, "site-footer") != 1:
+            errors.append(f"{file_name}: canonical site footer is missing")
         if _classes(text, "desktop-nav") != 1 or _classes(text, "mobile-nav") != 1:
             errors.append(f"{file_name}: canonical navigation is missing")
         if "site.css?" not in text:
@@ -139,6 +152,26 @@ def validate(site_dir: Path) -> List[str]:
             errors.append(f"{file_name}: legacy Bootstrap page shell remains")
         if file_name != "index.html" and _classes(text, "page-hero") != 1:
             errors.append(f"{file_name}: canonical page hero is missing")
+
+        footer_start, footer_end = SITE_FOOTER_PAIR
+        if text.count(footer_start) == 1 and text.count(footer_end) == 1:
+            start = text.index(footer_start)
+            end = text.index(footer_end, start) + len(footer_end)
+            rendered_footers[file_name] = text[start:end]
+
+    if len(rendered_footers) == len(MARKER_PAIRS):
+        reference_name = next(iter(MARKER_PAIRS))
+        reference_footer = rendered_footers[reference_name]
+        mismatched = [
+            file_name
+            for file_name, footer in rendered_footers.items()
+            if footer != reference_footer
+        ]
+        if mismatched:
+            errors.append(
+                "primary page footers differ from index.html: "
+                + ", ".join(sorted(mismatched))
+            )
 
     publication_text = (site_dir / "publications.html").read_text(encoding="utf-8")
     research_text = (site_dir / "research.html").read_text(encoding="utf-8")

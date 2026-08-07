@@ -39,6 +39,15 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SHEET_ID = "14pRbiM3ubsGT1DsBZdLF9xSHmSntwBRSkAUYbyrr6xM"
 DEFAULT_SOURCE_DIR = REPOSITORY_ROOT / "main_site"
 DEFAULT_OUTPUT_DIR = REPOSITORY_ROOT / "_site"
+PRIMARY_PAGE_NAMES = (
+    "index.html",
+    "members.html",
+    "research.html",
+    "publications.html",
+    "projects.html",
+    "contact.html",
+)
+SITE_FOOTER_META = "Daejeon, ROK · 2026 Economic Progress and AI Research Group"
 RESEARCH_IMAGE_ENDPOINT_ENV = "ECONAI_SHEET_IMAGE_ENDPOINT"
 RESEARCH_IMAGE_TOKEN_ENV = "ECONAI_SHEET_IMAGE_TOKEN"
 RESEARCH_IMAGE_SCHEMA_VERSION = 1
@@ -2428,6 +2437,23 @@ def render_footer_affiliations(member_rows: Sequence[Dict[str, str]]) -> str:
     )
 
 
+def render_site_footer(member_rows: Sequence[Dict[str, str]]) -> str:
+    """Render the one canonical footer shared by every primary site page."""
+    affiliations = render_footer_affiliations(member_rows)
+    return "\n".join(
+        [
+            '  <footer class="site-footer">',
+            '    <div class="container footer-inner">',
+            '      <!-- SHEET:FOOTER_AFFILIATIONS:START -->',
+            affiliations,
+            '      <!-- SHEET:FOOTER_AFFILIATIONS:END -->',
+            f'      <p class="footer-meta">{_escape(SITE_FOOTER_META)}</p>',
+            "    </div>",
+            "  </footer>",
+        ]
+    )
+
+
 def _replace_block(path: Path, start_marker: str, end_marker: str, block: str) -> None:
     try:
         current = path.read_text(encoding="utf-8")
@@ -2579,20 +2605,13 @@ def build_site(
         "<!-- SHEET:CONTACT:END -->",
         render_contact(members),
     )
-    footer_affiliations = render_footer_affiliations(members)
-    for page_name in (
-        "index.html",
-        "members.html",
-        "research.html",
-        "publications.html",
-        "projects.html",
-        "contact.html",
-    ):
+    site_footer = render_site_footer(members)
+    for page_name in PRIMARY_PAGE_NAMES:
         _replace_block(
             output_dir / page_name,
-            "<!-- SHEET:FOOTER_AFFILIATIONS:START -->",
-            "<!-- SHEET:FOOTER_AFFILIATIONS:END -->",
-            footer_affiliations,
+            "<!-- SITE:FOOTER:START -->",
+            "<!-- SITE:FOOTER:END -->",
+            site_footer,
         )
 
     metadata = {

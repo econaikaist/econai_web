@@ -1871,20 +1871,37 @@ class SheetBuilderTests(unittest.TestCase):
                 '<li class="footer-affiliation">School of Computing</li>',
                 index_text,
             )
-            for page_name in (
-                "index.html",
-                "members.html",
-                "research.html",
-                "publications.html",
-                "projects.html",
-                "contact.html",
-            ):
+            rendered_footers = []
+            for page_name in builder.PRIMARY_PAGE_NAMES:
                 page_text = (output / page_name).read_text(encoding="utf-8")
                 self.assertIn(
                     "Daejeon, ROK · 2026 Economic Progress and AI Research Group",
                     page_text,
                 )
+                footer_start, footer_end = site_validator.SITE_FOOTER_PAIR
+                footer_start_index = page_text.index(footer_start)
+                footer_end_index = page_text.index(footer_end) + len(footer_end)
+                rendered_footers.append(
+                    page_text[footer_start_index:footer_end_index]
+                )
+            self.assertEqual(len(set(rendered_footers)), 1)
             self.assertEqual(site_validator.validate(output), [])
+
+            project_path = output / "projects.html"
+            canonical_project = project_path.read_text(encoding="utf-8")
+            project_path.write_text(
+                canonical_project.replace(
+                    builder.SITE_FOOTER_META,
+                    "Different footer",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            self.assertIn(
+                "primary page footers differ from index.html: projects.html",
+                site_validator.validate(output),
+            )
+            project_path.write_text(canonical_project, encoding="utf-8")
 
             metadata["published_rows"]["News"] = 3
             metadata["published_rows"]["Members"] = 4
