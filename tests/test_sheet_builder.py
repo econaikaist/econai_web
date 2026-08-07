@@ -991,6 +991,15 @@ class SheetBuilderTests(unittest.TestCase):
 
         self.assertNotIn("Latest Publications", index_source)
         self.assertIn('<h2 id="recent-work-title">Publications</h2>', index_source)
+        self.assertIn(
+            '<h1 id="hero-title">Economic Progress and AI Research Group</h1>',
+            index_source,
+        )
+        self.assertIn('src="img/EconAI@KAIST.svg"', index_source)
+        self.assertNotIn(
+            "Economic Analysis with Artificial Intelligence",
+            index_source,
+        )
         self.assertNotIn("Researchers and students working", (REPOSITORY_ROOT / "main_site/members.html").read_text(encoding="utf-8"))
         self.assertNotIn("We combine artificial intelligence", (REPOSITORY_ROOT / "main_site/research.html").read_text(encoding="utf-8"))
 
@@ -1871,7 +1880,10 @@ class SheetBuilderTests(unittest.TestCase):
                 "contact.html",
             ):
                 page_text = (output / page_name).read_text(encoding="utf-8")
-                self.assertIn("Daejeon, ROK · 2026 EconAI Lab", page_text)
+                self.assertIn(
+                    "Daejeon, ROK · 2026 Economic Progress and AI Research Group",
+                    page_text,
+                )
             self.assertEqual(site_validator.validate(output), [])
 
             metadata["published_rows"]["News"] = 3
