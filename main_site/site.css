@@ -883,16 +883,20 @@ a {
   white-space: nowrap;
 }
 
-.publication-project-link {
+.publication-list a.publication-project-link {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  padding: 3px 8px;
   text-decoration: none;
   transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
 }
 
-.publication-project-link:hover,
-.publication-project-link:focus-visible {
+.publication-list a.publication-project-link:hover,
+.publication-list a.publication-project-link:focus-visible {
   background: var(--blue);
   border-color: var(--blue);
   color: #fff;
+  text-decoration: none;
 }
 
 .publication-distinction {
@@ -919,13 +923,6 @@ a {
   background: #eef4fb;
   border-color: #cbd9ea;
   color: var(--blue-dark);
-}
-
-.publication-distinction--project {
-  font-size: 0.66rem;
-  letter-spacing: 0.005em;
-  line-height: 1.25;
-  padding: 2px 7px;
 }
 
 .members-section {
