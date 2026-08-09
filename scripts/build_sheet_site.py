@@ -1717,7 +1717,7 @@ def _render_publication_item(row: Mapping[str, str], lab_authors: set[str]) -> L
         project_url = _escape(row["project_url"], quote=True)
         label = _escape(f"Project page for {row['title']}", quote=True)
         lines.append(
-            f'                                <a class="publication-project-link" href="{project_url}" aria-label="{label}">Project Page</a>'
+            f'                                <a class="publication-project-link publication-distinction publication-distinction--project" href="{project_url}" aria-label="{label}">Project Page</a>'
         )
     if row.get("highlight"):
         kind = _distinction_kind(row["highlight"])

@@ -865,6 +865,51 @@ class SheetBuilderTests(unittest.TestCase):
             home_latest.index("First 2025 Sheet Row"),
         )
 
+    def test_project_page_link_uses_shared_distinction_badge_geometry(self) -> None:
+        rendered = "\n".join(
+            builder._render_publication_item(
+                {
+                    "title": "Example Paper",
+                    "authors": "A Author",
+                    "venue": "Example Conference (2026)",
+                    "paper_url": "https://example.com/paper",
+                    "project_url": "https://example.com/project",
+                    "highlight": "Best Paper Award",
+                },
+                set(),
+            )
+        )
+        self.assertIn(
+            'class="publication-project-link publication-distinction '
+            'publication-distinction--project"',
+            rendered,
+        )
+        self.assertIn(
+            'class="publication-distinction publication-distinction--award"',
+            rendered,
+        )
+
+        for stylesheet_name in ("site.css", "style.css"):
+            stylesheet = (
+                REPOSITORY_ROOT / "main_site" / stylesheet_name
+            ).read_text(encoding="utf-8")
+            distinction = re.search(
+                r"\.publication-distinction\s*\{(?P<body>[^}]*)\}",
+                stylesheet,
+            )
+            self.assertIsNotNone(distinction)
+            distinction_body = distinction.group("body")
+            self.assertIn("font-size: 0.72rem", distinction_body)
+            self.assertIn("line-height: 1.35", distinction_body)
+            self.assertIn("padding: 3px 8px", distinction_body)
+
+            project_link = re.search(
+                r"\.publication-project-link\s*\{(?P<body>[^}]*)\}",
+                stylesheet,
+            )
+            self.assertIsNotNone(project_link)
+            self.assertNotIn("padding:", project_link.group("body"))
+
     def test_home_latest_renders_accessible_three_slide_carousel(self) -> None:
         rows = [
             {
@@ -985,7 +1030,7 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertIn('class="site-header"', page_source)
             self.assertIn('class="desktop-nav"', page_source)
             self.assertIn('class="mobile-nav"', page_source)
-            self.assertIn("site.css?v=20260805-alumni-links", page_source)
+            self.assertIn("site.css?v=20260809-publication-badges", page_source)
             self.assertNotIn("fixed-top", page_source)
             self.assertNotIn("bootstrap", page_source.lower())
 
