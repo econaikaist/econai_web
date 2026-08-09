@@ -921,6 +921,13 @@ a {
   color: var(--blue-dark);
 }
 
+.publication-distinction--project {
+  font-size: 0.66rem;
+  letter-spacing: 0.005em;
+  line-height: 1.25;
+  padding: 2px 7px;
+}
+
 .members-section {
   max-width: 1040px;
 }

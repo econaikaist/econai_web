@@ -865,7 +865,7 @@ class SheetBuilderTests(unittest.TestCase):
             home_latest.index("First 2025 Sheet Row"),
         )
 
-    def test_project_page_link_uses_shared_distinction_badge_geometry(self) -> None:
+    def test_project_page_link_uses_compact_distinction_badge_geometry(self) -> None:
         rendered = "\n".join(
             builder._render_publication_item(
                 {
@@ -909,6 +909,16 @@ class SheetBuilderTests(unittest.TestCase):
             )
             self.assertIsNotNone(project_link)
             self.assertNotIn("padding:", project_link.group("body"))
+
+            compact_project = re.search(
+                r"\.publication-distinction--project\s*\{(?P<body>[^}]*)\}",
+                stylesheet,
+            )
+            self.assertIsNotNone(compact_project)
+            compact_project_body = compact_project.group("body")
+            self.assertIn("font-size: 0.66rem", compact_project_body)
+            self.assertIn("line-height: 1.25", compact_project_body)
+            self.assertIn("padding: 2px 7px", compact_project_body)
 
     def test_home_latest_renders_accessible_three_slide_carousel(self) -> None:
         rows = [
@@ -1030,7 +1040,7 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertIn('class="site-header"', page_source)
             self.assertIn('class="desktop-nav"', page_source)
             self.assertIn('class="mobile-nav"', page_source)
-            self.assertIn("site.css?v=20260809-publication-badges", page_source)
+            self.assertIn("site.css?v=20260809-compact-project-link", page_source)
             self.assertNotIn("fixed-top", page_source)
             self.assertNotIn("bootstrap", page_source.lower())
 
