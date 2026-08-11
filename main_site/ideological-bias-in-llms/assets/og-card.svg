@@ -52,7 +52,7 @@
     <g transform="translate(568 362)" filter="url(#shadow)">
       <rect width="560" height="170" rx="24" fill="#fff"/>
       <text x="30" y="43" fill="#66758a" font-size="14" font-weight="800" letter-spacing="1.5">MAIN RESULT</text>
-      <text x="30" y="108" fill="#004191" font-size="58" font-weight="900" letter-spacing="-2">18 / 20</text>
+      <text x="30" y="108" fill="#004191" font-size="58" font-weight="900" letter-spacing="-2">17 / 20</text>
       <text x="245" y="83" fill="#172033" font-size="20" font-weight="800">models are more accurate on</text>
       <text x="245" y="113" fill="#0f766e" font-size="20" font-weight="850">intervention-truth cases</text>
       <text x="30" y="145" fill="#66758a" font-size="14">20 state-of-the-art LLMs · 1,056 contested causal triplets</text>

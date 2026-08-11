@@ -1,0 +1,1071 @@
+{
+  "schema_version": "website-experiment-results.v1",
+  "generated_at_utc": "2026-08-10T07:52:37Z",
+  "evaluation": {
+    "denominators": {
+      "contested": 1056,
+      "directional": 878,
+      "intervention_truth": 507,
+      "market_truth": 371,
+      "neither_truth": 178
+    },
+    "metric_units": {
+      "contested_accuracy_pct": "percent",
+      "intervention_accuracy_pct": "percent",
+      "market_accuracy_pct": "percent",
+      "accuracy_gap_pp": "percentage_points",
+      "error_direction_bias_pct": "percent"
+    },
+    "error_direction_bias_definition": "100 * (intervention-oriented errors - market-oriented errors) / all errors on the 878 directionally aligned items"
+  },
+  "sources": {
+    "results": {
+      "absolute_path": "/home/donggyu/econ_causality/colm_web_standard_parallel_20260805T121530Z/runs/full_20260806T094208Z/results.jsonl",
+      "sha256": "505d1abc3f5ee0cced7061fb2e726f6bb28f07a12016768d50f4223d4a49c506",
+      "row_count": 38016
+    },
+    "full_manifest": {
+      "absolute_path": "/home/donggyu/econ_causality/colm_web_standard_parallel_20260805T121530Z/runs/full_20260806T094208Z/full_manifest.json",
+      "sha256": "ea61b29d102e42b694ebcdfe7a700afdbb29879c8c855165f82c23b6f2d87858"
+    },
+    "condition_contracts": {
+      "absolute_path": "/home/donggyu/econ_causality/colm_web_standard_parallel_20260805T121530Z/manifests/condition_contracts.json",
+      "sha256": "d440bf8b9121e0dcfe4893a7ece975b934d180199c52c3ada153e344f1cee6c0"
+    },
+    "dataset": {
+      "absolute_path": "/home/donggyu/econ_causality/data/task1_ideology_subset_1056.jsonl",
+      "sha256": "300681f47a018ffa1bb96b6655c11a81518bab9582374a6b990f85ace82717fb",
+      "row_count": 1056
+    },
+    "classifier": {
+      "absolute_path": "/home/donggyu/econ_causality/extended/classification_results/ideology_triplet_subset_current.jsonl",
+      "sha256": "7973d3e6021854b276178badca59bed61312cbe9252a13e4875975a5683ee60f",
+      "row_count": 1056
+    },
+    "local_results_manifest": {
+      "absolute_path": "/home/donggyu/econ_causality/econ_eval/evaluation_results_final/local4bit_1056_20260803/RUN_MANIFEST.md",
+      "sha256": "c0a6d2d641e564fc5db5d2bfcf3540966ad124814ba7bdb3e41438d88753203a",
+      "condition_count": 9,
+      "row_count": 9504,
+      "result_file_digest": "fc3c07250cb9b4c0c82d3b481d778c2018e9060919a187583f3198ca04ad916c"
+    },
+    "local_metrics_878": {
+      "absolute_path": "/home/donggyu/econ_causality/COLM_EconCausal_Ideology_Bias_camera_ready_CLEAN_20260809_112253/revision_tools/local_model_metrics_878.csv",
+      "sha256": "3813702caa1a7222f5fd7db8e9faf40c08e299cb4380828c642292fe78382ab5",
+      "row_count": 9
+    }
+  },
+  "main_benchmark": {
+    "selection": "provider-minimum panel with one baseline condition per effort-sweep model, plus nine completed local 4-bit evaluations",
+    "condition_count": 32,
+    "excluded_models": [
+      {
+        "model_id": "gemini-2.5-flash",
+        "reason": "Unavailable at inference time; excluded from the completed full run."
+      },
+      {
+        "model_id": "gemini-3.1-pro-preview",
+        "reason": "Removed before the final executable matrix; no completed full-run result."
+      }
+    ],
+    "results": [
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5 nano",
+        "model_id": "gpt-5-nano-2025-08-07",
+        "canonical_model_id": "gpt-5-nano-2025-08-07",
+        "condition_key": "oa_gpt5_nano_minimal",
+        "condition_id": "ee8fe506a7012ee04f370faf481de71a4beee530e6096c3bcac221df82ac2352",
+        "setting": {
+          "reasoning_effort": "minimal"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 38.92045454545455,
+          "intervention_accuracy_pct": 44.773175542406314,
+          "market_accuracy_pct": 36.118598382749326,
+          "accuracy_gap_pp": 8.654577159656988,
+          "error_direction_bias_pct": -4.061895551257253
+        }
+      },
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5 mini",
+        "model_id": "gpt-5-mini-2025-08-07",
+        "canonical_model_id": "gpt-5-mini-2025-08-07",
+        "condition_key": "oa_gpt5_mini_minimal",
+        "condition_id": "f4afa8b1f19f5e378a22ccd6694cabe9f34a4fbb30e7293c3a877c53cda27e5b",
+        "setting": {
+          "reasoning_effort": "minimal"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 49.81060606060606,
+          "intervention_accuracy_pct": 64.29980276134123,
+          "market_accuracy_pct": 45.82210242587601,
+          "accuracy_gap_pp": 18.477700335465215,
+          "error_direction_bias_pct": 4.450261780104712
+        }
+      },
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5.4 nano",
+        "model_id": "gpt-5.4-nano-2026-03-17",
+        "canonical_model_id": "gpt-5.4-nano-2026-03-17",
+        "condition_key": "oa_gpt54_nano_none",
+        "condition_id": "ad66f16187e4bf093821c762bc2a95f665ab3fa17852a4146d242b2c717dd6d0",
+        "setting": {
+          "reasoning_effort": "none"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 31.818181818181817,
+          "intervention_accuracy_pct": 40.63116370808679,
+          "market_accuracy_pct": 26.41509433962264,
+          "accuracy_gap_pp": 14.216069368464147,
+          "error_direction_bias_pct": 3.658536585365854
+        }
+      },
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5.4 mini",
+        "model_id": "gpt-5.4-mini-2026-03-17",
+        "canonical_model_id": "gpt-5.4-mini-2026-03-17",
+        "condition_key": "oa_gpt54_mini_none",
+        "condition_id": "32bd3c9554cf10b51078986348cd865917b5bdf32867e49f2208c1ede28b7e16",
+        "setting": {
+          "reasoning_effort": "none"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 46.78030303030303,
+          "intervention_accuracy_pct": 55.81854043392505,
+          "market_accuracy_pct": 48.78706199460917,
+          "accuracy_gap_pp": 7.031478439315883,
+          "error_direction_bias_pct": -7.004830917874396
+        }
+      },
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5.4",
+        "model_id": "gpt-5.4-2026-03-05",
+        "canonical_model_id": "gpt-5.4-2026-03-05",
+        "condition_key": "oa_gpt54_none",
+        "condition_id": "b9f46446019872dd6f86324ba753b72015addb5d751297af087a2b194e043a81",
+        "setting": {
+          "reasoning_effort": "none"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 67.70833333333333,
+          "intervention_accuracy_pct": 75.93688362919133,
+          "market_accuracy_pct": 70.08086253369272,
+          "accuracy_gap_pp": 5.856021095498605,
+          "error_direction_bias_pct": -3.004291845493562
+        }
+      },
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5.5",
+        "model_id": "gpt-5.5-2026-04-23",
+        "canonical_model_id": "gpt-5.5-2026-04-23",
+        "condition_key": "oa_gpt55_none",
+        "condition_id": "1ab5020ff79b17007ab2cd47ee82f8872c4198f5f6bfb0e54b9cf83cfed1e072",
+        "setting": {
+          "reasoning_effort": "none"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 65.24621212121212,
+          "intervention_accuracy_pct": 69.8224852071006,
+          "market_accuracy_pct": 69.54177897574124,
+          "accuracy_gap_pp": 0.28070623135936046,
+          "error_direction_bias_pct": -9.022556390977444
+        }
+      },
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5.6 Luna",
+        "model_id": "gpt-5.6-luna",
+        "canonical_model_id": "gpt-5.6-luna",
+        "condition_key": "oa_gpt56_luna_none",
+        "condition_id": "bf1a0df82ba7e53c52582c4ce23d4edfc6a714856773879332c598cb7828ee26",
+        "setting": {
+          "reasoning_effort": "none"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 42.32954545454545,
+          "intervention_accuracy_pct": 46.35108481262328,
+          "market_accuracy_pct": 44.74393530997305,
+          "accuracy_gap_pp": 1.6071495026502305,
+          "error_direction_bias_pct": -7.966457023060797
+        }
+      },
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5.6 Terra",
+        "model_id": "gpt-5.6-terra",
+        "canonical_model_id": "gpt-5.6-terra",
+        "condition_key": "oa_gpt56_terra_none",
+        "condition_id": "e49873313e203880e5817a3de5096bea9876a913aa32daf146d5ee31fef4f970",
+        "setting": {
+          "reasoning_effort": "none"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 65.3409090909091,
+          "intervention_accuracy_pct": 71.40039447731755,
+          "market_accuracy_pct": 72.50673854447439,
+          "accuracy_gap_pp": -1.10634406715684,
+          "error_direction_bias_pct": -14.17004048582996
+        }
+      },
+      {
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5.6 Sol",
+        "model_id": "gpt-5.6-sol",
+        "canonical_model_id": "gpt-5.6-sol",
+        "condition_key": "oa_gpt56_sol_none",
+        "condition_id": "07c2f8075db7c848a9f0c5bfe3b288701489d8e305c2a9af6552e4205ae86965",
+        "setting": {
+          "reasoning_effort": "none"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 71.40151515151516,
+          "intervention_accuracy_pct": 78.69822485207101,
+          "market_accuracy_pct": 76.28032345013477,
+          "accuracy_gap_pp": 2.417901401936234,
+          "error_direction_bias_pct": -1.530612244897959
+        }
+      },
+      {
+        "provider": "Anthropic",
+        "family": "Claude",
+        "display_name": "Claude Sonnet 4.6",
+        "model_id": "claude-sonnet-4-6",
+        "canonical_model_id": "claude-sonnet-4-6",
+        "condition_key": "an_sonnet46_disabled_low",
+        "condition_id": "b901620adce019a5418b307e22110b4b5a814a179551fd4615aec1674607a91b",
+        "setting": {
+          "effort": "low",
+          "thinking": "disabled"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 64.10984848484848,
+          "intervention_accuracy_pct": 72.18934911242603,
+          "market_accuracy_pct": 67.65498652291105,
+          "accuracy_gap_pp": 4.534362589514984,
+          "error_direction_bias_pct": -1.9157088122605364
+        }
+      },
+      {
+        "provider": "Anthropic",
+        "family": "Claude",
+        "display_name": "Claude Opus 4.6",
+        "model_id": "claude-opus-4-6",
+        "canonical_model_id": "claude-opus-4-6",
+        "condition_key": "an_opus46_disabled_low",
+        "condition_id": "6380719bba105a947f7e70e80db4a270e206597857633bb25445b59870dc8779",
+        "setting": {
+          "effort": "low",
+          "thinking": "disabled"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 65.53030303030303,
+          "intervention_accuracy_pct": 69.23076923076923,
+          "market_accuracy_pct": 68.73315363881402,
+          "accuracy_gap_pp": 0.4976155919552099,
+          "error_direction_bias_pct": -11.029411764705882
+        }
+      },
+      {
+        "provider": "Anthropic",
+        "family": "Claude",
+        "display_name": "Claude Opus 4.7",
+        "model_id": "claude-opus-4-7",
+        "canonical_model_id": "claude-opus-4-7",
+        "condition_key": "an_opus47_disabled_low",
+        "condition_id": "26fe48b83f5022bbf2cb5e9a2403fe09e56c4a4e9367744004569047fdd1e47c",
+        "setting": {
+          "effort": "low",
+          "thinking": "disabled"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 74.24242424242425,
+          "intervention_accuracy_pct": 80.4733727810651,
+          "market_accuracy_pct": 78.97574123989219,
+          "accuracy_gap_pp": 1.4976315411729075,
+          "error_direction_bias_pct": -6.779661016949152
+        }
+      },
+      {
+        "provider": "Anthropic",
+        "family": "Claude",
+        "display_name": "Claude Opus 4.8",
+        "model_id": "claude-opus-4-8",
+        "canonical_model_id": "claude-opus-4-8",
+        "condition_key": "an_opus48_disabled_low",
+        "condition_id": "fc9b7a7f955f261433c0b56b5127475e6aeca7b1a7ba7d1b1338243c9c59b325",
+        "setting": {
+          "effort": "low",
+          "thinking": "disabled"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 73.67424242424242,
+          "intervention_accuracy_pct": 77.90927021696253,
+          "market_accuracy_pct": 76.81940700808626,
+          "accuracy_gap_pp": 1.0898632088762668,
+          "error_direction_bias_pct": -7.575757575757576
+        }
+      },
+      {
+        "provider": "Anthropic",
+        "family": "Claude",
+        "display_name": "Claude Sonnet 5",
+        "model_id": "claude-sonnet-5",
+        "canonical_model_id": "claude-sonnet-5",
+        "condition_key": "an_sonnet5_disabled_low",
+        "condition_id": "c1d7444f61e8eea26572a53f3e424eaafcd5b90e916686ef59554c118935bdb3",
+        "setting": {
+          "effort": "low",
+          "thinking": "disabled"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 69.79166666666667,
+          "intervention_accuracy_pct": 75.54240631163708,
+          "market_accuracy_pct": 79.51482479784367,
+          "accuracy_gap_pp": -3.9724184862065925,
+          "error_direction_bias_pct": -19.0
+        }
+      },
+      {
+        "provider": "Anthropic",
+        "family": "Claude",
+        "display_name": "Claude Opus 5",
+        "model_id": "claude-opus-5",
+        "canonical_model_id": "claude-opus-5",
+        "condition_key": "an_opus5_disabled_low",
+        "condition_id": "ccf945385538a84adadbcc0f7f5181c838ecd907b0ef579d79bddfa5dd11a379",
+        "setting": {
+          "effort": "low",
+          "thinking": "disabled"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 75.18939393939394,
+          "intervention_accuracy_pct": 79.28994082840237,
+          "market_accuracy_pct": 80.05390835579514,
+          "accuracy_gap_pp": -0.7639675273927793,
+          "error_direction_bias_pct": -10.614525139664805
+        }
+      },
+      {
+        "provider": "Anthropic",
+        "family": "Claude",
+        "display_name": "Claude Fable 5",
+        "model_id": "claude-fable-5",
+        "canonical_model_id": "claude-fable-5",
+        "condition_key": "an_fable5_adaptive_low",
+        "condition_id": "c31422cc27202316a8c19a733667c7846684d35415d540488bf7113a31b4cf9f",
+        "setting": {
+          "effort": "low",
+          "thinking": "adaptive"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 79.54545454545455,
+          "intervention_accuracy_pct": 82.64299802761342,
+          "market_accuracy_pct": 84.63611859838275,
+          "accuracy_gap_pp": -1.9931205707693351,
+          "error_direction_bias_pct": -8.96551724137931
+        }
+      },
+      {
+        "provider": "Google",
+        "family": "Gemini",
+        "display_name": "Gemini 3 Flash",
+        "model_id": "gemini-3-flash-preview",
+        "canonical_model_id": "gemini-3-flash-preview",
+        "condition_key": "gg_gemini3_minimal",
+        "condition_id": "8fdbd5b8ad72ac92dd15dacff602d8ebe1808e05cf052aa188e533252121d59a",
+        "setting": {
+          "thinking_level": "minimal"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 73.57954545454545,
+          "intervention_accuracy_pct": 83.03747534516765,
+          "market_accuracy_pct": 78.97574123989219,
+          "accuracy_gap_pp": 4.0617341052754625,
+          "error_direction_bias_pct": 1.829268292682927
+        }
+      },
+      {
+        "provider": "Google",
+        "family": "Gemini",
+        "display_name": "Gemini 3.1 Flash Lite",
+        "model_id": "gemini-3.1-flash-lite",
+        "canonical_model_id": "gemini-3.1-flash-lite",
+        "condition_key": "gg_gemini31lite_minimal",
+        "condition_id": "7986ce4d4a097b124f03f68323e66745f26c185b06a95361d7350c9bcdf66204",
+        "setting": {
+          "thinking_level": "minimal"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 64.48863636363636,
+          "intervention_accuracy_pct": 74.7534516765286,
+          "market_accuracy_pct": 69.54177897574124,
+          "accuracy_gap_pp": 5.211672700787361,
+          "error_direction_bias_pct": -7.053941908713693
+        }
+      },
+      {
+        "provider": "Google",
+        "family": "Gemini",
+        "display_name": "Gemini 3.5 Flash",
+        "model_id": "gemini-3.5-flash",
+        "canonical_model_id": "gemini-3.5-flash",
+        "condition_key": "gg_gemini35_minimal",
+        "condition_id": "72ee28cf05a45bebd254690523b02941350a97779d74e264e6a9f79d2eae0d37",
+        "setting": {
+          "thinking_level": "minimal"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 70.64393939393939,
+          "intervention_accuracy_pct": 78.69822485207101,
+          "market_accuracy_pct": 75.2021563342318,
+          "accuracy_gap_pp": 3.4960685178392055,
+          "error_direction_bias_pct": -1.5
+        }
+      },
+      {
+        "provider": "Google",
+        "family": "Gemini",
+        "display_name": "Gemini 3.6 Flash",
+        "model_id": "gemini-3.6-flash",
+        "canonical_model_id": "gemini-3.6-flash",
+        "condition_key": "gg_gemini36_minimal",
+        "condition_id": "4509458076fe1780cea78064d0722bd00750a590fc099aa8da5d67288a379903",
+        "setting": {
+          "thinking_level": "minimal"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 70.45454545454545,
+          "intervention_accuracy_pct": 80.4733727810651,
+          "market_accuracy_pct": 76.01078167115902,
+          "accuracy_gap_pp": 4.4625911099060716,
+          "error_direction_bias_pct": 3.723404255319149
+        }
+      },
+      {
+        "provider": "OpenRouter",
+        "family": "Grok",
+        "display_name": "Grok 4.20",
+        "model_id": "x-ai/grok-4.20",
+        "canonical_model_id": "x-ai/grok-4.20",
+        "condition_key": "or_grok420_reasoning_disabled",
+        "condition_id": "a7289e0781dd21fe4536c0b905df7bd0cdd53c698f66c0ba34afd7a7bcc40606",
+        "setting": {
+          "reasoning_enabled": false
+        },
+        "metrics": {
+          "contested_accuracy_pct": 51.70454545454545,
+          "intervention_accuracy_pct": 57.59368836291913,
+          "market_accuracy_pct": 52.2911051212938,
+          "accuracy_gap_pp": 5.302583241625328,
+          "error_direction_bias_pct": -2.0408163265306123
+        }
+      },
+      {
+        "provider": "OpenRouter",
+        "family": "Grok",
+        "display_name": "Grok 4.3",
+        "model_id": "x-ai/grok-4.3",
+        "canonical_model_id": "x-ai/grok-4.3-20260430",
+        "condition_key": "or_grok43_none",
+        "condition_id": "b5635cac2730ab8bbd279a86dc452ac1964ca0ccd14f7359c56005c9d7c6d800",
+        "setting": {
+          "reasoning_effort": "none"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 52.46212121212121,
+          "intervention_accuracy_pct": 61.93293885601578,
+          "market_accuracy_pct": 57.95148247978437,
+          "accuracy_gap_pp": 3.9814563762314137,
+          "error_direction_bias_pct": -5.157593123209169
+        }
+      },
+      {
+        "provider": "OpenRouter",
+        "family": "Grok",
+        "display_name": "Grok 4.5",
+        "model_id": "x-ai/grok-4.5",
+        "canonical_model_id": "x-ai/grok-4.5-20260708",
+        "condition_key": "or_grok45_low",
+        "condition_id": "bd9b2b6039c6acf8a554322c53c098521d95b8b539ea1e8007d875eeb36a2dd0",
+        "setting": {
+          "reasoning_effort": "low"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 74.7159090909091,
+          "intervention_accuracy_pct": 83.62919132149901,
+          "market_accuracy_pct": 82.74932614555256,
+          "accuracy_gap_pp": 0.8798651759464491,
+          "error_direction_bias_pct": -7.482993197278912
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Llama",
+        "display_name": "Llama 4 Scout 17B-16E",
+        "model_id": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "canonical_model_id": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "condition_key": "local_llama4_scout_17b_16e_w4a16",
+        "condition_id": "2125fb0e0b584eb650098300ce9224340350946ebcdb7676fc457b1484480d7a",
+        "setting": {
+          "quantization": "W4A16"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 56.15530303030303,
+          "intervention_accuracy_pct": 73.57001972386588,
+          "market_accuracy_pct": 54.716981132075475,
+          "accuracy_gap_pp": 18.85303859179041,
+          "error_direction_bias_pct": 13.907284768211921
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Qwen",
+        "display_name": "Qwen 3.5-0.8B",
+        "model_id": "qwen/qwen3.5-0.8b",
+        "canonical_model_id": "qwen/qwen3.5-0.8b",
+        "condition_key": "local_qwen35_0_8b_nf4",
+        "condition_id": "e875663de30f61930c37b47d51aee673b8d769fe706c91dd62fd80ffc9a3dda3",
+        "setting": {
+          "quantization": "NF4 4-bit"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 47.15909090909091,
+          "intervention_accuracy_pct": 58.38264299802761,
+          "market_accuracy_pct": 49.86522911051213,
+          "accuracy_gap_pp": 8.517413887515481,
+          "error_direction_bias_pct": -0.5037783375314862
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Qwen",
+        "display_name": "Qwen 3.5-2B",
+        "model_id": "qwen/qwen3.5-2b",
+        "canonical_model_id": "qwen/qwen3.5-2b",
+        "condition_key": "local_qwen35_2b_w4_bf16",
+        "condition_id": "00388b84d7f29c3e9cb37622e27115e68e773cc1ef6ac2df0b1e9d9b220dd445",
+        "setting": {
+          "quantization": "W4/BF16"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 48.10606060606061,
+          "intervention_accuracy_pct": 59.76331360946745,
+          "market_accuracy_pct": 51.21293800539083,
+          "accuracy_gap_pp": 8.55037560407662,
+          "error_direction_bias_pct": 0.5194805194805194
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Qwen",
+        "display_name": "Qwen 3.5-4B",
+        "model_id": "qwen/qwen3.5-4b",
+        "canonical_model_id": "qwen/qwen3.5-4b",
+        "condition_key": "local_qwen35_4b_awq",
+        "condition_id": "3793dc4e1c8a620ac59ba4261dc1f12f6b61ac36351a43b3dcba793ff816a705",
+        "setting": {
+          "quantization": "AWQ 4-bit"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 50.378787878787875,
+          "intervention_accuracy_pct": 62.52465483234714,
+          "market_accuracy_pct": 52.83018867924528,
+          "accuracy_gap_pp": 9.694466153101857,
+          "error_direction_bias_pct": 3.287671232876712
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Qwen",
+        "display_name": "Qwen 3.5-9B",
+        "model_id": "qwen/qwen3.5-9b",
+        "canonical_model_id": "qwen/qwen3.5-9b",
+        "condition_key": "local_qwen35_9b_awq",
+        "condition_id": "4cd169acc53c5f1baf662654b5fec6baae7d97f500b51da56393954c887c2d3d",
+        "setting": {
+          "quantization": "AWQ 4-bit"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 53.125,
+          "intervention_accuracy_pct": 64.89151873767258,
+          "market_accuracy_pct": 57.95148247978437,
+          "accuracy_gap_pp": 6.940036257888217,
+          "error_direction_bias_pct": 2.395209580838323
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Qwen",
+        "display_name": "Qwen 3.5-27B",
+        "model_id": "qwen/qwen3.5-27b",
+        "canonical_model_id": "qwen/qwen3.5-27b",
+        "condition_key": "local_qwen35_27b_gptq",
+        "condition_id": "915485d8a77c311cb293bd5e294760cf0bec6ff9202964d86c2da5e7b81d8479",
+        "setting": {
+          "quantization": "GPTQ 4-bit"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 63.63636363636363,
+          "intervention_accuracy_pct": 79.48717948717949,
+          "market_accuracy_pct": 66.57681940700809,
+          "accuracy_gap_pp": 12.910360080171401,
+          "error_direction_bias_pct": 11.403508771929825
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Qwen",
+        "display_name": "Qwen 3.5-35B-A3B",
+        "model_id": "qwen/qwen3.5-35b-a3b",
+        "canonical_model_id": "qwen/qwen3.5-35b-a3b",
+        "condition_key": "local_qwen35_35b_a3b_gptq",
+        "condition_id": "1d41b8da5324606da78e895299836898781889f15259f02346a1d9eedcdd9e88",
+        "setting": {
+          "quantization": "GPTQ 4-bit"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 60.51136363636363,
+          "intervention_accuracy_pct": 76.13412228796844,
+          "market_accuracy_pct": 63.34231805929919,
+          "accuracy_gap_pp": 12.79180422866925,
+          "error_direction_bias_pct": 8.949416342412452
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Qwen",
+        "display_name": "Qwen 3.6-27B",
+        "model_id": "qwen/qwen3.6-27b",
+        "canonical_model_id": "qwen/qwen3.6-27b",
+        "condition_key": "local_qwen36_27b_gptq",
+        "condition_id": "9a56d9e36fe3dc17ef62e82068924d45e843f904d3eb1e5e203a455e725dd66b",
+        "setting": {
+          "quantization": "GPTQ 4-bit"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 61.458333333333336,
+          "intervention_accuracy_pct": 77.90927021696253,
+          "market_accuracy_pct": 63.61185983827493,
+          "accuracy_gap_pp": 14.297410378687594,
+          "error_direction_bias_pct": 11.740890688259109
+        }
+      },
+      {
+        "provider": "Local GPU",
+        "family": "Qwen",
+        "display_name": "Qwen 3.6-35B-A3B",
+        "model_id": "qwen/qwen3.6-35b-a3b",
+        "canonical_model_id": "qwen/qwen3.6-35b-a3b",
+        "condition_key": "local_qwen36_35b_a3b_awq",
+        "condition_id": "f1e1aea25bd2fefe0699739658d9b94522a0f6dc9f319c792df0431aa164b95d",
+        "setting": {
+          "quantization": "AWQ 4-bit"
+        },
+        "metrics": {
+          "contested_accuracy_pct": 59.28030303030303,
+          "intervention_accuracy_pct": 76.52859960552269,
+          "market_accuracy_pct": 59.299191374663074,
+          "accuracy_gap_pp": 17.22940823085961,
+          "error_direction_bias_pct": 13.703703703703704
+        }
+      }
+    ]
+  },
+  "reasoning_effort_sweeps": {
+    "sweep_count": 4,
+    "condition_count": 17,
+    "baseline_overlap_with_main_count": 4,
+    "sweeps": [
+      {
+        "sweep_id": "gpt-5.6-terra-reasoning-effort",
+        "provider": "OpenAI",
+        "family": "GPT",
+        "display_name": "GPT-5.6 Terra",
+        "effort_axis": "reasoning_effort",
+        "condition_count": 5,
+        "results": [
+          {
+            "provider": "OpenAI",
+            "family": "GPT",
+            "display_name": "GPT-5.6 Terra",
+            "model_id": "gpt-5.6-terra",
+            "canonical_model_id": "gpt-5.6-terra",
+            "condition_key": "oa_gpt56_terra_none",
+            "condition_id": "e49873313e203880e5817a3de5096bea9876a913aa32daf146d5ee31fef4f970",
+            "setting": {
+              "reasoning_effort": "none"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 65.3409090909091,
+              "intervention_accuracy_pct": 71.40039447731755,
+              "market_accuracy_pct": 72.50673854447439,
+              "accuracy_gap_pp": -1.10634406715684,
+              "error_direction_bias_pct": -14.17004048582996
+            }
+          },
+          {
+            "provider": "OpenAI",
+            "family": "GPT",
+            "display_name": "GPT-5.6 Terra",
+            "model_id": "gpt-5.6-terra",
+            "canonical_model_id": "gpt-5.6-terra",
+            "condition_key": "ab_openai_terra_low",
+            "condition_id": "153585ef46ba5e74097a708a461fc1e651fcb4cebddd05beaf5a8fdf60f9a6f4",
+            "setting": {
+              "reasoning_effort": "low"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 70.35984848484848,
+              "intervention_accuracy_pct": 76.13412228796844,
+              "market_accuracy_pct": 78.4366576819407,
+              "accuracy_gap_pp": -2.3025353939722635,
+              "error_direction_bias_pct": -12.935323383084578
+            }
+          },
+          {
+            "provider": "OpenAI",
+            "family": "GPT",
+            "display_name": "GPT-5.6 Terra",
+            "model_id": "gpt-5.6-terra",
+            "canonical_model_id": "gpt-5.6-terra",
+            "condition_key": "ab_openai_terra_medium",
+            "condition_id": "7b6af2ec33e553bf3a42ac840a143ff5c8d99771b606ea8ee72b365c12076e7b",
+            "setting": {
+              "reasoning_effort": "medium"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 70.45454545454545,
+              "intervention_accuracy_pct": 77.31755424063117,
+              "market_accuracy_pct": 75.47169811320755,
+              "accuracy_gap_pp": 1.845856127423616,
+              "error_direction_bias_pct": -9.70873786407767
+            }
+          },
+          {
+            "provider": "OpenAI",
+            "family": "GPT",
+            "display_name": "GPT-5.6 Terra",
+            "model_id": "gpt-5.6-terra",
+            "canonical_model_id": "gpt-5.6-terra",
+            "condition_key": "ab_openai_terra_high",
+            "condition_id": "31e24e3abca210cbe3315e2c4eaa568a6ed6d85743c998a58b8a27829c09a7ac",
+            "setting": {
+              "reasoning_effort": "high"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 73.29545454545455,
+              "intervention_accuracy_pct": 78.69822485207101,
+              "market_accuracy_pct": 81.40161725067385,
+              "accuracy_gap_pp": -2.703392398602844,
+              "error_direction_bias_pct": -11.299435028248588
+            }
+          },
+          {
+            "provider": "OpenAI",
+            "family": "GPT",
+            "display_name": "GPT-5.6 Terra",
+            "model_id": "gpt-5.6-terra",
+            "canonical_model_id": "gpt-5.6-terra",
+            "condition_key": "ab_openai_terra_xhigh",
+            "condition_id": "b0348179d117378905b62cb33293e4372c35a99a71538ec77de2390049dacc75",
+            "setting": {
+              "reasoning_effort": "xhigh"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 73.39015151515152,
+              "intervention_accuracy_pct": 79.48717948717949,
+              "market_accuracy_pct": 79.78436657681941,
+              "accuracy_gap_pp": -0.2971870896399196,
+              "error_direction_bias_pct": -10.614525139664805
+            }
+          }
+        ]
+      },
+      {
+        "sweep_id": "claude-sonnet-5-thinking-effort",
+        "provider": "Anthropic",
+        "family": "Claude",
+        "display_name": "Claude Sonnet 5",
+        "effort_axis": "thinking_and_effort",
+        "condition_count": 5,
+        "results": [
+          {
+            "provider": "Anthropic",
+            "family": "Claude",
+            "display_name": "Claude Sonnet 5",
+            "model_id": "claude-sonnet-5",
+            "canonical_model_id": "claude-sonnet-5",
+            "condition_key": "an_sonnet5_disabled_low",
+            "condition_id": "c1d7444f61e8eea26572a53f3e424eaafcd5b90e916686ef59554c118935bdb3",
+            "setting": {
+              "effort": "low",
+              "thinking": "disabled"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 69.79166666666667,
+              "intervention_accuracy_pct": 75.54240631163708,
+              "market_accuracy_pct": 79.51482479784367,
+              "accuracy_gap_pp": -3.9724184862065925,
+              "error_direction_bias_pct": -19.0
+            }
+          },
+          {
+            "provider": "Anthropic",
+            "family": "Claude",
+            "display_name": "Claude Sonnet 5",
+            "model_id": "claude-sonnet-5",
+            "canonical_model_id": "claude-sonnet-5",
+            "condition_key": "ab_anthropic_sonnet5_adaptive_low",
+            "condition_id": "c84ca4687ed128a1d7aff3d0bcd3d4f73ab64555e9091300435add4a649106ac",
+            "setting": {
+              "effort": "low",
+              "thinking": "adaptive"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 69.60227272727273,
+              "intervention_accuracy_pct": 75.7396449704142,
+              "market_accuracy_pct": 77.088948787062,
+              "accuracy_gap_pp": -1.3493038166477902,
+              "error_direction_bias_pct": -11.538461538461538
+            }
+          },
+          {
+            "provider": "Anthropic",
+            "family": "Claude",
+            "display_name": "Claude Sonnet 5",
+            "model_id": "claude-sonnet-5",
+            "canonical_model_id": "claude-sonnet-5",
+            "condition_key": "ab_anthropic_sonnet5_adaptive_medium",
+            "condition_id": "bc44507717b96e8ea9fb5699dda8784cea009e2cf0261e256e18023745f7810d",
+            "setting": {
+              "effort": "medium",
+              "thinking": "adaptive"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 70.64393939393939,
+              "intervention_accuracy_pct": 77.90927021696253,
+              "market_accuracy_pct": 78.70619946091644,
+              "accuracy_gap_pp": -0.7969292439539117,
+              "error_direction_bias_pct": -10.471204188481675
+            }
+          },
+          {
+            "provider": "Anthropic",
+            "family": "Claude",
+            "display_name": "Claude Sonnet 5",
+            "model_id": "claude-sonnet-5",
+            "canonical_model_id": "claude-sonnet-5",
+            "condition_key": "ab_anthropic_sonnet5_adaptive_high",
+            "condition_id": "599f3a4122524ed1b22e1d37b4d8a2e5e7b0df478e4467d5c3354d9e8cb44fbf",
+            "setting": {
+              "effort": "high",
+              "thinking": "adaptive"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 68.93939393939394,
+              "intervention_accuracy_pct": 75.7396449704142,
+              "market_accuracy_pct": 76.54986522911051,
+              "accuracy_gap_pp": -0.8102202586963045,
+              "error_direction_bias_pct": -10.0
+            }
+          },
+          {
+            "provider": "Anthropic",
+            "family": "Claude",
+            "display_name": "Claude Sonnet 5",
+            "model_id": "claude-sonnet-5",
+            "canonical_model_id": "claude-sonnet-5",
+            "condition_key": "ab_anthropic_sonnet5_adaptive_xhigh",
+            "condition_id": "13fdb60eb411cc8fc9638efac1017df8442477f99f3d53029040a4aca0a574dc",
+            "setting": {
+              "effort": "xhigh",
+              "thinking": "adaptive"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 70.26515151515152,
+              "intervention_accuracy_pct": 76.52859960552269,
+              "market_accuracy_pct": 76.28032345013477,
+              "accuracy_gap_pp": 0.24827615538791292,
+              "error_direction_bias_pct": -7.246376811594203
+            }
+          }
+        ]
+      },
+      {
+        "sweep_id": "gemini-3.6-flash-thinking-level",
+        "provider": "Google",
+        "family": "Gemini",
+        "display_name": "Gemini 3.6 Flash",
+        "effort_axis": "thinking_level",
+        "condition_count": 4,
+        "results": [
+          {
+            "provider": "Google",
+            "family": "Gemini",
+            "display_name": "Gemini 3.6 Flash",
+            "model_id": "gemini-3.6-flash",
+            "canonical_model_id": "gemini-3.6-flash",
+            "condition_key": "gg_gemini36_minimal",
+            "condition_id": "4509458076fe1780cea78064d0722bd00750a590fc099aa8da5d67288a379903",
+            "setting": {
+              "thinking_level": "minimal"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 70.45454545454545,
+              "intervention_accuracy_pct": 80.4733727810651,
+              "market_accuracy_pct": 76.01078167115902,
+              "accuracy_gap_pp": 4.4625911099060716,
+              "error_direction_bias_pct": 3.723404255319149
+            }
+          },
+          {
+            "provider": "Google",
+            "family": "Gemini",
+            "display_name": "Gemini 3.6 Flash",
+            "model_id": "gemini-3.6-flash",
+            "canonical_model_id": "gemini-3.6-flash",
+            "condition_key": "ab_google_gemini36_low",
+            "condition_id": "fe2f64a5e714f335cb1fdd7e0c5b1f05e42c0efa02df3ea4e3c1529bbfe91e51",
+            "setting": {
+              "thinking_level": "low"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 72.06439393939394,
+              "intervention_accuracy_pct": 82.44575936883629,
+              "market_accuracy_pct": 78.70619946091644,
+              "accuracy_gap_pp": 3.7395599079198547,
+              "error_direction_bias_pct": 2.9761904761904763
+            }
+          },
+          {
+            "provider": "Google",
+            "family": "Gemini",
+            "display_name": "Gemini 3.6 Flash",
+            "model_id": "gemini-3.6-flash",
+            "canonical_model_id": "gemini-3.6-flash",
+            "condition_key": "ab_google_gemini36_medium",
+            "condition_id": "cc4dbdca1888e815e52ee583a30fb352da67e4f0e5ef26df8fc90dac5221190f",
+            "setting": {
+              "thinking_level": "medium"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 76.04166666666667,
+              "intervention_accuracy_pct": 85.20710059171597,
+              "market_accuracy_pct": 83.28840970350404,
+              "accuracy_gap_pp": 1.918690888211927,
+              "error_direction_bias_pct": 0.7299270072992701
+            }
+          },
+          {
+            "provider": "Google",
+            "family": "Gemini",
+            "display_name": "Gemini 3.6 Flash",
+            "model_id": "gemini-3.6-flash",
+            "canonical_model_id": "gemini-3.6-flash",
+            "condition_key": "ab_google_gemini36_high",
+            "condition_id": "2deac96f5bbbadb5faae7fd9ec6291a1319c7d232cb97e05f1eebfc35fea710c",
+            "setting": {
+              "thinking_level": "high"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 75.66287878787878,
+              "intervention_accuracy_pct": 85.20710059171597,
+              "market_accuracy_pct": 82.74932614555256,
+              "accuracy_gap_pp": 2.4577744461634126,
+              "error_direction_bias_pct": -0.7194244604316546
+            }
+          }
+        ]
+      },
+      {
+        "sweep_id": "grok-4.5-reasoning-effort",
+        "provider": "OpenRouter",
+        "family": "Grok",
+        "display_name": "Grok 4.5",
+        "effort_axis": "reasoning_effort",
+        "condition_count": 3,
+        "results": [
+          {
+            "provider": "OpenRouter",
+            "family": "Grok",
+            "display_name": "Grok 4.5",
+            "model_id": "x-ai/grok-4.5",
+            "canonical_model_id": "x-ai/grok-4.5-20260708",
+            "condition_key": "or_grok45_low",
+            "condition_id": "bd9b2b6039c6acf8a554322c53c098521d95b8b539ea1e8007d875eeb36a2dd0",
+            "setting": {
+              "reasoning_effort": "low"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 74.7159090909091,
+              "intervention_accuracy_pct": 83.62919132149901,
+              "market_accuracy_pct": 82.74932614555256,
+              "accuracy_gap_pp": 0.8798651759464491,
+              "error_direction_bias_pct": -7.482993197278912
+            }
+          },
+          {
+            "provider": "OpenRouter",
+            "family": "Grok",
+            "display_name": "Grok 4.5",
+            "model_id": "x-ai/grok-4.5",
+            "canonical_model_id": "x-ai/grok-4.5-20260708",
+            "condition_key": "ab_openrouter_grok45_medium",
+            "condition_id": "37ec36158a44f81cdddea0504a738a150d55a869cf237118215ca15d7140be12",
+            "setting": {
+              "reasoning_effort": "medium"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 75.85227272727273,
+              "intervention_accuracy_pct": 84.02366863905326,
+              "market_accuracy_pct": 83.82749326145553,
+              "accuracy_gap_pp": 0.19617537759772574,
+              "error_direction_bias_pct": -8.51063829787234
+            }
+          },
+          {
+            "provider": "OpenRouter",
+            "family": "Grok",
+            "display_name": "Grok 4.5",
+            "model_id": "x-ai/grok-4.5",
+            "canonical_model_id": "x-ai/grok-4.5-20260708",
+            "condition_key": "ab_openrouter_grok45_high",
+            "condition_id": "0b46fa32ccb2cc7821d2d86e1de9e0381474f27951fb6965a27571fff0c26c24",
+            "setting": {
+              "reasoning_effort": "high"
+            },
+            "metrics": {
+              "contested_accuracy_pct": 76.23106060606061,
+              "intervention_accuracy_pct": 84.41814595660749,
+              "market_accuracy_pct": 84.09703504043127,
+              "accuracy_gap_pp": 0.3211109161762238,
+              "error_direction_bias_pct": 0.7246376811594203
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "coverage": {
+    "completed_full_run_condition_count": 45,
+    "items_per_condition": 1056,
+    "completed_result_row_count": 47520,
+    "main_and_sweeps_unique_condition_count": 45,
+    "main_and_sweeps_cover_all_completed_conditions": true
+  }
+}

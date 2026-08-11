@@ -1,0 +1,2922 @@
+{
+  "schema_version": "2.1.0",
+  "dataset_version": "colm-camera-ready-20-models",
+  "reported_in_paper": true,
+  "evaluation_date": null,
+  "source": {
+    "paper": "COLM 2026 camera-ready",
+    "paper_url": "https://arxiv.org/abs/2604.21334v2",
+    "table_5": "/home/donggyu/econ_causality/COLM_camera_ready_FINAL_SOURCE_CLEAN_20260809_112253/Tables/main_results.tex",
+    "table_5_sha256": "15618d15a669758793f8232169608655c612df0a8809f31661a614de72498809",
+    "table_2": "/home/donggyu/econ_causality/COLM_camera_ready_FINAL_SOURCE_CLEAN_20260809_112253/Tables/ICL_results.tex",
+    "camera_ready_metrics": "/home/donggyu/econ_causality/COLM_EconCausal_Ideology_Bias_camera_ready_CLEAN_20260809_112253/revision_tools/main_model_metrics_878.csv",
+    "camera_ready_metrics_sha256": "f43675f73cdf7488706a281eb6ff0f6d649984378ff28c85abd8b539ba5f5cd8",
+    "camera_ready_subfields": "/home/donggyu/econ_causality/COLM_EconCausal_Ideology_Bias_camera_ready_CLEAN_20260809_112253/revision_tools/subfield_metrics_878_vote_weighted.csv",
+    "camera_ready_subfields_sha256": "4a758d7047525168c5e1d27d3fec22fdf8a1b28b862db740a8121a5e204d0b9d",
+    "canonical_contested_data": "/home/donggyu/econ_causality/data/task1_ideology_subset_1056.jsonl",
+    "canonical_contested_data_sha256": "300681f47a018ffa1bb96b6655c11a81518bab9582374a6b990f85ace82717fb",
+    "current_classifier": "/home/donggyu/econ_causality/extended/classification_results/ideology_triplet_subset_current.jsonl",
+    "current_classifier_sha256": "7973d3e6021854b276178badca59bed61312cbe9252a13e4875975a5683ee60f",
+    "task1_bias": "extended/ideology_bias_outputs_task1_ideology_subset_1056/tables/task1_bias_by_model.csv",
+    "task1_examples": {
+      "causal_triplets": "extended/ideology_bias_outputs/task1_triplet_model_exports/task1_triplets_model_results_751_and_1056/ideology_contested_751/causal_triplets.csv",
+      "model_results": "extended/ideology_bias_outputs/task1_triplet_model_exports/task1_triplets_model_results_751_and_1056/ideology_contested_751/model_results_all_models.csv",
+      "field_mapping": {
+        "context": "causal_triplets.context",
+        "rationale": "model_results.reasoning"
+      }
+    },
+    "task1_subfields": {
+      "camera_ready_per_model": "main_site/ideological-bias-in-llms/data/camera-ready-subfields-878.v1.json",
+      "camera_ready_per_model_sha256": "e9919566667df35fec1af5adc9ec7027af75e868606911d75b5b6109dac79dbf",
+      "method": "top-tied vote-weighted JEL themes on the corrected 878 directional cases"
+    },
+    "notes": "This baseline contains the 20 camera-ready paper models; post-paper models are excluded. Overview, ICL None baselines, and per-model subfield metrics use the corrected 1,056/878 camera-ready definitions. Matched ICL conditions, examples, and release metadata retain their documented source artifacts.",
+    "release_date_policy": "First official public availability or official vendor announcement; preview status and naming ambiguities are retained in release_date_source.note."
+  },
+  "denominators": {
+    "benchmark_total": 10490,
+    "contested_pool": 1056,
+    "directional_total": 878,
+    "intervention_truth": 507,
+    "market_truth": 371,
+    "sensitive_neither": 178,
+    "non_contested": 9434
+  },
+  "definitions": {
+    "accuracy_gap_pp": "intervention_accuracy - market_accuracy",
+    "b_dir_pct": "100 × (intervention-leaning errors - market-leaning errors) / all prediction errors among the 878 ideology-contested cases whose empirical sign matches either the intervention or market expectation; canonical values are from the COLM 2026 camera-ready Equation 1/Table 5",
+    "delta_example": "intervention_ex - market_ex for the same target side",
+    "icl_note": "None uses the corrected 878 directional cases (507 intervention-truth and 371 market-truth); example conditions preserve the original matched experiment and must not be compared as a shared denominator.",
+    "subfield_note": "Exactly seven named themes are shown; Other is excluded. Per-model and aggregate subfield metrics use the corrected 878 directional cases and top-tied vote-weighted JEL assignments, so sample_size may be non-integer."
+  },
+  "aggregate_subfields": [
+    {
+      "id": "healthcare",
+      "name": "Healthcare",
+      "n_intervention": 65,
+      "n_market": 36,
+      "n_total": 101,
+      "intervention_accuracy": 71.99356913183283,
+      "market_accuracy": 51.80232558139534,
+      "accuracy_gap_pp": 20.19124355043749
+    },
+    {
+      "id": "welfare_redistribution",
+      "name": "Welfare & Redistribution",
+      "n_intervention": 60,
+      "n_market": 32,
+      "n_total": 92,
+      "intervention_accuracy": 77.99539170506883,
+      "market_accuracy": 63.24561403508782,
+      "accuracy_gap_pp": 14.749777669981007
+    },
+    {
+      "id": "labor",
+      "name": "Labor",
+      "n_intervention": 123,
+      "n_market": 95,
+      "n_total": 218,
+      "intervention_accuracy": 68.84796238244549,
+      "market_accuracy": 59.071729957806085,
+      "accuracy_gap_pp": 9.776232424639403
+    },
+    {
+      "id": "financial_regulation",
+      "name": "Financial Regulation",
+      "n_intervention": 130,
+      "n_market": 90,
+      "n_total": 220,
+      "intervention_accuracy": 69.1015625,
+      "market_accuracy": 62.04022988505747,
+      "accuracy_gap_pp": 7.061332614942529
+    },
+    {
+      "id": "education",
+      "name": "Education",
+      "n_intervention": 36,
+      "n_market": 24,
+      "n_total": 60,
+      "intervention_accuracy": 71.57458563535907,
+      "market_accuracy": 64.61538461538461,
+      "accuracy_gap_pp": 6.959201019974458
+    },
+    {
+      "id": "taxation",
+      "name": "Taxation",
+      "n_intervention": 45,
+      "n_market": 32,
+      "n_total": 77,
+      "intervention_accuracy": 71.84729064039401,
+      "market_accuracy": 70.13422818791962,
+      "accuracy_gap_pp": 1.7130624524743894
+    },
+    {
+      "id": "trade",
+      "name": "Trade",
+      "n_intervention": 23,
+      "n_market": 15,
+      "n_total": 38,
+      "intervention_accuracy": 63.30357142857133,
+      "market_accuracy": 62.32142857142857,
+      "accuracy_gap_pp": 0.9821428571427617
+    }
+  ],
+  "public_content_policy": {
+    "context": "exact context field retained from the public 751-case example export; the displayed example case IDs remain in the corrected 878 directional subset",
+    "rationale": "exact visible model-generated reasoning field from the public evaluation export; this is an answer rationale, not hidden chain-of-thought",
+    "excluded": [
+      "raw prompt",
+      "long source text",
+      "hidden chain-of-thought",
+      "PII"
+    ]
+  },
+  "models": [
+    {
+      "id": "gpt-4o-mini",
+      "source_model_id": "gpt-4o-mini",
+      "display_name": "GPT-4o-mini",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-07-18",
+      "release_date_source": {
+        "title": "GPT-4o mini: advancing cost-efficient intelligence",
+        "url": "https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/"
+      },
+      "overview": {
+        "non_contested_accuracy": 63.2,
+        "contested_accuracy": 49.3,
+        "intervention_accuracy": 65.5,
+        "market_accuracy": 48.2,
+        "accuracy_gap_pp": 17.2,
+        "b_dir_pct": 6.3
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 65.5,
+          "non_contested": 47.5,
+          "intervention_ex": 50.3,
+          "market_ex": 58.2,
+          "delta_example": -7.9
+        },
+        "market_truth": {
+          "none": 48.2,
+          "non_contested": 52.6,
+          "intervention_ex": 60.7,
+          "market_ex": 50.4,
+          "delta_example": 10.3
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 57.55627,
+          "market_accuracy": 43.604651,
+          "accuracy_gap_pp": 13.951619,
+          "b_dir_pct": -0.873362
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 84.331797,
+          "market_accuracy": 38.596491,
+          "accuracy_gap_pp": 45.735306,
+          "b_dir_pct": 28.846154
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 69.060773,
+          "market_accuracy": 58.974359,
+          "accuracy_gap_pp": 10.086415,
+          "b_dir_pct": -4.807692
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 70.062696,
+          "market_accuracy": 32.700422,
+          "accuracy_gap_pp": 37.362274,
+          "b_dir_pct": 25.686275
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 53.125,
+          "market_accuracy": 51.724138,
+          "accuracy_gap_pp": 1.400862,
+          "b_dir_pct": -17.647059
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 50.0,
+          "market_accuracy": 42.857143,
+          "accuracy_gap_pp": 7.142857,
+          "b_dir_pct": -10.576923
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 76.847291,
+          "market_accuracy": 75.838926,
+          "accuracy_gap_pp": 1.008364,
+          "b_dir_pct": 1.204819
+        }
+      ]
+    },
+    {
+      "id": "gpt-4o",
+      "source_model_id": "gpt-4o",
+      "display_name": "GPT-4o",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-05-13",
+      "release_date_source": {
+        "title": "Hello GPT-4o",
+        "url": "https://openai.com/index/hello-gpt-4o/"
+      },
+      "overview": {
+        "non_contested_accuracy": 69.4,
+        "contested_accuracy": 57.1,
+        "intervention_accuracy": 71.6,
+        "market_accuracy": 58,
+        "accuracy_gap_pp": 13.6,
+        "b_dir_pct": 6
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 71.6,
+          "non_contested": 43.4,
+          "intervention_ex": 45.5,
+          "market_ex": 43.7,
+          "delta_example": 1.8
+        },
+        "market_truth": {
+          "none": 58,
+          "non_contested": 46.6,
+          "intervention_ex": 52.6,
+          "market_ex": 63.2,
+          "delta_example": -10.6
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 80.707395,
+          "market_accuracy": 63.372093,
+          "accuracy_gap_pp": 17.335302,
+          "b_dir_pct": -2.439024
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 85.714286,
+          "market_accuracy": 66.666667,
+          "accuracy_gap_pp": 19.047619,
+          "b_dir_pct": 14.492754
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 75.690608,
+          "market_accuracy": 64.102564,
+          "accuracy_gap_pp": 11.588044,
+          "b_dir_pct": -2.325581
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 64.890282,
+          "market_accuracy": 54.008439,
+          "accuracy_gap_pp": 10.881843,
+          "b_dir_pct": 6.108597
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 71.875,
+          "market_accuracy": 55.747126,
+          "accuracy_gap_pp": 16.127874,
+          "b_dir_pct": 4.697987
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 51.785714,
+          "market_accuracy": 50.0,
+          "accuracy_gap_pp": 1.785714,
+          "b_dir_pct": 0.0
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 64.039409,
+          "market_accuracy": 62.416107,
+          "accuracy_gap_pp": 1.623301,
+          "b_dir_pct": -13.178295
+        }
+      ]
+    },
+    {
+      "id": "gpt-5-nano",
+      "source_model_id": "gpt-5-nano",
+      "display_name": "GPT-5-nano",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-08-07",
+      "release_date_source": {
+        "title": "Introducing GPT-5 for developers",
+        "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+        "note": "GPT-5 mini and GPT-5 nano became available together in the API."
+      },
+      "overview": {
+        "non_contested_accuracy": 70.1,
+        "contested_accuracy": 53.5,
+        "intervention_accuracy": 67.1,
+        "market_accuracy": 53.4,
+        "accuracy_gap_pp": 13.7,
+        "b_dir_pct": 7.4
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 67.1,
+          "non_contested": 55.7,
+          "intervention_ex": 55.9,
+          "market_ex": 53.8,
+          "delta_example": 2.1
+        },
+        "market_truth": {
+          "none": 53.4,
+          "non_contested": 61.6,
+          "intervention_ex": 55.6,
+          "market_ex": 56,
+          "delta_example": -0.4
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 63.987138,
+          "market_accuracy": 42.44186,
+          "accuracy_gap_pp": 21.545278,
+          "b_dir_pct": -13.270142
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 73.271889,
+          "market_accuracy": 63.157895,
+          "accuracy_gap_pp": 10.113995,
+          "b_dir_pct": 3.0
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 72.375691,
+          "market_accuracy": 48.717949,
+          "accuracy_gap_pp": 23.657742,
+          "b_dir_pct": 3.636364
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 64.420063,
+          "market_accuracy": 59.493671,
+          "accuracy_gap_pp": 4.926392,
+          "b_dir_pct": 1.193317
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 65.234375,
+          "market_accuracy": 57.471264,
+          "accuracy_gap_pp": 7.763111,
+          "b_dir_pct": 3.680982
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 66.071429,
+          "market_accuracy": 57.142857,
+          "accuracy_gap_pp": 8.928571,
+          "b_dir_pct": 8.108108
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 74.384236,
+          "market_accuracy": 61.744966,
+          "accuracy_gap_pp": 12.63927,
+          "b_dir_pct": 9.174312
+        }
+      ]
+    },
+    {
+      "id": "gpt-5-mini",
+      "source_model_id": "gpt-5-mini",
+      "display_name": "GPT-5-mini",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-08-07",
+      "release_date_source": {
+        "title": "Introducing GPT-5 for developers",
+        "url": "https://openai.com/index/introducing-gpt-5-for-developers/",
+        "note": "GPT-5 mini and GPT-5 nano became available together in the API."
+      },
+      "overview": {
+        "non_contested_accuracy": 73.1,
+        "contested_accuracy": 55.4,
+        "intervention_accuracy": 66.9,
+        "market_accuracy": 57.1,
+        "accuracy_gap_pp": 9.7,
+        "b_dir_pct": 3.7
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 66.9,
+          "non_contested": 68.7,
+          "intervention_ex": 74.1,
+          "market_ex": 63.9,
+          "delta_example": 10.2
+        },
+        "market_truth": {
+          "none": 57.1,
+          "non_contested": 55.2,
+          "intervention_ex": 56.3,
+          "market_ex": 64.8,
+          "delta_example": -8.5
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 70.418006,
+          "market_accuracy": 45.348837,
+          "accuracy_gap_pp": 25.069169,
+          "b_dir_pct": 9.677419
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 75.576037,
+          "market_accuracy": 68.421053,
+          "accuracy_gap_pp": 7.154984,
+          "b_dir_pct": 3.370787
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 70.718232,
+          "market_accuracy": 56.410256,
+          "accuracy_gap_pp": 14.307976,
+          "b_dir_pct": 11.538462
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 66.144201,
+          "market_accuracy": 54.43038,
+          "accuracy_gap_pp": 11.713821,
+          "b_dir_pct": 1.388889
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 70.3125,
+          "market_accuracy": 65.517241,
+          "accuracy_gap_pp": 4.795259,
+          "b_dir_pct": -4.411765
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 51.785714,
+          "market_accuracy": 60.714286,
+          "accuracy_gap_pp": -8.928571,
+          "b_dir_pct": -3.448276
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 64.53202,
+          "market_accuracy": 62.416107,
+          "accuracy_gap_pp": 2.115912,
+          "b_dir_pct": 0.0
+        }
+      ]
+    },
+    {
+      "id": "gpt-5-2",
+      "source_model_id": "gpt-5.2",
+      "display_name": "GPT-5.2",
+      "family": "OpenAI",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-12-11",
+      "release_date_source": {
+        "title": "Introducing GPT-5.2",
+        "url": "https://openai.com/index/introducing-gpt-5-2/"
+      },
+      "overview": {
+        "non_contested_accuracy": 75.8,
+        "contested_accuracy": 62.9,
+        "intervention_accuracy": 74.4,
+        "market_accuracy": 64.2,
+        "accuracy_gap_pp": 10.2,
+        "b_dir_pct": 0.8
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 74.4,
+          "non_contested": 69.1,
+          "intervention_ex": 72.7,
+          "market_ex": 63.3,
+          "delta_example": 9.4
+        },
+        "market_truth": {
+          "none": 64.2,
+          "non_contested": 59.8,
+          "intervention_ex": 68.1,
+          "market_ex": 66.4,
+          "delta_example": 1.7
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 77.813505,
+          "market_accuracy": 59.883721,
+          "accuracy_gap_pp": 17.929784,
+          "b_dir_pct": 2.173913
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 88.018433,
+          "market_accuracy": 75.438596,
+          "accuracy_gap_pp": 12.579837,
+          "b_dir_pct": 7.407407
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 55.801105,
+          "market_accuracy": 71.794872,
+          "accuracy_gap_pp": -15.993767,
+          "b_dir_pct": -42.477876
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 71.786834,
+          "market_accuracy": 64.978903,
+          "accuracy_gap_pp": 6.807931,
+          "b_dir_pct": 9.82659
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 80.46875,
+          "market_accuracy": 68.965517,
+          "accuracy_gap_pp": 11.503233,
+          "b_dir_pct": 3.846154
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 59.821429,
+          "market_accuracy": 64.285714,
+          "accuracy_gap_pp": -4.464286,
+          "b_dir_pct": -8.0
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 75.369458,
+          "market_accuracy": 77.181208,
+          "accuracy_gap_pp": -1.81175,
+          "b_dir_pct": -20.238095
+        }
+      ]
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "source_model_id": "claude-haiku-4-5",
+      "display_name": "Haiku 4.5",
+      "family": "Claude",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-10-15",
+      "release_date_source": {
+        "title": "Introducing Claude Haiku 4.5",
+        "url": "https://www.anthropic.com/news/claude-haiku-4-5"
+      },
+      "overview": {
+        "non_contested_accuracy": 74.2,
+        "contested_accuracy": 55.7,
+        "intervention_accuracy": 68.6,
+        "market_accuracy": 55.8,
+        "accuracy_gap_pp": 12.8,
+        "b_dir_pct": 6.2
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 68.6,
+          "non_contested": 70.4,
+          "intervention_ex": 72,
+          "market_ex": 70.9,
+          "delta_example": 1.1
+        },
+        "market_truth": {
+          "none": 55.8,
+          "non_contested": 58.5,
+          "intervention_ex": 60,
+          "market_ex": 64.8,
+          "delta_example": -4.8
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 74.919614,
+          "market_accuracy": 46.511628,
+          "accuracy_gap_pp": 28.407986,
+          "b_dir_pct": 7.058824
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 74.654378,
+          "market_accuracy": 64.035088,
+          "accuracy_gap_pp": 10.61929,
+          "b_dir_pct": -3.125
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 79.005525,
+          "market_accuracy": 69.230769,
+          "accuracy_gap_pp": 9.774756,
+          "b_dir_pct": 1.351351
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 62.068966,
+          "market_accuracy": 59.07173,
+          "accuracy_gap_pp": 2.997236,
+          "b_dir_pct": 2.522936
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 73.4375,
+          "market_accuracy": 59.195402,
+          "accuracy_gap_pp": 14.242098,
+          "b_dir_pct": 7.913669
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 57.142857,
+          "market_accuracy": 46.428571,
+          "accuracy_gap_pp": 10.714286,
+          "b_dir_pct": -9.677419
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 69.950739,
+          "market_accuracy": 57.718121,
+          "accuracy_gap_pp": 12.232618,
+          "b_dir_pct": -12.096774
+        }
+      ]
+    },
+    {
+      "id": "claude-sonnet-4-6",
+      "source_model_id": "claude-sonnet-4-6",
+      "display_name": "Sonnet 4.6",
+      "family": "Claude",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2026-02-17",
+      "release_date_source": {
+        "title": "Introducing Claude Sonnet 4.6",
+        "url": "https://www.anthropic.com/news/claude-sonnet-4-6"
+      },
+      "overview": {
+        "non_contested_accuracy": 76.3,
+        "contested_accuracy": 63.1,
+        "intervention_accuracy": 68.6,
+        "market_accuracy": 69.5,
+        "accuracy_gap_pp": -0.9,
+        "b_dir_pct": -5.9
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 68.6,
+          "non_contested": 72.8,
+          "intervention_ex": 74.1,
+          "market_ex": 63.3,
+          "delta_example": 10.8
+        },
+        "market_truth": {
+          "none": 69.5,
+          "non_contested": 72.3,
+          "intervention_ex": 71.1,
+          "market_ex": 63.2,
+          "delta_example": 7.9
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 72.990354,
+          "market_accuracy": 61.627907,
+          "accuracy_gap_pp": 11.362447,
+          "b_dir_pct": -4.0
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 76.497696,
+          "market_accuracy": 75.438596,
+          "accuracy_gap_pp": 1.059099,
+          "b_dir_pct": -1.265823
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 50.828729,
+          "market_accuracy": 79.487179,
+          "accuracy_gap_pp": -28.65845,
+          "b_dir_pct": -47.787611
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 67.398119,
+          "market_accuracy": 68.776371,
+          "accuracy_gap_pp": -1.378252,
+          "b_dir_pct": -3.651685
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 72.265625,
+          "market_accuracy": 71.83908,
+          "accuracy_gap_pp": 0.426545,
+          "b_dir_pct": 5.833333
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 57.142857,
+          "market_accuracy": 82.142857,
+          "accuracy_gap_pp": -25.0,
+          "b_dir_pct": -28.571429
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 68.965517,
+          "market_accuracy": 65.100671,
+          "accuracy_gap_pp": 3.864846,
+          "b_dir_pct": 4.347826
+        }
+      ]
+    },
+    {
+      "id": "claude-opus-4-6",
+      "source_model_id": "claude-opus-4-6",
+      "display_name": "Opus 4.6",
+      "family": "Claude",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2026-02-05",
+      "release_date_source": {
+        "title": "Introducing Claude Opus 4.6",
+        "url": "https://www.anthropic.com/news/claude-opus-4-6"
+      },
+      "overview": {
+        "non_contested_accuracy": 77.7,
+        "contested_accuracy": 66.2,
+        "intervention_accuracy": 68.4,
+        "market_accuracy": 71.7,
+        "accuracy_gap_pp": -3.3,
+        "b_dir_pct": -10.2
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 68.4,
+          "non_contested": 82,
+          "intervention_ex": 77.6,
+          "market_ex": 70.9,
+          "delta_example": 6.7
+        },
+        "market_truth": {
+          "none": 71.7,
+          "non_contested": 82.5,
+          "intervention_ex": 80,
+          "market_ex": 68.8,
+          "delta_example": 11.2
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 72.347267,
+          "market_accuracy": 52.906977,
+          "accuracy_gap_pp": 19.44029,
+          "b_dir_pct": -1.197605
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 67.741935,
+          "market_accuracy": 69.298246,
+          "accuracy_gap_pp": -1.55631,
+          "b_dir_pct": -15.238095
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 55.801105,
+          "market_accuracy": 64.102564,
+          "accuracy_gap_pp": -8.301459,
+          "b_dir_pct": -18.852459
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 65.203762,
+          "market_accuracy": 76.793249,
+          "accuracy_gap_pp": -11.589487,
+          "b_dir_pct": -17.168675
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 70.3125,
+          "market_accuracy": 81.609195,
+          "accuracy_gap_pp": -11.296695,
+          "b_dir_pct": -15.740741
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 75.892857,
+          "market_accuracy": 85.714286,
+          "accuracy_gap_pp": -9.821429,
+          "b_dir_pct": -53.846154
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 66.995074,
+          "market_accuracy": 66.442953,
+          "accuracy_gap_pp": 0.552121,
+          "b_dir_pct": -13.675214
+        }
+      ]
+    },
+    {
+      "id": "gemini-2-5-flash",
+      "source_model_id": "gemini-2.5-flash",
+      "display_name": "2.5 Flash",
+      "family": "Gemini",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-04-17",
+      "release_date_source": {
+        "title": "Start building with Gemini 2.5 Flash",
+        "url": "https://developers.googleblog.com/en/start-building-with-gemini-25-flash/",
+        "note": "First official public preview; the stable endpoint became generally available on 2025-06-17."
+      },
+      "overview": {
+        "non_contested_accuracy": 75.9,
+        "contested_accuracy": 61.1,
+        "intervention_accuracy": 75.3,
+        "market_accuracy": 65.5,
+        "accuracy_gap_pp": 9.8,
+        "b_dir_pct": 10.7
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 75.3,
+          "non_contested": 68.2,
+          "intervention_ex": 69.9,
+          "market_ex": 65.2,
+          "delta_example": 4.7
+        },
+        "market_truth": {
+          "none": 65.5,
+          "non_contested": 62.8,
+          "intervention_ex": 61.5,
+          "market_ex": 67.2,
+          "delta_example": -5.7
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 81.028939,
+          "market_accuracy": 41.27907,
+          "accuracy_gap_pp": 39.749869,
+          "b_dir_pct": 26.25
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 87.557604,
+          "market_accuracy": 75.438596,
+          "accuracy_gap_pp": 12.119007,
+          "b_dir_pct": 18.181818
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 75.690608,
+          "market_accuracy": 64.102564,
+          "accuracy_gap_pp": 11.588044,
+          "b_dir_pct": 8.139535
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 65.517241,
+          "market_accuracy": 70.675105,
+          "accuracy_gap_pp": -5.157864,
+          "b_dir_pct": -10.027855
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 80.859375,
+          "market_accuracy": 68.965517,
+          "accuracy_gap_pp": 11.893858,
+          "b_dir_pct": 15.533981
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 67.857143,
+          "market_accuracy": 60.714286,
+          "accuracy_gap_pp": 7.142857,
+          "b_dir_pct": 0.0
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 72.906404,
+          "market_accuracy": 76.510067,
+          "accuracy_gap_pp": -3.603663,
+          "b_dir_pct": 1.111111
+        }
+      ]
+    },
+    {
+      "id": "gemini-3-flash",
+      "source_model_id": "gemini-3-flash-preview",
+      "display_name": "3 Flash",
+      "family": "Gemini",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-12-17",
+      "release_date_source": {
+        "title": "Gemini 3 Flash: frontier intelligence built for speed",
+        "url": "https://blog.google/products-and-platforms/products/gemini/gemini-3-flash/",
+        "note": "Released in developer preview and consumer products on the same date."
+      },
+      "overview": {
+        "non_contested_accuracy": 83.5,
+        "contested_accuracy": 76.3,
+        "intervention_accuracy": 82.6,
+        "market_accuracy": 83,
+        "accuracy_gap_pp": -0.4,
+        "b_dir_pct": -7.3
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 82.6,
+          "non_contested": 87.5,
+          "intervention_ex": 83.9,
+          "market_ex": 80.4,
+          "delta_example": 3.5
+        },
+        "market_truth": {
+          "none": 83,
+          "non_contested": 90.9,
+          "intervention_ex": 91.1,
+          "market_ex": 87.2,
+          "delta_example": 3.9
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 87.78135,
+          "market_accuracy": 66.860465,
+          "accuracy_gap_pp": 20.920885,
+          "b_dir_pct": 20.0
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 85.714286,
+          "market_accuracy": 92.105263,
+          "accuracy_gap_pp": -6.390977,
+          "b_dir_pct": -2.5
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 79.558011,
+          "market_accuracy": 82.051282,
+          "accuracy_gap_pp": -2.493271,
+          "b_dir_pct": -6.896552
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 77.742947,
+          "market_accuracy": 81.64557,
+          "accuracy_gap_pp": -3.902623,
+          "b_dir_pct": -8.296943
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 81.25,
+          "market_accuracy": 85.057471,
+          "accuracy_gap_pp": -3.807471,
+          "b_dir_pct": -13.513514
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 81.25,
+          "market_accuracy": 85.714286,
+          "accuracy_gap_pp": -4.464286,
+          "b_dir_pct": -9.090909
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 84.729064,
+          "market_accuracy": 95.973154,
+          "accuracy_gap_pp": -11.24409,
+          "b_dir_pct": -75.675676
+        }
+      ]
+    },
+    {
+      "id": "grok-3-mini",
+      "source_model_id": "grok-3-mini",
+      "display_name": "3-mini",
+      "family": "Grok",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-02-19",
+      "release_date_source": {
+        "title": "Grok 3 Beta — The Age of Reasoning Agents",
+        "url": "https://x.ai/news/grok-3",
+        "note": "Shared official announcement with Grok 3; the vendor release page is dated February 19."
+      },
+      "overview": {
+        "non_contested_accuracy": 76.7,
+        "contested_accuracy": 63.4,
+        "intervention_accuracy": 81.1,
+        "market_accuracy": 64.4,
+        "accuracy_gap_pp": 16.6,
+        "b_dir_pct": 14.5
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 81.1,
+          "non_contested": 62.6,
+          "intervention_ex": 64.3,
+          "market_ex": 59.5,
+          "delta_example": 4.8
+        },
+        "market_truth": {
+          "none": 64.4,
+          "non_contested": 67.8,
+          "intervention_ex": 71.1,
+          "market_ex": 69.6,
+          "delta_example": 1.5
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 88.745981,
+          "market_accuracy": 55.232558,
+          "accuracy_gap_pp": 33.513423,
+          "b_dir_pct": 35.714286
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 88.479263,
+          "market_accuracy": 62.280702,
+          "accuracy_gap_pp": 26.198561,
+          "b_dir_pct": 11.764706
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 82.320442,
+          "market_accuracy": 76.923077,
+          "accuracy_gap_pp": 5.397365,
+          "b_dir_pct": 1.694915
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 76.645768,
+          "market_accuracy": 67.510549,
+          "accuracy_gap_pp": 9.13522,
+          "b_dir_pct": 1.320132
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 81.640625,
+          "market_accuracy": 70.689655,
+          "accuracy_gap_pp": 10.95097,
+          "b_dir_pct": 2.040816
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 83.928571,
+          "market_accuracy": 64.285714,
+          "accuracy_gap_pp": 19.642857,
+          "b_dir_pct": 12.5
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 78.325123,
+          "market_accuracy": 74.496644,
+          "accuracy_gap_pp": 3.828479,
+          "b_dir_pct": 1.219512
+        }
+      ]
+    },
+    {
+      "id": "grok-3",
+      "source_model_id": "grok-3",
+      "display_name": "3",
+      "family": "Grok",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-02-19",
+      "release_date_source": {
+        "title": "Grok 3 Beta — The Age of Reasoning Agents",
+        "url": "https://x.ai/news/grok-3",
+        "note": "The vendor release page is dated February 19."
+      },
+      "overview": {
+        "non_contested_accuracy": 74.5,
+        "contested_accuracy": 61.2,
+        "intervention_accuracy": 75.7,
+        "market_accuracy": 66.6,
+        "accuracy_gap_pp": 9.2,
+        "b_dir_pct": 1.6
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 75.7,
+          "non_contested": 63.2,
+          "intervention_ex": 60.8,
+          "market_ex": 66.5,
+          "delta_example": -5.6
+        },
+        "market_truth": {
+          "none": 66.6,
+          "non_contested": 69,
+          "intervention_ex": 67.4,
+          "market_ex": 68.8,
+          "delta_example": -1.4
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 73.954984,
+          "market_accuracy": 61.046512,
+          "accuracy_gap_pp": 12.908472,
+          "b_dir_pct": -6.756757
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 88.018433,
+          "market_accuracy": 69.298246,
+          "accuracy_gap_pp": 18.720188,
+          "b_dir_pct": 11.47541
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 72.375691,
+          "market_accuracy": 76.923077,
+          "accuracy_gap_pp": -4.547386,
+          "b_dir_pct": -22.077922
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 77.899687,
+          "market_accuracy": 59.07173,
+          "accuracy_gap_pp": 18.827957,
+          "b_dir_pct": 12.537313
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 75.78125,
+          "market_accuracy": 75.862069,
+          "accuracy_gap_pp": -0.080819,
+          "b_dir_pct": -15.384615
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 70.535714,
+          "market_accuracy": 78.571429,
+          "accuracy_gap_pp": -8.035714,
+          "b_dir_pct": -29.411765
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 70.935961,
+          "market_accuracy": 67.114094,
+          "accuracy_gap_pp": 3.821867,
+          "b_dir_pct": -0.925926
+        }
+      ]
+    },
+    {
+      "id": "grok-4-1-fast",
+      "source_model_id": "grok-4-1-fast-reasoning",
+      "display_name": "4-1 Fast",
+      "family": "Grok",
+      "access": "closed",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-11-19",
+      "release_date_source": {
+        "title": "Grok 4.1 Fast and Agent Tools API",
+        "url": "https://x.ai/news/grok-4-1-fast",
+        "note": "The paper label uses 4-1 Fast; vendor styling is Grok 4.1 Fast."
+      },
+      "overview": {
+        "non_contested_accuracy": 78.2,
+        "contested_accuracy": 65.8,
+        "intervention_accuracy": 77.1,
+        "market_accuracy": 75.5,
+        "accuracy_gap_pp": 1.6,
+        "b_dir_pct": -3.9
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 77.1,
+          "non_contested": 77.3,
+          "intervention_ex": 76.2,
+          "market_ex": 66.5,
+          "delta_example": 9.8
+        },
+        "market_truth": {
+          "none": 75.5,
+          "non_contested": 65.6,
+          "intervention_ex": 74.1,
+          "market_ex": 73.6,
+          "delta_example": 0.5
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 80.707395,
+          "market_accuracy": 70.930233,
+          "accuracy_gap_pp": 9.777163,
+          "b_dir_pct": -3.636364
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 84.331797,
+          "market_accuracy": 82.45614,
+          "accuracy_gap_pp": 1.875657,
+          "b_dir_pct": -14.814815
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 74.033149,
+          "market_accuracy": 76.923077,
+          "accuracy_gap_pp": -2.889928,
+          "b_dir_pct": -18.918919
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 71.003135,
+          "market_accuracy": 78.059072,
+          "accuracy_gap_pp": -7.055937,
+          "b_dir_pct": -18.685121
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 78.125,
+          "market_accuracy": 70.689655,
+          "accuracy_gap_pp": 7.435345,
+          "b_dir_pct": 3.738318
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 81.25,
+          "market_accuracy": 92.857143,
+          "accuracy_gap_pp": -11.607143,
+          "b_dir_pct": -33.333333
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 75.862069,
+          "market_accuracy": 91.946309,
+          "accuracy_gap_pp": -16.08424,
+          "b_dir_pct": -60.655738
+        }
+      ]
+    },
+    {
+      "id": "llama-3-1-8b",
+      "source_model_id": "meta-llama/llama-3.1-8b-instruct",
+      "display_name": "3.1-8B",
+      "family": "Llama",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-07-23",
+      "release_date_source": {
+        "title": "Introducing Llama 3.1: Our most capable models to date",
+        "url": "https://ai.meta.com/blog/meta-llama-3-1/"
+      },
+      "overview": {
+        "non_contested_accuracy": 49.3,
+        "contested_accuracy": 42,
+        "intervention_accuracy": 51.1,
+        "market_accuracy": 41.8,
+        "accuracy_gap_pp": 9.3,
+        "b_dir_pct": -3.9
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 51.1,
+          "non_contested": 45.7,
+          "intervention_ex": 48.3,
+          "market_ex": 46.2,
+          "delta_example": 2
+        },
+        "market_truth": {
+          "none": 41.8,
+          "non_contested": 47.7,
+          "intervention_ex": 51.9,
+          "market_ex": 44.8,
+          "delta_example": 7.1
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 45.016077,
+          "market_accuracy": 41.27907,
+          "accuracy_gap_pp": 3.737007,
+          "b_dir_pct": -8.455882
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 55.299539,
+          "market_accuracy": 40.350877,
+          "accuracy_gap_pp": 14.948662,
+          "b_dir_pct": -4.242424
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 56.353591,
+          "market_accuracy": 33.333333,
+          "accuracy_gap_pp": 23.020258,
+          "b_dir_pct": -8.917197
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 61.755486,
+          "market_accuracy": 40.084388,
+          "accuracy_gap_pp": 21.671098,
+          "b_dir_pct": 12.121212
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 41.40625,
+          "market_accuracy": 45.402299,
+          "accuracy_gap_pp": -3.996049,
+          "b_dir_pct": -14.285714
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 49.107143,
+          "market_accuracy": 35.714286,
+          "accuracy_gap_pp": 13.392857,
+          "b_dir_pct": 2.702703
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 61.576355,
+          "market_accuracy": 67.785235,
+          "accuracy_gap_pp": -6.20888,
+          "b_dir_pct": -25.396825
+        }
+      ]
+    },
+    {
+      "id": "llama-3-2-1b",
+      "source_model_id": "meta-llama/llama-3.2-1b-instruct",
+      "display_name": "3.2-1B",
+      "family": "Llama",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-09-25",
+      "release_date_source": {
+        "title": "Llama 3.2: Revolutionizing edge AI and vision",
+        "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+        "note": "The 1B and 3B text models were released together."
+      },
+      "overview": {
+        "non_contested_accuracy": 56.4,
+        "contested_accuracy": 48.1,
+        "intervention_accuracy": 60,
+        "market_accuracy": 50.7,
+        "accuracy_gap_pp": 9.3,
+        "b_dir_pct": 0.8
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 60,
+          "non_contested": 54.9,
+          "intervention_ex": 56.6,
+          "market_ex": 53.8,
+          "delta_example": 2.8
+        },
+        "market_truth": {
+          "none": 50.7,
+          "non_contested": 60.8,
+          "intervention_ex": 52.6,
+          "market_ex": 49.6,
+          "delta_example": 3
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 49.839228,
+          "market_accuracy": 40.116279,
+          "accuracy_gap_pp": 9.722949,
+          "b_dir_pct": 8.494208
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 54.37788,
+          "market_accuracy": 37.719298,
+          "accuracy_gap_pp": 16.658582,
+          "b_dir_pct": -9.411765
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 74.585635,
+          "market_accuracy": 56.410256,
+          "accuracy_gap_pp": 18.175379,
+          "b_dir_pct": 4.123711
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 66.144201,
+          "market_accuracy": 46.413502,
+          "accuracy_gap_pp": 19.730699,
+          "b_dir_pct": 9.787234
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 55.46875,
+          "market_accuracy": 52.298851,
+          "accuracy_gap_pp": 3.169899,
+          "b_dir_pct": -12.690355
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 61.607143,
+          "market_accuracy": 50.0,
+          "accuracy_gap_pp": 11.607143,
+          "b_dir_pct": -1.176471
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 65.517241,
+          "market_accuracy": 65.100671,
+          "accuracy_gap_pp": 0.41657,
+          "b_dir_pct": -3.278689
+        }
+      ]
+    },
+    {
+      "id": "llama-3-2-3b",
+      "source_model_id": "meta-llama/llama-3.2-3b-instruct",
+      "display_name": "3.2-3B",
+      "family": "Llama",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-09-25",
+      "release_date_source": {
+        "title": "Llama 3.2: Revolutionizing edge AI and vision",
+        "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/",
+        "note": "The 1B and 3B text models were released together."
+      },
+      "overview": {
+        "non_contested_accuracy": 56.7,
+        "contested_accuracy": 48.4,
+        "intervention_accuracy": 60.7,
+        "market_accuracy": 49.3,
+        "accuracy_gap_pp": 11.4,
+        "b_dir_pct": 5.2
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 60.7,
+          "non_contested": 45.7,
+          "intervention_ex": 54.5,
+          "market_ex": 42.4,
+          "delta_example": 12.1
+        },
+        "market_truth": {
+          "none": 49.3,
+          "non_contested": 50.5,
+          "intervention_ex": 57,
+          "market_ex": 44.8,
+          "delta_example": 12.2
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 48.874598,
+          "market_accuracy": 31.395349,
+          "accuracy_gap_pp": 17.479249,
+          "b_dir_pct": 12.274368
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 57.142857,
+          "market_accuracy": 37.719298,
+          "accuracy_gap_pp": 19.423559,
+          "b_dir_pct": -2.439024
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 71.270718,
+          "market_accuracy": 58.974359,
+          "accuracy_gap_pp": 12.296359,
+          "b_dir_pct": 1.0
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 66.144201,
+          "market_accuracy": 43.881857,
+          "accuracy_gap_pp": 22.262344,
+          "b_dir_pct": 12.655602
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 56.25,
+          "market_accuracy": 51.149425,
+          "accuracy_gap_pp": 5.100575,
+          "b_dir_pct": -8.629442
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 58.928571,
+          "market_accuracy": 50.0,
+          "accuracy_gap_pp": 8.928571,
+          "b_dir_pct": 5.681818
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 68.472906,
+          "market_accuracy": 69.127517,
+          "accuracy_gap_pp": -0.65461,
+          "b_dir_pct": 1.818182
+        }
+      ]
+    },
+    {
+      "id": "llama-3-3-70b",
+      "source_model_id": "meta-llama/llama-3.3-70b-instruct",
+      "display_name": "3.3-70B",
+      "family": "Llama",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2024-12-06",
+      "release_date_source": {
+        "title": "Llama 3.3 70B Instruct model card",
+        "url": "https://huggingface.co/meta-llama/Llama-3.3-70B-Instruct",
+        "note": "The official Meta model card lists December 6 as the release date."
+      },
+      "overview": {
+        "non_contested_accuracy": 72.1,
+        "contested_accuracy": 57.7,
+        "intervention_accuracy": 75.5,
+        "market_accuracy": 58.2,
+        "accuracy_gap_pp": 17.3,
+        "b_dir_pct": 12.5
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 75.5,
+          "non_contested": 54.4,
+          "intervention_ex": 55.2,
+          "market_ex": 67.7,
+          "delta_example": -12.5
+        },
+        "market_truth": {
+          "none": 58.2,
+          "non_contested": 61.2,
+          "intervention_ex": 62.2,
+          "market_ex": 68,
+          "delta_example": -5.8
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 78.778135,
+          "market_accuracy": 47.093023,
+          "accuracy_gap_pp": 31.685112,
+          "b_dir_pct": 23.566879
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 92.165899,
+          "market_accuracy": 66.666667,
+          "accuracy_gap_pp": 25.499232,
+          "b_dir_pct": 43.636364
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 79.005525,
+          "market_accuracy": 66.666667,
+          "accuracy_gap_pp": 12.338858,
+          "b_dir_pct": 9.090909
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 74.60815,
+          "market_accuracy": 57.172996,
+          "accuracy_gap_pp": 17.435155,
+          "b_dir_pct": 11.232877
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 69.53125,
+          "market_accuracy": 55.172414,
+          "accuracy_gap_pp": 14.358836,
+          "b_dir_pct": -1.282051
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 70.535714,
+          "market_accuracy": 67.857143,
+          "accuracy_gap_pp": 2.678571,
+          "b_dir_pct": -10.0
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 75.369458,
+          "market_accuracy": 65.100671,
+          "accuracy_gap_pp": 10.268787,
+          "b_dir_pct": 22.54902
+        }
+      ]
+    },
+    {
+      "id": "qwen-3-8b",
+      "source_model_id": "qwen/qwen3-8b",
+      "display_name": "3-8B",
+      "family": "Qwen",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-04-29",
+      "release_date_source": {
+        "title": "Qwen3: Think Deeper, Act Faster",
+        "url": "https://qwenlm.github.io/blog/qwen3/",
+        "note": "The Qwen3 sizes were released together; the official blog uses April 29."
+      },
+      "overview": {
+        "non_contested_accuracy": 71.6,
+        "contested_accuracy": 57.5,
+        "intervention_accuracy": 75.5,
+        "market_accuracy": 55.3,
+        "accuracy_gap_pp": 20.3,
+        "b_dir_pct": 16.9
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 75.5,
+          "non_contested": 64.5,
+          "intervention_ex": 62.2,
+          "market_ex": 61.4,
+          "delta_example": 0.8
+        },
+        "market_truth": {
+          "none": 55.3,
+          "non_contested": 61.6,
+          "intervention_ex": 65.2,
+          "market_ex": 64,
+          "delta_example": 1.2
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 80.385852,
+          "market_accuracy": 48.837209,
+          "accuracy_gap_pp": 31.548643,
+          "b_dir_pct": 30.201342
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 85.253456,
+          "market_accuracy": 51.754386,
+          "accuracy_gap_pp": 33.49907,
+          "b_dir_pct": 28.735632
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 82.320442,
+          "market_accuracy": 74.358974,
+          "accuracy_gap_pp": 7.961468,
+          "b_dir_pct": -3.225806
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 73.667712,
+          "market_accuracy": 55.485232,
+          "accuracy_gap_pp": 18.18248,
+          "b_dir_pct": 14.248021
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 71.875,
+          "market_accuracy": 58.045977,
+          "accuracy_gap_pp": 13.829023,
+          "b_dir_pct": 1.37931
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 63.392857,
+          "market_accuracy": 57.142857,
+          "accuracy_gap_pp": 6.25,
+          "b_dir_pct": 11.688312
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 81.280788,
+          "market_accuracy": 69.798658,
+          "accuracy_gap_pp": 11.48213,
+          "b_dir_pct": 22.891566
+        }
+      ]
+    },
+    {
+      "id": "qwen-3-14b",
+      "source_model_id": "qwen/qwen3-14b",
+      "display_name": "3-14B",
+      "family": "Qwen",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-04-29",
+      "release_date_source": {
+        "title": "Qwen3: Think Deeper, Act Faster",
+        "url": "https://qwenlm.github.io/blog/qwen3/",
+        "note": "The Qwen3 sizes were released together; the official blog uses April 29."
+      },
+      "overview": {
+        "non_contested_accuracy": 69.3,
+        "contested_accuracy": 52.2,
+        "intervention_accuracy": 67.7,
+        "market_accuracy": 51.2,
+        "accuracy_gap_pp": 16.4,
+        "b_dir_pct": 9.6
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 67.7,
+          "non_contested": 53.1,
+          "intervention_ex": 55.9,
+          "market_ex": 51.3,
+          "delta_example": 4.7
+        },
+        "market_truth": {
+          "none": 51.2,
+          "non_contested": 47.3,
+          "intervention_ex": 48.1,
+          "market_ex": 66.4,
+          "delta_example": -18.3
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 75.241158,
+          "market_accuracy": 48.255814,
+          "accuracy_gap_pp": 26.985344,
+          "b_dir_pct": 5.421687
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 75.576037,
+          "market_accuracy": 65.789474,
+          "accuracy_gap_pp": 9.786563,
+          "b_dir_pct": 10.869565
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 79.005525,
+          "market_accuracy": 51.282051,
+          "accuracy_gap_pp": 27.723474,
+          "b_dir_pct": 23.157895
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 65.203762,
+          "market_accuracy": 56.962025,
+          "accuracy_gap_pp": 8.241736,
+          "b_dir_pct": 2.112676
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 60.15625,
+          "market_accuracy": 43.678161,
+          "accuracy_gap_pp": 16.478089,
+          "b_dir_pct": 5.0
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 55.357143,
+          "market_accuracy": 50.0,
+          "accuracy_gap_pp": 5.357143,
+          "b_dir_pct": 16.304348
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 71.428571,
+          "market_accuracy": 63.087248,
+          "accuracy_gap_pp": 8.341323,
+          "b_dir_pct": 0.884956
+        }
+      ]
+    },
+    {
+      "id": "qwen-3-32b",
+      "source_model_id": "qwen/qwen3-32b",
+      "display_name": "3-32B",
+      "family": "Qwen",
+      "access": "open",
+      "reported_in_paper": true,
+      "source": "COLM 2026 camera-ready Tables 5 and 2; Task 1 no-example export",
+      "evaluation_date": null,
+      "release_date": "2025-04-29",
+      "release_date_source": {
+        "title": "Qwen3: Think Deeper, Act Faster",
+        "url": "https://qwenlm.github.io/blog/qwen3/",
+        "note": "The Qwen3 sizes were released together; the official blog uses April 29."
+      },
+      "overview": {
+        "non_contested_accuracy": 71.1,
+        "contested_accuracy": 56.2,
+        "intervention_accuracy": 72.2,
+        "market_accuracy": 57.1,
+        "accuracy_gap_pp": 15,
+        "b_dir_pct": 10
+      },
+      "icl": {
+        "intervention_truth": {
+          "none": 72.2,
+          "non_contested": 69.1,
+          "intervention_ex": 67.1,
+          "market_ex": 64.6,
+          "delta_example": 2.6
+        },
+        "market_truth": {
+          "none": 57.1,
+          "non_contested": 50.1,
+          "intervention_ex": 49.6,
+          "market_ex": 61.6,
+          "delta_example": -12
+        }
+      },
+      "subfields": [
+        {
+          "id": "healthcare",
+          "name": "Healthcare",
+          "sample_size": 80.5,
+          "n_triplets": 101,
+          "intervention_sample_size": 51.833333333333336,
+          "market_sample_size": 28.666666666666664,
+          "intervention_accuracy": 78.778135,
+          "market_accuracy": 68.023256,
+          "accuracy_gap_pp": 10.754879,
+          "b_dir_pct": 9.090909
+        },
+        {
+          "id": "welfare_redistribution",
+          "name": "Welfare & Redistribution",
+          "sample_size": 55.166666666666664,
+          "n_triplets": 92,
+          "intervention_sample_size": 36.166666666666664,
+          "market_sample_size": 19.0,
+          "intervention_accuracy": 80.184332,
+          "market_accuracy": 62.280702,
+          "accuracy_gap_pp": 17.90363,
+          "b_dir_pct": 13.953488
+        },
+        {
+          "id": "education",
+          "name": "Education",
+          "sample_size": 49.66666666666667,
+          "n_triplets": 60,
+          "intervention_sample_size": 30.166666666666668,
+          "market_sample_size": 19.5,
+          "intervention_accuracy": 75.690608,
+          "market_accuracy": 61.538462,
+          "accuracy_gap_pp": 14.152146,
+          "b_dir_pct": 7.865169
+        },
+        {
+          "id": "labor",
+          "name": "Labor",
+          "sample_size": 185.33333333333331,
+          "n_triplets": 218,
+          "intervention_sample_size": 106.33333333333333,
+          "market_sample_size": 79.0,
+          "intervention_accuracy": 68.652038,
+          "market_accuracy": 54.219409,
+          "accuracy_gap_pp": 14.432628,
+          "b_dir_pct": 9.11271
+        },
+        {
+          "id": "financial_regulation",
+          "name": "Financial Regulation",
+          "sample_size": 215.0,
+          "n_triplets": 220,
+          "intervention_sample_size": 128.0,
+          "market_sample_size": 87.0,
+          "intervention_accuracy": 72.65625,
+          "market_accuracy": 51.724138,
+          "accuracy_gap_pp": 20.932112,
+          "b_dir_pct": 5.844156
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "sample_size": 32.66666666666667,
+          "n_triplets": 38,
+          "intervention_sample_size": 18.666666666666668,
+          "market_sample_size": 14.0,
+          "intervention_accuracy": 52.678571,
+          "market_accuracy": 64.285714,
+          "accuracy_gap_pp": -11.607143,
+          "b_dir_pct": -10.843373
+        },
+        {
+          "id": "taxation",
+          "name": "Taxation",
+          "sample_size": 58.66666666666666,
+          "n_triplets": 77,
+          "intervention_sample_size": 33.83333333333333,
+          "market_sample_size": 24.833333333333332,
+          "intervention_accuracy": 69.458128,
+          "market_accuracy": 67.785235,
+          "accuracy_gap_pp": 1.672893,
+          "b_dir_pct": 9.090909
+        }
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "case_id": "t1_9849",
+      "triplet_key": "28831|minimum wage increase|probability of remaining employed",
+      "title": "Earnings Inequality and the Minimum Wage: Evidence from Brazil",
+      "paper_url": "https://www.nber.org/papers/w28831",
+      "treatment": "Minimum wage increase",
+      "outcome": "Probability of remaining employed",
+      "context": "This paper studies Brazil’s labor market and wage inequality over 1985–2014 with a focus on 1996–2012, using administrative linked employer–employee data (RAIS) and household surveys (PNAD, PME). Units include male workers aged 18–54, firms, and state-year aggregates. The institutional setting is Brazil’s federal minimum wage, which rose sharply from 1996 to 2012 and applied uniformly across states but varied in effective bindingness by local wage distributions. Analyses combine firm-worker decompositions, cross-state panel regressions, and a structural equilibrium model.",
+      "empirical_sign": "+",
+      "intervention_sign": "+",
+      "market_sign": "-",
+      "ground_truth_side": "intervention",
+      "model_outputs": [
+        {
+          "model_id": "gpt-4o-mini",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "A minimum wage increase generally elevates the income floor for workers, which can reduce turnover and enhance job security for low-wage employees. Consequently, this increase boosts the probability of remaining employed, particularly for those at or near the minimum wage threshold."
+        },
+        {
+          "model_id": "gpt-4o",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "A minimum wage increase can decrease the probability of remaining employed due to potential job losses. In the context of Brazil, where the minimum wage increase was sharp and uniformly applied across states from 1996 to 2012, it is likely that in areas where wages were initially close to the minimum wage, employers might have found it harder to maintain employment levels as labor costs increased. As a result, the overall effect of the minimum wage increase on employment probability is likely negative. Empirical studies in other contexts have shown that minimum wage increases can be associated with reduced employment, especially for low-wage workers."
+        },
+        {
+          "model_id": "gpt-5-nano",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "The minimum wage increase in Brazil (1996–2012) created binding effects in areas with low local wage dispersion, raising labor costs for firms employing low-wage workers. In these binding regions, higher floors tend to reduce the probability of staying employed for low-skilled workers, yielding a negative effect. In non-binding regions (or for workers already earning above the new floor), the effect on staying employed is small or zero. Given substantial heterogeneity across states, local wage distributions, and firm responses, the overall average effect on the probability of remaining employed is likely mixed across subgroups and specifications."
+        },
+        {
+          "model_id": "gpt-5-mini",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "Sign likely heterogeneous. Where the minimum wage was binding (many low‑wage workers), higher minimums can raise employer costs and increase separations or reduce hires, lowering retention; where it was non‑binding or labor markets are monopsonistic, higher wages can raise worker retention (fewer quits, higher reservation wages) or have negligible effects. Aggregate demand and compositional shifts (formalization, hours adjustments) further offset employer responses, so impacts vary by state, sector, age/skill and specification."
+        },
+        {
+          "model_id": "gpt-5-2",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "A higher minimum wage raises labor costs for firms employing low-wage workers, which can reduce job retention for workers whose productivity is below the new wage, lowering the probability of remaining employed in more binding (low-wage) local labor markets. But in less binding states and for higher-wage/formal workers, employment effects are often small, and there can be offsetting channels (higher demand from increased earnings, reduced turnover/efficiency wage effects). Given heterogeneity in bindingness across states and worker types in Brazil over 1996–2012, the most likely pattern is mixed effects rather than a uniform sign."
+        },
+        {
+          "model_id": "claude-haiku-4-5",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "Minimum wage increases have theoretically ambiguous effects on employment probability. For workers initially earning below the new minimum, the treatment increases their wages (positive income effect and reduced job search incentives). However, firms may respond by reducing hiring or hours, potentially decreasing employment probability—especially for less-skilled workers. The Brazilian context (1996–2012) with sharp minimum wage increases and variation in bindingness across states suggests heterogeneous effects: workers in states where the minimum wage was more binding relative to local wage distributions likely experienced different employment responses than those in states with higher baseline wages. The structural equilibrium model approach in this paper typically reveals such heterogeneity. Effects likely vary by worker skill level, firm size, and the magnitude of the wage shock relative to local conditions, warranting a 'mixed' classification."
+        },
+        {
+          "model_id": "claude-sonnet-4-6",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "The effect of minimum wage increases on employment retention is theoretically ambiguous and empirically context-dependent. In Brazil's labor market, the sharp minimum wage increases could have competing effects: (1) workers already earning above the new minimum are largely unaffected; (2) workers at or near the minimum may face higher layoff risk if firms cannot afford the higher wage floor, reducing retention probability; (3) however, monopsony power or efficiency wage effects could mean higher wages reduce turnover and increase retention. In Brazil specifically, the minimum wage increases occurred alongside strong economic growth and falling inequality, suggesting employment effects were modest or even positive for some groups. The structural equilibrium model context suggests the paper likely finds heterogeneous effects across firm types, worker skill levels, or regions with different bindingness of the minimum wage. Workers in highly affected (more binding) states/sectors may face lower retention, while others are unaffected, leading to mixed results across subgroups and specifications."
+        },
+        {
+          "model_id": "claude-opus-4-6",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "Standard labor economics predicts that minimum wage increases raise labor costs, leading to disemployment effects, particularly for workers near the bottom of the wage distribution. In the Brazilian context, the large real minimum wage increases from 1996–2012 were binding for many low-wage workers. Cross-state panel regressions exploiting variation in the effective bindingness of the minimum wage across states would likely detect negative effects on the probability of remaining employed, especially for workers whose wages were near or below the new minimum. While some studies find muted employment effects of minimum wages, the magnitude of Brazil's minimum wage increases over this period was substantial, making negative separation/employment effects more likely to be statistically detectable."
+        },
+        {
+          "model_id": "gemini-2-5-flash",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "An increase in the minimum wage raises labor costs for firms. To maintain profitability, firms may reduce their demand for labor, which can lead to a lower probability of retaining existing employees or a higher likelihood of layoffs, particularly for workers whose wages are directly affected by the minimum wage hike."
+        },
+        {
+          "model_id": "gemini-3-flash",
+          "predicted_sign": "None",
+          "correct": false,
+          "rationale": "Empirical studies of the Brazilian labor market during this period, such as Engbom and Moser (2022), find that while the minimum wage significantly reduced earnings inequality, it had a negligible or statistically insignificant effect on the probability of remaining employed or on total employment levels."
+        },
+        {
+          "model_id": "grok-3-mini",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "A minimum wage increase typically raises labor costs for employers, which can lead to job cuts or reduced retention of low-wage workers, thereby decreasing the probability of remaining employed. In the context of Brazil's varying local wage distributions, while effects may differ across regions, the overall causal effect is likely negative based on standard economic theory and empirical evidence from similar studies."
+        },
+        {
+          "model_id": "grok-3",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "An increase in the minimum wage in Brazil during 1996-2012 likely reduces the probability of remaining employed, particularly for low-wage workers. Economic theory suggests that raising the minimum wage above the market-clearing level can lead to reduced labor demand as firms adjust by cutting jobs or hours, especially in a context with varying local wage distributions and bindingness. Empirical studies on minimum wage hikes often find negative employment effects in developing economies with weaker labor market institutions, supporting the prediction of a negative causal effect."
+        },
+        {
+          "model_id": "grok-4-1-fast",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "Standard neoclassical labor demand theory predicts that minimum wage increases raise labor costs for low-skill firms, leading to reduced demand for low-wage workers and lower probability of remaining employed, especially in states where the minimum wage is more binding due to local wage distributions. Empirical designs exploiting cross-state variation in bindingness typically identify negative employment effects in Brazil's formal sector."
+        },
+        {
+          "model_id": "llama-3-1-8b",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Raising the minimum wage typically leads to higher labor costs for firms, which might incentivize them to substitute lower-skilled workers with higher-skilled workers or invest in labor productivity to keep costs down. However, in Brazil's context, the federal minimum wage rose uniformly across states, but its effective bindingness varied by local wage distributions. This might have resulted in some firms exceeding the minimum wage threshold, preserving their existing labor force and potentially increasing the probability of remaining employed for those workers."
+        },
+        {
+          "model_id": "llama-3-2-1b",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "The minimum wage increase likely increases the probability of remaining employed due to the potential for increased purchasing power and reduced poverty, leading to a more stable labor market."
+        },
+        {
+          "model_id": "llama-3-2-3b",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "The minimum wage increase is likely to increase the probability of remaining employed, as higher wages can lead to increased job security and reduced unemployment, especially in a country with a large informal sector where workers may be more vulnerable to wage fluctuations."
+        },
+        {
+          "model_id": "llama-3-3-70b",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "A minimum wage increase can lead to higher labor costs for firms, potentially reducing their demand for labor and thus decreasing the probability of remaining employed, especially for low-skilled or low-wage workers."
+        },
+        {
+          "model_id": "qwen-3-8b",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "A minimum wage increase is likely to reduce employment probability due to higher labor costs leading to potential layoffs or reduced hiring, particularly in binding wage distributions. While some models suggest mixed effects, the context emphasizes the uniform policy with varying bindingness, supporting a negative effect in areas where the minimum wage was binding."
+        },
+        {
+          "model_id": "qwen-3-14b",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "The minimum wage's effect on employment depends on local wage distributions and bindingness. In states where the minimum wage was binding (i.e., set below prevailing wages), firms may reduce employment to offset higher labor costs, decreasing the probability of remaining employed. However, in states where the minimum wage was already above prevailing wages (non-binding), employment effects may be negligible. The analysis of heterogeneous local bindingness and cross-state variations suggests the effect is not uniform, leading to a 'mixed' outcome."
+        },
+        {
+          "model_id": "qwen-3-32b",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "An increase in the minimum wage is likely to raise labor costs for employers, potentially leading to reduced employment (especially for low-skilled workers) due to substitution or margin adjustments. The uniform minimum wage, when binding in lower-wage states, could displace workers rather than retain them. Structural models and cross-state comparisons in the study suggest heterogeneous effects, but the dominant causal channel points to a negative employment impact overall."
+        }
+      ]
+    },
+    {
+      "case_id": "t1_515",
+      "triplet_key": "7266|hospital competition|social welfare",
+      "title": "Is Hospital Competition Socially Wasteful?",
+      "paper_url": "https://www.nber.org/papers/w7266",
+      "treatment": "Hospital competition",
+      "outcome": "Social welfare",
+      "context": "This empirical study analyzes how hospital competition affected Medicare beneficiaries' AMI (heart attack) care in the United States from 1985–1994. It uses patient-level data on nonrural elderly Medicare beneficiaries hospitalized for new AMI events, matched to American Hospital Association hospital characteristics and state HMO enrollment rates. The institutional setting includes Medicare reimbursement regimes and rising managed-care penetration; the authors exploit exogenous determinants of hospital choice (travel distances) and changes in local hospital markets to assess impacts on treatment intensity, Medicare inpatient spending, and one-year mortality and cardiac rehospitalizations.",
+      "empirical_sign": "+",
+      "intervention_sign": "-",
+      "market_sign": "+",
+      "ground_truth_side": "market",
+      "model_outputs": [
+        {
+          "model_id": "gpt-4o-mini",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Increased hospital competition is expected to enhance the quality and efficiency of care, leading to better patient outcomes and therefore improving social welfare. As hospitals compete, they may adopt more effective treatment protocols, reduce costs, and increase patient satisfaction, which collectively contribute to greater social welfare for Medicare beneficiaries."
+        },
+        {
+          "model_id": "gpt-4o",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "Hospital competition can have mixed effects on social welfare. On one hand, increased competition might lead to improved hospital efficiency, reduced costs, and innovations in care delivery, potentially enhancing social welfare. On the other hand, hospitals might engage in cost-cutting measures that could reduce care quality, leading to worse health outcomes. Additionally, if competition increases focus on profitable procedures, it may not optimally serve societal health needs. Thus, the effect on social welfare is likely to be mixed, as it depends on whether the benefits of efficiency gains outweigh potential reductions in care quality and accessibility."
+        },
+        {
+          "model_id": "gpt-5-nano",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Hospital competition typically reduces prices and can spur quality improvements in care delivery. In the Medicare AMI context, more competition is likely to lower inpatient spending while not worsening (and potentially improving) one-year mortality and rehospitalization outcomes, yielding a net gain in social welfare. Subgroup or specification heterogeneity could occur, but the overall welfare impact is expected to be positive."
+        },
+        {
+          "model_id": "gpt-5-mini",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "In this institutional setting (Medicare with regulated reimbursements and rising managed care), stronger hospital competition tends to spur hospitals to compete on quality and treatment intensity for AMI patients. The study’s design (exploiting exogenous travel-distance determinants and local market changes) is suited to detect effects on care intensity, spending, and one‑year mortality/rehospitalization. Empirically and theoretically, competition raised intensity and improved survival and reduced rehospitalizations sufficiently that the health gains outweigh any increased inpatient spending, implying a net increase in social welfare (though gains may be concentrated in sicker patients)."
+        },
+        {
+          "model_id": "gpt-5-2",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "Greater hospital competition can raise social welfare if it improves quality (lower AMI mortality/rehospitalizations) and/or reduces prices/spending through efficiency. But in Medicare’s administered-price setting, hospitals may compete on nonprice dimensions by increasing treatment intensity and amenities, which can raise Medicare inpatient spending without commensurate health gains, lowering welfare. With rising managed-care penetration and changing reimbursement incentives, the welfare effect is therefore likely to vary by market conditions and period, implying a mixed overall sign."
+        },
+        {
+          "model_id": "claude-haiku-4-5",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "Hospital competition's effect on social welfare in AMI care is theoretically ambiguous and likely heterogeneous. Competition may increase welfare through: (1) improved quality of care and reduced mortality, (2) lower prices through cost-cutting, and (3) innovation incentives. However, it may decrease welfare through: (1) excessive treatment intensity and spending without mortality benefits, (2) market fragmentation reducing scale economies, (3) cream-skimming behavior. The study's focus on treatment intensity, spending, and mortality outcomes suggests the authors found trade-offs rather than unambiguous improvements. In healthcare markets with Medicare's fixed reimbursement, competition often increases quantity of services without proportional quality gains, creating a mixed welfare effect. The outcome likely varies by market structure, patient severity, and whether competition reduces inefficient care versus beneficial care."
+        },
+        {
+          "model_id": "claude-sonnet-4-6",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "The effect of hospital competition on social welfare in this context is ambiguous and likely mixed. In the pre-managed care era (price-regulated Medicare), hospitals competed on quality/amenities rather than price, which could increase treatment intensity and spending without proportional health improvements—potentially reducing allocative efficiency. However, rising HMO penetration changed competitive dynamics: competition under managed care may have reduced costs while maintaining or improving outcomes. The study period (1985–1994) spans both regimes. Evidence from this literature (e.g., Kessler and McClellan 2000) suggests that in low-HMO markets, competition increased spending with little mortality benefit (welfare-reducing), while in high-HMO markets, competition reduced spending and improved outcomes (welfare-enhancing). Thus, the net effect on social welfare depends on the managed-care environment, making the overall sign mixed across subgroups and time periods."
+        },
+        {
+          "model_id": "claude-opus-4-6",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "The seminal Kessler and McClellan (2000) study finds that the welfare effects of hospital competition changed over time. In the earlier period (around 1985), greater hospital competition led to a 'medical arms race' with higher spending but no improvement in health outcomes, implying a negative or ambiguous welfare effect. By the later period (around 1991), as managed care penetration increased, competition led to lower expenditures without worsening health outcomes, suggesting a positive welfare effect. Because the sign of the welfare impact depends on the time period and the degree of managed care penetration, the overall effect on social welfare is mixed across the study's specifications and subperiods."
+        },
+        {
+          "model_id": "gemini-2-5-flash",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "Hospital competition can have ambiguous effects on social welfare. On one hand, increased competition may drive efficiency, reduce costs, and improve quality of care, leading to higher social welfare. On the other hand, it can lead to a 'medical arms race' (over-investment in technology), cream-skimming, or cost-cutting that compromises quality of care and access, potentially reducing social welfare. Given that social welfare encompasses both health outcomes and costs, the net effect is likely to be mixed, depending on the specific market dynamics and institutional context (e.g., Medicare reimbursement regimes and managed-care penetration mentioned in the study context)."
+        },
+        {
+          "model_id": "gemini-3-flash",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "The research by Kessler and McClellan (2000) finds that hospital competition, particularly after 1990, led to both lower costs and lower mortality rates for AMI patients. This simultaneous reduction in expenditure and improvement in health outcomes implies a net increase in social welfare."
+        },
+        {
+          "model_id": "grok-3-mini",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Economic theory posits that hospital competition can enhance social welfare by incentivizing better quality of care and efficiency in resource use. In this context, the study likely shows that increased competition reduced mortality and improved outcomes for Medicare beneficiaries with AMI, outweighing any potential increases in spending, as supported by empirical evidence from similar analyses."
+        },
+        {
+          "model_id": "grok-3",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Hospital competition likely increases social welfare by incentivizing hospitals to improve the quality of care and efficiency to attract patients, especially in the context of Medicare beneficiaries with AMI. During 1985–1994, increased competition, influenced by factors like managed-care penetration, would push hospitals to optimize treatment intensity and reduce costs, potentially leading to better patient outcomes (e.g., lower mortality and rehospitalization rates) and more efficient resource use, both of which contribute positively to social welfare. While there could be concerns about excessive competition leading to reduced quality or over-treatment, the institutional focus on Medicare and elderly patients suggests that competitive pressures are more likely to align with welfare improvements through better care delivery."
+        },
+        {
+          "model_id": "grok-4-1-fast",
+          "predicted_sign": "-",
+          "correct": false,
+          "rationale": "Hospital competition increases treatment intensity and Medicare inpatient spending without reducing one-year mortality or rehospitalizations, leading to higher costs without health benefits, which decreases social welfare."
+        },
+        {
+          "model_id": "llama-3-1-8b",
+          "predicted_sign": "None",
+          "correct": false,
+          "rationale": "Increased hospital competition may lead to both benefits (e.g., better management of heart attacks through more efficient care) and drawbacks (e.g., shorter lengths of stay resulting in potential decreased quality of care). However, without more specific data on patient outcomes such as mortality rates or cardiac rehospitalizations following hospital competition, it's challenging to conclusively determine the overall effect on social welfare. The study seems to suggest evaluating the outcomes of patients post-AMI, so the impact on social welfare may be nuanced and not immediately apparent without further analysis."
+        },
+        {
+          "model_id": "llama-3-2-1b",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Hospital competition increases social welfare by increasing access to specialized care, improving treatment quality, and reducing costs, ultimately leading to better health outcomes."
+        },
+        {
+          "model_id": "llama-3-2-3b",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Hospital competition likely increases social welfare by promoting more efficient allocation of resources, driving down costs, and encouraging better quality of care, as hospitals compete to attract patients and improve their reputation."
+        },
+        {
+          "model_id": "llama-3-3-70b",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Increased hospital competition is likely to lead to better healthcare services and lower prices due to the pressure to attract patients, thereby enhancing social welfare."
+        },
+        {
+          "model_id": "qwen-3-8b",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "Hospital competition may improve efficiency (lower costs) but could also lead to trade-offs in quality or access. Social welfare depends on balancing cost savings with health outcomes, which may vary across subgroups or specifications."
+        },
+        {
+          "model_id": "qwen-3-14b",
+          "predicted_sign": "+",
+          "correct": true,
+          "rationale": "Hospital competition is theorized to enhance efficiency, reduce costs, and improve quality in healthcare markets. The study’s focus on outcomes like lower Medicare spending, reduced mortality, and fewer rehospitalizations—all indicators of improved social welfare—aligns with the hypothesis that competition drives better resource allocation and patient outcomes. Exogenous variation in hospital markets (e.g., travel distances) strengthens causal inference, supporting a positive effect on social welfare."
+        },
+        {
+          "model_id": "qwen-3-32b",
+          "predicted_sign": "mixed",
+          "correct": false,
+          "rationale": "Hospital competition can have heterogeneous effects on social welfare. On one hand, increased competition might lead to improved care quality and efficiency, resulting in better health outcomes for patients. On the other hand, heightened competition could incentivize hospitals to increase treatment intensity unnecessarily or reduce investment in quality infrastructure, potentially harming patient outcomes and increasing costs. The impact may also depend on local market dynamics, reimbursement rules, and managed-care penetration, leading to varied effects across regions or subgroups."
+        }
+      ]
+    }
+  ]
+}
