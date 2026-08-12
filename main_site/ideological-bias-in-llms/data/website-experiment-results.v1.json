@@ -86,6 +86,83 @@
           "market_accuracy_pct": 36.118598382749326,
           "accuracy_gap_pp": 8.654577159656988,
           "error_direction_bias_pct": -4.061895551257253
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "In Brazil, a binding minimum wage increase raises labor costs for firms, especially in low-wage segments. This tends to reduce employment probabilities for low-skilled workers or in less productive firms, leading to a negative effect on the probability of remaining employed, though effects may vary by subgroups or firm size. Overall, the likely outcome is a decrease in employment probability (negative and potentially statistically significant).",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "The study focuses on hospital competition affecting AMI care, spending, mortality, and rehospitalizations. Competition can have mixed effects on social welfare: it may lower costs and improve efficiency (positive welfare) but could potentially compromise quality or access in some markets (negative or neutral welfare effects). Given heterogeneity across settings (urban/rural, market concentration, managed care penetration) and outcomes (costs vs. outcomes like mortality), the net social welfare impact is likely mixed rather than uniformly positive or negative.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 37.5,
+            "market_accuracy": 47.22222222222222,
+            "accuracy_gap_pp": -9.722222222222221
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 32.0,
+            "market_accuracy": 18.75,
+            "accuracy_gap_pp": 13.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 58.064516129032256,
+            "market_accuracy": 30.434782608695652,
+            "accuracy_gap_pp": 27.629733520336604
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 47.95918367346939,
+            "market_accuracy": 31.818181818181817,
+            "accuracy_gap_pp": 16.141001855287573
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 42.857142857142854,
+            "market_accuracy": 37.64705882352941,
+            "accuracy_gap_pp": 5.210084033613441
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 40.0,
+            "market_accuracy": 53.84615384615385,
+            "accuracy_gap_pp": -13.846153846153847
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 44.44444444444444,
+            "market_accuracy": 50.0,
+            "accuracy_gap_pp": -5.555555555555557
+          }
+        ],
+        "release_date": "2025-08-07",
+        "release_date_source": {
+          "title": "Introducing GPT-5 for developers",
+          "url": "https://openai.com/index/introducing-gpt-5-for-developers/"
         }
       },
       {
@@ -105,6 +182,83 @@
           "market_accuracy_pct": 45.82210242587601,
           "accuracy_gap_pp": 18.477700335465215,
           "error_direction_bias_pct": 4.450261780104712
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "mixed",
+            "rationale": "A higher federal minimum wage likely increases retention for low-wage workers whose wages are raised (positive effect on probability of remaining employed), especially in areas where the minimum was previously binding. But it can reduce employment prospects where firms face higher labor costs—leading to separations or reduced hiring—particularly for the least productive workers, small firms, or in regions with low wage distributions. Given variation in bindingness across states and heterogeneous worker/firm responses reported in linked employer–employee data and structural models, the net effect is likely heterogeneous across groups and specifications rather than uniformly positive or negative.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Competition can raise social welfare via lower prices, greater efficiency, and higher quality from rivalrous incentives, but it can also reduce welfare if hospitals cut necessary costly care, cream-skim patients, or engage in cost-shifting that worsens outcomes for some groups. The study context (Medicare AMI care, changing reimbursement and managed-care penetration) likely produces heterogeneous effects: competition may increase treatment intensity and reduce spending in some markets while harming outcomes (or raising rehospitalizations) for others, yielding mixed welfare impacts across subgroups and specifications.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 68.75,
+            "market_accuracy": 44.44444444444444,
+            "accuracy_gap_pp": 24.305555555555557
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 84.0,
+            "market_accuracy": 43.75,
+            "accuracy_gap_pp": 40.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 74.19354838709677,
+            "market_accuracy": 52.17391304347826,
+            "accuracy_gap_pp": 22.01963534361851
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 57.142857142857146,
+            "market_accuracy": 45.45454545454545,
+            "accuracy_gap_pp": 11.688311688311693
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 61.111111111111114,
+            "market_accuracy": 45.88235294117647,
+            "accuracy_gap_pp": 15.228758169934643
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 53.333333333333336,
+            "market_accuracy": 61.53846153846154,
+            "accuracy_gap_pp": -8.205128205128204
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 62.22222222222222,
+            "market_accuracy": 43.75,
+            "accuracy_gap_pp": 18.47222222222222
+          }
+        ],
+        "release_date": "2025-08-07",
+        "release_date_source": {
+          "title": "Introducing GPT-5 for developers",
+          "url": "https://openai.com/index/introducing-gpt-5-for-developers/"
         }
       },
       {
@@ -124,6 +278,83 @@
           "market_accuracy_pct": 26.41509433962264,
           "accuracy_gap_pp": 14.216069368464147,
           "error_direction_bias_pct": 3.658536585365854
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Minimum wage increases raise labor costs for low-wage workers, which in equilibrium can reduce hiring and increase separation risk, lowering the probability of remaining employed. Evidence from linked employer–employee settings in similar contexts typically finds small-to-negative employment effects for the lower tail of the wage distribution, consistent with minimum wage bindingness that is stronger where baseline wages are closer to the minimum.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Hospital competition is likely to increase efficiency and potentially improve some dimensions of AMI care (which can raise beneficiaries’ health and thus social welfare), but it can also lead to cost shifting, underprovision of unprofitable services, or greater Medicare spending if providers respond by changing intensity or coding rather than improving outcomes. Since the study context emphasizes effects on both spending and health outcomes (mortality/rehospitalizations), the net effect on social welfare is uncertain and can vary by whether competition primarily improves quality or primarily increases costs.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 32.8125,
+            "market_accuracy": 11.11111111111111,
+            "accuracy_gap_pp": 21.70138888888889
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 36.0,
+            "market_accuracy": 25.0,
+            "accuracy_gap_pp": 11.0
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 45.16129032258065,
+            "market_accuracy": 21.73913043478261,
+            "accuracy_gap_pp": 23.42215988779804
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 42.857142857142854,
+            "market_accuracy": 28.78787878787879,
+            "accuracy_gap_pp": 14.069264069264065
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 33.333333333333336,
+            "market_accuracy": 27.058823529411764,
+            "accuracy_gap_pp": 6.274509803921571
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 53.333333333333336,
+            "market_accuracy": 30.76923076923077,
+            "accuracy_gap_pp": 22.564102564102566
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 46.666666666666664,
+            "market_accuracy": 34.375,
+            "accuracy_gap_pp": 12.291666666666664
+          }
+        ],
+        "release_date": "2026-03-17",
+        "release_date_source": {
+          "title": "GPT-5.4 nano model",
+          "url": "https://platform.openai.com/docs/models/gpt-5.4-nano"
         }
       },
       {
@@ -143,6 +374,83 @@
           "market_accuracy_pct": 48.78706199460917,
           "accuracy_gap_pp": 7.031478439315883,
           "error_direction_bias_pct": -7.004830917874396
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "A higher minimum wage raises labor costs for low-wage workers, which can reduce hiring and increase separations for workers whose productivity is near or below the new floor. In the Brazilian setting, the minimum wage was binding for a substantial lower-tail segment, so the most likely average effect on the probability of remaining employed is negative, even if some incumbent workers keep jobs or earn higher wages.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Hospital competition can improve efficiency by reducing costs and possibly inducing better care, which raises social welfare, but it can also weaken hospitals’ ability to sustain high fixed-cost services and may reduce treatment intensity in ways that affect mortality and rehospitalizations. In this AMI setting, competition appears to lower spending without clear universal quality gains, so the net welfare effect is likely to differ across specifications depending on how one values cost savings versus any health outcomes.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 67.1875,
+            "market_accuracy": 41.666666666666664,
+            "accuracy_gap_pp": 25.520833333333336
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 56.0,
+            "market_accuracy": 56.25,
+            "accuracy_gap_pp": -0.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 61.29032258064516,
+            "market_accuracy": 69.56521739130434,
+            "accuracy_gap_pp": -8.274894810659184
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 50.0,
+            "market_accuracy": 48.484848484848484,
+            "accuracy_gap_pp": 1.5151515151515156
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 51.58730158730159,
+            "market_accuracy": 51.76470588235294,
+            "accuracy_gap_pp": -0.17740429505135324
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 40.0,
+            "market_accuracy": 46.15384615384615,
+            "accuracy_gap_pp": -6.153846153846153
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 53.333333333333336,
+            "market_accuracy": 37.5,
+            "accuracy_gap_pp": 15.833333333333336
+          }
+        ],
+        "release_date": "2026-03-17",
+        "release_date_source": {
+          "title": "GPT-5.4 mini model",
+          "url": "https://platform.openai.com/docs/models/gpt-5.4-mini"
         }
       },
       {
@@ -162,6 +470,83 @@
           "market_accuracy_pct": 70.08086253369272,
           "accuracy_gap_pp": 5.856021095498605,
           "error_direction_bias_pct": -3.004291845493562
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "mixed",
+            "rationale": "A higher minimum wage raises labor costs and can reduce retention for workers initially earning near the minimum, lowering their probability of remaining employed. But in Brazil’s 1996–2012 context, the paper emphasizes compression of wages and broad equilibrium adjustments rather than large aggregate job losses, implying small or heterogeneous effects across states, firms, and worker types. Thus the employment-retention effect is most plausibly mixed rather than uniformly positive, negative, or zero.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Greater hospital competition in this setting is generally found to lower Medicare inpatient spending and treatment intensity without worsening one-year mortality, implying improved efficiency. If quality is maintained while costs fall, overall social welfare should increase.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 75.0,
+            "market_accuracy": 69.44444444444444,
+            "accuracy_gap_pp": 5.555555555555557
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 92.0,
+            "market_accuracy": 62.5,
+            "accuracy_gap_pp": 29.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 74.19354838709677,
+            "market_accuracy": 73.91304347826087,
+            "accuracy_gap_pp": 0.2805049088358942
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 68.36734693877551,
+            "market_accuracy": 69.6969696969697,
+            "accuracy_gap_pp": -1.3296227581941906
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 71.42857142857143,
+            "market_accuracy": 71.76470588235294,
+            "accuracy_gap_pp": -0.3361344537815114
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 80.0,
+            "market_accuracy": 76.92307692307692,
+            "accuracy_gap_pp": 3.07692307692308
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 86.66666666666667,
+            "market_accuracy": 68.75,
+            "accuracy_gap_pp": 17.91666666666667
+          }
+        ],
+        "release_date": "2026-03-05",
+        "release_date_source": {
+          "title": "GPT-5.4 model",
+          "url": "https://platform.openai.com/docs/models/gpt-5.4"
         }
       },
       {
@@ -181,6 +566,83 @@
           "market_accuracy_pct": 69.54177897574124,
           "accuracy_gap_pp": 0.28070623135936046,
           "error_direction_bias_pct": -9.022556390977444
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "None",
+            "rationale": "In the Brazilian setting studied, the large federal minimum wage increases raised wages at the bottom and compressed inequality, but the paper’s empirical evidence and structural interpretation generally find limited disemployment effects. For incumbent formal workers, higher minimum wages may reduce separations by raising job value, while any labor-demand reductions are not strong enough to generate a statistically significant decline in the probability of remaining employed. Thus the most likely estimated effect on remaining employed is not significantly different from zero.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "The welfare effect of hospital competition in this setting depends on the reimbursement/managed-care regime. Under administered Medicare prices, competition tended to increase treatment intensity and inpatient spending; whether this improved outcomes enough to justify costs varied. With higher HMO penetration, competition was more likely to reduce costs and improve or maintain outcomes, raising welfare. Thus the implied effect on social welfare is not uniform across markets or periods.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 68.75,
+            "market_accuracy": 58.333333333333336,
+            "accuracy_gap_pp": 10.416666666666664
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 84.0,
+            "market_accuracy": 75.0,
+            "accuracy_gap_pp": 9.0
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 67.74193548387096,
+            "market_accuracy": 65.21739130434783,
+            "accuracy_gap_pp": 2.524544179523133
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 66.3265306122449,
+            "market_accuracy": 68.18181818181819,
+            "accuracy_gap_pp": -1.8552875695732922
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 69.84126984126983,
+            "market_accuracy": 75.29411764705883,
+            "accuracy_gap_pp": -5.452847805788991
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 40.0,
+            "market_accuracy": 76.92307692307692,
+            "accuracy_gap_pp": -36.92307692307692
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 75.55555555555556,
+            "market_accuracy": 81.25,
+            "accuracy_gap_pp": -5.694444444444443
+          }
+        ],
+        "release_date": "2026-04-23",
+        "release_date_source": {
+          "title": "GPT-5.5 model",
+          "url": "https://platform.openai.com/docs/models/gpt-5.5"
         }
       },
       {
@@ -200,6 +662,83 @@
           "market_accuracy_pct": 44.74393530997305,
           "accuracy_gap_pp": 1.6071495026502305,
           "error_direction_bias_pct": -7.966457023060797
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Minimum wage increases raise labor costs, especially for low-wage workers and firms, reducing labor demand and increasing job separations; thus the probability of remaining employed is expected to decline, although effects may be modest or heterogeneous.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Hospital competition likely improves welfare through lower prices, reduced unnecessary treatment intensity, and potentially better quality, but may also reduce welfare if it induces excessive service use or weakens quality incentives. Given heterogeneous effects across markets and reimbursement/managed-care regimes, the net social-welfare effect is most likely mixed.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 50.0,
+            "market_accuracy": 44.44444444444444,
+            "accuracy_gap_pp": 5.555555555555557
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 52.0,
+            "market_accuracy": 37.5,
+            "accuracy_gap_pp": 14.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 48.38709677419355,
+            "market_accuracy": 60.869565217391305,
+            "accuracy_gap_pp": -12.482468443197753
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 41.83673469387755,
+            "market_accuracy": 51.515151515151516,
+            "accuracy_gap_pp": -9.678416821273963
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 48.41269841269841,
+            "market_accuracy": 44.705882352941174,
+            "accuracy_gap_pp": 3.7068160597572373
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 33.333333333333336,
+            "market_accuracy": 61.53846153846154,
+            "accuracy_gap_pp": -28.205128205128204
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 37.77777777777778,
+            "market_accuracy": 34.375,
+            "accuracy_gap_pp": 3.4027777777777786
+          }
+        ],
+        "release_date": "2026-07-09",
+        "release_date_source": {
+          "title": "Introducing GPT-5.6",
+          "url": "https://openai.com/index/gpt-5-6/"
         }
       },
       {
@@ -219,6 +758,83 @@
           "market_accuracy_pct": 72.50673854447439,
           "accuracy_gap_pp": -1.10634406715684,
           "error_direction_bias_pct": -14.17004048582996
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "A higher binding minimum wage raises employers’ labor costs and is most likely to reduce employment retention, particularly for low-wage workers and in states where the minimum wage is more binding. Thus, the probability of remaining employed is expected to decline.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Greater hospital competition appears to raise treatment intensity and Medicare inpatient spending, while its effects on mortality and cardiac rehospitalization are not uniformly beneficial. Thus competition can improve some dimensions of patient welfare but also generate higher costs without consistent health gains, making the net effect on social welfare ambiguous and likely heterogeneous.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 75.0,
+            "market_accuracy": 75.0,
+            "accuracy_gap_pp": 0.0
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 62.5,
+            "accuracy_gap_pp": 25.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 67.74193548387096,
+            "market_accuracy": 78.26086956521739,
+            "accuracy_gap_pp": -10.51893408134643
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 70.40816326530613,
+            "market_accuracy": 72.72727272727273,
+            "accuracy_gap_pp": -2.3191094619666046
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 69.04761904761905,
+            "market_accuracy": 74.11764705882354,
+            "accuracy_gap_pp": -5.070028011204485
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 53.333333333333336,
+            "market_accuracy": 92.3076923076923,
+            "accuracy_gap_pp": -38.97435897435897
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 71.11111111111111,
+            "market_accuracy": 78.125,
+            "accuracy_gap_pp": -7.013888888888886
+          }
+        ],
+        "release_date": "2026-07-09",
+        "release_date_source": {
+          "title": "Introducing GPT-5.6",
+          "url": "https://openai.com/index/gpt-5-6/"
         }
       },
       {
@@ -238,6 +854,83 @@
           "market_accuracy_pct": 76.28032345013477,
           "accuracy_gap_pp": 2.417901401936234,
           "error_direction_bias_pct": -1.530612244897959
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "None",
+            "rationale": "In this Brazilian setting, minimum-wage increases substantially raised wages at the bottom but had little detectable effect on employment retention. Firms appear to have adjusted mainly through wage compression and related margins rather than increased separations, implying no statistically significant change in the probability of remaining employed.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Hospital competition has offsetting welfare effects that depend on the reimbursement and managed-care environment. Under traditional Medicare cost-based incentives, competition can induce a medical-arms race, raising treatment intensity and spending without commensurate health gains, which lowers welfare. With greater HMO penetration or stronger prospective-payment constraints, competition can instead reduce costs and potentially improve outcomes, raising welfare. Thus the net effect varies across market settings and periods.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 84.375,
+            "market_accuracy": 72.22222222222223,
+            "accuracy_gap_pp": 12.152777777777771
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 92.0,
+            "market_accuracy": 75.0,
+            "accuracy_gap_pp": 17.0
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 83.87096774193549,
+            "market_accuracy": 82.6086956521739,
+            "accuracy_gap_pp": 1.2622720897615807
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 72.44897959183673,
+            "market_accuracy": 75.75757575757575,
+            "accuracy_gap_pp": -3.3085961657390186
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 77.77777777777777,
+            "market_accuracy": 74.11764705882354,
+            "accuracy_gap_pp": 3.6601307189542354
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 66.66666666666667,
+            "market_accuracy": 76.92307692307692,
+            "accuracy_gap_pp": -10.256410256410248
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 84.44444444444444,
+            "market_accuracy": 84.375,
+            "accuracy_gap_pp": 0.06944444444444287
+          }
+        ],
+        "release_date": "2026-07-09",
+        "release_date_source": {
+          "title": "Introducing GPT-5.6",
+          "url": "https://openai.com/index/gpt-5-6/"
         }
       },
       {
@@ -258,6 +951,83 @@
           "market_accuracy_pct": 67.65498652291105,
           "accuracy_gap_pp": 4.534362589514984,
           "error_direction_bias_pct": -1.9157088122605364
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "mixed",
+            "rationale": "Minimum wage increases can reduce employment for some workers (disemployment effects) while protecting jobs of those who remain; effects vary by skill level, firm type, and bindingness across states.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "In low-HMO markets, competition increases treatment intensity and spending without clear mortality benefits, potentially reducing social welfare. In high-HMO markets, competition improves outcomes and efficiency. Thus the welfare effect of hospital competition varies by managed care penetration.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 79.6875,
+            "market_accuracy": 63.888888888888886,
+            "accuracy_gap_pp": 15.798611111111114
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 75.0,
+            "accuracy_gap_pp": 13.0
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 61.29032258064516,
+            "market_accuracy": 73.91304347826087,
+            "accuracy_gap_pp": -12.622720897615714
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 67.34693877551021,
+            "market_accuracy": 68.18181818181819,
+            "accuracy_gap_pp": -0.8348794063079765
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 75.39682539682539,
+            "market_accuracy": 65.88235294117646,
+            "accuracy_gap_pp": 9.514472455648928
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 53.333333333333336,
+            "market_accuracy": 76.92307692307692,
+            "accuracy_gap_pp": -23.589743589743584
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 80.0,
+            "market_accuracy": 68.75,
+            "accuracy_gap_pp": 11.25
+          }
+        ],
+        "release_date": "2026-02-17",
+        "release_date_source": {
+          "title": "Introducing Claude Sonnet 4.6",
+          "url": "https://www.anthropic.com/news/claude-sonnet-4-6"
         }
       },
       {
@@ -278,6 +1048,83 @@
           "market_accuracy_pct": 68.73315363881402,
           "accuracy_gap_pp": 0.4976155919552099,
           "error_direction_bias_pct": -11.029411764705882
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "None",
+            "rationale": "Brazil's minimum wage literature generally finds limited disemployment effects. The paper likely shows that despite large minimum wage increases, employment probabilities were not significantly affected.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Hospital competition effects on social welfare depend on the time period and market conditions. In earlier periods with cost-based reimbursement, competition may increase spending without proportionate health gains (negative welfare). With prospective payment and managed care growth, competition could improve efficiency. The net welfare effect likely varies across specifications and time periods.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 70.3125,
+            "market_accuracy": 61.111111111111114,
+            "accuracy_gap_pp": 9.201388888888886
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 72.0,
+            "market_accuracy": 75.0,
+            "accuracy_gap_pp": -3.0
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 54.83870967741935,
+            "market_accuracy": 65.21739130434783,
+            "accuracy_gap_pp": -10.378681626928476
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 63.265306122448976,
+            "market_accuracy": 68.18181818181819,
+            "accuracy_gap_pp": -4.916512059369211
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 73.01587301587301,
+            "market_accuracy": 75.29411764705883,
+            "accuracy_gap_pp": -2.2782446311858138
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 66.66666666666667,
+            "market_accuracy": 84.61538461538461,
+            "accuracy_gap_pp": -17.948717948717942
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 75.55555555555556,
+            "market_accuracy": 65.625,
+            "accuracy_gap_pp": 9.930555555555557
+          }
+        ],
+        "release_date": "2026-02-05",
+        "release_date_source": {
+          "title": "Introducing Claude Opus 4.6",
+          "url": "https://www.anthropic.com/news/claude-opus-4-6"
         }
       },
       {
@@ -298,6 +1145,83 @@
           "market_accuracy_pct": 78.97574123989219,
           "accuracy_gap_pp": 1.4976315411729075,
           "error_direction_bias_pct": -6.779661016949152
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Higher minimum wages price out low-productivity workers, reducing employment retention probability, especially in low-wage states where the MW is more binding.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Kessler and McClellan's classic finding is that in the later managed-care era, hospital competition reduced mortality without raising costs, implying welfare-improving effects.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 82.8125,
+            "market_accuracy": 75.0,
+            "accuracy_gap_pp": 7.8125
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 81.25,
+            "accuracy_gap_pp": 6.75
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 90.3225806451613,
+            "market_accuracy": 78.26086956521739,
+            "accuracy_gap_pp": 12.061711079943905
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 70.40816326530613,
+            "market_accuracy": 75.75757575757575,
+            "accuracy_gap_pp": -5.349412492269622
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 80.95238095238095,
+            "market_accuracy": 78.82352941176471,
+            "accuracy_gap_pp": 2.128851540616239
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 73.33333333333333,
+            "market_accuracy": 92.3076923076923,
+            "accuracy_gap_pp": -18.974358974358978
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 82.22222222222223,
+            "market_accuracy": 90.625,
+            "accuracy_gap_pp": -8.402777777777771
+          }
+        ],
+        "release_date": "2026-04-16",
+        "release_date_source": {
+          "title": "Introducing Claude Opus 4.7",
+          "url": "https://www.anthropic.com/news/claude-opus-4-7"
         }
       },
       {
@@ -318,6 +1242,83 @@
           "market_accuracy_pct": 76.81940700808626,
           "accuracy_gap_pp": 1.0898632088762668,
           "error_direction_bias_pct": -7.575757575757576
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "A binding minimum wage increase raises labor costs, especially for low-wage workers, reducing their likelihood of remaining employed as firms cut jobs or reduce hiring. In Brazil's setting the effect is most binding at the low end, lowering employment retention for affected workers.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "In the later period with high managed-care penetration, hospital competition led to lower spending combined with lower or unchanged mortality, implying welfare improvements. The study found that competition, especially under managed care, reduced costs while improving or maintaining health outcomes, indicating a net positive effect on social welfare.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 79.6875,
+            "market_accuracy": 69.44444444444444,
+            "accuracy_gap_pp": 10.243055555555557
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 84.0,
+            "market_accuracy": 87.5,
+            "accuracy_gap_pp": -3.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 83.87096774193549,
+            "market_accuracy": 73.91304347826087,
+            "accuracy_gap_pp": 9.957924263674613
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 70.40816326530613,
+            "market_accuracy": 72.72727272727273,
+            "accuracy_gap_pp": -2.3191094619666046
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 78.57142857142857,
+            "market_accuracy": 78.82352941176471,
+            "accuracy_gap_pp": -0.25210084033614066
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 80.0,
+            "market_accuracy": 84.61538461538461,
+            "accuracy_gap_pp": -4.615384615384613
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 82.22222222222223,
+            "market_accuracy": 84.375,
+            "accuracy_gap_pp": -2.1527777777777715
+          }
+        ],
+        "release_date": "2026-05-28",
+        "release_date_source": {
+          "title": "Introducing Claude Opus 4.8",
+          "url": "https://www.anthropic.com/news/claude-opus-4-8"
         }
       },
       {
@@ -338,6 +1339,83 @@
           "market_accuracy_pct": 79.51482479784367,
           "accuracy_gap_pp": -3.9724184862065925,
           "error_direction_bias_pct": -19.0
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Standard labor demand theory and Brazilian minimum wage literature suggest that higher minimum wages reduce employment probabilities, particularly for low-wage workers in more affected states, though the effect is often small due to informal sector absorption and monopsony-like features in Brazil's labor market.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "-",
+            "rationale": "Kessler and McClellan's classic study of this era found that hospital competition prior to the mid-1990s led to increased treatment intensity and spending without corresponding improvements in mortality outcomes, implying a decline in social welfare due to wasteful, non-price competition among hospitals under Medicare's cost-based reimbursement incentives.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 84.375,
+            "market_accuracy": 77.77777777777777,
+            "accuracy_gap_pp": 6.5972222222222285
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 93.75,
+            "accuracy_gap_pp": -5.75
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 74.19354838709677,
+            "market_accuracy": 69.56521739130434,
+            "accuracy_gap_pp": 4.628330995792425
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 74.48979591836735,
+            "market_accuracy": 74.24242424242425,
+            "accuracy_gap_pp": 0.24737167594309994
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 72.22222222222223,
+            "market_accuracy": 84.70588235294117,
+            "accuracy_gap_pp": -12.483660130718945
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 73.33333333333333,
+            "market_accuracy": 92.3076923076923,
+            "accuracy_gap_pp": -18.974358974358978
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 77.77777777777777,
+            "market_accuracy": 84.375,
+            "accuracy_gap_pp": -6.5972222222222285
+          }
+        ],
+        "release_date": "2026-06-30",
+        "release_date_source": {
+          "title": "Introducing Claude Sonnet 5",
+          "url": "https://www.anthropic.com/news/claude-sonnet-5"
         }
       },
       {
@@ -358,6 +1436,84 @@
           "market_accuracy_pct": 80.05390835579514,
           "accuracy_gap_pp": -0.7639675273927793,
           "error_direction_bias_pct": -10.614525139664805
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "In the structural/equilibrium framework, a binding minimum wage raises labor costs and reduces formal job survival/hiring, so low-wage workers' probability of remaining employed falls modestly; Brazil's large minimum wage hikes compressed wages partly through reduced formal employment retention among the lowest-paid.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Kessler and McClellan find that by the 1990s, with rising managed care, hospital competition lowered expenditures while improving (or not worsening) mortality outcomes, implying welfare-improving effects; earlier periods showed medical-arms-race costs, but the headline conclusion is that competition unambiguously improved welfare in the later period.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 82.8125,
+            "market_accuracy": 77.77777777777777,
+            "accuracy_gap_pp": 5.0347222222222285
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 84.0,
+            "market_accuracy": 81.25,
+            "accuracy_gap_pp": 2.75
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 87.09677419354838,
+            "market_accuracy": 73.91304347826087,
+            "accuracy_gap_pp": 13.18373071528751
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 77.55102040816327,
+            "market_accuracy": 83.33333333333333,
+            "accuracy_gap_pp": -5.782312925170061
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 78.57142857142857,
+            "market_accuracy": 80.0,
+            "accuracy_gap_pp": -1.4285714285714306
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 73.33333333333333,
+            "market_accuracy": 92.3076923076923,
+            "accuracy_gap_pp": -18.974358974358978
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 80.0,
+            "market_accuracy": 87.5,
+            "accuracy_gap_pp": -7.5
+          }
+        ],
+        "release_date": "2026-07-23",
+        "release_date_source": {
+          "title": "Claude Opus 5 model documentation",
+          "url": "https://docs.anthropic.com/en/docs/about-claude/models/overview",
+          "note": "The dated canonical snapshot in the completed run confirms the released model identifier."
         }
       },
       {
@@ -378,6 +1534,83 @@
           "market_accuracy_pct": 84.63611859838275,
           "accuracy_gap_pp": -1.9931205707693351,
           "error_direction_bias_pct": -8.96551724137931
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "None",
+            "rationale": "Studies of Brazil's minimum wage (e.g., Engbom & Moser) find large wage compression effects with negligible disemployment effects; employment probability effects are statistically insignificant.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Kessler and McClellan find competition's welfare effects varied over time: before 1991 competition led to higher costs with ambiguous quality effects (welfare-reducing or neutral), while in the 1990s, with managed care penetration, competition lowered costs and mortality, unambiguously improving welfare. Hence the overall effect is mixed across periods.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 81.25,
+            "market_accuracy": 83.33333333333333,
+            "accuracy_gap_pp": -2.0833333333333286
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 81.25,
+            "accuracy_gap_pp": 6.75
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 90.3225806451613,
+            "market_accuracy": 82.6086956521739,
+            "accuracy_gap_pp": 7.7138849929873885
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 79.59183673469387,
+            "market_accuracy": 87.87878787878788,
+            "accuracy_gap_pp": -8.286951144094004
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 81.74603174603175,
+            "market_accuracy": 87.05882352941177,
+            "accuracy_gap_pp": -5.312791783380021
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 86.66666666666667,
+            "market_accuracy": 92.3076923076923,
+            "accuracy_gap_pp": -5.641025641025635
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 84.44444444444444,
+            "market_accuracy": 84.375,
+            "accuracy_gap_pp": 0.06944444444444287
+          }
+        ],
+        "release_date": "2026-06-09",
+        "release_date_source": {
+          "title": "Introducing Claude Fable 5 and Mythos 5",
+          "url": "https://www.anthropic.com/news/claude-fable-5-mythos-5"
         }
       },
       {
@@ -397,6 +1630,83 @@
           "market_accuracy_pct": 78.97574123989219,
           "accuracy_gap_pp": 4.0617341052754625,
           "error_direction_bias_pct": 1.829268292682927
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Standard economic theory suggests that as the minimum wage increases, the cost of labor rises, potentially leading firms to reduce their workforce or hire fewer workers, thereby decreasing the probability of remaining employed for marginal workers.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "In the context of AMI care among Medicare beneficiaries during this period, empirical evidence suggests that hospital competition reduced mortality (health benefits) without significantly increasing total costs, thereby enhancing social welfare through improved clinical outcomes and efficiency.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 90.625,
+            "market_accuracy": 63.888888888888886,
+            "accuracy_gap_pp": 26.736111111111114
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 68.75,
+            "accuracy_gap_pp": 19.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 77.41935483870968,
+            "market_accuracy": 78.26086956521739,
+            "accuracy_gap_pp": -0.841514726507711
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 77.55102040816327,
+            "market_accuracy": 80.3030303030303,
+            "accuracy_gap_pp": -2.7520098948670295
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 84.92063492063492,
+            "market_accuracy": 80.0,
+            "accuracy_gap_pp": 4.9206349206349245
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 86.66666666666667,
+            "market_accuracy": 92.3076923076923,
+            "accuracy_gap_pp": -5.641025641025635
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 84.44444444444444,
+            "market_accuracy": 84.375,
+            "accuracy_gap_pp": 0.06944444444444287
+          }
+        ],
+        "release_date": "2025-12-17",
+        "release_date_source": {
+          "title": "Gemini 3 Flash: frontier intelligence built for speed",
+          "url": "https://blog.google/products-and-platforms/products/gemini/gemini-3-flash/"
         }
       },
       {
@@ -416,6 +1726,83 @@
           "market_accuracy_pct": 69.54177897574124,
           "accuracy_gap_pp": 5.211672700787361,
           "error_direction_bias_pct": -7.053941908713693
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Standard economic theory and empirical evidence for Brazil during this period suggest that large, sharp increases in the minimum wage increase firm labor costs, particularly in lower-productivity regions or sectors, leading to reduced firm demand for labor and consequently lower employment retention probabilities for affected workers.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Increased hospital competition often incentivizes providers to enhance quality of care and improve efficiency to attract patients, which theoretically contributes to improved clinical outcomes and overall social welfare, despite potential concerns regarding service duplication.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 78.125,
+            "market_accuracy": 61.111111111111114,
+            "accuracy_gap_pp": 17.013888888888886
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 92.0,
+            "market_accuracy": 50.0,
+            "accuracy_gap_pp": 42.0
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 77.41935483870968,
+            "market_accuracy": 69.56521739130434,
+            "accuracy_gap_pp": 7.854137447405336
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 66.3265306122449,
+            "market_accuracy": 69.6969696969697,
+            "accuracy_gap_pp": -3.370439084724808
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 74.60317460317461,
+            "market_accuracy": 72.94117647058823,
+            "accuracy_gap_pp": 1.6619981325863762
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 80.0,
+            "market_accuracy": 84.61538461538461,
+            "accuracy_gap_pp": -4.615384615384613
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 77.77777777777777,
+            "market_accuracy": 87.5,
+            "accuracy_gap_pp": -9.722222222222229
+          }
+        ],
+        "release_date": "2026-05-07",
+        "release_date_source": {
+          "title": "Gemini API changelog",
+          "url": "https://ai.google.dev/gemini-api/docs/changelog"
         }
       },
       {
@@ -435,6 +1822,83 @@
           "market_accuracy_pct": 75.2021563342318,
           "accuracy_gap_pp": 3.4960685178392055,
           "error_direction_bias_pct": -1.5
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "mixed",
+            "rationale": "An increase in the minimum wage can have heterogeneous effects on the probability of remaining employed. For formal sector workers with wages close to the minimum, it may increase the risk of job loss or transition to informality (a negative effect). However, for workers in sectors or regions where firms can absorb the cost, or due to efficiency wage effects, employment might remain stable. Empirically in Brazil, the overall effect on employment probability is often found to be negative for low-skilled workers but can vary significantly depending on the formal/informal status, worker characteristics, and initial wage levels.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Based on the literature (such as Kessler and McClellan, 2000), hospital competition among Medicare patients after 1990 led to substantial improvements in patient health (lower mortality rates) and reductions in medical expenditures. Since competition decreased costs while improving health outcomes, it unambiguously increased social welfare.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 89.0625,
+            "market_accuracy": 58.333333333333336,
+            "accuracy_gap_pp": 30.729166666666664
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 62.5,
+            "accuracy_gap_pp": 25.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 77.41935483870968,
+            "market_accuracy": 78.26086956521739,
+            "accuracy_gap_pp": -0.841514726507711
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 73.46938775510205,
+            "market_accuracy": 71.21212121212122,
+            "accuracy_gap_pp": 2.2572665429808296
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 80.15873015873017,
+            "market_accuracy": 83.52941176470588,
+            "accuracy_gap_pp": -3.3706816059757188
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 60.0,
+            "market_accuracy": 84.61538461538461,
+            "accuracy_gap_pp": -24.615384615384613
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 75.55555555555556,
+            "market_accuracy": 87.5,
+            "accuracy_gap_pp": -11.944444444444443
+          }
+        ],
+        "release_date": "2026-05-19",
+        "release_date_source": {
+          "title": "Gemini API changelog",
+          "url": "https://ai.google.dev/gemini-api/docs/changelog"
         }
       },
       {
@@ -454,12 +1918,89 @@
           "market_accuracy_pct": 76.01078167115902,
           "accuracy_gap_pp": 4.4625911099060716,
           "error_direction_bias_pct": 3.723404255319149
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "mixed",
+            "rationale": "The effect of a minimum wage increase on the probability of remaining employed often varies by worker group or firm type. While higher minimum wages can lead to disemployment effects for low-skilled or younger workers, higher wages can also increase labor supply or worker retention (efficiency wage/monopsony effects) and formal employment through compliance mechanisms, leading to heterogeneous or mixed employment outcomes across different specifications and subgroups.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Under Medicare's fixed-price reimbursement system (Diagnosis-Related Groups), hospitals compete on quality rather than price. Competition incentivizes hospitals to improve quality of care and patient outcomes for heart attack patients (reducing mortality) without leading to inefficient over-provision of costly medical technologies, thereby increasing overall social welfare.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 84.375,
+            "market_accuracy": 66.66666666666667,
+            "accuracy_gap_pp": 17.70833333333333
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 68.75,
+            "accuracy_gap_pp": 19.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 80.64516129032258,
+            "market_accuracy": 78.26086956521739,
+            "accuracy_gap_pp": 2.384291725105186
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 78.57142857142857,
+            "market_accuracy": 68.18181818181819,
+            "accuracy_gap_pp": 10.389610389610382
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 80.95238095238095,
+            "market_accuracy": 82.3529411764706,
+            "accuracy_gap_pp": -1.400560224089645
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 53.333333333333336,
+            "market_accuracy": 92.3076923076923,
+            "accuracy_gap_pp": -38.97435897435897
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 82.22222222222223,
+            "market_accuracy": 81.25,
+            "accuracy_gap_pp": 0.9722222222222285
+          }
+        ],
+        "release_date": "2026-07-21",
+        "release_date_source": {
+          "title": "Gemini API changelog",
+          "url": "https://ai.google.dev/gemini-api/docs/changelog"
         }
       },
       {
         "provider": "OpenRouter",
         "family": "Grok",
-        "display_name": "Grok 4.20",
+        "display_name": "Grok 4.2",
         "model_id": "x-ai/grok-4.20",
         "canonical_model_id": "x-ai/grok-4.20",
         "condition_key": "or_grok420_reasoning_disabled",
@@ -473,6 +2014,83 @@
           "market_accuracy_pct": 52.2911051212938,
           "accuracy_gap_pp": 5.302583241625328,
           "error_direction_bias_pct": -2.0408163265306123
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Higher minimum wages raise labor costs, leading firms to reduce hiring or lay off lower-productivity workers, which decreases the probability that a given worker remains employed, especially in states where the wage floor binds more tightly.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Hospital competition can improve quality/efficiency in some models (raising welfare via better AMI outcomes or lower costs) but induce wasteful treatment intensity or duplication in others (especially under administered Medicare prices), with net welfare effects varying by market, HMO penetration, and outcome margins examined in the study.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 59.375,
+            "market_accuracy": 50.0,
+            "accuracy_gap_pp": 9.375
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 60.0,
+            "market_accuracy": 43.75,
+            "accuracy_gap_pp": 16.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 67.74193548387096,
+            "market_accuracy": 60.869565217391305,
+            "accuracy_gap_pp": 6.872370266479656
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 54.08163265306123,
+            "market_accuracy": 53.03030303030303,
+            "accuracy_gap_pp": 1.051329622758196
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 55.55555555555556,
+            "market_accuracy": 54.11764705882353,
+            "accuracy_gap_pp": 1.4379084967320281
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 60.0,
+            "market_accuracy": 61.53846153846154,
+            "accuracy_gap_pp": -1.53846153846154
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 55.55555555555556,
+            "market_accuracy": 53.125,
+            "accuracy_gap_pp": 2.430555555555557
+          }
+        ],
+        "release_date": "2026-03-09",
+        "release_date_source": {
+          "title": "Grok 4.20 Non-Reasoning",
+          "url": "https://docs.x.ai/developers/models/grok-4.20-non-reasoning"
         }
       },
       {
@@ -492,6 +2110,83 @@
           "market_accuracy_pct": 57.95148247978437,
           "accuracy_gap_pp": 3.9814563762314137,
           "error_direction_bias_pct": -5.157593123209169
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Standard neoclassical labor-demand theory predicts that a binding minimum-wage increase raises the cost of low-wage labor, leading firms to reduce employment; this dis-employment effect should be visible in the probability that a worker remains employed, particularly among those whose wages are directly affected by the policy.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "Hospital competition can raise social welfare by improving quality and lowering mortality for AMI patients, yet it may also reduce welfare if it leads to costly defensive care or lower reimbursement rates that constrain access; the net effect is therefore ambiguous and likely varies by market structure and patient subgroup.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 54.6875,
+            "market_accuracy": 55.55555555555556,
+            "accuracy_gap_pp": -0.8680555555555571
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 72.0,
+            "market_accuracy": 37.5,
+            "accuracy_gap_pp": 34.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 77.41935483870968,
+            "market_accuracy": 78.26086956521739,
+            "accuracy_gap_pp": -0.841514726507711
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 57.142857142857146,
+            "market_accuracy": 59.09090909090909,
+            "accuracy_gap_pp": -1.9480519480519476
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 61.904761904761905,
+            "market_accuracy": 54.11764705882353,
+            "accuracy_gap_pp": 7.787114845938376
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 46.666666666666664,
+            "market_accuracy": 61.53846153846154,
+            "accuracy_gap_pp": -14.871794871794876
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 60.0,
+            "market_accuracy": 78.125,
+            "accuracy_gap_pp": -18.125
+          }
+        ],
+        "release_date": "2026-04-30",
+        "release_date_source": {
+          "title": "Grok 4.3",
+          "url": "https://docs.x.ai/developers/models/grok-4.3"
         }
       },
       {
@@ -511,6 +2206,83 @@
           "market_accuracy_pct": 82.74932614555256,
           "accuracy_gap_pp": 0.8798651759464491,
           "error_direction_bias_pct": -7.482993197278912
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "A binding minimum-wage hike raises the cost of low-wage labor. Profit-maximizing firms respond by reducing employment (via layoffs, reduced hiring, or hours cuts), which lowers the probability that an incumbent worker remains employed. Cross-state variation in bindingness and the structural model in the Brazilian setting both point to this negative employment effect, even if its magnitude is modest.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Competition among hospitals (especially under rising managed-care pressure) lowers Medicare inpatient spending while holding constant or improving AMI outcomes (mortality/rehospitalizations). The resulting cost savings with non-negative quality effects raise social welfare.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 90.625,
+            "market_accuracy": 77.77777777777777,
+            "accuracy_gap_pp": 12.847222222222229
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 92.0,
+            "market_accuracy": 62.5,
+            "accuracy_gap_pp": 29.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 77.41935483870968,
+            "market_accuracy": 78.26086956521739,
+            "accuracy_gap_pp": -0.841514726507711
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 81.63265306122449,
+            "market_accuracy": 86.36363636363636,
+            "accuracy_gap_pp": -4.730983302411872
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 84.12698412698413,
+            "market_accuracy": 87.05882352941177,
+            "accuracy_gap_pp": -2.9318394024276415
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 66.66666666666667,
+            "market_accuracy": 92.3076923076923,
+            "accuracy_gap_pp": -25.641025641025635
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 84.44444444444444,
+            "market_accuracy": 90.625,
+            "accuracy_gap_pp": -6.180555555555557
+          }
+        ],
+        "release_date": "2026-07-08",
+        "release_date_source": {
+          "title": "Grok 4.5",
+          "url": "https://docs.x.ai/developers/models/grok-4.5"
         }
       },
       {
@@ -530,6 +2302,83 @@
           "market_accuracy_pct": 54.716981132075475,
           "accuracy_gap_pp": 18.85303859179041,
           "error_direction_bias_pct": 13.907284768211921
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "mixed",
+            "rationale": "The effect of a minimum wage increase on the probability of remaining employed can vary across different subgroups of workers and firms. For low-skilled workers, a higher minimum wage may increase their earnings but also potentially reduce their employment prospects if firms cannot afford to pay them. For higher-skilled workers or those in firms that already pay above the minimum wage, the impact may be minimal. Additionally, the bindingness of the minimum wage varies by local wage distributions, which could lead to heterogeneous effects across different regions. Therefore, the effect could be mixed due to these varying impacts across subgroups and specifications.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "mixed",
+            "rationale": "The impact of hospital competition on social welfare can vary depending on several factors, including the specific aspects of social welfare considered, such as access to care, quality of care, and healthcare costs. Increased competition might lead to improvements in some areas but could also result in decreased quality or access for certain populations. Given the complexity of healthcare markets and the multiple dimensions of social welfare, the effect is likely to be mixed.",
+            "correct": false
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 79.6875,
+            "market_accuracy": 50.0,
+            "accuracy_gap_pp": 29.6875
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 76.0,
+            "market_accuracy": 37.5,
+            "accuracy_gap_pp": 38.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 80.64516129032258,
+            "market_accuracy": 69.56521739130434,
+            "accuracy_gap_pp": 11.079943899018232
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 74.48979591836735,
+            "market_accuracy": 60.60606060606061,
+            "accuracy_gap_pp": 13.88373531230674
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 68.25396825396825,
+            "market_accuracy": 56.470588235294116,
+            "accuracy_gap_pp": 11.783380018674137
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 60.0,
+            "market_accuracy": 61.53846153846154,
+            "accuracy_gap_pp": -1.53846153846154
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 75.55555555555556,
+            "market_accuracy": 59.375,
+            "accuracy_gap_pp": 16.180555555555557
+          }
+        ],
+        "release_date": "2025-04-05",
+        "release_date_source": {
+          "title": "Introducing Llama 4",
+          "url": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/"
         }
       },
       {
@@ -549,6 +2398,83 @@
           "market_accuracy_pct": 49.86522911051213,
           "accuracy_gap_pp": 8.517413887515481,
           "error_direction_bias_pct": -0.5037783375314862
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "+",
+            "rationale": "The use of administrative linkage (RAIS) data and a structural equilibrium model is a standard approach to identify the causal effect of a policy if the instrument (like the federal minimum wage) is identified. This method allows researchers to measure the effect of unilateral wage changes without relying on firm-specific distal choice (which is a common omission in short-term data). The specific inclusion of local structural regressions and cross-state controls helps isolate the effect at the state level, making a positive economic effect highly probable as wage rates typically show a persisting upward trend over time.",
+            "correct": true
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Hospital competition is an exogenous determinant in this data, meaning patients are healthier when competing with hospitals and worse when crowded.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 53.125,
+            "market_accuracy": 41.666666666666664,
+            "accuracy_gap_pp": 11.458333333333336
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 52.0,
+            "market_accuracy": 37.5,
+            "accuracy_gap_pp": 14.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 67.74193548387096,
+            "market_accuracy": 52.17391304347826,
+            "accuracy_gap_pp": 15.568022440392703
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 63.265306122448976,
+            "market_accuracy": 51.515151515151516,
+            "accuracy_gap_pp": 11.75015460729746
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 53.96825396825397,
+            "market_accuracy": 54.11764705882353,
+            "accuracy_gap_pp": -0.14939309056956063
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 66.66666666666667,
+            "market_accuracy": 53.84615384615385,
+            "accuracy_gap_pp": 12.820512820512825
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 64.44444444444444,
+            "market_accuracy": 50.0,
+            "accuracy_gap_pp": 14.444444444444443
+          }
+        ],
+        "release_date": "2026-02-15",
+        "release_date_source": {
+          "title": "Qwen3.5",
+          "url": "https://qwen.ai/blog?id=qwen3.5"
         }
       },
       {
@@ -568,6 +2494,83 @@
           "market_accuracy_pct": 51.21293800539083,
           "accuracy_gap_pp": 8.55037560407662,
           "error_direction_bias_pct": 0.5194805194805194
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "+",
+            "rationale": "In Brazil, the minimum wage has historically been floor binding, particularly during periods of high labor participation and inflation. The 1996 hike resulted in a significant increase in unit cost of labor. Since employment probability in Brazil is undetermined by nominal wage levels (wage must be $\frac{w}{v} \times u$), higher unit labor costs reduce firm outputs and thus lower the probability of finding an employee at a given real wage. Firms also exit, potentially diluting the wage effect but further reducing equilibrium employment. Structural equilibrium models confirm that increased minimum wage burden raises the firm's unit cost of hiring, reducing expected profits and quantity hired, leading to a negative effect on employment.",
+            "correct": true
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Increased hospital competition typically raises the intensity of care received by patient hospitals. Since Medicare is a price-taking buyer serving millions whom Medicaid does not cover, these beneficiaries' probability of receiving optimal care (deterrence effect) exceeds the probability of the hospitals leading with too much care (crowding-out). Consequently, the social welfare effect is positive. Furthermore, rising managed care penetration generally increases structural competition, further amplifying this positive effect.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 54.6875,
+            "market_accuracy": 38.888888888888886,
+            "accuracy_gap_pp": 15.798611111111114
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 48.0,
+            "market_accuracy": 37.5,
+            "accuracy_gap_pp": 10.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 74.19354838709677,
+            "market_accuracy": 56.52173913043478,
+            "accuracy_gap_pp": 17.671809256661987
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 66.3265306122449,
+            "market_accuracy": 48.484848484848484,
+            "accuracy_gap_pp": 17.84168212739641
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 53.96825396825397,
+            "market_accuracy": 52.94117647058823,
+            "accuracy_gap_pp": 1.0270774976657364
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 60.0,
+            "market_accuracy": 53.84615384615385,
+            "accuracy_gap_pp": 6.153846153846153
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 64.44444444444444,
+            "market_accuracy": 56.25,
+            "accuracy_gap_pp": 8.194444444444443
+          }
+        ],
+        "release_date": "2026-02-15",
+        "release_date_source": {
+          "title": "Qwen3.5",
+          "url": "https://qwen.ai/blog?id=qwen3.5"
         }
       },
       {
@@ -587,6 +2590,83 @@
           "market_accuracy_pct": 52.83018867924528,
           "accuracy_gap_pp": 9.694466153101857,
           "error_direction_bias_pct": 3.287671232876712
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "+",
+            "rationale": "In developed labor markets like Brazil's in the post-1990 period, regulatory minimum wages were increasingly binding and had limited downward effect due to wages being high relative to unit labor costs. Therefore, an increase in the minimum wage primarily affected the uncompetitive sector, where employment effects were negative but small and statistically imprecise. The effect on the competitive sector was positive. This led to a small positive total effect on the probability of remaining employed as a result of an increase in wage level.",
+            "correct": true
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Increased hospital competition typically forces hospitals to adopt more efficient operations, reduce unnecessary hospitalizations, and improve coordination with primary care and HMOs to lower costs while maintaining quality. This results in improved resource allocation and lower deadweight losses for society, thereby increasing overall social welfare.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 56.25,
+            "market_accuracy": 44.44444444444444,
+            "accuracy_gap_pp": 11.805555555555557
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 52.0,
+            "market_accuracy": 37.5,
+            "accuracy_gap_pp": 14.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 74.19354838709677,
+            "market_accuracy": 56.52173913043478,
+            "accuracy_gap_pp": 17.671809256661987
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 70.40816326530613,
+            "market_accuracy": 53.03030303030303,
+            "accuracy_gap_pp": 17.377860235003098
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 57.93650793650794,
+            "market_accuracy": 55.294117647058826,
+            "accuracy_gap_pp": 2.6423902894491107
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 66.66666666666667,
+            "market_accuracy": 53.84615384615385,
+            "accuracy_gap_pp": 12.820512820512825
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 64.44444444444444,
+            "market_accuracy": 62.5,
+            "accuracy_gap_pp": 1.9444444444444429
+          }
+        ],
+        "release_date": "2026-02-15",
+        "release_date_source": {
+          "title": "Qwen3.5",
+          "url": "https://qwen.ai/blog?id=qwen3.5"
         }
       },
       {
@@ -606,6 +2686,83 @@
           "market_accuracy_pct": 57.95148247978437,
           "accuracy_gap_pp": 6.940036257888217,
           "error_direction_bias_pct": 2.395209580838323
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "An increase in the minimum wage raises the cost of labor for low-wage workers. Standard economic theory and empirical evidence on minimum wage effects suggest that if the increase exceeds the marginal product of labor for marginal workers, these workers may be substituted by automation, displaced by more productive workers, or discouraged from working, leading to a decrease in the probability of remaining employed.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "Increased hospital competition typically forces hospitals to improve care quality and efficiency to attract patients. In the context of Medicare beneficiaries, whom hospitals legally cannot deny admission to (E.W. Grove rule), competition primarily drives these quality and efficiency gains. This reduction in unilateral market power allows hospitals to address 'holdup problems' and reduce costs associated with monopsony buyers (insurers) and monopoly suppliers, leading to an increase in overall social welfare through better health outcomes per dollar spent.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 56.25,
+            "market_accuracy": 47.22222222222222,
+            "accuracy_gap_pp": 9.027777777777779
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 64.0,
+            "market_accuracy": 37.5,
+            "accuracy_gap_pp": 26.5
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 74.19354838709677,
+            "market_accuracy": 56.52173913043478,
+            "accuracy_gap_pp": 17.671809256661987
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 67.34693877551021,
+            "market_accuracy": 63.63636363636363,
+            "accuracy_gap_pp": 3.7105751391465773
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 62.698412698412696,
+            "market_accuracy": 58.8235294117647,
+            "accuracy_gap_pp": 3.874883286647993
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 73.33333333333333,
+            "market_accuracy": 61.53846153846154,
+            "accuracy_gap_pp": 11.794871794871788
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 71.11111111111111,
+            "market_accuracy": 62.5,
+            "accuracy_gap_pp": 8.611111111111114
+          }
+        ],
+        "release_date": "2026-02-15",
+        "release_date_source": {
+          "title": "Qwen3.5",
+          "url": "https://qwen.ai/blog?id=qwen3.5"
         }
       },
       {
@@ -625,6 +2782,83 @@
           "market_accuracy_pct": 66.57681940700809,
           "accuracy_gap_pp": 12.910360080171401,
           "error_direction_bias_pct": 11.403508771929825
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "+",
+            "rationale": "In the context of Brazil's labor market during 1996–2012, the sharp increase in the federal minimum wage is widely documented to have reduced wage inequality without generating significant job losses for incumbent workers. Empirical evidence from linked employer-employee data (RAIS) suggests that firms adjusted primarily through non-wage margins (e.g., hours worked, intensity of effort) or by shedding low-productivity jobs at the margin, while the overall probability of remaining employed for wage earners did not decline. Theories of efficiency wages and the monopsony power of firms in Brazil imply that a higher minimum wage can act as a commitment device, reducing turnover and increasing job retention for those currently employed.",
+            "correct": true
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "In the context of hospital markets for treatment-sensitive conditions like AMI, increased competition is typically theorized and empirically shown to improve economic efficiency and clinical outcomes. The study (likely referencing Gaynor et al., 2012) typically finds that competition leads to reduced Medicare spending (lower prices/efficiency) without increasing mortality, or sometimes even improving outcomes. When prices/firms costs fall without quality deterioration, or quality improves, the net effect on social welfare (which aggregates consumer surplus from patients and allocative efficiency) is positive.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 84.375,
+            "market_accuracy": 63.888888888888886,
+            "accuracy_gap_pp": 20.486111111111114
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 84.0,
+            "market_accuracy": 43.75,
+            "accuracy_gap_pp": 40.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 70.96774193548387,
+            "market_accuracy": 65.21739130434783,
+            "accuracy_gap_pp": 5.750350631136044
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 82.65306122448979,
+            "market_accuracy": 69.6969696969697,
+            "accuracy_gap_pp": 12.956091527520087
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 78.57142857142857,
+            "market_accuracy": 74.11764705882354,
+            "accuracy_gap_pp": 4.453781512605033
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 73.33333333333333,
+            "market_accuracy": 69.23076923076923,
+            "accuracy_gap_pp": 4.102564102564102
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 82.22222222222223,
+            "market_accuracy": 75.0,
+            "accuracy_gap_pp": 7.2222222222222285
+          }
+        ],
+        "release_date": "2026-02-15",
+        "release_date_source": {
+          "title": "Qwen3.5",
+          "url": "https://qwen.ai/blog?id=qwen3.5"
         }
       },
       {
@@ -644,6 +2878,83 @@
           "market_accuracy_pct": 63.34231805929919,
           "accuracy_gap_pp": 12.79180422866925,
           "error_direction_bias_pct": 8.949416342412452
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "According to standard labor economics and the specific context of Brazil's sharp minimum wage increases, an exogenous rise in the wage floor typically increases the cost of labor for low-skilled workers. This creates a disincentive for firms to retain employed workers at the margin, leading to reduced employment retention and a lower probability of remaining employed, particularly among low-wage earners in the affected regions.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "In the context of hospital markets, increased competition typically forces providers to reduce prices (spending) and improve quality (lower mortality, fewer rehospitalizations) to attract patients. The described study exploits exogenous variation to show that competition led to lower Medicare spending and better clinical outcomes for AMI patients. Since social welfare in this setting is a function of both health outcomes and resource costs, a regime that simultaneously improves health and reduces costs yields a net positive effect on social welfare.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 79.6875,
+            "market_accuracy": 55.55555555555556,
+            "accuracy_gap_pp": 24.131944444444443
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 88.0,
+            "market_accuracy": 43.75,
+            "accuracy_gap_pp": 44.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 80.64516129032258,
+            "market_accuracy": 65.21739130434783,
+            "accuracy_gap_pp": 15.427769985974749
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 71.42857142857143,
+            "market_accuracy": 66.66666666666667,
+            "accuracy_gap_pp": 4.761904761904759
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 76.19047619047619,
+            "market_accuracy": 61.1764705882353,
+            "accuracy_gap_pp": 15.014005602240893
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 73.33333333333333,
+            "market_accuracy": 84.61538461538461,
+            "accuracy_gap_pp": -11.282051282051285
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 73.33333333333333,
+            "market_accuracy": 78.125,
+            "accuracy_gap_pp": -4.791666666666671
+          }
+        ],
+        "release_date": "2026-02-15",
+        "release_date_source": {
+          "title": "Qwen3.5",
+          "url": "https://qwen.ai/blog?id=qwen3.5"
         }
       },
       {
@@ -663,6 +2974,83 @@
           "market_accuracy_pct": 63.61185983827493,
           "accuracy_gap_pp": 14.297410378687594,
           "error_direction_bias_pct": 11.740890688259109
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "According to standard labor economics and the specific findings of studies like this one (often referencing the work of Oliveira and Pestean or similar literature on Brazil's minimum wage), an increase in the binding minimum wage raises the cost of labor for employers. This typically leads to a reduction in the employment of low-skipped, low-wage workers who are near the new floor, thereby decreasing their probability of remaining employed compared to a scenario without the increase. While some papers argue the effect is small due to elasticities, the directional causal effect on the extensive margin of low-wage employment is generally negative.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "In the context of standard health economics literature regarding hospital competition (such as the study described, likely referring to Tallarini or similar work on the 1985-1994 period), increased competition typically leads to increased treatment intensity and better access to care without statistically significant increases in mortality. The combination of improved survival outcomes (or at least non-inferior outcomes with higher intensity) and reduced mortality risks generally implies an increase in survivorship and health status. Since 'Social Welfare' aggregates these health benefits, and the dominant finding in this specific era of Medicare reimbursement shifts was that competition improved survival rates or quality of care relative to the quantity, the net effect on social welfare (defined by health capital and survival) is positive. Even if spending increases, the value of life saved or quality improved in competitive markets (where providers strive for quality signals) is typically counted as a positive welfare gain in these parametric estimates, or the 'None' on mortality is balanced by other metrics, but 'mixed' is often reserved for when effects flip signs. However, the most standard interpretation of this specific classic result (competition increasing intensity and lowering mortality in some specs, or keeping it flat while increasing quality/choice) is a net positive for the outcome of concern, or 'mixed' if considering heterogeneous effects. Given the prompt asks for the *most likely* sign, and competition often drives quality improvements in information-transparent markets like Medicare for AMI, '+' is the theoretical expectation for welfare derived from better survival/quality. If the study found *no* mortality change but *higher* spending, welfare might be neutral or negative depending on cost-benefit. However, many of these studies show that competition leads to *lower* mortality or *higher* survival in competitive markets as a profit-maximizing quality strategy. Therefore, ' + ' is the most robust prediction for welfare derived from health outcomes.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 79.6875,
+            "market_accuracy": 72.22222222222223,
+            "accuracy_gap_pp": 7.4652777777777715
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 84.0,
+            "market_accuracy": 50.0,
+            "accuracy_gap_pp": 34.0
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 74.19354838709677,
+            "market_accuracy": 52.17391304347826,
+            "accuracy_gap_pp": 22.01963534361851
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 77.55102040816327,
+            "market_accuracy": 66.66666666666667,
+            "accuracy_gap_pp": 10.884353741496597
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 76.98412698412699,
+            "market_accuracy": 65.88235294117646,
+            "accuracy_gap_pp": 11.101774042950524
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 86.66666666666667,
+            "market_accuracy": 53.84615384615385,
+            "accuracy_gap_pp": 32.820512820512825
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 82.22222222222223,
+            "market_accuracy": 75.0,
+            "accuracy_gap_pp": 7.2222222222222285
+          }
+        ],
+        "release_date": "2026-04-22",
+        "release_date_source": {
+          "title": "Qwen3.6 27B",
+          "url": "https://qwen.ai/blog?id=qwen3.6-27b"
         }
       },
       {
@@ -682,6 +3070,83 @@
           "market_accuracy_pct": 59.299191374663074,
           "accuracy_gap_pp": 17.22940823085961,
           "error_direction_bias_pct": 13.703703703703704
+        },
+        "examples": [
+          {
+            "case_id": "t1_9849",
+            "predicted_sign": "-",
+            "rationale": "Standard labor economics theory suggests that raising the minimum wage increases the cost of labor for firms employing low-wage workers. To manage higher labor costs, firms often reduce employment levels, leading to a decrease in the probability of remaining employed for vulnerable workers. Empirical studies on Brazil's minimum wage increases during this period generally support this negative employment effect at the extensive margin.",
+            "correct": false
+          },
+          {
+            "case_id": "t1_515",
+            "predicted_sign": "+",
+            "rationale": "In the context of hospital markets, increased competition typically incentivizes providers to improve quality (reducing mortality and rehospitalizations) and lower inefficiencies to attract patients. Since social welfare is a function of health outcomes and costs, improvements in AMI care quality and reductions in waste lead to a net increase in social welfare.",
+            "correct": true
+          }
+        ],
+        "subfields": [
+          {
+            "id": "healthcare",
+            "name": "Healthcare",
+            "sample_size": 100,
+            "intervention_accuracy": 81.25,
+            "market_accuracy": 50.0,
+            "accuracy_gap_pp": 31.25
+          },
+          {
+            "id": "welfare_redistribution",
+            "name": "Welfare & Redistribution",
+            "sample_size": 41,
+            "intervention_accuracy": 80.0,
+            "market_accuracy": 43.75,
+            "accuracy_gap_pp": 36.25
+          },
+          {
+            "id": "education",
+            "name": "Education",
+            "sample_size": 54,
+            "intervention_accuracy": 80.64516129032258,
+            "market_accuracy": 56.52173913043478,
+            "accuracy_gap_pp": 24.123422159887795
+          },
+          {
+            "id": "labor",
+            "name": "Labor",
+            "sample_size": 164,
+            "intervention_accuracy": 80.61224489795919,
+            "market_accuracy": 56.06060606060606,
+            "accuracy_gap_pp": 24.551638837353124
+          },
+          {
+            "id": "financial_regulation",
+            "name": "Financial Regulation",
+            "sample_size": 211,
+            "intervention_accuracy": 76.19047619047619,
+            "market_accuracy": 65.88235294117646,
+            "accuracy_gap_pp": 10.308123249299726
+          },
+          {
+            "id": "trade",
+            "name": "Trade",
+            "sample_size": 28,
+            "intervention_accuracy": 60.0,
+            "market_accuracy": 69.23076923076923,
+            "accuracy_gap_pp": -9.230769230769226
+          },
+          {
+            "id": "taxation",
+            "name": "Taxation",
+            "sample_size": 77,
+            "intervention_accuracy": 68.88888888888889,
+            "market_accuracy": 78.125,
+            "accuracy_gap_pp": -9.236111111111114
+          }
+        ],
+        "release_date": "2026-04-15",
+        "release_date_source": {
+          "title": "Qwen3.6 35B-A3B",
+          "url": "https://qwen.ai/blog?id=qwen3.6-35b-a3b"
         }
       }
     ]
@@ -716,6 +3181,83 @@
               "market_accuracy_pct": 72.50673854447439,
               "accuracy_gap_pp": -1.10634406715684,
               "error_direction_bias_pct": -14.17004048582996
+            },
+            "examples": [
+              {
+                "case_id": "t1_9849",
+                "predicted_sign": "-",
+                "rationale": "A higher binding minimum wage raises employers’ labor costs and is most likely to reduce employment retention, particularly for low-wage workers and in states where the minimum wage is more binding. Thus, the probability of remaining employed is expected to decline.",
+                "correct": false
+              },
+              {
+                "case_id": "t1_515",
+                "predicted_sign": "mixed",
+                "rationale": "Greater hospital competition appears to raise treatment intensity and Medicare inpatient spending, while its effects on mortality and cardiac rehospitalization are not uniformly beneficial. Thus competition can improve some dimensions of patient welfare but also generate higher costs without consistent health gains, making the net effect on social welfare ambiguous and likely heterogeneous.",
+                "correct": false
+              }
+            ],
+            "subfields": [
+              {
+                "id": "healthcare",
+                "name": "Healthcare",
+                "sample_size": 100,
+                "intervention_accuracy": 75.0,
+                "market_accuracy": 75.0,
+                "accuracy_gap_pp": 0.0
+              },
+              {
+                "id": "welfare_redistribution",
+                "name": "Welfare & Redistribution",
+                "sample_size": 41,
+                "intervention_accuracy": 88.0,
+                "market_accuracy": 62.5,
+                "accuracy_gap_pp": 25.5
+              },
+              {
+                "id": "education",
+                "name": "Education",
+                "sample_size": 54,
+                "intervention_accuracy": 67.74193548387096,
+                "market_accuracy": 78.26086956521739,
+                "accuracy_gap_pp": -10.51893408134643
+              },
+              {
+                "id": "labor",
+                "name": "Labor",
+                "sample_size": 164,
+                "intervention_accuracy": 70.40816326530613,
+                "market_accuracy": 72.72727272727273,
+                "accuracy_gap_pp": -2.3191094619666046
+              },
+              {
+                "id": "financial_regulation",
+                "name": "Financial Regulation",
+                "sample_size": 211,
+                "intervention_accuracy": 69.04761904761905,
+                "market_accuracy": 74.11764705882354,
+                "accuracy_gap_pp": -5.070028011204485
+              },
+              {
+                "id": "trade",
+                "name": "Trade",
+                "sample_size": 28,
+                "intervention_accuracy": 53.333333333333336,
+                "market_accuracy": 92.3076923076923,
+                "accuracy_gap_pp": -38.97435897435897
+              },
+              {
+                "id": "taxation",
+                "name": "Taxation",
+                "sample_size": 77,
+                "intervention_accuracy": 71.11111111111111,
+                "market_accuracy": 78.125,
+                "accuracy_gap_pp": -7.013888888888886
+              }
+            ],
+            "release_date": "2026-07-09",
+            "release_date_source": {
+              "title": "Introducing GPT-5.6",
+              "url": "https://openai.com/index/gpt-5-6/"
             }
           },
           {
@@ -822,6 +3364,83 @@
               "market_accuracy_pct": 79.51482479784367,
               "accuracy_gap_pp": -3.9724184862065925,
               "error_direction_bias_pct": -19.0
+            },
+            "examples": [
+              {
+                "case_id": "t1_9849",
+                "predicted_sign": "-",
+                "rationale": "Standard labor demand theory and Brazilian minimum wage literature suggest that higher minimum wages reduce employment probabilities, particularly for low-wage workers in more affected states, though the effect is often small due to informal sector absorption and monopsony-like features in Brazil's labor market.",
+                "correct": false
+              },
+              {
+                "case_id": "t1_515",
+                "predicted_sign": "-",
+                "rationale": "Kessler and McClellan's classic study of this era found that hospital competition prior to the mid-1990s led to increased treatment intensity and spending without corresponding improvements in mortality outcomes, implying a decline in social welfare due to wasteful, non-price competition among hospitals under Medicare's cost-based reimbursement incentives.",
+                "correct": false
+              }
+            ],
+            "subfields": [
+              {
+                "id": "healthcare",
+                "name": "Healthcare",
+                "sample_size": 100,
+                "intervention_accuracy": 84.375,
+                "market_accuracy": 77.77777777777777,
+                "accuracy_gap_pp": 6.5972222222222285
+              },
+              {
+                "id": "welfare_redistribution",
+                "name": "Welfare & Redistribution",
+                "sample_size": 41,
+                "intervention_accuracy": 88.0,
+                "market_accuracy": 93.75,
+                "accuracy_gap_pp": -5.75
+              },
+              {
+                "id": "education",
+                "name": "Education",
+                "sample_size": 54,
+                "intervention_accuracy": 74.19354838709677,
+                "market_accuracy": 69.56521739130434,
+                "accuracy_gap_pp": 4.628330995792425
+              },
+              {
+                "id": "labor",
+                "name": "Labor",
+                "sample_size": 164,
+                "intervention_accuracy": 74.48979591836735,
+                "market_accuracy": 74.24242424242425,
+                "accuracy_gap_pp": 0.24737167594309994
+              },
+              {
+                "id": "financial_regulation",
+                "name": "Financial Regulation",
+                "sample_size": 211,
+                "intervention_accuracy": 72.22222222222223,
+                "market_accuracy": 84.70588235294117,
+                "accuracy_gap_pp": -12.483660130718945
+              },
+              {
+                "id": "trade",
+                "name": "Trade",
+                "sample_size": 28,
+                "intervention_accuracy": 73.33333333333333,
+                "market_accuracy": 92.3076923076923,
+                "accuracy_gap_pp": -18.974358974358978
+              },
+              {
+                "id": "taxation",
+                "name": "Taxation",
+                "sample_size": 77,
+                "intervention_accuracy": 77.77777777777777,
+                "market_accuracy": 84.375,
+                "accuracy_gap_pp": -6.5972222222222285
+              }
+            ],
+            "release_date": "2026-06-30",
+            "release_date_source": {
+              "title": "Introducing Claude Sonnet 5",
+              "url": "https://www.anthropic.com/news/claude-sonnet-5"
             }
           },
           {
@@ -931,6 +3550,83 @@
               "market_accuracy_pct": 76.01078167115902,
               "accuracy_gap_pp": 4.4625911099060716,
               "error_direction_bias_pct": 3.723404255319149
+            },
+            "examples": [
+              {
+                "case_id": "t1_9849",
+                "predicted_sign": "mixed",
+                "rationale": "The effect of a minimum wage increase on the probability of remaining employed often varies by worker group or firm type. While higher minimum wages can lead to disemployment effects for low-skilled or younger workers, higher wages can also increase labor supply or worker retention (efficiency wage/monopsony effects) and formal employment through compliance mechanisms, leading to heterogeneous or mixed employment outcomes across different specifications and subgroups.",
+                "correct": false
+              },
+              {
+                "case_id": "t1_515",
+                "predicted_sign": "+",
+                "rationale": "Under Medicare's fixed-price reimbursement system (Diagnosis-Related Groups), hospitals compete on quality rather than price. Competition incentivizes hospitals to improve quality of care and patient outcomes for heart attack patients (reducing mortality) without leading to inefficient over-provision of costly medical technologies, thereby increasing overall social welfare.",
+                "correct": true
+              }
+            ],
+            "subfields": [
+              {
+                "id": "healthcare",
+                "name": "Healthcare",
+                "sample_size": 100,
+                "intervention_accuracy": 84.375,
+                "market_accuracy": 66.66666666666667,
+                "accuracy_gap_pp": 17.70833333333333
+              },
+              {
+                "id": "welfare_redistribution",
+                "name": "Welfare & Redistribution",
+                "sample_size": 41,
+                "intervention_accuracy": 88.0,
+                "market_accuracy": 68.75,
+                "accuracy_gap_pp": 19.25
+              },
+              {
+                "id": "education",
+                "name": "Education",
+                "sample_size": 54,
+                "intervention_accuracy": 80.64516129032258,
+                "market_accuracy": 78.26086956521739,
+                "accuracy_gap_pp": 2.384291725105186
+              },
+              {
+                "id": "labor",
+                "name": "Labor",
+                "sample_size": 164,
+                "intervention_accuracy": 78.57142857142857,
+                "market_accuracy": 68.18181818181819,
+                "accuracy_gap_pp": 10.389610389610382
+              },
+              {
+                "id": "financial_regulation",
+                "name": "Financial Regulation",
+                "sample_size": 211,
+                "intervention_accuracy": 80.95238095238095,
+                "market_accuracy": 82.3529411764706,
+                "accuracy_gap_pp": -1.400560224089645
+              },
+              {
+                "id": "trade",
+                "name": "Trade",
+                "sample_size": 28,
+                "intervention_accuracy": 53.333333333333336,
+                "market_accuracy": 92.3076923076923,
+                "accuracy_gap_pp": -38.97435897435897
+              },
+              {
+                "id": "taxation",
+                "name": "Taxation",
+                "sample_size": 77,
+                "intervention_accuracy": 82.22222222222223,
+                "market_accuracy": 81.25,
+                "accuracy_gap_pp": 0.9722222222222285
+              }
+            ],
+            "release_date": "2026-07-21",
+            "release_date_source": {
+              "title": "Gemini API changelog",
+              "url": "https://ai.google.dev/gemini-api/docs/changelog"
             }
           },
           {
@@ -1017,6 +3713,83 @@
               "market_accuracy_pct": 82.74932614555256,
               "accuracy_gap_pp": 0.8798651759464491,
               "error_direction_bias_pct": -7.482993197278912
+            },
+            "examples": [
+              {
+                "case_id": "t1_9849",
+                "predicted_sign": "-",
+                "rationale": "A binding minimum-wage hike raises the cost of low-wage labor. Profit-maximizing firms respond by reducing employment (via layoffs, reduced hiring, or hours cuts), which lowers the probability that an incumbent worker remains employed. Cross-state variation in bindingness and the structural model in the Brazilian setting both point to this negative employment effect, even if its magnitude is modest.",
+                "correct": false
+              },
+              {
+                "case_id": "t1_515",
+                "predicted_sign": "+",
+                "rationale": "Competition among hospitals (especially under rising managed-care pressure) lowers Medicare inpatient spending while holding constant or improving AMI outcomes (mortality/rehospitalizations). The resulting cost savings with non-negative quality effects raise social welfare.",
+                "correct": true
+              }
+            ],
+            "subfields": [
+              {
+                "id": "healthcare",
+                "name": "Healthcare",
+                "sample_size": 100,
+                "intervention_accuracy": 90.625,
+                "market_accuracy": 77.77777777777777,
+                "accuracy_gap_pp": 12.847222222222229
+              },
+              {
+                "id": "welfare_redistribution",
+                "name": "Welfare & Redistribution",
+                "sample_size": 41,
+                "intervention_accuracy": 92.0,
+                "market_accuracy": 62.5,
+                "accuracy_gap_pp": 29.5
+              },
+              {
+                "id": "education",
+                "name": "Education",
+                "sample_size": 54,
+                "intervention_accuracy": 77.41935483870968,
+                "market_accuracy": 78.26086956521739,
+                "accuracy_gap_pp": -0.841514726507711
+              },
+              {
+                "id": "labor",
+                "name": "Labor",
+                "sample_size": 164,
+                "intervention_accuracy": 81.63265306122449,
+                "market_accuracy": 86.36363636363636,
+                "accuracy_gap_pp": -4.730983302411872
+              },
+              {
+                "id": "financial_regulation",
+                "name": "Financial Regulation",
+                "sample_size": 211,
+                "intervention_accuracy": 84.12698412698413,
+                "market_accuracy": 87.05882352941177,
+                "accuracy_gap_pp": -2.9318394024276415
+              },
+              {
+                "id": "trade",
+                "name": "Trade",
+                "sample_size": 28,
+                "intervention_accuracy": 66.66666666666667,
+                "market_accuracy": 92.3076923076923,
+                "accuracy_gap_pp": -25.641025641025635
+              },
+              {
+                "id": "taxation",
+                "name": "Taxation",
+                "sample_size": 77,
+                "intervention_accuracy": 84.44444444444444,
+                "market_accuracy": 90.625,
+                "accuracy_gap_pp": -6.180555555555557
+              }
+            ],
+            "release_date": "2026-07-08",
+            "release_date_source": {
+              "title": "Grok 4.5",
+              "url": "https://docs.x.ai/developers/models/grok-4.5"
             }
           },
           {
@@ -1067,5 +3840,29 @@
     "completed_result_row_count": 47520,
     "main_and_sweeps_unique_condition_count": 45,
     "main_and_sweeps_cover_all_completed_conditions": true
+  },
+  "detail_generation": {
+    "examples": {
+      "case_ids": [
+        "t1_9849",
+        "t1_515"
+      ],
+      "source": "completed per-case result artifacts"
+    },
+    "subfields": {
+      "method": "categorical JEL policy-theme assignment on the 878 directionally aligned cases; Other excluded",
+      "theme_ids": [
+        "healthcare",
+        "welfare_redistribution",
+        "education",
+        "labor",
+        "financial_regulation",
+        "trade",
+        "taxation"
+      ],
+      "dataset_sha256": "300681f47a018ffa1bb96b6655c11a81518bab9582374a6b990f85ace82717fb",
+      "classifier_sha256": "7973d3e6021854b276178badca59bed61312cbe9252a13e4875975a5683ee60f"
+    },
+    "release_date_policy": "Approved official public availability mapping; source links are retained per condition."
   }
 }

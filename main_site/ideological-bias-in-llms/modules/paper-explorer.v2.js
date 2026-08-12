@@ -1,6 +1,8 @@
-const DATA_URL = new URL('../data/paper-data.v2.json?v=20260811a', import.meta.url);
-const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260811a', import.meta.url);
-const BENCHMARK_FAMILY_ORDER = ['OpenAI', 'Claude', 'Gemini', 'Grok', 'Llama', 'Qwen'];
+const DATA_URL = new URL('../data/paper-data.v2.json?v=20260812a', import.meta.url);
+const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260812a', import.meta.url);
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const RELEASE_POINT_SPACING = 48;
+const RELEASE_POINT_RADIUS = 22;
 const MAIN_EXCLUDED_CONDITIONS = new Set([
     // Minimum-setting reruns of models already represented by their paper result.
     'oa_gpt5_nano_minimal',
@@ -30,8 +32,8 @@ const MAIN_MODEL_GROUPS = [
         resultKeys: [
             'paper:claude-haiku-4-5', 'paper:claude-sonnet-4-6',
             'paper:claude-opus-4-6', 'new:an_opus47_disabled_low',
-            'new:an_opus48_disabled_low', 'new:an_fable5_adaptive_low',
-            'new:an_sonnet5_disabled_low', 'new:an_opus5_disabled_low',
+            'new:an_opus48_disabled_low', 'new:an_sonnet5_disabled_low',
+            'new:an_opus5_disabled_low', 'new:an_fable5_adaptive_low',
         ],
     },
     {
@@ -166,6 +168,50 @@ function metricCard(label, value, className = '', direction = '') {
         </div>`;
 }
 
+function svgElement(tag, attributes = {}, text = '') {
+    const element = document.createElementNS(SVG_NS, tag);
+    Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, value));
+    if (text) element.textContent = text;
+    return element;
+}
+
+function pointDistance(first, second) {
+    return Math.hypot(first.x - second.x, first.y - second.y);
+}
+
+function layoutReleasePoints(points, bounds) {
+    const placed = [];
+    const radiusStep = 8;
+    const angleCount = 36;
+    const maxRadius = Math.ceil(Math.hypot(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY));
+
+    points.forEach((point, pointIndex) => {
+        let selected = null;
+        const phase = ((pointIndex * 137.508) % 360) * (Math.PI / 180);
+        for (let radius = 0; radius <= maxRadius && !selected; radius += radiusStep) {
+            const candidates = radius === 0
+                ? [{ x: point.actualX, y: point.actualY }]
+                : Array.from({ length: angleCount }, (_, angleIndex) => {
+                    const angle = phase + (angleIndex / angleCount) * Math.PI * 2;
+                    return {
+                        x: point.actualX + Math.cos(angle) * radius,
+                        y: point.actualY + Math.sin(angle) * radius,
+                    };
+                });
+            selected = candidates.find((candidate) => (
+                candidate.x >= bounds.minX && candidate.x <= bounds.maxX
+                && candidate.y >= bounds.minY && candidate.y <= bounds.maxY
+                && placed.every((other) => pointDistance(candidate, other) >= RELEASE_POINT_SPACING)
+            )) || null;
+        }
+        if (!selected) throw new Error(`Unable to place independent release-chart control for ${point.row.resultKey}.`);
+        point.displayX = selected.x;
+        point.displayY = selected.y;
+        placed.push(selected);
+    });
+    return points;
+}
+
 function ensurePaperBaseline(data) {
     if (data.schema_version !== '2.1.0' || data.dataset_version !== 'colm-camera-ready-20-models') {
         throw new Error('Unexpected paper-data schema or dataset version.');
@@ -211,6 +257,9 @@ function ensureUpdatedResults(data) {
     if (!Array.isArray(mainResults) || mainResults.length !== 32) {
         throw new Error('The new-evaluation panel must contain 32 conditions.');
     }
+    if (mainResults.some((result) => !result.release_date || !result.release_date_source?.url)) {
+        throw new Error('Every extension result needs an official release date and source for the release chart.');
+    }
     if (!Array.isArray(sweeps) || sweeps.length !== 4) {
         throw new Error('The reasoning-effort analysis must contain four model sweeps.');
     }
@@ -224,15 +273,16 @@ function experimentSettingLabel(setting, compact = false) {
         return compact ? setting.reasoning_effort : `reasoning ${setting.reasoning_effort}`;
     }
     if (Object.hasOwn(setting, 'reasoning_enabled')) {
-        const label = setting.reasoning_enabled ? 'enabled' : 'disabled';
-        return compact ? label : `reasoning ${label}`;
+        const label = setting.reasoning_enabled ? 'on' : 'off';
+        return `reasoning ${label}`;
     }
     if (Object.hasOwn(setting, 'thinking_level')) {
         return compact ? setting.thinking_level : `thinking ${setting.thinking_level}`;
     }
     if (Object.hasOwn(setting, 'thinking')) {
-        const label = `${setting.thinking} · ${setting.effort || 'default'}`;
-        return compact ? label : `thinking ${label.replace(' · ', ' · effort ')}`;
+        const effort = setting.effort || 'default';
+        const label = setting.thinking === 'disabled' ? 'off' : effort;
+        return `thinking ${label}`;
     }
     if (Object.hasOwn(setting, 'quantization')) {
         return compact ? setting.quantization : `local ${setting.quantization}`;
@@ -257,6 +307,8 @@ function normalizeBenchmarkRows(paperData, experimentData) {
         family: model.family,
         displayName: model.display_name,
         paperModelId: model.id,
+        releaseDate: model.release_date,
+        releaseSource: model.release_date_source,
         overall: model.overview.contested_accuracy,
         intervention: model.overview.intervention_accuracy,
         market: model.overview.market_accuracy,
@@ -286,6 +338,10 @@ function normalizeBenchmarkRows(paperData, experimentData) {
         modelId: result.model_id,
         canonicalModelId: result.canonical_model_id,
         setting: result.setting,
+        releaseDate: result.release_date,
+        releaseSource: result.release_date_source,
+        examples: result.examples,
+        subfields: result.subfields,
         overall: result.metrics.contested_accuracy_pct,
         intervention: result.metrics.intervention_accuracy_pct,
         market: result.metrics.market_accuracy_pct,
@@ -361,7 +417,6 @@ function benchmarkGroupMarkup(rows, groupKeys, label) {
 const EFFORT_SERIES = {
     overall: { field: 'contested_accuracy_pct', label: 'Overall accuracy', shortLabel: 'Overall', color: '#0050a4', suffix: '%', marker: 'circle' },
     gap: { field: 'accuracy_gap_pp', label: 'Accuracy gap', shortLabel: 'Gap', color: '#0f766e', suffix: ' pp', signed: true, marker: 'square' },
-    bias: { field: 'error_direction_bias_pct', label: 'B dir', shortLabel: 'Bdir', color: '#7655b5', suffix: '', signed: true, marker: 'diamond', dashed: true },
 };
 
 function effortMetricValue(row, metricKey) {
@@ -397,7 +452,7 @@ function renderReasoningExplorer(experimentData) {
 
     const sweeps = experimentData.reasoning_effort_sweeps.sweeps;
     const overallDomain = effortMetricDomain(sweeps, 'overall');
-    const signedDomain = effortMetricDomain(sweeps, ['gap', 'bias']);
+    const signedDomain = effortMetricDomain(sweeps, 'gap');
     const overallTicks = [overallDomain.max, (overallDomain.min + overallDomain.max) / 2, overallDomain.min];
     const signedTicks = [signedDomain.max, 0, signedDomain.min];
 
@@ -480,7 +535,7 @@ function renderReasoningExplorer(experimentData) {
             const pointMarkup = sweep.results.map((row, index) => {
                 const x = effortPointPosition(index, sweep.results.length, 0, { min: 0, max: 1 }).x;
                 const setting = experimentSettingLabel(row.setting, true);
-                const aria = `${sweep.display_name}, ${setting}: overall ${effortMetricValue(row, 'overall')}, gap ${effortMetricValue(row, 'gap')}, B dir ${effortMetricValue(row, 'bias')}.`;
+                const aria = `${sweep.display_name}, ${setting}: overall ${effortMetricValue(row, 'overall')}, gap ${effortMetricValue(row, 'gap')}.`;
                 const seriesPoints = Object.entries(EFFORT_SERIES).map(([metricKey, series]) => {
                     const domain = metricKey === 'overall' ? overallDomain : signedDomain;
                     const y = effortPointPosition(index, sweep.results.length, Number(row.metrics[series.field]), domain).y;
@@ -495,11 +550,10 @@ function renderReasoningExplorer(experimentData) {
                         <span class="effort-point-tooltip"><b>${escapeHtml(setting)}</b>
                             <span style="--series-color:${EFFORT_SERIES.overall.color}">Overall ${escapeHtml(effortMetricValue(row, 'overall'))}</span>
                             <span style="--series-color:${EFFORT_SERIES.gap.color}">Gap ${escapeHtml(effortMetricValue(row, 'gap'))}</span>
-                            <span style="--series-color:${EFFORT_SERIES.bias.color}">B<sub>dir</sub> ${escapeHtml(effortMetricValue(row, 'bias'))}</span>
                         </span>
                     </button>`;
             }).join('');
-            const accessibleRows = sweep.results.map((row) => `<div><dt>${escapeHtml(experimentSettingLabel(row.setting, true))}</dt><dd>Overall ${escapeHtml(effortMetricValue(row, 'overall'))}; gap ${escapeHtml(effortMetricValue(row, 'gap'))}; B dir ${escapeHtml(effortMetricValue(row, 'bias'))}</dd></div>`).join('');
+            const accessibleRows = sweep.results.map((row) => `<div><dt>${escapeHtml(experimentSettingLabel(row.setting, true))}</dt><dd>Overall ${escapeHtml(effortMetricValue(row, 'overall'))}; gap ${escapeHtml(effortMetricValue(row, 'gap'))}</dd></div>`).join('');
             return `
                 <article class="effort-line-chart" data-sweep-id="${escapeHtml(sweep.sweep_id)}" data-color="${color}" aria-labelledby="effort-title-${escapeHtml(sweep.sweep_id)}">
                     <header><h3 id="effort-title-${escapeHtml(sweep.sweep_id)}">${escapeHtml(sweep.display_name)}</h3><span>${sweep.results.length} settings</span></header>
@@ -513,10 +567,10 @@ function renderReasoningExplorer(experimentData) {
                         const x = effortPointPosition(index, sweep.results.length, 0, { min: 0, max: 1 }).x;
                         return `<span style="--label-x:${x}%">${escapeHtml(experimentSettingLabel(row.setting, true))}</span>`;
                     }).join('')}</div>
-                    <dl class="visually-hidden effort-data-list" aria-label="${escapeHtml(`${sweep.display_name} overall accuracy, accuracy gap, and B dir by reasoning setting`)}">${accessibleRows}</dl>
+                    <dl class="visually-hidden effort-data-list" aria-label="${escapeHtml(`${sweep.display_name} overall accuracy and accuracy gap by reasoning setting`)}">${accessibleRows}</dl>
                 </article>`;
         }).join('');
-    grid.dataset.metric = 'overall,gap,bias';
+    grid.dataset.metric = 'overall,gap';
     grid.dataset.chartCount = String(sweeps.length);
     grid.dataset.pointCount = String(sweeps.reduce((sum, sweep) => sum + sweep.results.length, 0));
     window.requestAnimationFrame(drawCharts);
@@ -551,14 +605,15 @@ export async function initPaperExplorer({ announce }) {
     const dialogTitle = document.getElementById('model-detail-title');
     const dialogFamily = document.getElementById('model-detail-family');
     const dialogRelease = document.getElementById('model-detail-release');
-    const biasMap = document.getElementById('bias-map');
+    const releaseChart = document.getElementById('release-chart');
+    const releaseLegend = document.getElementById('release-family-legend');
     const benchmarkChart = document.getElementById('model-benchmark-chart');
     const benchmarkHeading = document.getElementById('model-benchmark-heading');
     const benchmarkDescription = document.getElementById('model-benchmark-description');
     const aggregateSubfieldRows = [...document.querySelectorAll('.subfield-row')];
     const aggregateSubfieldDetail = document.getElementById('subfield-detail');
 
-    if (!tooltip || !dialog || !biasMap || !benchmarkChart
+    if (!tooltip || !dialog || !releaseChart || !releaseLegend || !benchmarkChart
         || !benchmarkHeading || !benchmarkDescription || !aggregateSubfieldDetail) {
         throw new Error('Interactive paper UI containers are missing.');
     }
@@ -570,6 +625,8 @@ export async function initPaperExplorer({ announce }) {
             family: model.family,
             displayName: model.display_name,
             paperModelId: model.id,
+            releaseDate: model.release_date,
+            releaseSource: model.release_date_source,
             overall: model.overview.contested_accuracy,
             intervention: model.overview.intervention_accuracy,
             market: model.overview.market_accuracy,
@@ -598,7 +655,7 @@ export async function initPaperExplorer({ announce }) {
         return !focused
             || focused === document.body
             || focused === trigger
-            || !focused.matches('.model-open-button, .bias-map-marker, .bias-scatter-marker');
+            || !focused.matches('.model-open-button, .release-point-button');
     }
 
     function positionQuickDetail(trigger) {
@@ -645,6 +702,14 @@ export async function initPaperExplorer({ announce }) {
             </dl>`;
         tooltip.hidden = false;
         positionQuickDetail(trigger);
+    }
+
+    function showReleaseDetail(trigger, row) {
+        showBiasDetail(trigger, row);
+        tooltip.querySelector('.quick-detail-header').insertAdjacentHTML(
+            'beforeend',
+            `<time datetime="${escapeHtml(row.releaseDate)}">${escapeHtml(formatDate(row.releaseDate))}</time>`,
+        );
     }
 
     function activateTab(name, moveFocus = false) {
@@ -702,10 +767,42 @@ export async function initPaperExplorer({ announce }) {
         document.getElementById('model-panel-subfields').replaceChildren();
     }
 
-    function configureDialogTabs(fullPaperDetail) {
+    function configureDialogTabs() {
         dialog.querySelectorAll('[data-model-tab]').forEach((tab) => {
-            tab.hidden = !fullPaperDetail && tab.dataset.modelTab !== 'overview';
+            tab.hidden = false;
         });
+    }
+
+    function renderUpdatedSupplementaryPanels(row) {
+        const examples = Array.isArray(row.examples) ? row.examples : [];
+        const exampleById = new Map(examples.map((example) => [example.case_id, example]));
+        const cards = data.examples.map((example) => {
+            const output = exampleById.get(example.case_id);
+            if (!output) return '';
+            const correctness = output.correct ? 'Correct' : 'Incorrect';
+            const signChip = (label, sign, identityClass = '') => `
+                <div class="example-sign-chip ${signCategoryClass(sign)} ${identityClass}"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(signLabel(sign))}</dd></div>`;
+            return `<article class="example-card"><header class="example-card-header"><h3>${escapeHtml(example.treatment)} → ${escapeHtml(example.outcome)}</h3><span class="correctness-badge ${output.correct ? 'correct' : 'incorrect'}">${correctness}</span></header><p class="example-context"><strong>Study context</strong>${escapeHtml(example.context)}</p><div class="example-blocks"><section class="example-reference-block"><span class="example-block-label">Reference</span><dl class="example-signs">${signChip('Empirical sign', example.empirical_sign)}${signChip('Intervention expectation', example.intervention_sign, 'perspective-intervention')}${signChip('Market expectation', example.market_sign, 'perspective-market')}</dl><a class="example-source" href="${escapeHtml(example.paper_url)}" target="_blank" rel="noopener noreferrer">Original study: ${escapeHtml(example.title)} <span aria-hidden="true">↗</span></a></section><section class="example-model-block"><span class="example-block-label">Selected model</span><dl class="example-signs example-model-sign">${signChip('Prediction', output.predicted_sign)}</dl><div class="example-rationale"><strong>Full model-generated rationale</strong><p>${escapeHtml(output.rationale)}</p></div></section></div></article>`;
+        }).join('');
+        document.getElementById('model-panel-examples').innerHTML = cards
+            ? `<p class="example-intro">Reference evidence appears first, followed by this evaluation’s model prediction and full model-generated rationale.</p><div class="example-list">${cards}</div>`
+            : '<p class="model-subfield-empty">Example-level outputs are unavailable for this evaluation.</p>';
+
+        const subfields = Array.isArray(row.subfields) ? row.subfields : [];
+        const subfieldRows = subfields.length ? [
+            ...subfields,
+            {
+                name: 'Total',
+                sample_size: 878,
+                intervention_accuracy: row.intervention,
+                market_accuracy: row.market,
+                accuracy_gap_pp: row.gap,
+                isTotal: true,
+            },
+        ] : [];
+        document.getElementById('model-panel-subfields').innerHTML = subfieldRows.length
+            ? `<p class="model-subfield-note">This evaluation’s total and seven named subfields use the 878 directionally aligned cases.</p><div class="model-subfield-columns" aria-hidden="true"><span>Subfield</span><span>Intervention</span><span>Market</span><span>Gap</span></div><ul class="model-subfield-list">${subfieldRows.map((subfield) => `<li class="model-subfield-card${subfield.isTotal ? ' is-total' : ''}"><header><h3>${escapeHtml(subfield.name)} <small>n=${escapeHtml(subfield.sample_size)}</small></h3></header><dl><div class="is-intervention"><dt class="visually-hidden">Intervention-truth accuracy</dt><dd>${formatPercent(subfield.intervention_accuracy)}</dd></div><div class="is-market"><dt class="visually-hidden">Market-truth accuracy</dt><dd>${formatPercent(subfield.market_accuracy)}</dd></div><div class="${signedTone(subfield.accuracy_gap_pp)}"><dt class="visually-hidden">Accuracy gap</dt><dd>${escapeHtml(formatSigned(subfield.accuracy_gap_pp, ' pp'))}</dd></div></dl></li>`).join('')}</ul>`
+            : '<p class="model-subfield-empty">Per-subfield results are unavailable for this evaluation.</p>';
     }
 
     function renderExamples(model) {
@@ -785,7 +882,7 @@ export async function initPaperExplorer({ announce }) {
     function openModel(modelId, trigger) {
         const model = modelsById.get(modelId);
         if (!model) return;
-        configureDialogTabs(true);
+        configureDialogTabs();
         delete dialog.dataset.resultKey;
         delete dialog.dataset.conditionKey;
         dialog.dataset.modelId = modelId;
@@ -804,15 +901,16 @@ export async function initPaperExplorer({ announce }) {
 
     function openUpdatedResult(row, trigger) {
         if (!row?.conditionKey) return;
-        configureDialogTabs(false);
+        configureDialogTabs();
         delete dialog.dataset.modelId;
         dialog.dataset.resultKey = row.resultKey;
         dialog.dataset.conditionKey = row.conditionKey;
         lastDialogTrigger = trigger || document.activeElement;
         dialogFamily.textContent = `${row.family} · ${row.provider}`;
         dialogTitle.textContent = `${row.family} ${row.displayName}`;
-        dialogRelease.textContent = experimentSettingLabel(row.setting);
+        dialogRelease.textContent = `Official release: ${formatDate(row.releaseDate)} · ${experimentSettingLabel(row.setting)}`;
         renderUpdatedOverview(row);
+        renderUpdatedSupplementaryPanels(row);
         activateTab('overview');
         hideQuickDetail();
         if (!dialog.open) dialog.showModal();
@@ -930,118 +1028,105 @@ export async function initPaperExplorer({ announce }) {
         enhanceMainResults();
     }
 
-    function renderBiasMap() {
-        const ordered = [...mainModelRows].sort((first, second) => (
-            first.bias - second.bias
-            || `${first.family} ${first.displayName}`.localeCompare(`${second.family} ${second.displayName}`)
-        ));
-        const biasBound = 20;
-        const gapBound = Math.max(10, Math.ceil((Math.max(...ordered.map((row) => Math.abs(row.gap))) + 1) / 5) * 5);
-        const lanePositions = [50, 38, 62, 26, 74, 14, 86, 44, 56, 32, 68, 20, 80];
-        const laneLastX = lanePositions.map(() => -Infinity);
-        const markers = ordered.map((row) => {
-            const x = 4 + ((row.bias + biasBound) / (biasBound * 2)) * 92;
-            let lane = laneLastX.findIndex((lastX) => x - lastX >= 3.6);
-            if (lane < 0) lane = laneLastX.indexOf(Math.min(...laneLastX));
-            laneLastX[lane] = x;
-            const style = FAMILY_STYLES[row.family];
-            const modelName = `${row.family} ${row.displayName}`;
-            return `<button type="button" class="bias-data-marker bias-map-marker family-marker-${style.marker} is-family-idle"
-                style="--bias-x:${x}%;--bias-y:${lanePositions[lane]}%;--family-color:${style.color}"
-                data-result-key="${escapeHtml(row.resultKey)}" data-family="${escapeHtml(row.family)}"
-                aria-label="${escapeHtml(`${modelName}, B dir ${formatSigned(row.bias)}, ${biasDirection(row.bias)}.`)}"></button>`;
-        }).join('');
-        const scatterMarkers = ordered.map((row) => {
-            const x = 6 + ((row.gap + gapBound) / (gapBound * 2)) * 88;
-            const y = 8 + ((biasBound - row.bias) / (biasBound * 2)) * 84;
-            const style = FAMILY_STYLES[row.family];
-            const modelName = `${row.family} ${row.displayName}`;
-            return `<button type="button" class="bias-data-marker bias-scatter-marker family-marker-${style.marker} is-family-idle"
-                style="--scatter-x:${x}%;--scatter-y:${y}%;--family-color:${style.color}"
-                data-result-key="${escapeHtml(row.resultKey)}" data-family="${escapeHtml(row.family)}"
-                aria-label="${escapeHtml(`${modelName}, accuracy gap ${formatSigned(row.gap)} percentage points, B dir ${formatSigned(row.bias)}.`)}"></button>`;
-        }).join('');
-        const legend = BENCHMARK_FAMILY_ORDER.map((family) => {
-            const style = FAMILY_STYLES[family];
-            return `<button type="button" class="bias-family-filter" data-bias-family="${escapeHtml(family)}" aria-pressed="false" style="--family-color:${style.color}">
-                <i class="bias-legend-marker family-marker-${style.marker}" aria-hidden="true"></i>${escapeHtml(family)}</button>`;
-        }).join('');
-        const gapHalf = gapBound / 2;
-        biasMap.innerHTML = `
-            <div class="bias-map-scroll" tabindex="0" role="region" aria-label="Error-direction bias scores for ${ordered.length} models">
-                <div class="bias-map-plot">
-                    <div class="bias-map-direction" aria-hidden="true"><span>Market-oriented</span><span>Intervention-oriented</span></div>
-                    <div class="bias-map-axis" aria-hidden="true"><span>−20</span><span>−10</span><span>0</span><span>+10</span><span>+20</span></div>
-                    <div class="bias-map-line" aria-hidden="true"></div>
-                    ${markers}
-                </div>
-            </div>
-            <div class="bias-map-legend" role="group" aria-label="Highlight a model family">${legend}</div>
-            <section class="bias-scatter-panel" aria-labelledby="bias-scatter-title">
-                <header>
-                    <h4 id="bias-scatter-title">Accuracy gap × error-direction bias</h4>
-                    <p>Each marker is one model. Use the family controls above to highlight a series.</p>
-                </header>
-                <div class="bias-scatter-scroll" tabindex="0" role="region" aria-label="Accuracy gap versus error-direction bias for ${ordered.length} models">
-                    <div class="bias-scatter-plot">
-                        <span class="bias-scatter-axis-label is-y" aria-hidden="true">B<sub>dir</sub></span>
-                        <span class="bias-scatter-axis-label is-x" aria-hidden="true">Accuracy gap</span>
-                        <div class="bias-scatter-zero is-horizontal" aria-hidden="true"></div>
-                        <div class="bias-scatter-zero is-vertical" aria-hidden="true"></div>
-                        <div class="bias-scatter-y-ticks" aria-hidden="true"><span>+${biasBound}</span><span>0</span><span>−${biasBound}</span></div>
-                        <div class="bias-scatter-x-ticks" aria-hidden="true"><span>−${gapBound}</span><span>−${gapHalf}</span><span>0</span><span>+${gapHalf}</span><span>+${gapBound}</span></div>
-                        ${scatterMarkers}
-                    </div>
-                </div>
-            </section>`;
-        biasMap.dataset.modelCount = String(ordered.length);
-        biasMap.dataset.domain = '-20,20';
-        biasMap.dataset.scatterDomain = `${-gapBound},${gapBound};${-biasBound},${biasBound}`;
+    function renderReleaseLegend() {
+        releaseLegend.innerHTML = Object.entries(FAMILY_STYLES).map(([family, style]) => `
+            <span class="release-legend-item">
+                <i class="release-legend-mark family-marker-${style.marker}" style="--family-color:${style.color}" aria-hidden="true"></i>${escapeHtml(family)}
+            </span>`).join('');
+    }
 
-        function applyFamilyHighlight(family = null) {
-            biasMap.dataset.activeFamily = family || '';
-            biasMap.querySelectorAll('.bias-family-filter').forEach((button) => {
-                button.setAttribute('aria-pressed', String(button.dataset.biasFamily === family));
-            });
-            biasMap.querySelectorAll('.bias-data-marker').forEach((marker) => {
-                const selected = family && marker.dataset.family === family;
-                marker.classList.toggle('is-family-highlighted', Boolean(selected));
-                marker.classList.toggle('is-family-muted', Boolean(family && !selected));
-                marker.classList.toggle('is-family-idle', !family);
-            });
-        }
-
-        biasMap.querySelectorAll('.bias-family-filter').forEach((button) => {
-            button.addEventListener('click', () => {
-                const next = biasMap.dataset.activeFamily === button.dataset.biasFamily
-                    ? null
-                    : button.dataset.biasFamily;
-                applyFamilyHighlight(next);
-            });
+    function renderReleaseChart() {
+        const focusedResultKey = document.activeElement?.classList.contains('release-point-button')
+            ? document.activeElement.dataset.resultKey
+            : null;
+        const dialogResultKey = dialog.open && lastDialogTrigger?.classList?.contains('release-point-button')
+            ? lastDialogTrigger.dataset.resultKey
+            : null;
+        if (focusedResultKey) hideQuickDetail();
+        releaseChart.dataset.pointLayoutReady = 'false';
+        const width = Math.max(900, Math.round(releaseChart.clientWidth));
+        const height = width < 520 ? 450 : 510;
+        const margin = { top: 28, right: width < 520 ? 12 : 24, bottom: 58, left: width < 520 ? 50 : 70 };
+        const plotWidth = width - margin.left - margin.right;
+        const plotHeight = height - margin.top - margin.bottom;
+        const dates = mainModelRows.map((row) => Date.parse(`${row.releaseDate}T00:00:00Z`));
+        const day = 24 * 60 * 60 * 1000;
+        const xMin = Math.min(...dates) - 28 * day;
+        const xMax = Math.max(...dates) + 28 * day;
+        const gapValues = mainModelRows.map((row) => row.gap);
+        const yMin = Math.floor(Math.min(-5, ...gapValues) / 5) * 5;
+        const yMax = Math.ceil(Math.max(5, ...gapValues) / 5) * 5;
+        const xScale = (date) => margin.left + ((date - xMin) / (xMax - xMin)) * plotWidth;
+        const yScale = (value) => margin.top + ((yMax - value) / (yMax - yMin)) * plotHeight;
+        const releasePoints = layoutReleasePoints(
+            mainModelRows.map((row, originalIndex) => ({
+                row,
+                originalIndex,
+                releaseTimestamp: Date.parse(`${row.releaseDate}T00:00:00Z`),
+                actualX: xScale(Date.parse(`${row.releaseDate}T00:00:00Z`)),
+                actualY: yScale(row.gap),
+            })).sort((first, second) => first.releaseTimestamp - second.releaseTimestamp || first.originalIndex - second.originalIndex),
+            {
+                minX: Math.max(margin.left, RELEASE_POINT_RADIUS),
+                maxX: Math.min(width - margin.right, width - RELEASE_POINT_RADIUS),
+                minY: Math.max(margin.top, RELEASE_POINT_RADIUS),
+                maxY: Math.min(height - margin.bottom, height - RELEASE_POINT_RADIUS),
+            },
+        );
+        releaseChart.replaceChildren();
+        const svg = svgElement('svg', {
+            class: 'release-chart-svg', viewBox: `0 0 ${width} ${height}`, width, height, 'aria-hidden': 'true',
         });
-
-        biasMap.querySelectorAll('.bias-data-marker').forEach((button) => {
-            const row = mainRowsByResultKey.get(button.dataset.resultKey);
+        for (let tick = yMin; tick <= yMax; tick += 5) {
+            const y = yScale(tick);
+            svg.appendChild(svgElement('line', { x1: margin.left, x2: width - margin.right, y1: y, y2: y, class: tick === 0 ? 'release-zero-line' : 'release-grid-line' }));
+            svg.appendChild(svgElement('text', { x: margin.left - 9, y: y + 4, 'text-anchor': 'end', class: 'release-tick-label' }, tick > 0 ? `+${tick}` : String(tick)));
+        }
+        const xTickCount = width < 520 ? 4 : 6;
+        for (let index = 0; index < xTickCount; index += 1) {
+            const timestamp = xMin + (index / (xTickCount - 1)) * (xMax - xMin);
+            const x = xScale(timestamp);
+            svg.appendChild(svgElement('line', { x1: x, x2: x, y1: margin.top, y2: height - margin.bottom, class: 'release-grid-line' }));
+            const label = new Intl.DateTimeFormat('en', { month: 'short', year: '2-digit', timeZone: 'UTC' }).format(new Date(timestamp));
+            svg.appendChild(svgElement('text', { x, y: height - margin.bottom + 24, 'text-anchor': width < 520 && index === xTickCount - 1 ? 'end' : 'middle', class: 'release-tick-label' }, label));
+        }
+        svg.appendChild(svgElement('text', { x: margin.left + plotWidth / 2, y: height - 12, 'text-anchor': 'middle', class: 'release-axis-label' }, 'First official public release'));
+        svg.appendChild(svgElement('text', { x: 16, y: margin.top + plotHeight / 2, transform: `rotate(-90 16 ${margin.top + plotHeight / 2})`, 'text-anchor': 'middle', class: 'release-axis-label' }, 'Accuracy gap, Δacc (pp)'));
+        Object.keys(FAMILY_STYLES).forEach((family) => {
+            const points = releasePoints.filter((point) => point.row.family === family)
+                .sort((first, second) => first.releaseTimestamp - second.releaseTimestamp || first.originalIndex - second.originalIndex)
+                .map((point) => `${point.displayX},${point.displayY}`).join(' ');
+            if (points) svg.appendChild(svgElement('polyline', { points, class: 'release-family-line', stroke: FAMILY_STYLES[family].color, 'data-family': family }));
+        });
+        releaseChart.appendChild(svg);
+        releasePoints.forEach((point) => {
+            const { row } = point;
+            const style = FAMILY_STYLES[row.family];
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `release-point-button family-marker-${style.marker}`;
+            button.dataset.resultKey = row.resultKey;
+            button.dataset.family = row.family;
+            button.style.left = `${point.displayX}px`;
+            button.style.top = `${point.displayY}px`;
+            button.style.setProperty('--family-color', style.color);
+            button.setAttribute('aria-label', `${row.family} ${row.displayName}, released ${formatDate(row.releaseDate)}, accuracy gap ${formatSigned(row.gap, ' percentage points')}. Open details.`);
             button.setAttribute('aria-describedby', tooltip.id);
-            button.addEventListener('mouseenter', () => {
-                if (canShowPointerDetail(button)) showBiasDetail(button, row);
-            });
+            button.addEventListener('mouseenter', () => showReleaseDetail(button, row));
             button.addEventListener('mouseleave', () => hideQuickDetailFor(button, true));
-            button.addEventListener('focus', () => showBiasDetail(button, row));
+            button.addEventListener('focus', () => showReleaseDetail(button, row));
             button.addEventListener('blur', () => hideQuickDetailFor(button));
             button.addEventListener('click', () => openBenchmarkRow(row, button));
+            releaseChart.appendChild(button);
+            if (dialogResultKey === row.resultKey) lastDialogTrigger = button;
         });
-        biasMap.querySelectorAll('.bias-map-scroll, .bias-scatter-scroll').forEach((scroller) => {
-            scroller.addEventListener('scroll', () => {
-                const context = quickDetailContext;
-                if (context?.row && document.activeElement === context.trigger) {
-                    window.requestAnimationFrame(() => showBiasDetail(context.trigger, context.row));
-                } else {
-                    hideQuickDetail();
-                }
-            }, { passive: true });
+        releaseChart.dataset.modelCount = String(mainModelRows.length);
+        releaseChart.dataset.minimumPointSpacing = String(RELEASE_POINT_SPACING);
+        releaseChart.dataset.pointLayoutReady = 'true';
+        releaseChart.querySelectorAll('.release-point-button').forEach((button) => {
+            button.dataset.interactive = 'true';
         });
-        applyFamilyHighlight();
+        if (focusedResultKey) releaseChart.querySelector(`.release-point-button[data-result-key="${focusedResultKey}"]`)?.focus({ preventScroll: true });
     }
 
     function renderAggregateSubfieldDetail(row) {
@@ -1097,15 +1182,22 @@ export async function initPaperExplorer({ announce }) {
 
     initializeUnifiedBenchmark();
     if (extensionData) renderReasoningExplorer(extensionData);
-    renderBiasMap();
+    renderReleaseLegend();
+    renderReleaseChart();
     initializeAggregateSubfields();
+
+    const chartResizeObserver = new ResizeObserver(() => {
+        window.clearTimeout(chartResizeObserver.timer);
+        chartResizeObserver.timer = window.setTimeout(renderReleaseChart, 100);
+    });
+    chartResizeObserver.observe(releaseChart.parentElement);
 
     window.addEventListener('scroll', () => {
         const context = quickDetailContext;
         if (context && document.activeElement === context.trigger && context.model) {
             showQuickDetail(context.trigger, context.model, context.releaseView);
         } else if (context && document.activeElement === context.trigger && context.row) {
-            showBiasDetail(context.trigger, context.row);
+            showReleaseDetail(context.trigger, context.row);
         } else {
             hideQuickDetail();
         }

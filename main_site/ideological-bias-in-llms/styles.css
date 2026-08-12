@@ -1344,6 +1344,21 @@ p {
     background: linear-gradient(180deg, #fbfcfe, #f7f9fc);
 }
 
+.release-chart-scroll {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.release-chart-scroll:focus-visible {
+    outline: 3px solid rgba(0, 65, 145, 0.34);
+    outline-offset: 4px;
+}
+
+.release-chart-scroll .release-chart {
+    min-width: 900px;
+}
+
 .release-chart-svg {
     width: 100%;
     height: 510px;
@@ -4293,7 +4308,7 @@ button.generation-model-cell:focus-visible {
 
 .effort-y-axis.is-right::before {
     right: 0;
-    content: 'Gap / Bdir';
+    content: 'Gap (pp)';
 }
 
 .effort-point-layer {
@@ -4651,7 +4666,7 @@ button.generation-model-cell:focus-visible {
 
     .model-detail-dialog,
     .model-open-button,
-    .bias-data-marker,
+    .release-point-button,
     .effort-setting-hit,
     .subfield-row {
         transition: none !important;
@@ -4669,7 +4684,7 @@ button.generation-model-cell:focus-visible {
     .model-quick-detail,
     .model-detail-dialog,
     .model-open-button,
-    .bias-data-marker,
+    .release-point-button,
     .effort-setting-hit {
         display: none !important;
     }

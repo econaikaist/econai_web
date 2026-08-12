@@ -24,7 +24,7 @@
 
     <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
     <link rel="preload" as="image" href="assets/paper-overview.webp" type="image/webp" fetchpriority="high">
-    <link rel="stylesheet" href="styles.css?v=20260811a">
+    <link rel="stylesheet" href="styles.css?v=20260812a">
 
     <script type="application/ld+json">
     {
@@ -168,6 +168,20 @@
                 <h2 id="findings-heading">All-model results</h2>
             </div>
 
+            <article class="release-panel release-panel-primary" aria-labelledby="release-bias-heading">
+                <div class="release-panel-header">
+                    <div>
+                        <span class="figure-label">Release date × accuracy gap</span>
+                        <h3 id="release-bias-heading">The gap persists across generations: 40 of 47 models are more accurate on intervention-truth cases.</h3>
+                        <p>Δ<sub>acc</sub> is intervention-truth accuracy minus market-truth accuracy. Positive values indicate an intervention-truth advantage; negative values indicate a market-truth advantage.</p>
+                    </div>
+                    <div id="release-family-legend" class="release-family-legend" aria-label="Model family legend"></div>
+                </div>
+                <div class="release-chart-scroll" tabindex="0" role="region" aria-label="Interactive release-date and accuracy-gap view for 47 evaluated models. Connectors join models only within the same provider family and do not represent a global time trend.">
+                    <div id="release-chart" class="release-chart"></div>
+                </div>
+            </article>
+
             <article class="model-benchmark" aria-labelledby="model-benchmark-heading">
                 <div class="model-benchmark-header">
                     <div>
@@ -273,8 +287,8 @@
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 75.7%"><strong>75.7</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 66.6%"><strong>66.6</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+9.2<small>pp</small></strong>
                         </div>
-                        <div class="model-score-row" role="group" aria-label="Grok 4-1 Fast: intervention-truth accuracy 77.1 percent, market-truth accuracy 75.5 percent, gap plus 1.6 percentage points.">
-                            <div class="model-score-name" aria-hidden="true"><strong>4-1 Fast</strong></div>
+                        <div class="model-score-row" role="group" aria-label="Grok 4.1: intervention-truth accuracy 77.1 percent, market-truth accuracy 75.5 percent, gap plus 1.6 percentage points.">
+                            <div class="model-score-name" aria-hidden="true"><strong>4.1</strong></div>
                             <div class="model-score-bars" aria-hidden="true"><div class="model-score-track"><span class="model-score-fill intervention-score" style="--score: 77.1%"><strong>77.1</strong></span></div><div class="model-score-track"><span class="model-score-fill market-score" style="--score: 75.5%"><strong>75.5</strong></span></div></div>
                             <strong class="model-gap positive-gap" aria-hidden="true">+1.6<small>pp</small></strong>
                         </div>
@@ -336,40 +350,6 @@
                 <p class="model-benchmark-note">Accuracy (%) on the corrected 878-item directional set: 507 intervention-truth and 371 market-truth cases. Gap = intervention-truth minus market-truth accuracy.</p>
             </article>
 
-            <article class="bias-ranking" aria-labelledby="bias-ranking-heading">
-                <header class="bias-ranking-header">
-                    <div>
-                        <span class="figure-label">Error-direction bias</span>
-                        <h3 id="bias-ranking-heading">Models positioned by <span aria-label="B dir">B<sub>dir</sub></span></h3>
-                    </div>
-                    <p>Signed scores state whether prediction errors lean intervention-oriented or market-oriented.</p>
-                </header>
-                <div id="bias-map" class="bias-map">
-                <div class="bias-ranking-axis" aria-hidden="true"><span>Market-oriented</span><span>0</span><span>Intervention-oriented</span></div>
-                <ol class="bias-ranking-list no-js-bias-fallback">
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="qwen-3-8b" aria-label="Rank 1 of 20, Qwen 3-8B, B dir +16.9, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">1</span><span class="bias-model-name">Qwen 3-8B</span><span class="bias-static-score">+16.9</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="grok-3-mini" aria-label="Rank 2 of 20, Grok 3-mini, B dir +14.5, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">2</span><span class="bias-model-name">Grok 3-mini</span><span class="bias-static-score">+14.5</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="llama-3-3-70b" aria-label="Rank 3 of 20, Llama 3.3-70B, B dir +12.5, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">3</span><span class="bias-model-name">Llama 3.3-70B</span><span class="bias-static-score">+12.5</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gemini-2-5-flash" aria-label="Rank 4 of 20, Gemini 2.5 Flash, B dir +10.7, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">4</span><span class="bias-model-name">Gemini 2.5 Flash</span><span class="bias-static-score">+10.7</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="qwen-3-32b" aria-label="Rank 5 of 20, Qwen 3-32B, B dir +10.0, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">5</span><span class="bias-model-name">Qwen 3-32B</span><span class="bias-static-score">+10.0</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="qwen-3-14b" aria-label="Rank 6 of 20, Qwen 3-14B, B dir +9.6, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">6</span><span class="bias-model-name">Qwen 3-14B</span><span class="bias-static-score">+9.6</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-5-nano" aria-label="Rank 7 of 20, OpenAI GPT-5-nano, B dir +7.4, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">7</span><span class="bias-model-name">OpenAI GPT-5-nano</span><span class="bias-static-score">+7.4</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-4o-mini" aria-label="Rank 8 of 20, OpenAI GPT-4o-mini, B dir +6.3, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">8</span><span class="bias-model-name">OpenAI GPT-4o-mini</span><span class="bias-static-score">+6.3</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="claude-haiku-4-5" aria-label="Rank 9 of 20, Claude Haiku 4.5, B dir +6.2, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">9</span><span class="bias-model-name">Claude Haiku 4.5</span><span class="bias-static-score">+6.2</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-4o" aria-label="Rank 10 of 20, OpenAI GPT-4o, B dir +6.0, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">10</span><span class="bias-model-name">OpenAI GPT-4o</span><span class="bias-static-score">+6.0</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="llama-3-2-3b" aria-label="Rank 11 of 20, Llama 3.2-3B, B dir +5.2, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">11</span><span class="bias-model-name">Llama 3.2-3B</span><span class="bias-static-score">+5.2</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-5-mini" aria-label="Rank 12 of 20, OpenAI GPT-5-mini, B dir +3.7, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">12</span><span class="bias-model-name">OpenAI GPT-5-mini</span><span class="bias-static-score">+3.7</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="grok-3" aria-label="Rank 13 of 20, Grok 3, B dir +1.6, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">13</span><span class="bias-model-name">Grok 3</span><span class="bias-static-score">+1.6</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="llama-3-2-1b" aria-label="Rank 14 of 20, Llama 3.2-1B, B dir +0.8, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">14</span><span class="bias-model-name">Llama 3.2-1B</span><span class="bias-static-score">+0.8</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-intervention" type="button" data-model-id="gpt-5-2" aria-label="Rank 15 of 20, OpenAI GPT-5.2, B dir +0.8, Intervention-oriented. Open model details."><span class="bias-rank" aria-hidden="true">15</span><span class="bias-model-name">OpenAI GPT-5.2</span><span class="bias-static-score">+0.8</span><span class="bias-direction">Intervention-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="grok-4-1-fast" aria-label="Rank 16 of 20, Grok 4-1 Fast, B dir −3.9, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">16</span><span class="bias-model-name">Grok 4-1 Fast</span><span class="bias-static-score">−3.9</span><span class="bias-direction">Market-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="llama-3-1-8b" aria-label="Rank 17 of 20, Llama 3.1-8B, B dir −3.9, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">17</span><span class="bias-model-name">Llama 3.1-8B</span><span class="bias-static-score">−3.9</span><span class="bias-direction">Market-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="claude-sonnet-4-6" aria-label="Rank 18 of 20, Claude Sonnet 4.6, B dir −5.9, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">18</span><span class="bias-model-name">Claude Sonnet 4.6</span><span class="bias-static-score">−5.9</span><span class="bias-direction">Market-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="gemini-3-flash" aria-label="Rank 19 of 20, Gemini 3 Flash, B dir −7.3, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">19</span><span class="bias-model-name">Gemini 3 Flash</span><span class="bias-static-score">−7.3</span><span class="bias-direction">Market-oriented</span></button></li>
-                    <li><button class="bias-ranking-row is-market" type="button" data-model-id="claude-opus-4-6" aria-label="Rank 20 of 20, Claude Opus 4.6, B dir −10.2, Market-oriented. Open model details."><span class="bias-rank" aria-hidden="true">20</span><span class="bias-model-name">Claude Opus 4.6</span><span class="bias-static-score">−10.2</span><span class="bias-direction">Market-oriented</span></button></li>
-                </ol>
-                </div>
-            </article>
         </section>
 
         <section class="content-section section-shell" aria-labelledby="subfields-heading">
@@ -424,7 +404,7 @@
         <section id="reasoning-effort" class="content-section section-shell reasoning-effort-section" aria-labelledby="reasoning-effort-heading">
             <div class="section-heading centered-heading">
                 <h2 id="reasoning-effort-heading">How reasoning effort changes the result</h2>
-                <p>Each chart traces overall accuracy, the intervention–market accuracy gap, and error-direction bias across the model’s supported effort settings. Provider effort labels are not calibrated to one shared compute scale.</p>
+                <p>Each chart traces overall accuracy and the intervention–market accuracy gap across the model’s supported effort settings. Provider effort labels are not calibrated to one shared compute scale.</p>
             </div>
             <div id="effort-explorer-controls" class="effort-explorer-controls" aria-label="Reasoning-effort comparison controls"></div>
             <div id="reasoning-effort-grid" class="reasoning-effort-grid" data-progressive-fallback="four-model-progressions">
@@ -441,11 +421,11 @@
                                 <li class="effort-progression-point is-neutral" data-condition-key="ab_openai_terra_xhigh"><span>xhigh</span><strong>73.4%</strong></li>
                             </ol></td></tr>
                             <tr class="effort-model-row"><th scope="row">Claude Sonnet 5</th><td><ol class="effort-progression" style="--steps:5">
-                                <li class="effort-progression-point is-neutral" data-condition-key="an_sonnet5_disabled_low"><span>disabled · low</span><strong>69.8%</strong></li>
-                                <li class="effort-progression-point is-neutral" data-condition-key="ab_anthropic_sonnet5_adaptive_low"><span>adaptive · low</span><strong>69.6%</strong></li>
-                                <li class="effort-progression-point is-neutral" data-condition-key="ab_anthropic_sonnet5_adaptive_medium"><span>adaptive · medium</span><strong>70.6%</strong></li>
-                                <li class="effort-progression-point is-neutral" data-condition-key="ab_anthropic_sonnet5_adaptive_high"><span>adaptive · high</span><strong>68.9%</strong></li>
-                                <li class="effort-progression-point is-neutral" data-condition-key="ab_anthropic_sonnet5_adaptive_xhigh"><span>adaptive · xhigh</span><strong>70.3%</strong></li>
+                                <li class="effort-progression-point is-neutral" data-condition-key="an_sonnet5_disabled_low"><span>thinking off</span><strong>69.8%</strong></li>
+                                <li class="effort-progression-point is-neutral" data-condition-key="ab_anthropic_sonnet5_adaptive_low"><span>thinking low</span><strong>69.6%</strong></li>
+                                <li class="effort-progression-point is-neutral" data-condition-key="ab_anthropic_sonnet5_adaptive_medium"><span>thinking medium</span><strong>70.6%</strong></li>
+                                <li class="effort-progression-point is-neutral" data-condition-key="ab_anthropic_sonnet5_adaptive_high"><span>thinking high</span><strong>68.9%</strong></li>
+                                <li class="effort-progression-point is-neutral" data-condition-key="ab_anthropic_sonnet5_adaptive_xhigh"><span>thinking xhigh</span><strong>70.3%</strong></li>
                             </ol></td></tr>
                             <tr class="effort-model-row"><th scope="row">Gemini 3.6 Flash</th><td><ol class="effort-progression" style="--steps:4">
                                 <li class="effort-progression-point is-neutral" data-condition-key="gg_gemini36_minimal"><span>minimal</span><strong>70.5%</strong></li>
@@ -462,7 +442,7 @@
                     </table>
                 </div>
             </div>
-            <p class="effort-note">Overall accuracy uses all 1,056 contested cases. Accuracy gap and B<sub>dir</sub> use the 878 directionally aligned cases.</p>
+            <p class="effort-note">Overall accuracy uses all 1,056 contested cases. Accuracy gap uses the 878 directionally aligned cases.</p>
         </section>
 
         <section class="connect-section" aria-labelledby="internship-heading">
@@ -545,6 +525,6 @@
     </footer>
 
     <div class="copy-status" role="status" aria-live="polite" aria-atomic="true"></div>
-    <script type="module" src="script.js?v=20260811a"></script>
+    <script type="module" src="script.js?v=20260812a"></script>
 </body>
 </html>
