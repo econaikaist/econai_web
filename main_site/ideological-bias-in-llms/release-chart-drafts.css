@@ -6,8 +6,10 @@
     --canvas: #f2f5f9;
     --surface: #fff;
     --kaist: #004191;
-    --positive: #0b887c;
-    --negative: #d56816;
+    --positive: #2563eb;
+    --positive-soft: #dbeafe;
+    --negative: #dc2626;
+    --negative-soft: #fee2e2;
     --shadow: 0 22px 70px rgba(29, 51, 83, 0.1);
 }
 
@@ -107,14 +109,6 @@ main,
 .draft-summary strong { font-size: 1.65rem; font-variant-numeric: tabular-nums; }
 .draft-summary span { color: var(--muted); font-size: 0.84rem; font-weight: 750; }
 
-.draft-jumps {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 18px;
-    gap: 8px;
-}
-
-.draft-jumps a,
 .focus-chip {
     display: inline-flex;
     align-items: center;
@@ -131,8 +125,6 @@ main,
     cursor: pointer;
 }
 
-.draft-jumps a:hover,
-.draft-jumps a:focus-visible,
 .focus-chip:hover,
 .focus-chip:focus-visible {
     border-color: #8aa6c7;
@@ -221,24 +213,15 @@ main {
 }
 
 .chart-bg { fill: #fbfcfe; }
-.chart-panel { fill: #fff; stroke: #e2e8f0; }
 .chart-grid { stroke: #e1e7ef; stroke-width: 1; }
 .chart-zero { stroke: #526077; stroke-width: 1.3; }
 .chart-axis-label { fill: #68758a; font-size: 11px; font-weight: 700; }
-.chart-family-title { fill: #19263c; font-size: 14px; font-weight: 900; }
-.chart-family-count { fill: #7b8799; font-size: 10px; font-weight: 700; }
 .chart-family-line { fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; opacity: 0.62; }
-.chart-stem { stroke-width: 1.5; opacity: 0.72; }
 .chart-point { cursor: help; outline: none; }
 .chart-point .point-shape { stroke: #fff; stroke-width: 2; filter: drop-shadow(0 2px 3px rgba(20, 34, 56, 0.2)); }
 .chart-point:hover .point-shape,
 .chart-point:focus .point-shape { stroke: #ffbf47; stroke-width: 3; filter: drop-shadow(0 0 5px rgba(255, 191, 71, 0.8)); }
 .chart-model-label { fill: #3d4b61; font-size: 9px; font-weight: 800; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
-.chart-lane-bg-positive { fill: rgba(11, 136, 124, 0.045); }
-.chart-lane-bg-negative { fill: rgba(213, 104, 22, 0.045); }
-.chart-year-band { fill: #f3f6fa; }
-.chart-year-band.is-alt { fill: #fafbfd; }
-.chart-year-title { fill: #55647a; font-size: 11px; font-weight: 850; letter-spacing: 0.08em; }
 
 .focus-toolbar {
     display: flex;
@@ -270,61 +253,6 @@ main {
 .focus-line.is-active { opacity: 0.82; }
 .focus-label { opacity: 0; transition: opacity 0.18s ease; }
 .focus-label.is-active { opacity: 1; }
-
-.era-frame {
-    overflow-x: auto;
-    padding: 18px;
-}
-
-.era-board {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(176px, 1fr));
-    min-width: 1080px;
-    gap: 10px;
-}
-
-.era-column {
-    padding: 12px;
-    border: 1px solid #e1e7ef;
-    border-radius: 13px;
-    background: #fff;
-}
-
-.era-column > header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    min-height: 38px;
-    padding-bottom: 9px;
-    border-bottom: 1px solid #e6ebf2;
-    gap: 6px;
-}
-
-.era-column h3 { margin: 0; font-size: 0.83rem; }
-.era-column header span { color: var(--muted); font-size: 0.65rem; font-weight: 800; }
-.era-models { display: grid; margin-top: 8px; gap: 5px; }
-
-.era-model {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 54px;
-    align-items: center;
-    min-height: 43px;
-    padding: 6px 7px;
-    border-radius: 8px;
-    background: #f7f9fc;
-    gap: 6px;
-    cursor: help;
-}
-
-.era-model:hover,
-.era-model:focus-visible { outline: 2px solid var(--family-color); outline-offset: 1px; }
-.era-model-name { overflow: hidden; font-size: 0.65rem; font-weight: 850; text-overflow: ellipsis; white-space: nowrap; }
-.era-model-meta { display: block; color: var(--muted); font-size: 0.56rem; font-weight: 650; }
-.era-gap { text-align: right; }
-.era-gap strong { display: block; font-size: 0.68rem; font-variant-numeric: tabular-nums; }
-.era-track { position: relative; height: 4px; margin-top: 3px; border-radius: 99px; background: #e4e9f0; }
-.era-track::after { position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; content: ""; background: #8793a5; }
-.era-fill { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: var(--gap-color); }
 
 .draft-tooltip {
     position: fixed;
@@ -374,8 +302,6 @@ main {
     .draft-summary > div { display: grid; min-height: 74px; padding: 14px; gap: 0; }
     .draft-summary strong { font-size: 1.25rem; }
     .draft-card { padding: 18px 12px; border-radius: 20px; }
-    .draft-jumps { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
-    .draft-jumps a { flex: 0 0 auto; }
     .draft-footer { display: grid; gap: 5px; }
 }
 

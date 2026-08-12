@@ -178,6 +178,7 @@ async function validateAggregateSubfields(page, width) {
 async function validateModelDialog(page, width) {
     const model = paperData.models[0];
     const trigger = page.locator(`.model-open-button[data-model-id="${model.id}"]`);
+    await page.mouse.move(0, 0);
     await trigger.focus();
     await page.waitForFunction((expectedName) => {
         const detail = document.querySelector('#model-quick-detail');
@@ -469,11 +470,11 @@ async function validateReleaseChart(page, width) {
     const chart = page.locator('#release-chart');
     const points = chart.locator('.release-point-button');
     assert.equal(await page.locator('#bias-map, .bias-map-marker, .bias-scatter-marker').count(), 0, `${width}px removed bias map remains`);
-    assert.equal(await points.count(), 47, `${width}px release-chart rows`);
+    assert.equal(await points.count(), 51, `${width}px release-chart rows`);
     const releaseKeys = await points.evaluateAll((items) => items.map((item) => item.dataset.resultKey));
     const mainKeys = await page.locator('.model-open-button').evaluateAll((items) => items.map((item) => item.dataset.resultKey));
-    assert.equal(new Set(releaseKeys).size, 47, `${width}px duplicate release keys`);
-    assert.equal(new Set(mainKeys).size, 47, `${width}px duplicate main keys`);
+    assert.equal(new Set(releaseKeys).size, 51, `${width}px duplicate release keys`);
+    assert.equal(new Set(mainKeys).size, 51, `${width}px duplicate main keys`);
     assert.deepEqual([...releaseKeys].sort(), [...mainKeys].sort(), `${width}px release/main keys differ`);
     const targetMetrics = await points.evaluateAll((items) => items.map((item) => {
         const rect = item.getBoundingClientRect();
@@ -522,8 +523,8 @@ async function validateReleaseChart(page, width) {
     });
     assert.equal(geometry.coordinateSystem, 'exact-data-coordinates', `${width}px release coordinate contract`);
     assert.equal(geometry.lineOrderContract, 'release-date-ascending', `${width}px release line-order contract`);
-    assert.equal(geometry.markerCount, 47, `${width}px release SVG marker count`);
-    assert.equal(geometry.buttonCount, 47, `${width}px release hit-target count`);
+    assert.equal(geometry.markerCount, 51, `${width}px release SVG marker count`);
+    assert.equal(geometry.buttonCount, 51, `${width}px release hit-target count`);
     assert.ok(Math.abs(geometry.svgWidth - geometry.chartContentWidth) < 1, `${width}px SVG/chart width drift`);
     geometry.pointAlignment.forEach((point) => {
         assert.equal(point.missing, false, `${width}px missing marker for ${point.key}`);
@@ -628,24 +629,24 @@ async function validateViewport(browser, width) {
 
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
     await page.locator('#release-chart .release-point-button').first().waitFor();
-    assert.equal(await page.locator('.model-open-button').count(), 47, `${width}px model triggers`);
-    assert.equal(await page.locator('.model-open-button[data-condition-key]').count(), 27, `${width}px updated-model triggers`);
+    assert.equal(await page.locator('.model-open-button').count(), 51, `${width}px model triggers`);
+    assert.equal(await page.locator('.model-open-button[data-condition-key]').count(), 31, `${width}px updated-model triggers`);
     assert.equal(await page.locator('.subfield-row').count(), 7, `${width}px subfield rows`);
-    assert.equal(await page.locator('#model-benchmark-chart .model-score-row').count(), 47, `${width}px unified benchmark rows`);
-    assert.equal(await page.locator('#model-benchmark-chart .model-score-row[data-condition-key]').count(), 27, `${width}px added benchmark models`);
+    assert.equal(await page.locator('#model-benchmark-chart .model-score-row').count(), 51, `${width}px unified benchmark rows`);
+    assert.equal(await page.locator('#model-benchmark-chart .model-score-row[data-condition-key]').count(), 31, `${width}px added benchmark models`);
     assert.equal(await page.locator('#model-benchmark-chart .model-score-row[data-condition-key^="local_"]').count(), 9, `${width}px local benchmark rows`);
     assert.equal(await page.locator('#model-benchmark-chart .model-family-group').count(), 8, `${width}px capability groups`);
-    assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-model-count'), '47', `${width}px main model count`);
-    assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-positive-gap-count'), '40', `${width}px positive-gap count`);
+    assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-model-count'), '51', `${width}px main model count`);
+    assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-positive-gap-count'), '44', `${width}px positive-gap count`);
     assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-order'), 'capability-groups', `${width}px grouping contract`);
     assert.equal(await page.locator('#post-paper-extension').count(), 0, `${width}px separate post-paper section remains`);
     assert.equal(await page.locator('#bias-map, .bias-map-marker, .bias-scatter-marker, .bias-ranking-row').count(), 0, `${width}px removed bias UI remains`);
-    assert.equal(await page.locator('#release-chart .release-point-button').count(), 47, `${width}px release chart count`);
+    assert.equal(await page.locator('#release-chart .release-point-button').count(), 51, `${width}px release chart count`);
     assert.equal(await page.locator('#model-benchmark-controls').count(), 0, `${width}px benchmark filter remains`);
     assert.equal(await page.locator('#model-benchmark-chart .result-source-chip').count(), 0, `${width}px source chips remain`);
     assert.equal(await page.locator('#model-benchmark-chart .model-score-name small').count(), 0, `${width}px setting labels remain`);
     assert.equal(await page.locator('#reasoning-effort-grid .interactive-effort-table, #reasoning-effort-grid .effort-model-row, #reasoning-effort-grid .effort-progression-point').count(), 0, `${width}px old effort flow remains`);
-    assert.match(await page.locator('#model-benchmark-heading').innerText(), /^40 of 47 models/);
+    assert.match(await page.locator('#model-benchmark-heading').innerText(), /^44 of 51 models/);
     assert.equal(await page.locator('[id*="compare"], [class*="compare-"]').count(), 0, `${width}px compare UI remains`);
     const bodyText = await page.locator('body').innerText();
     assert.doesNotMatch(bodyText, /�/, `${width}px replacement glyph`);
@@ -662,8 +663,8 @@ async function validateViewport(browser, width) {
         'grok', 'llama', 'qwen-compact', 'qwen-large',
     ]);
     assert.deepEqual(capabilityGroups['openai-compact'], ['paper:gpt-4o-mini', 'paper:gpt-5-nano', 'paper:gpt-5-mini', 'new:oa_gpt54_nano_none', 'new:oa_gpt54_mini_none', 'new:oa_gpt56_luna_none']);
-    assert.deepEqual(capabilityGroups['openai-flagship'], ['paper:gpt-4o', 'paper:gpt-5-2', 'new:oa_gpt54_none', 'new:oa_gpt55_none', 'new:oa_gpt56_terra_none', 'new:oa_gpt56_sol_none']);
-    assert.deepEqual(capabilityGroups.claude, ['paper:claude-haiku-4-5', 'paper:claude-sonnet-4-6', 'paper:claude-opus-4-6', 'new:an_opus47_disabled_low', 'new:an_opus48_disabled_low', 'new:an_sonnet5_disabled_low', 'new:an_opus5_disabled_low', 'new:an_fable5_adaptive_low']);
+    assert.deepEqual(capabilityGroups['openai-flagship'], ['paper:gpt-4o', 'new:openai_gpt5_minimal', 'new:openai_gpt51_none', 'paper:gpt-5-2', 'new:oa_gpt54_none', 'new:oa_gpt55_none', 'new:oa_gpt56_terra_none', 'new:oa_gpt56_sol_none']);
+    assert.deepEqual(capabilityGroups.claude, ['paper:claude-haiku-4-5', 'new:anthropic_sonnet45_disabled', 'new:anthropic_opus45_disabled_low', 'paper:claude-sonnet-4-6', 'paper:claude-opus-4-6', 'new:an_opus47_disabled_low', 'new:an_opus48_disabled_low', 'new:an_sonnet5_disabled_low', 'new:an_opus5_disabled_low', 'new:an_fable5_adaptive_low']);
     assert.deepEqual(capabilityGroups.gemini, ['paper:gemini-2-5-flash', 'paper:gemini-3-flash', 'new:gg_gemini31lite_minimal', 'new:gg_gemini35_minimal', 'new:gg_gemini36_minimal']);
     assert.deepEqual(capabilityGroups.grok, ['paper:grok-3-mini', 'paper:grok-3', 'paper:grok-4-1-fast', 'new:or_grok420_reasoning_disabled', 'new:or_grok43_none', 'new:or_grok45_low']);
     assert.deepEqual(
@@ -900,8 +901,8 @@ async function validateFallbacks(browser) {
         market_truth: 371,
         neither_truth: 178,
     });
-    assert.equal(extensionData.main_benchmark.condition_count, 32, 'new main rows');
-    assert.equal(extensionData.main_benchmark.results.length, 32, 'new main result count');
+    assert.equal(extensionData.main_benchmark.condition_count, 36, 'new main rows');
+    assert.equal(extensionData.main_benchmark.results.length, 36, 'new main result count');
     assert.equal(extensionData.main_benchmark.results.filter((row) => row.provider === 'Local GPU').length, 9, 'local result count');
     assert.equal(extensionData.reasoning_effort_sweeps.sweep_count, 4, 'reasoning sweep count');
     assert.equal(extensionData.reasoning_effort_sweeps.condition_count, 17, 'reasoning condition count');

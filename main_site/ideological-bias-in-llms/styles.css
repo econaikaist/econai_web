@@ -8,10 +8,12 @@
     --line: #dfe6ef;
     --surface: #ffffff;
     --canvas: #f6f8fb;
-    --intervention: #0f766e;
-    --intervention-soft: #dff4f0;
-    --market: #a94f0b;
-    --market-soft: #fff0df;
+    --intervention: #2563eb;
+    --intervention-dark: #1e40af;
+    --intervention-soft: #dbeafe;
+    --market: #dc2626;
+    --market-dark: #991b1b;
+    --market-soft: #fee2e2;
     --danger: #ad3c4d;
     --nav-height: 74px;
     --shell: min(1160px, calc(100vw - 48px));
@@ -227,6 +229,14 @@ p {
     gap: clamp(42px, 5vw, 66px);
 }
 
+.hero > *,
+.hero-release-figure,
+.release-panel,
+.release-chart-scroll {
+    min-width: 0;
+    max-width: 100%;
+}
+
 .eyebrow-row {
     display: flex;
     align-items: center;
@@ -385,6 +395,37 @@ p {
 
 .hero-paper-figure {
     margin: 0;
+}
+
+.hero-release-figure,
+.benchmark-paper-figure {
+    margin: 0;
+}
+
+.hero-release-figure figcaption,
+.benchmark-paper-figure figcaption {
+    max-width: 88ch;
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.hero-release-figure figcaption strong,
+.benchmark-paper-figure figcaption strong {
+    color: var(--ink);
+}
+
+.benchmark-paper-figure {
+    margin-top: 30px;
+}
+
+.benchmark-paper-figure .hero-figure {
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: #fff;
+    box-shadow: var(--shadow-sm);
 }
 
 .hero-paper-figure figcaption {
@@ -703,12 +744,12 @@ p {
 
 .intervention-score-key,
 .intervention-score {
-    background: #16877e;
+    background: var(--intervention);
 }
 
 .market-score-key,
 .market-score {
-    background: #d66b16;
+    background: var(--market);
 }
 
 .model-benchmark-chart {
@@ -886,11 +927,11 @@ p {
 }
 
 .intervention-score strong {
-    color: #0b7069;
+    color: var(--intervention-dark);
 }
 
 .market-score strong {
-    color: #a94d0b;
+    color: var(--market-dark);
 }
 
 .model-score-name {
@@ -1252,8 +1293,8 @@ p {
     line-height: 1.25;
 }
 
-.quick-detail-grid .is-intervention dd { color: #75d8ce; }
-.quick-detail-grid .is-market dd { color: #ffc18c; }
+.quick-detail-grid .is-intervention dd { color: #93c5fd; }
+.quick-detail-grid .is-market dd { color: #fca5a5; }
 .quick-detail-grid sub { font-size: 0.72em; }
 
 .bias-static-score {
@@ -1287,6 +1328,7 @@ p {
     gap: 28px;
 }
 
+.release-panel-header h2,
 .release-panel-header h3 {
     margin-bottom: 8px;
     font-size: clamp(1.45rem, 2.6vw, 2.2rem);
@@ -1302,8 +1344,9 @@ p {
 }
 
 .release-family-legend {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 7px 14px;
 }
 
@@ -1311,10 +1354,39 @@ p {
     display: inline-flex;
     align-items: center;
     min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    border-radius: 999px;
     color: var(--text);
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
     font-size: 0.76rem;
     font-weight: 800;
     white-space: nowrap;
+}
+
+.release-legend-item:hover,
+.release-legend-item:focus-visible {
+    border-color: #b9c7d7;
+    outline: 0;
+    background: #f3f6fa;
+}
+
+.release-legend-item[aria-pressed="true"] {
+    border-color: var(--family-color, #526077);
+    color: #fff;
+    background: var(--family-color, #526077);
+}
+
+.release-legend-item[aria-pressed="true"] .release-legend-mark {
+    border-color: #fff;
+    background: #fff;
+    box-shadow: none;
+}
+
+.release-legend-item.is-all[aria-pressed="true"] .release-legend-mark {
+    background: conic-gradient(#004191 0 16.66%, #7655b5 0 33.33%, #0f766e 0 50%, #c65b13 0 66.66%, #a13d5d 0 83.33%, #4b6fae 0);
 }
 
 .release-legend-mark {
@@ -1392,9 +1464,13 @@ p {
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
-    opacity: 0.32;
+    opacity: 0.58;
     vector-effect: non-scaling-stroke;
     transition: opacity 0.15s ease, stroke-width 0.15s ease;
+}
+
+.release-family-line.is-context {
+    opacity: 0.1;
 }
 
 .release-family-line.is-highlighted {
@@ -1414,6 +1490,26 @@ p {
 .release-svg-point.is-highlighted {
     filter: drop-shadow(0 0 5px rgba(255, 191, 71, 0.95));
     transform: scale(1.5);
+}
+
+.release-svg-point.is-context {
+    opacity: 0.16;
+}
+
+.release-model-label {
+    display: none;
+    fill: #334155;
+    font-family: Inter, ui-sans-serif, sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    paint-order: stroke;
+    stroke: #fff;
+    stroke-width: 3px;
+    stroke-linejoin: round;
+}
+
+.release-model-label.is-visible {
+    display: block;
 }
 
 .release-point-button {
@@ -2093,7 +2189,7 @@ body:has(.model-detail-dialog[open]) {
 .subfield-bar.positive {
     left: var(--zero-x);
     width: var(--bar-width);
-    background: linear-gradient(90deg, var(--intervention), #2d9c8f);
+    background: linear-gradient(90deg, var(--intervention), #60a5fa);
 }
 
 .subfield-bar.negative {

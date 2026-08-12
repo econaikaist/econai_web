@@ -75,51 +75,51 @@ EXPECTED_AGGREGATE_SUBFIELDS = (
     (
         "Healthcare",
         101.0,
-        71.99356913183283,
-        51.80232558139534,
-        20.19124355043749,
+        71.64113233717924,
+        55.06155950752394,
+        16.579572829655305,
     ),
     (
         "Welfare & Redistribution",
         92.0,
-        77.99539170506883,
-        63.24561403508782,
-        14.749777669981007,
+        77.57296466973885,
+        63.10629514963882,
+        14.466669520100034,
     ),
     (
         "Labor",
         218.0,
-        68.84796238244549,
-        59.071729957806085,
-        9.776232424639403,
+        68.70121089188028,
+        62.14941672871679,
+        6.551794163163493,
     ),
     (
         "Financial Regulation",
         220.0,
-        69.1015625,
-        62.04022988505747,
-        7.061332614942529,
+        69.33210784313725,
+        65.58485463150777,
+        3.7472532116294843,
     ),
     (
         "Education",
         60.0,
-        71.57458563535907,
-        64.61538461538461,
-        6.959201019974458,
+        72.74401473296501,
+        65.81196581196583,
+        6.932048920999179,
     ),
     (
         "Taxation",
         77.0,
-        71.84729064039401,
-        70.13422818791962,
-        1.7130624524743894,
+        72.08538587848932,
+        72.95696802210817,
+        -0.871582143618852,
     ),
     (
         "Trade",
         38.0,
-        63.30357142857133,
-        62.32142857142857,
-        0.9821428571427617,
+        65.406162464986,
+        66.66666666666666,
+        -1.2605042016806607,
     ),
 )
 
@@ -268,8 +268,8 @@ class PaperPageStaticTests(unittest.TestCase):
         )
 
         main = extension["main_benchmark"]
-        self.assertEqual(main["condition_count"], 32)
-        self.assertEqual(len(main["results"]), 32)
+        self.assertEqual(main["condition_count"], 36)
+        self.assertEqual(len(main["results"]), 36)
         self.assertEqual(
             sum(row["provider"] == "Local GPU" for row in main["results"]),
             9,
@@ -282,8 +282,8 @@ class PaperPageStaticTests(unittest.TestCase):
         sweeps = extension["reasoning_effort_sweeps"]["sweeps"]
         self.assertEqual([sweep["condition_count"] for sweep in sweeps], [5, 5, 4, 3])
         self.assertEqual([len(sweep["results"]) for sweep in sweeps], [5, 5, 4, 3])
-        self.assertEqual(extension["coverage"]["completed_full_run_condition_count"], 45)
-        self.assertEqual(extension["coverage"]["completed_result_row_count"], 47520)
+        self.assertEqual(extension["coverage"]["completed_full_run_condition_count"], 49)
+        self.assertEqual(extension["coverage"]["completed_result_row_count"], 51744)
         self.assertIs(
             extension["coverage"]["main_and_sweeps_cover_all_completed_conditions"],
             True,
@@ -295,9 +295,9 @@ class PaperPageStaticTests(unittest.TestCase):
             for sweep in sweeps
             for row in sweep["results"]
         }
-        self.assertEqual(len(main_keys), 32)
+        self.assertEqual(len(main_keys), 36)
         self.assertEqual(len(sweep_keys), 17)
-        self.assertEqual(len(main_keys | sweep_keys), 45)
+        self.assertEqual(len(main_keys | sweep_keys), 49)
 
     def test_new_results_are_integrated_and_effort_has_verified_progressive_fallbacks(self):
         effort_section = re.search(
@@ -315,7 +315,7 @@ class PaperPageStaticTests(unittest.TestCase):
         self.assertNotIn('result-source-chip', self.html)
         self.assertNotIn('effort-selection-detail', self.html)
         self.assertIn("normalizeBenchmarkRows(data, extensionData)", self.explorer)
-        self.assertIn("exactly 47 unique models", self.explorer)
+        self.assertIn("exactly 51 unique models", self.explorer)
         self.assertIn("MAIN_EXCLUDED_CONDITIONS", self.explorer)
         self.assertIn("renderReasoningExplorer(extensionData)", self.explorer)
 
@@ -528,7 +528,7 @@ class PaperPageStaticTests(unittest.TestCase):
             self.assertEqual(background_image.group(1).strip(), "none")
 
     def test_interactive_assets_use_matching_cache_busters(self):
-        asset_version = "20260812b"
+        asset_version = "20260812d"
         self.assertIn(f'href="styles.css?v={asset_version}"', self.html)
         self.assertIn(f'src="script.js?v={asset_version}"', self.html)
         entrypoint = (PAGE_ROOT / "script.js").read_text(encoding="utf-8")
@@ -536,6 +536,21 @@ class PaperPageStaticTests(unittest.TestCase):
             f"import('./modules/paper-explorer.v2.js?v={asset_version}')",
             entrypoint,
         )
+
+    def test_selected_release_chart_replaces_other_drafts_and_uses_left_right_colors(self):
+        drafts_html = (PAGE_ROOT / "release-chart-drafts.html").read_text(encoding="utf-8")
+        drafts_js = (PAGE_ROOT / "release-chart-drafts.js").read_text(encoding="utf-8")
+        self.assertIn('id="draft-5"', drafts_html)
+        for removed_id in ('draft-1', 'draft-2', 'draft-3', 'draft-4'):
+            self.assertNotIn(f'id="{removed_id}"', drafts_html)
+        for removed_renderer in ('renderSmallMultiples', 'renderSignalLanes', 'renderConstellation', 'renderEraCards'):
+            self.assertNotIn(removed_renderer, drafts_js)
+        self.assertIn("document.body.dataset.draftCount = '1'", drafts_js)
+        self.assertIn("--intervention: #2563eb", self.css)
+        self.assertIn("--intervention-soft: #dbeafe", self.css)
+        self.assertIn("--market: #dc2626", self.css)
+        self.assertIn("--market-soft: #fee2e2", self.css)
+        self.assertIn('data-release-family="${escapeHtml(family)}"', self.explorer)
 
     def test_signs_and_direction_labels_are_explicit_and_semantically_distinct(self):
         expected_direction_text = (
@@ -775,8 +790,10 @@ class PaperPageStaticTests(unittest.TestCase):
 
         page_text = normalized_markup_text(self.html)
         exact_copy = (
-            "Figure 1. The same economic question can imply different causal signs under "
-            "intervention-oriented and market-oriented economic perspectives.",
+            "A persistent left–right reliability gap Models remain less reliable when the evidence "
+            "points right.",
+            "Figure 1. Accuracy asymmetry across model generations. Lines connect releases only "
+            "within the same model family; hover, focus, or click any model for exact results.",
             "Do LLMs exhibit systematic ideological bias when reasoning about economic causal effects?",
             "LLMs are increasingly deployed in economic reporting, policy evaluation, and corporate "
             "decision support, where predicting causal directions correctly is essential. Yet a single "
@@ -793,10 +810,10 @@ class PaperPageStaticTests(unittest.TestCase):
             "10,490 Economic causal relationships",
             "1,056 Perspectives predict different signs",
             "878 Empirical sign matches one perspective",
-            "Intervention-oriented (pro-government) Expects active government action to correct market "
+            "Intervention-oriented (pro-government, left) Expects active government action to correct market "
             "failures, reduce inequality, or expand social insurance. Intervention-truth means the "
             "empirical sign matches that ideology-conditioned expectation.",
-            "Market-oriented (pro-market) Expects market allocation and individual incentives to "
+            "Market-oriented (pro-market, right) Expects market allocation and individual incentives to "
             "dominate, with limited government intervention. Market-truth means the empirical sign "
             "matches that ideology-conditioned expectation.",
             "All-model results",
@@ -819,7 +836,7 @@ class PaperPageStaticTests(unittest.TestCase):
         ):
             self.assertNotIn(removed_copy, page_text)
 
-    def test_release_chart_covers_the_same_47_unique_rows_as_the_main_benchmark(self):
+    def test_release_chart_covers_the_same_51_unique_rows_as_the_main_benchmark(self):
         self.assertNotIn('id="bias-map"', self.html)
         self.assertNotIn("renderBiasMap", self.explorer)
         self.assertNotIn("biasMap", self.explorer)
@@ -866,12 +883,14 @@ class PaperPageStaticTests(unittest.TestCase):
         claude_group = groups_block.split("key: 'claude'", 1)[1].split("},", 1)[0]
         for older, newer in zip(
             (
-                "paper:claude-haiku-4-5", "paper:claude-sonnet-4-6",
+                "paper:claude-haiku-4-5", "new:anthropic_sonnet45_disabled",
+                "new:anthropic_opus45_disabled_low", "paper:claude-sonnet-4-6",
                 "paper:claude-opus-4-6", "new:an_opus47_disabled_low",
                 "new:an_opus48_disabled_low", "new:an_sonnet5_disabled_low",
                 "new:an_opus5_disabled_low",
             ),
             (
+                "new:anthropic_sonnet45_disabled", "new:anthropic_opus45_disabled_low",
                 "paper:claude-sonnet-4-6", "paper:claude-opus-4-6",
                 "new:an_opus47_disabled_low", "new:an_opus48_disabled_low",
                 "new:an_sonnet5_disabled_low", "new:an_opus5_disabled_low",
@@ -898,11 +917,11 @@ class PaperPageStaticTests(unittest.TestCase):
             'href="https://arxiv.org/abs/2604.21334"',
             'content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png"',
             'data-copy-target="bibtex"',
-            'type="module" src="script.js?v=20260812b"',
+            'type="module" src="script.js?v=20260812d"',
         ):
             self.assertIn(value, self.html)
 
-    def test_all_47_main_rows_are_interactive_and_new_rows_have_provenance_dialogs(self):
+    def test_all_51_main_rows_are_interactive_and_new_rows_have_provenance_dialogs(self):
         enhancer = self.explorer.split("function enhanceMainResults()", 1)[1].split(
             "function initializeUnifiedBenchmark", 1
         )[0]

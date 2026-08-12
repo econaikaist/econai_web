@@ -4,75 +4,32 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>Figure 1 redesign drafts · Ideological Bias in LLMs</title>
-    <meta name="description" content="Five visual drafts for the release-date and accuracy-gap figure on the COLM paper page.">
+    <title>Figure 1 release chart · Ideological Bias in LLMs</title>
+    <meta name="description" content="The selected focus-and-context release chart for the COLM paper page.">
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="release-chart-drafts.css?v=20260812b">
+    <link rel="stylesheet" href="release-chart-drafts.css?v=20260812d">
 </head>
 <body>
     <header class="draft-header">
         <a class="back-link" href="./"><span aria-hidden="true">←</span> Current paper page</a>
         <div class="draft-header-copy">
-            <span class="eyebrow">Figure 1 redesign study</span>
-            <h1>Five clearer ways to show<br>release date × accuracy gap.</h1>
-            <p>Every option uses the same 47 evaluated models and the same accuracy gap: intervention-truth accuracy minus market-truth accuracy. Hover or focus any model for exact values.</p>
+            <span class="eyebrow">Selected Figure 1</span>
+            <h1>A persistent left–right<br>reliability gap.</h1>
+            <p>The chart shows every evaluated model and the accuracy gap: intervention-truth accuracy minus market-truth accuracy. All family paths remain visible by default; choose one family to focus it.</p>
         </div>
         <div class="draft-summary" aria-label="Shared data contract">
-            <div><strong id="model-count">47</strong><span>models</span></div>
+            <div><strong id="model-count">51</strong><span>models</span></div>
             <div><strong>6</strong><span>families</span></div>
             <div><strong>2024–26</strong><span>releases</span></div>
         </div>
-        <nav class="draft-jumps" aria-label="Jump to a draft">
-            <a href="#draft-1">01 · Small multiples</a>
-            <a href="#draft-2">02 · Signal lanes</a>
-            <a href="#draft-3">03 · Release constellation</a>
-            <a href="#draft-4">04 · Era cards</a>
-            <a href="#draft-5">05 · Focus mode</a>
-        </nav>
     </header>
 
     <main>
-        <section class="draft-card" id="draft-1" aria-labelledby="draft-1-title">
-            <header class="draft-card-header">
-                <div><span class="option-number">Option 01</span><h2 id="draft-1-title">Family small multiples</h2></div>
-                <p>One shared scale, six uncluttered panels. It is the most conventional paper figure and makes within-family generational movement immediately comparable.</p>
-                <span class="tradeoff">Best for precise comparison</span>
-            </header>
-            <div class="figure-frame" id="chart-small-multiples" role="img" aria-label="Six small time-series panels, one per model family."></div>
-        </section>
-
-        <section class="draft-card is-recommended" id="draft-2" aria-labelledby="draft-2-title">
-            <header class="draft-card-header">
-                <div><span class="option-number">Option 02</span><h2 id="draft-2-title">Signal lanes</h2></div>
-                <p>Each family owns a timeline lane. A stem’s height and direction encode the gap, so all 47 models remain legible without crossing family lines.</p>
-                <span class="tradeoff recommended-badge">Recommended</span>
-            </header>
-            <div class="figure-frame" id="chart-signal-lanes" role="img" aria-label="Six horizontal family timelines with accuracy-gap lollipops."></div>
-        </section>
-
-        <section class="draft-card" id="draft-3" aria-labelledby="draft-3-title">
-            <header class="draft-card-header">
-                <div><span class="option-number">Option 03</span><h2 id="draft-3-title">Release constellation</h2></div>
-                <p>Family rows preserve chronology while circle area shows gap magnitude and color shows direction. This is the cleanest at a glance and needs no connecting lines.</p>
-                <span class="tradeoff">Best for first-glance clarity</span>
-            </header>
-            <div class="figure-frame" id="chart-constellation" role="img" aria-label="A release-date dot matrix organized by model family."></div>
-        </section>
-
-        <section class="draft-card" id="draft-4" aria-labelledby="draft-4-title">
-            <header class="draft-card-header">
-                <div><span class="option-number">Option 04</span><h2 id="draft-4-title">Era cards</h2></div>
-                <p>Models are grouped into release eras and each gets a compact diverging gap bar. Dates and names stay readable even for dense 2026 releases.</p>
-                <span class="tradeoff">Best for model lookup</span>
-            </header>
-            <div class="figure-frame era-frame" id="chart-era-cards" role="group" aria-label="Model cards grouped chronologically into release eras."></div>
-        </section>
-
         <section class="draft-card" id="draft-5" aria-labelledby="draft-5-title">
             <header class="draft-card-header">
-                <div><span class="option-number">Option 05</span><h2 id="draft-5-title">Focus + context</h2></div>
-                <p>The default view shows every family's chronological path. Select one family to emphasize its line and reveal model labels while preserving the rest as context.</p>
-                <span class="tradeoff">Best interactive option</span>
+                <div><span class="option-number">Figure 1</span><h2 id="draft-5-title">Focus + context</h2></div>
+                <p>Models remain less reliable when the evidence points right. The default view shows every family's chronological path; selecting a family reveals its model labels while preserving the rest as context.</p>
+                <span class="tradeoff recommended-badge">Selected design</span>
             </header>
             <div class="focus-toolbar" id="focus-toolbar" aria-label="Choose a model family"></div>
             <div class="figure-frame" id="chart-focus" role="img" aria-label="Interactive release-date and accuracy-gap scatterplot with family focus controls."></div>
@@ -80,7 +37,7 @@
     </main>
 
     <aside id="draft-tooltip" class="draft-tooltip" role="tooltip" hidden></aside>
-    <footer class="draft-footer"><span>EconAI@KAIST</span><span>Private design comparison · not indexed</span></footer>
-    <script type="module" src="release-chart-drafts.js?v=20260812b"></script>
+    <footer class="draft-footer"><span>EconAI@KAIST</span><span>Selected Figure 1 preview · not indexed</span></footer>
+    <script type="module" src="release-chart-drafts.js?v=20260812d"></script>
 </body>
 </html>

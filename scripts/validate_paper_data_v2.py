@@ -961,6 +961,8 @@ def validate_extension(payload: dict[str, Any]) -> list[str]:
     sources = payload.get("sources") or {}
     for name in (
         "results",
+        "four_model_addendum",
+        "all_model_subfields",
         "full_manifest",
         "condition_contracts",
         "dataset",
@@ -1018,20 +1020,22 @@ def validate_extension(payload: dict[str, Any]) -> list[str]:
         }
 
     rows_by_condition: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    with Path(sources["results"]["absolute_path"]).open(encoding="utf-8") as handle:
-        for line in handle:
-            if line.strip():
-                row = json.loads(line)
-                rows_by_condition[row["condition_key"]].append(row)
-    if sum(map(len, rows_by_condition.values())) != 38016:
-        errors.append("extension results: expected exactly 38,016 rows")
+    for source_name in ("results", "four_model_addendum"):
+        with Path(sources[source_name]["absolute_path"]).open(encoding="utf-8") as handle:
+            for line in handle:
+                if line.strip():
+                    row = json.loads(line)
+                    key = row.get("condition_key") or row.get("condition_id")
+                    rows_by_condition[key].append(row)
+    if sum(map(len, rows_by_condition.values())) != 42240:
+        errors.append("extension results: expected exactly 42,240 hosted rows")
 
     main = (payload.get("main_benchmark") or {}).get("results") or []
     sweep_wrapper = payload.get("reasoning_effort_sweeps") or {}
     sweeps = sweep_wrapper.get("sweeps") or []
     sweep_rows = [row for sweep in sweeps for row in sweep.get("results", [])]
-    if len(main) != 32 or (payload.get("main_benchmark") or {}).get("condition_count") != 32:
-        errors.append("extension main benchmark: expected exactly 32 conditions")
+    if len(main) != 36 or (payload.get("main_benchmark") or {}).get("condition_count") != 36:
+        errors.append("extension main benchmark: expected exactly 36 conditions")
     main_by_key = {row.get("condition_key"): row for row in main if isinstance(row, dict)}
     for condition_key, row in main_by_key.items():
         examples = row.get("examples") or []
@@ -1086,8 +1090,8 @@ def validate_extension(payload: dict[str, Any]) -> list[str]:
     local_public_rows = {
         key: row for key, row in public_rows.items() if row.get("provider") == "Local GPU"
     }
-    if len(public_rows) != 45 or set(hosted_public_rows) != set(rows_by_condition):
-        errors.append("extension coverage: hosted main/sweep union must equal all 36 completed conditions")
+    if len(public_rows) != 49 or set(hosted_public_rows) != set(rows_by_condition):
+        errors.append("extension coverage: hosted main/sweep union must equal all 40 completed conditions")
     if len(local_public_rows) != 9:
         errors.append("extension coverage: expected nine completed local conditions")
 
@@ -1168,12 +1172,25 @@ def validate_extension(payload: dict[str, Any]) -> list[str]:
         validate_condition_rows(condition_key, public_row, local_payload.get("results") or [])
 
     coverage = payload.get("coverage") or {}
-    if coverage.get("completed_full_run_condition_count") != 45:
-        errors.append("extension coverage: expected 45 completed conditions")
-    if coverage.get("completed_result_row_count") != 47520:
-        errors.append("extension coverage: expected 47,520 completed rows")
-    if coverage.get("main_and_sweeps_unique_condition_count") != 45:
-        errors.append("extension coverage: expected 45 unique public conditions")
+    if coverage.get("completed_full_run_condition_count") != 49:
+        errors.append("extension coverage: expected 49 completed conditions")
+    if coverage.get("completed_result_row_count") != 51744:
+        errors.append("extension coverage: expected 51,744 completed rows")
+    if coverage.get("main_and_sweeps_unique_condition_count") != 49:
+        errors.append("extension coverage: expected 49 unique public conditions")
+    all_subfields = json.loads(
+        Path(sources["all_model_subfields"]["absolute_path"]).read_text(encoding="utf-8")
+    )
+    if (
+        all_subfields.get("schema_version") != "all-model-subfields-878.v1"
+        or all_subfields.get("model_count") != 51
+        or len(all_subfields.get("model_ids") or []) != 51
+        or len(all_subfields.get("per_model") or {}) != 51
+        or len(all_subfields.get("aggregate") or []) != 7
+    ):
+        errors.append("extension all-model subfields: expected 51 models and seven themes")
+    if (payload.get("all_model_subfields") or {}).get("aggregate") != all_subfields.get("aggregate"):
+        errors.append("extension all-model subfields: embedded aggregate differs from artifact")
     return errors
 
 
@@ -1249,7 +1266,7 @@ def main() -> int:
     print("PASS: all 140 per-model subfield rows use the corrected 878 vote-weighted source")
     print("PASS: per-model subfield B_dir formulas and pooled camera-ready reproduction match")
     print("PASS: both public examples exactly match the full CSV context/rationale fields")
-    print("PASS: 32 new all-model rows and four effort sweeps match 45 completed evaluations")
+    print("PASS: 36 new all-model rows and four effort sweeps match 49 completed evaluations")
     return 0
 
 

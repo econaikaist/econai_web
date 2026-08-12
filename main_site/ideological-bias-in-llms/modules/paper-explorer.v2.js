@@ -1,5 +1,5 @@
-const DATA_URL = new URL('../data/paper-data.v2.json?v=20260812b', import.meta.url);
-const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260812b', import.meta.url);
+const DATA_URL = new URL('../data/paper-data.v2.json?v=20260812d', import.meta.url);
+const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260812d', import.meta.url);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const MAIN_EXCLUDED_CONDITIONS = new Set([
     // Minimum-setting reruns of models already represented by their paper result.
@@ -21,14 +21,16 @@ const MAIN_MODEL_GROUPS = [
     {
         key: 'openai-flagship', family: 'OpenAI', label: 'OpenAI · flagship',
         resultKeys: [
-            'paper:gpt-4o', 'paper:gpt-5-2', 'new:oa_gpt54_none', 'new:oa_gpt55_none',
+            'paper:gpt-4o', 'new:openai_gpt5_minimal', 'new:openai_gpt51_none',
+            'paper:gpt-5-2', 'new:oa_gpt54_none', 'new:oa_gpt55_none',
             'new:oa_gpt56_terra_none', 'new:oa_gpt56_sol_none',
         ],
     },
     {
         key: 'claude', family: 'Claude', label: 'Claude',
         resultKeys: [
-            'paper:claude-haiku-4-5', 'paper:claude-sonnet-4-6',
+            'paper:claude-haiku-4-5', 'new:anthropic_sonnet45_disabled',
+            'new:anthropic_opus45_disabled_low', 'paper:claude-sonnet-4-6',
             'paper:claude-opus-4-6', 'new:an_opus47_disabled_low',
             'new:an_opus48_disabled_low', 'new:an_sonnet5_disabled_low',
             'new:an_opus5_disabled_low', 'new:an_fable5_adaptive_low',
@@ -245,8 +247,8 @@ function ensureUpdatedResults(data) {
     ) {
         throw new Error('Unexpected updated-results denominators.');
     }
-    if (!Array.isArray(mainResults) || mainResults.length !== 32) {
-        throw new Error('The new-evaluation panel must contain 32 conditions.');
+    if (!Array.isArray(mainResults) || mainResults.length !== 36) {
+        throw new Error('The new-evaluation panel must contain 36 conditions.');
     }
     if (mainResults.some((result) => !result.release_date || !result.release_date_source?.url)) {
         throw new Error('Every extension result needs an official release date and source for the release chart.');
@@ -347,8 +349,8 @@ function normalizeBenchmarkRows(paperData, experimentData) {
             return { ...row, groupKey: group.key, groupLabel: group.label };
         })
     ));
-    if (ordered.length !== 47 || new Set(ordered.map((row) => row.resultKey)).size !== 47) {
-        throw new Error('The main-result view must contain exactly 47 unique models.');
+    if (ordered.length !== 51 || new Set(ordered.map((row) => row.resultKey)).size !== 51) {
+        throw new Error('The main-result view must contain exactly 51 unique models.');
     }
     return ordered;
 }
@@ -407,7 +409,7 @@ function benchmarkGroupMarkup(rows, groupKeys, label) {
 
 const EFFORT_SERIES = {
     overall: { field: 'contested_accuracy_pct', label: 'Overall accuracy', shortLabel: 'Overall', color: '#0050a4', suffix: '%', marker: 'circle' },
-    gap: { field: 'accuracy_gap_pp', label: 'Accuracy gap', shortLabel: 'Gap', color: '#0f766e', suffix: ' pp', signed: true, marker: 'square' },
+    gap: { field: 'accuracy_gap_pp', label: 'Accuracy gap', shortLabel: 'Gap', color: '#2563eb', suffix: ' pp', signed: true, marker: 'square' },
 };
 
 function effortMetricValue(row, metricKey) {
@@ -629,6 +631,7 @@ export async function initPaperExplorer({ announce }) {
     let lastDialogTrigger = null;
     let quickDetailContext = null;
     let pinnedSubfieldRow = null;
+    let activeReleaseFamily = 'All';
 
     function hideQuickDetail() {
         tooltip.hidden = true;
@@ -1020,10 +1023,25 @@ export async function initPaperExplorer({ announce }) {
     }
 
     function renderReleaseLegend() {
-        releaseLegend.innerHTML = Object.entries(FAMILY_STYLES).map(([family, style]) => `
-            <span class="release-legend-item">
-                <i class="release-legend-mark family-marker-${style.marker}" style="--family-color:${style.color}" aria-hidden="true"></i>${escapeHtml(family)}
-            </span>`).join('');
+        const controls = [
+            { family: 'All', style: { color: '#526077', marker: 'circle' }, label: 'All models' },
+            ...Object.entries(FAMILY_STYLES).map(([family, style]) => ({ family, style, label: family })),
+        ];
+        releaseLegend.innerHTML = controls.map(({ family, style, label }) => `
+            <button type="button" class="release-legend-item${family === 'All' ? ' is-all' : ''}"
+                data-release-family="${escapeHtml(family)}" aria-pressed="${family === activeReleaseFamily}"
+                style="--family-color:${style.color}">
+                <i class="release-legend-mark family-marker-${style.marker}" style="--family-color:${style.color}" aria-hidden="true"></i>${escapeHtml(label)}
+            </button>`).join('');
+        releaseLegend.querySelectorAll('[data-release-family]').forEach((button) => {
+            button.addEventListener('click', () => {
+                activeReleaseFamily = button.dataset.releaseFamily;
+                releaseLegend.querySelectorAll('[data-release-family]').forEach((control) => {
+                    control.setAttribute('aria-pressed', String(control.dataset.releaseFamily === activeReleaseFamily));
+                });
+                renderReleaseChart();
+            });
+        });
     }
 
     function renderReleaseChart() {
@@ -1080,10 +1098,30 @@ export async function initPaperExplorer({ announce }) {
             const points = releasePoints.filter((point) => point.row.family === family)
                 .sort((first, second) => first.releaseTimestamp - second.releaseTimestamp || first.originalIndex - second.originalIndex)
                 .map((point) => `${point.actualX},${point.actualY}`).join(' ');
-            if (points) svg.appendChild(svgElement('polyline', { points, class: 'release-family-line', stroke: FAMILY_STYLES[family].color, 'data-family': family }));
+            const isFocused = activeReleaseFamily === family;
+            const isContext = activeReleaseFamily !== 'All' && !isFocused;
+            if (points) svg.appendChild(svgElement('polyline', {
+                points,
+                class: `release-family-line${isFocused ? ' is-highlighted' : ''}${isContext ? ' is-context' : ''}`,
+                stroke: FAMILY_STYLES[family].color,
+                'data-family': family,
+            }));
         });
         releasePoints.forEach((point) => {
-            svg.appendChild(releaseMarkerElement(point, FAMILY_STYLES[point.row.family]));
+            const marker = releaseMarkerElement(point, FAMILY_STYLES[point.row.family]);
+            const isFocused = activeReleaseFamily === point.row.family;
+            const isContext = activeReleaseFamily !== 'All' && !isFocused;
+            marker.classList.toggle('is-highlighted', isFocused);
+            marker.classList.toggle('is-context', isContext);
+            svg.appendChild(marker);
+            if (isFocused) {
+                svg.appendChild(svgElement('text', {
+                    x: point.actualX + 8,
+                    y: point.actualY - 8,
+                    class: 'release-model-label is-visible',
+                    'data-family': point.row.family,
+                }, point.row.displayName));
+            }
         });
         releaseChart.appendChild(svg);
         releasePoints.forEach((point) => {
@@ -1094,8 +1132,8 @@ export async function initPaperExplorer({ announce }) {
             const familyLine = [...svg.querySelectorAll('.release-family-line')]
                 .find((candidate) => candidate.dataset.family === row.family);
             const highlight = (active) => {
-                marker?.classList.toggle('is-highlighted', active);
-                familyLine?.classList.toggle('is-highlighted', active);
+                marker?.classList.toggle('is-highlighted', active || activeReleaseFamily === row.family);
+                familyLine?.classList.toggle('is-highlighted', active || activeReleaseFamily === row.family);
             };
             const button = document.createElement('button');
             button.type = 'button';

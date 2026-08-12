@@ -23,8 +23,7 @@
     <meta name="twitter:image" content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png">
 
     <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
-    <link rel="preload" as="image" href="assets/paper-overview.webp" type="image/webp" fetchpriority="high">
-    <link rel="stylesheet" href="styles.css?v=20260812b">
+    <link rel="stylesheet" href="styles.css?v=20260812d">
 
     <script type="application/ld+json">
     {
@@ -111,14 +110,21 @@
                 </div>
             </div>
 
-            <figure class="hero-paper-figure">
-                <a class="hero-figure" href="assets/paper-overview.pdf" target="_blank" rel="noopener" aria-label="Open the original Figure 1 from the paper">
-                    <picture>
-                        <source srcset="assets/paper-overview.webp" type="image/webp">
-                        <img src="assets/paper-overview.png" width="1024" height="524" fetchpriority="high" decoding="async" alt="Figure 1 from the paper: an economic query about minimum wage and employment branches into intervention-oriented and market-oriented reasoning and produces asymmetric predictions.">
-                    </picture>
-                </a>
-                <figcaption><strong>Figure 1.</strong> The same economic question can imply different causal signs under intervention-oriented and market-oriented economic perspectives.</figcaption>
+            <figure class="hero-release-figure">
+                <article class="release-panel release-panel-primary" aria-labelledby="release-bias-heading">
+                    <div class="release-panel-header">
+                        <div>
+                            <span class="figure-label">A persistent left–right reliability gap</span>
+                            <h2 id="release-bias-heading">Models remain less reliable when the evidence points right.</h2>
+                            <p>Accuracy gap is intervention-truth accuracy minus market-truth accuracy. Positive values indicate an intervention-truth advantage; negative values indicate a market-truth advantage.</p>
+                        </div>
+                        <div id="release-family-legend" class="release-family-legend" aria-label="Focus the release chart by model family"></div>
+                    </div>
+                    <div class="release-chart-scroll" tabindex="0" role="region" aria-label="Interactive release-date and accuracy-gap view for all evaluated models. Every family path is shown in the default All models view; choosing a family emphasizes that path without changing the data.">
+                        <div id="release-chart" class="release-chart"></div>
+                    </div>
+                </article>
+                <figcaption><strong>Figure 1.</strong> Accuracy asymmetry across model generations. Lines connect releases only within the same model family; hover, focus, or click any model for exact results.</figcaption>
             </figure>
         </section>
 
@@ -152,35 +158,30 @@
                 </ol>
                 <div class="perspective-guide">
                     <div class="perspective-definition intervention-definition">
-                        <span>Intervention-oriented (pro-government)</span>
+                        <span>Intervention-oriented (pro-government, left)</span>
                         <p>Expects active government action to correct market failures, reduce inequality, or expand social insurance. <strong>Intervention-truth</strong> means the empirical sign matches that ideology-conditioned expectation.</p>
                     </div>
                     <div class="perspective-definition market-definition">
-                        <span>Market-oriented (pro-market)</span>
+                        <span>Market-oriented (pro-market, right)</span>
                         <p>Expects market allocation and individual incentives to dominate, with limited government intervention. <strong>Market-truth</strong> means the empirical sign matches that ideology-conditioned expectation.</p>
                     </div>
                 </div>
             </article>
+            <figure class="benchmark-paper-figure">
+                <a class="hero-figure" href="assets/paper-overview.pdf" target="_blank" rel="noopener" aria-label="Open the benchmark construction overview from the paper">
+                    <picture>
+                        <source srcset="assets/paper-overview.webp" type="image/webp">
+                        <img src="assets/paper-overview.png" width="1024" height="524" loading="lazy" decoding="async" alt="An economic query about minimum wage and employment branches into intervention-oriented and market-oriented reasoning and produces asymmetric predictions.">
+                    </picture>
+                </a>
+                <figcaption><strong>Benchmark construction example.</strong> The same economic question can imply different causal signs under intervention-oriented and market-oriented perspectives.</figcaption>
+            </figure>
         </section>
 
         <section id="findings" class="content-section section-shell" aria-labelledby="findings-heading">
             <div class="section-heading centered-heading">
                 <h2 id="findings-heading">All-model results</h2>
             </div>
-
-            <article class="release-panel release-panel-primary" aria-labelledby="release-bias-heading">
-                <div class="release-panel-header">
-                    <div>
-                        <span class="figure-label">Release date × accuracy gap</span>
-                        <h3 id="release-bias-heading">The gap persists across generations: 40 of 47 models are more accurate on intervention-truth cases.</h3>
-                        <p>Δ<sub>acc</sub> is intervention-truth accuracy minus market-truth accuracy. Positive values indicate an intervention-truth advantage; negative values indicate a market-truth advantage.</p>
-                    </div>
-                    <div id="release-family-legend" class="release-family-legend" aria-label="Model family legend"></div>
-                </div>
-                <div class="release-chart-scroll" tabindex="0" role="region" aria-label="Interactive release-date and accuracy-gap view for 47 evaluated models. Connectors join models only within the same provider family and do not represent a global time trend.">
-                    <div id="release-chart" class="release-chart"></div>
-                </div>
-            </article>
 
             <article class="model-benchmark" aria-labelledby="model-benchmark-heading">
                 <div class="model-benchmark-header">
@@ -356,45 +357,46 @@
             <div class="section-heading split-heading">
                 <div>
                     <h2 id="subfields-heading">Average accuracy gap by economic subfield</h2>
+                    <p>Equal-weight average across all 51 models, using the corrected 878 directionally aligned cases.</p>
                 </div>
             </div>
 
             <div class="subfield-panel" role="region" aria-labelledby="subfields-heading">
                 <div class="subfield-axis" aria-hidden="true"><span><span class="axis-wide">Market-truth advantage</span><span class="axis-compact">Market</span></span><span>0</span><span><span class="axis-wide">Intervention-truth advantage</span><span class="axis-compact">Intervention</span></span></div>
-                <button class="subfield-row" type="button" data-subfield-name="Healthcare" data-sample-size="101" data-intervention-accuracy="71.99356913183283" data-market-accuracy="51.80232558139534" data-gap="20.19124355043749" aria-expanded="false" aria-controls="subfield-detail">
+                <button class="subfield-row" type="button" data-subfield-name="Healthcare" data-sample-size="101" data-intervention-accuracy="71.64113233717924" data-market-accuracy="55.06155950752394" data-gap="16.579572829655305" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Healthcare <small>n=101</small></span>
-                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:80.8%"></span></span>
-                    <strong>+20.2</strong>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:66.3%"></span></span>
+                    <strong>+16.6</strong>
                 </button>
-                <button class="subfield-row" type="button" data-subfield-name="Welfare &amp; Redistribution" data-sample-size="92" data-intervention-accuracy="77.99539170506883" data-market-accuracy="63.24561403508782" data-gap="14.749777669981007" aria-expanded="false" aria-controls="subfield-detail">
+                <button class="subfield-row" type="button" data-subfield-name="Welfare &amp; Redistribution" data-sample-size="92" data-intervention-accuracy="77.57296466973885" data-market-accuracy="63.10629514963882" data-gap="14.466669520100034" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Welfare &amp; Redistribution <small>n=92</small></span>
-                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:59.0%"></span></span>
-                    <strong>+14.7</strong>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:57.9%"></span></span>
+                    <strong>+14.5</strong>
                 </button>
-                <button class="subfield-row" type="button" data-subfield-name="Labor" data-sample-size="218" data-intervention-accuracy="68.84796238244549" data-market-accuracy="59.071729957806085" data-gap="9.776232424639403" aria-expanded="false" aria-controls="subfield-detail">
+                <button class="subfield-row" type="button" data-subfield-name="Labor" data-sample-size="218" data-intervention-accuracy="68.70121089188028" data-market-accuracy="62.14941672871679" data-gap="6.551794163163493" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Labor <small>n=218</small></span>
-                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:39.1%"></span></span>
-                    <strong>+9.8</strong>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:26.2%"></span></span>
+                    <strong>+6.6</strong>
                 </button>
-                <button class="subfield-row" type="button" data-subfield-name="Financial Regulation" data-sample-size="220" data-intervention-accuracy="69.1015625" data-market-accuracy="62.04022988505747" data-gap="7.061332614942529" aria-expanded="false" aria-controls="subfield-detail">
+                <button class="subfield-row" type="button" data-subfield-name="Financial Regulation" data-sample-size="220" data-intervention-accuracy="69.33210784313725" data-market-accuracy="65.58485463150777" data-gap="3.7472532116294843" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Financial Regulation <small>n=220</small></span>
-                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:28.2%"></span></span>
-                    <strong>+7.1</strong>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:15.0%"></span></span>
+                    <strong>+3.7</strong>
                 </button>
-                <button class="subfield-row" type="button" data-subfield-name="Education" data-sample-size="60" data-intervention-accuracy="71.57458563535907" data-market-accuracy="64.61538461538461" data-gap="6.959201019974458" aria-expanded="false" aria-controls="subfield-detail">
+                <button class="subfield-row" type="button" data-subfield-name="Education" data-sample-size="60" data-intervention-accuracy="72.74401473296501" data-market-accuracy="65.81196581196583" data-gap="6.932048920999179" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Education <small>n=60</small></span>
-                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:27.8%"></span></span>
-                    <strong>+7.0</strong>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:27.7%"></span></span>
+                    <strong>+6.9</strong>
                 </button>
-                <button class="subfield-row" type="button" data-subfield-name="Taxation" data-sample-size="77" data-intervention-accuracy="71.84729064039401" data-market-accuracy="70.13422818791962" data-gap="1.7130624524743894" aria-expanded="false" aria-controls="subfield-detail">
+                <button class="subfield-row" type="button" data-subfield-name="Taxation" data-sample-size="77" data-intervention-accuracy="72.08538587848932" data-market-accuracy="72.95696802210817" data-gap="-0.871582143618852" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Taxation <small>n=77</small></span>
-                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:6.9%"></span></span>
-                    <strong>+1.7</strong>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar negative" style="--bar-width:3.5%"></span></span>
+                    <strong>−0.9</strong>
                 </button>
-                <button class="subfield-row" type="button" data-subfield-name="Trade" data-sample-size="38" data-intervention-accuracy="63.30357142857133" data-market-accuracy="62.32142857142857" data-gap="0.9821428571427617" aria-expanded="false" aria-controls="subfield-detail">
+                <button class="subfield-row" type="button" data-subfield-name="Trade" data-sample-size="38" data-intervention-accuracy="65.406162464986" data-market-accuracy="66.66666666666666" data-gap="-1.2605042016806607" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Trade <small>n=38</small></span>
-                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:3.9%"></span></span>
-                    <strong>+1.0</strong>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar negative" style="--bar-width:5.0%"></span></span>
+                    <strong>−1.3</strong>
                 </button>
                 <div id="subfield-detail" class="subfield-detail" aria-live="polite" aria-atomic="true" hidden></div>
             </div>
@@ -525,6 +527,6 @@
     </footer>
 
     <div class="copy-status" role="status" aria-live="polite" aria-atomic="true"></div>
-    <script type="module" src="script.js?v=20260812b"></script>
+    <script type="module" src="script.js?v=20260812d"></script>
 </body>
 </html>

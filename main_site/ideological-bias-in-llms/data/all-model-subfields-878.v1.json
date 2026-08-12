@@ -1,0 +1,3828 @@
+{
+  "schema_version": "all-model-subfields-878.v1",
+  "method": "equal-weight mean across 51 visible models; every model uses top-tied vote-weighted JEL themes on the current 878 directional cases",
+  "denominators": {
+    "contested": 1056,
+    "directional": 878,
+    "intervention_truth": 507,
+    "market_truth": 371,
+    "neither_truth": 178
+  },
+  "model_count": 51,
+  "theme_count": 7,
+  "model_ids": [
+    "new:an_fable5_adaptive_low",
+    "new:an_opus47_disabled_low",
+    "new:an_opus48_disabled_low",
+    "new:an_opus5_disabled_low",
+    "new:an_sonnet5_disabled_low",
+    "new:anthropic_opus45_disabled_low",
+    "new:anthropic_sonnet45_disabled",
+    "new:gg_gemini31lite_minimal",
+    "new:gg_gemini35_minimal",
+    "new:gg_gemini36_minimal",
+    "new:local_llama4_scout_17b_16e_w4a16",
+    "new:local_qwen35_0_8b_nf4",
+    "new:local_qwen35_27b_gptq",
+    "new:local_qwen35_2b_w4_bf16",
+    "new:local_qwen35_35b_a3b_gptq",
+    "new:local_qwen35_4b_awq",
+    "new:local_qwen35_9b_awq",
+    "new:local_qwen36_27b_gptq",
+    "new:local_qwen36_35b_a3b_awq",
+    "new:oa_gpt54_mini_none",
+    "new:oa_gpt54_nano_none",
+    "new:oa_gpt54_none",
+    "new:oa_gpt55_none",
+    "new:oa_gpt56_luna_none",
+    "new:oa_gpt56_sol_none",
+    "new:oa_gpt56_terra_none",
+    "new:openai_gpt51_none",
+    "new:openai_gpt5_minimal",
+    "new:or_grok420_reasoning_disabled",
+    "new:or_grok43_none",
+    "new:or_grok45_low",
+    "paper:claude-haiku-4-5",
+    "paper:claude-opus-4-6",
+    "paper:claude-sonnet-4-6",
+    "paper:gemini-2-5-flash",
+    "paper:gemini-3-flash",
+    "paper:gpt-4o",
+    "paper:gpt-4o-mini",
+    "paper:gpt-5-2",
+    "paper:gpt-5-mini",
+    "paper:gpt-5-nano",
+    "paper:grok-3",
+    "paper:grok-3-mini",
+    "paper:grok-4-1-fast",
+    "paper:llama-3-1-8b",
+    "paper:llama-3-2-1b",
+    "paper:llama-3-2-3b",
+    "paper:llama-3-3-70b",
+    "paper:qwen-3-14b",
+    "paper:qwen-3-32b",
+    "paper:qwen-3-8b"
+  ],
+  "aggregate": [
+    {
+      "id": "healthcare",
+      "name": "Healthcare",
+      "model_count": 51,
+      "sample_size": 80.5,
+      "intervention_accuracy": 71.64113233717924,
+      "market_accuracy": 55.06155950752394,
+      "accuracy_gap_pp": 16.579572829655305
+    },
+    {
+      "id": "welfare_redistribution",
+      "name": "Welfare & Redistribution",
+      "model_count": 51,
+      "sample_size": 55.166666666666664,
+      "intervention_accuracy": 77.57296466973885,
+      "market_accuracy": 63.10629514963882,
+      "accuracy_gap_pp": 14.466669520100034
+    },
+    {
+      "id": "education",
+      "name": "Education",
+      "model_count": 51,
+      "sample_size": 49.66666666666667,
+      "intervention_accuracy": 72.74401473296501,
+      "market_accuracy": 65.81196581196583,
+      "accuracy_gap_pp": 6.932048920999179
+    },
+    {
+      "id": "labor",
+      "name": "Labor",
+      "model_count": 51,
+      "sample_size": 185.33333333333331,
+      "intervention_accuracy": 68.70121089188028,
+      "market_accuracy": 62.14941672871679,
+      "accuracy_gap_pp": 6.551794163163493
+    },
+    {
+      "id": "financial_regulation",
+      "name": "Financial Regulation",
+      "model_count": 51,
+      "sample_size": 215.0,
+      "intervention_accuracy": 69.33210784313725,
+      "market_accuracy": 65.58485463150777,
+      "accuracy_gap_pp": 3.7472532116294843
+    },
+    {
+      "id": "trade",
+      "name": "Trade",
+      "model_count": 51,
+      "sample_size": 32.66666666666667,
+      "intervention_accuracy": 65.406162464986,
+      "market_accuracy": 66.66666666666666,
+      "accuracy_gap_pp": -1.2605042016806607
+    },
+    {
+      "id": "taxation",
+      "name": "Taxation",
+      "model_count": 51,
+      "sample_size": 58.66666666666666,
+      "intervention_accuracy": 72.08538587848932,
+      "market_accuracy": 72.95696802210817,
+      "accuracy_gap_pp": -0.871582143618852
+    }
+  ],
+  "per_model": {
+    "paper:gpt-4o-mini": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 57.55627009646302,
+        "market_accuracy": 43.6046511627907,
+        "accuracy_gap_pp": 13.951618933672314
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 84.33179723502302,
+        "market_accuracy": 38.59649122807017,
+        "accuracy_gap_pp": 45.73530600695285
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 69.06077348066297,
+        "market_accuracy": 58.97435897435897,
+        "accuracy_gap_pp": 10.086414506304003
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 70.0626959247649,
+        "market_accuracy": 32.700421940928265,
+        "accuracy_gap_pp": 37.36227398383663
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 53.125,
+        "market_accuracy": 51.724137931034484,
+        "accuracy_gap_pp": 1.400862068965516
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 49.99999999999999,
+        "market_accuracy": 42.857142857142854,
+        "accuracy_gap_pp": 7.142857142857139
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 76.84729064039409,
+        "market_accuracy": 75.83892617449665,
+        "accuracy_gap_pp": 1.0083644658974436
+      }
+    ],
+    "paper:gpt-4o": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 80.70739549839229,
+        "market_accuracy": 63.37209302325582,
+        "accuracy_gap_pp": 17.335302475136466
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 85.7142857142857,
+        "market_accuracy": 66.66666666666666,
+        "accuracy_gap_pp": 19.047619047619037
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 75.69060773480662,
+        "market_accuracy": 64.1025641025641,
+        "accuracy_gap_pp": 11.588043632242517
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 64.89028213166145,
+        "market_accuracy": 54.008438818565395,
+        "accuracy_gap_pp": 10.881843313096056
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 71.875,
+        "market_accuracy": 55.747126436781606,
+        "accuracy_gap_pp": 16.127873563218394
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 51.78571428571428,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 1.7857142857142776
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 64.03940886699509,
+        "market_accuracy": 62.41610738255034,
+        "accuracy_gap_pp": 1.6233014844447524
+      }
+    ],
+    "paper:gpt-5-nano": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 63.98713826366559,
+        "market_accuracy": 42.441860465116285,
+        "accuracy_gap_pp": 21.545277798549307
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 73.27188940092165,
+        "market_accuracy": 63.1578947368421,
+        "accuracy_gap_pp": 10.113994664079549
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 72.3756906077348,
+        "market_accuracy": 48.717948717948715,
+        "accuracy_gap_pp": 23.65774188978608
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 64.42006269592477,
+        "market_accuracy": 59.49367088607596,
+        "accuracy_gap_pp": 4.926391809848809
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 65.234375,
+        "market_accuracy": 57.47126436781609,
+        "accuracy_gap_pp": 7.76311063218391
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 66.07142857142857,
+        "market_accuracy": 57.142857142857146,
+        "accuracy_gap_pp": 8.928571428571423
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 74.38423645320199,
+        "market_accuracy": 61.74496644295303,
+        "accuracy_gap_pp": 12.639270010248964
+      }
+    ],
+    "paper:gpt-5-mini": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 70.41800643086816,
+        "market_accuracy": 45.34883720930233,
+        "accuracy_gap_pp": 25.06916922156583
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 75.57603686635943,
+        "market_accuracy": 68.42105263157896,
+        "accuracy_gap_pp": 7.154984234780471
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 70.71823204419888,
+        "market_accuracy": 56.41025641025641,
+        "accuracy_gap_pp": 14.307975633942476
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 66.14420062695925,
+        "market_accuracy": 54.43037974683544,
+        "accuracy_gap_pp": 11.713820880123805
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 70.3125,
+        "market_accuracy": 65.51724137931035,
+        "accuracy_gap_pp": 4.795258620689651
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 51.785714285714285,
+        "market_accuracy": 60.714285714285715,
+        "accuracy_gap_pp": -8.92857142857143
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 64.53201970443351,
+        "market_accuracy": 62.41610738255034,
+        "accuracy_gap_pp": 2.1159123218831724
+      }
+    ],
+    "paper:gpt-5-2": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 77.81350482315112,
+        "market_accuracy": 59.88372093023256,
+        "accuracy_gap_pp": 17.929783892918557
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 88.01843317972347,
+        "market_accuracy": 75.43859649122808,
+        "accuracy_gap_pp": 12.57983668849539
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 55.8011049723757,
+        "market_accuracy": 71.7948717948718,
+        "accuracy_gap_pp": -15.993766822496099
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 71.78683385579937,
+        "market_accuracy": 64.97890295358651,
+        "accuracy_gap_pp": 6.80793090221286
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 80.46875,
+        "market_accuracy": 68.96551724137932,
+        "accuracy_gap_pp": 11.503232758620683
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 59.82142857142856,
+        "market_accuracy": 64.28571428571429,
+        "accuracy_gap_pp": -4.4642857142857295
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 75.36945812807883,
+        "market_accuracy": 77.18120805369128,
+        "accuracy_gap_pp": -1.811749925612446
+      }
+    ],
+    "paper:claude-haiku-4-5": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 74.91961414790997,
+        "market_accuracy": 46.511627906976756,
+        "accuracy_gap_pp": 28.407986240933212
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 74.65437788018433,
+        "market_accuracy": 64.03508771929823,
+        "accuracy_gap_pp": 10.619290160886095
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 79.00552486187844,
+        "market_accuracy": 69.23076923076923,
+        "accuracy_gap_pp": 9.774755631109215
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 62.06896551724138,
+        "market_accuracy": 59.071729957805914,
+        "accuracy_gap_pp": 2.9972355594354667
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 73.4375,
+        "market_accuracy": 59.195402298850574,
+        "accuracy_gap_pp": 14.242097701149426
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 57.142857142857146,
+        "market_accuracy": 46.42857142857143,
+        "accuracy_gap_pp": 10.714285714285715
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 69.95073891625617,
+        "market_accuracy": 57.71812080536914,
+        "accuracy_gap_pp": 12.232618110887032
+      }
+    ],
+    "paper:claude-sonnet-4-6": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 72.9903536977492,
+        "market_accuracy": 61.62790697674419,
+        "accuracy_gap_pp": 11.362446721005007
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 76.49769585253455,
+        "market_accuracy": 75.43859649122808,
+        "accuracy_gap_pp": 1.0590993613064654
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 50.828729281767956,
+        "market_accuracy": 79.48717948717949,
+        "accuracy_gap_pp": -28.658450205411533
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 67.39811912225706,
+        "market_accuracy": 68.77637130801689,
+        "accuracy_gap_pp": -1.378252185759834
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 72.265625,
+        "market_accuracy": 71.83908045977012,
+        "accuracy_gap_pp": 0.42654454022988375
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 57.14285714285713,
+        "market_accuracy": 82.14285714285714,
+        "accuracy_gap_pp": -25.000000000000007
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 68.96551724137933,
+        "market_accuracy": 65.1006711409396,
+        "accuracy_gap_pp": 3.8648461004397348
+      }
+    ],
+    "paper:claude-opus-4-6": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 72.34726688102893,
+        "market_accuracy": 52.90697674418605,
+        "accuracy_gap_pp": 19.440290136842876
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 67.74193548387096,
+        "market_accuracy": 69.29824561403508,
+        "accuracy_gap_pp": -1.5563101301641211
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 55.8011049723757,
+        "market_accuracy": 64.1025641025641,
+        "accuracy_gap_pp": -8.301459130188405
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 65.2037617554859,
+        "market_accuracy": 76.79324894514768,
+        "accuracy_gap_pp": -11.589487189661781
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 70.3125,
+        "market_accuracy": 81.60919540229885,
+        "accuracy_gap_pp": -11.296695402298852
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 75.89285714285712,
+        "market_accuracy": 85.71428571428571,
+        "accuracy_gap_pp": -9.821428571428584
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 66.99507389162564,
+        "market_accuracy": 66.44295302013423,
+        "accuracy_gap_pp": 0.552120871491411
+      }
+    ],
+    "paper:gemini-2-5-flash": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 81.02893890675239,
+        "market_accuracy": 41.27906976744187,
+        "accuracy_gap_pp": 39.74986913931052
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 87.55760368663593,
+        "market_accuracy": 75.43859649122808,
+        "accuracy_gap_pp": 12.119007195407846
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 75.69060773480662,
+        "market_accuracy": 64.1025641025641,
+        "accuracy_gap_pp": 11.588043632242517
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 65.51724137931035,
+        "market_accuracy": 70.67510548523208,
+        "accuracy_gap_pp": -5.157864105921732
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 80.859375,
+        "market_accuracy": 68.96551724137932,
+        "accuracy_gap_pp": 11.893857758620683
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 67.85714285714286,
+        "market_accuracy": 60.714285714285715,
+        "accuracy_gap_pp": 7.142857142857146
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 72.90640394088672,
+        "market_accuracy": 76.51006711409396,
+        "accuracy_gap_pp": -3.603663173207238
+      }
+    ],
+    "paper:gemini-3-flash": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 87.78135048231512,
+        "market_accuracy": 66.86046511627907,
+        "accuracy_gap_pp": 20.920885366036046
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 85.7142857142857,
+        "market_accuracy": 92.10526315789475,
+        "accuracy_gap_pp": -6.39097744360906
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 79.55801104972375,
+        "market_accuracy": 82.05128205128206,
+        "accuracy_gap_pp": -2.4932710015583126
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 77.74294670846396,
+        "market_accuracy": 81.64556962025317,
+        "accuracy_gap_pp": -3.9026229117892086
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 81.25,
+        "market_accuracy": 85.05747126436782,
+        "accuracy_gap_pp": -3.8074712643678197
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 81.25,
+        "market_accuracy": 85.71428571428571,
+        "accuracy_gap_pp": -4.464285714285708
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 84.72906403940888,
+        "market_accuracy": 95.9731543624161,
+        "accuracy_gap_pp": -11.244090323007214
+      }
+    ],
+    "paper:grok-3-mini": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 88.74598070739549,
+        "market_accuracy": 55.232558139534895,
+        "accuracy_gap_pp": 33.513422567860594
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 88.47926267281105,
+        "market_accuracy": 62.28070175438597,
+        "accuracy_gap_pp": 26.198560918425073
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 82.32044198895026,
+        "market_accuracy": 76.92307692307692,
+        "accuracy_gap_pp": 5.397365065873345
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 76.64576802507837,
+        "market_accuracy": 67.51054852320677,
+        "accuracy_gap_pp": 9.135219501871603
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 81.640625,
+        "market_accuracy": 70.6896551724138,
+        "accuracy_gap_pp": 10.950969827586206
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 83.92857142857143,
+        "market_accuracy": 64.28571428571429,
+        "accuracy_gap_pp": 19.64285714285714
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 78.32512315270937,
+        "market_accuracy": 74.49664429530202,
+        "accuracy_gap_pp": 3.8284788574073474
+      }
+    ],
+    "paper:grok-3": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 73.95498392282958,
+        "market_accuracy": 61.04651162790698,
+        "accuracy_gap_pp": 12.908472294922603
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 88.01843317972347,
+        "market_accuracy": 69.2982456140351,
+        "accuracy_gap_pp": 18.720187565688377
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 72.3756906077348,
+        "market_accuracy": 76.92307692307692,
+        "accuracy_gap_pp": -4.5473863153421235
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 77.89968652037616,
+        "market_accuracy": 59.0717299578059,
+        "accuracy_gap_pp": 18.827956562570265
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 75.78125,
+        "market_accuracy": 75.86206896551724,
+        "accuracy_gap_pp": -0.08081896551723844
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 70.53571428571429,
+        "market_accuracy": 78.57142857142857,
+        "accuracy_gap_pp": -8.035714285714278
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 70.93596059113301,
+        "market_accuracy": 67.11409395973153,
+        "accuracy_gap_pp": 3.821866631401477
+      }
+    ],
+    "paper:grok-4-1-fast": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 80.70739549839229,
+        "market_accuracy": 70.93023255813954,
+        "accuracy_gap_pp": 9.777162940252751
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 84.33179723502302,
+        "market_accuracy": 82.4561403508772,
+        "accuracy_gap_pp": 1.8756568841458119
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 74.03314917127071,
+        "market_accuracy": 76.92307692307692,
+        "accuracy_gap_pp": -2.889927751806212
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 71.00313479623824,
+        "market_accuracy": 78.05907172995781,
+        "accuracy_gap_pp": -7.055936933719565
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 78.125,
+        "market_accuracy": 70.6896551724138,
+        "accuracy_gap_pp": 7.435344827586206
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 81.25,
+        "market_accuracy": 92.85714285714286,
+        "accuracy_gap_pp": -11.607142857142861
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 75.86206896551727,
+        "market_accuracy": 91.9463087248322,
+        "accuracy_gap_pp": -16.08423975931494
+      }
+    ],
+    "paper:llama-3-1-8b": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 45.016077170418,
+        "market_accuracy": 41.27906976744187,
+        "accuracy_gap_pp": 3.7370074029761327
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 55.29953917050692,
+        "market_accuracy": 40.35087719298246,
+        "accuracy_gap_pp": 14.94866197752446
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 56.353591160220994,
+        "market_accuracy": 33.333333333333336,
+        "accuracy_gap_pp": 23.020257826887658
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 61.75548589341695,
+        "market_accuracy": 40.08438818565401,
+        "accuracy_gap_pp": 21.671097707762947
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 41.40625,
+        "market_accuracy": 45.40229885057471,
+        "accuracy_gap_pp": -3.9960488505747094
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 49.10714285714286,
+        "market_accuracy": 35.714285714285715,
+        "accuracy_gap_pp": 13.392857142857146
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 61.576354679802954,
+        "market_accuracy": 67.78523489932887,
+        "accuracy_gap_pp": -6.208880219525916
+      }
+    ],
+    "paper:llama-3-2-1b": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 49.83922829581993,
+        "market_accuracy": 40.116279069767444,
+        "accuracy_gap_pp": 9.722949226052485
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 54.377880184331794,
+        "market_accuracy": 37.71929824561404,
+        "accuracy_gap_pp": 16.658581938717752
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 74.58563535911603,
+        "market_accuracy": 56.41025641025641,
+        "accuracy_gap_pp": 18.175378948859617
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 66.14420062695923,
+        "market_accuracy": 46.41350210970464,
+        "accuracy_gap_pp": 19.730698517254595
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 55.46875,
+        "market_accuracy": 52.298850574712645,
+        "accuracy_gap_pp": 3.1698994252873547
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 61.607142857142854,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 11.607142857142854
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 65.51724137931036,
+        "market_accuracy": 65.1006711409396,
+        "accuracy_gap_pp": 0.4165702383707668
+      }
+    ],
+    "paper:llama-3-2-3b": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 48.874598070739545,
+        "market_accuracy": 31.395348837209305,
+        "accuracy_gap_pp": 17.47924923353024
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 57.142857142857146,
+        "market_accuracy": 37.71929824561404,
+        "accuracy_gap_pp": 19.423558897243105
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 71.2707182320442,
+        "market_accuracy": 58.97435897435897,
+        "accuracy_gap_pp": 12.296359257685232
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 66.14420062695923,
+        "market_accuracy": 43.881856540084385,
+        "accuracy_gap_pp": 22.262344086874847
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 56.25,
+        "market_accuracy": 51.14942528735632,
+        "accuracy_gap_pp": 5.100574712643677
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 58.92857142857142,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 8.928571428571423
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 68.47290640394091,
+        "market_accuracy": 69.1275167785235,
+        "accuracy_gap_pp": -0.6546103745825889
+      }
+    ],
+    "paper:llama-3-3-70b": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 78.7781350482315,
+        "market_accuracy": 47.09302325581396,
+        "accuracy_gap_pp": 31.685111792417544
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 92.16589861751149,
+        "market_accuracy": 66.66666666666667,
+        "accuracy_gap_pp": 25.499231950844816
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 79.00552486187844,
+        "market_accuracy": 66.66666666666667,
+        "accuracy_gap_pp": 12.33885819521177
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 74.60815047021944,
+        "market_accuracy": 57.17299578059071,
+        "accuracy_gap_pp": 17.43515468962873
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 69.53125,
+        "market_accuracy": 55.172413793103445,
+        "accuracy_gap_pp": 14.358836206896555
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 70.53571428571429,
+        "market_accuracy": 67.85714285714286,
+        "accuracy_gap_pp": 2.6785714285714306
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 75.36945812807883,
+        "market_accuracy": 65.1006711409396,
+        "accuracy_gap_pp": 10.268786987139237
+      }
+    ],
+    "paper:qwen-3-8b": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 80.38585209003216,
+        "market_accuracy": 48.83720930232558,
+        "accuracy_gap_pp": 31.548642787706576
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 85.25345622119814,
+        "market_accuracy": 51.754385964912274,
+        "accuracy_gap_pp": 33.49907025628586
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 82.32044198895026,
+        "market_accuracy": 74.35897435897436,
+        "accuracy_gap_pp": 7.9614676299759
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 73.66771159874608,
+        "market_accuracy": 55.48523206751056,
+        "accuracy_gap_pp": 18.182479531235522
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 71.875,
+        "market_accuracy": 58.04597701149425,
+        "accuracy_gap_pp": 13.829022988505749
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 63.39285714285713,
+        "market_accuracy": 57.142857142857146,
+        "accuracy_gap_pp": 6.249999999999986
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 81.28078817733991,
+        "market_accuracy": 69.79865771812082,
+        "accuracy_gap_pp": 11.482130459219093
+      }
+    ],
+    "paper:qwen-3-14b": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 75.2411575562701,
+        "market_accuracy": 48.25581395348838,
+        "accuracy_gap_pp": 26.985343602781718
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 75.57603686635944,
+        "market_accuracy": 65.78947368421052,
+        "accuracy_gap_pp": 9.786563182148925
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 79.00552486187844,
+        "market_accuracy": 51.282051282051285,
+        "accuracy_gap_pp": 27.723473579827157
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 65.20376175548587,
+        "market_accuracy": 56.96202531645571,
+        "accuracy_gap_pp": 8.241736439030163
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 60.15625,
+        "market_accuracy": 43.67816091954023,
+        "accuracy_gap_pp": 16.478089080459768
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 55.35714285714286,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 5.357142857142861
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 71.42857142857144,
+        "market_accuracy": 63.08724832214766,
+        "accuracy_gap_pp": 8.341323106423786
+      }
+    ],
+    "paper:qwen-3-32b": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666664,
+        "intervention_accuracy": 78.7781350482315,
+        "market_accuracy": 68.0232558139535,
+        "accuracy_gap_pp": 10.754879234278008
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.166666666666664,
+        "intervention_sample_size": 36.166666666666664,
+        "market_sample_size": 19.0,
+        "intervention_accuracy": 80.184331797235,
+        "market_accuracy": 62.28070175438597,
+        "accuracy_gap_pp": 17.90363004284903
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 75.69060773480662,
+        "market_accuracy": 61.53846153846154,
+        "accuracy_gap_pp": 14.152146196345079
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.33333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 68.65203761755487,
+        "market_accuracy": 54.21940928270043,
+        "accuracy_gap_pp": 14.432628334854435
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 72.65625,
+        "market_accuracy": 51.724137931034484,
+        "accuracy_gap_pp": 20.932112068965516
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.66666666666667,
+        "intervention_sample_size": 18.666666666666668,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 52.67857142857143,
+        "market_accuracy": 64.28571428571429,
+        "accuracy_gap_pp": -11.607142857142861
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.66666666666666,
+        "intervention_sample_size": 33.83333333333333,
+        "market_sample_size": 24.833333333333332,
+        "intervention_accuracy": 69.45812807881774,
+        "market_accuracy": 67.78523489932887,
+        "accuracy_gap_pp": 1.6728931794888666
+      }
+    ],
+    "new:openai_gpt5_minimal": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 77.81350482315112,
+        "market_accuracy": 58.13953488372092,
+        "accuracy_gap_pp": 19.6739699394302
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 87.55760368663593,
+        "market_accuracy": 65.78947368421055,
+        "accuracy_gap_pp": 21.76813000242538
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 62.43093922651934,
+        "market_accuracy": 66.66666666666667,
+        "accuracy_gap_pp": -4.235727440147329
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 65.98746081504706,
+        "market_accuracy": 69.62025316455696,
+        "accuracy_gap_pp": -3.6327923495098986
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 75.78125,
+        "market_accuracy": 66.66666666666667,
+        "accuracy_gap_pp": 9.114583333333329
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 57.14285714285715,
+        "market_accuracy": 64.28571428571429,
+        "accuracy_gap_pp": -7.142857142857139
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 66.00985221674877,
+        "market_accuracy": 75.83892617449665,
+        "accuracy_gap_pp": -9.82907395774788
+      }
+    ],
+    "new:openai_gpt51_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 80.70739549839229,
+        "market_accuracy": 59.88372093023255,
+        "accuracy_gap_pp": 20.82367456815974
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 87.09677419354837,
+        "market_accuracy": 65.78947368421055,
+        "accuracy_gap_pp": 21.30730050933782
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 75.69060773480663,
+        "market_accuracy": 53.84615384615385,
+        "accuracy_gap_pp": 21.844453888652787
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 62.53918495297809,
+        "market_accuracy": 62.65822784810127,
+        "accuracy_gap_pp": -0.11904289512317945
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 64.84375,
+        "market_accuracy": 63.793103448275865,
+        "accuracy_gap_pp": 1.0506465517241352
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 51.7857142857143,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 1.785714285714299
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 66.99507389162562,
+        "market_accuracy": 63.75838926174499,
+        "accuracy_gap_pp": 3.236684629880635
+      }
+    ],
+    "new:oa_gpt54_nano_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 29.58199356913183,
+        "market_accuracy": 10.465116279069766,
+        "accuracy_gap_pp": 19.116877290062064
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 41.93548387096773,
+        "market_accuracy": 23.684210526315795,
+        "accuracy_gap_pp": 18.251273344651935
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 44.1988950276243,
+        "market_accuracy": 17.94871794871795,
+        "accuracy_gap_pp": 26.250177078906354
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 43.10344827586208,
+        "market_accuracy": 27.848101265822784,
+        "accuracy_gap_pp": 15.255347010039294
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 33.59375,
+        "market_accuracy": 28.160919540229884,
+        "accuracy_gap_pp": 5.432830459770116
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 50.892857142857146,
+        "market_accuracy": 28.571428571428573,
+        "accuracy_gap_pp": 22.321428571428573
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 46.79802955665025,
+        "market_accuracy": 38.255033557046985,
+        "accuracy_gap_pp": 8.542995999603264
+      }
+    ],
+    "new:oa_gpt54_mini_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 63.34405144694533,
+        "market_accuracy": 41.27906976744186,
+        "accuracy_gap_pp": 22.064981679503468
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 60.82949308755758,
+        "market_accuracy": 63.15789473684213,
+        "accuracy_gap_pp": -2.328401649284551
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 64.08839779005524,
+        "market_accuracy": 64.1025641025641,
+        "accuracy_gap_pp": -0.014166312508862688
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 50.78369905956116,
+        "market_accuracy": 48.10126582278481,
+        "accuracy_gap_pp": 2.6824332367763475
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 51.171875,
+        "market_accuracy": 52.298850574712645,
+        "accuracy_gap_pp": -1.1269755747126453
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 46.42857142857144,
+        "market_accuracy": 42.857142857142854,
+        "accuracy_gap_pp": 3.5714285714285836
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 52.216748768472904,
+        "market_accuracy": 36.912751677852356,
+        "accuracy_gap_pp": 15.303997090620548
+      }
+    ],
+    "new:oa_gpt54_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 72.34726688102893,
+        "market_accuracy": 70.93023255813954,
+        "accuracy_gap_pp": 1.4170343228893927
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 90.78341013824883,
+        "market_accuracy": 65.78947368421055,
+        "accuracy_gap_pp": 24.993936454038277
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 71.2707182320442,
+        "market_accuracy": 74.35897435897436,
+        "accuracy_gap_pp": -3.088256126930162
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 70.06269592476491,
+        "market_accuracy": 68.35443037974683,
+        "accuracy_gap_pp": 1.7082655450180795
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 71.875,
+        "market_accuracy": 72.41379310344827,
+        "accuracy_gap_pp": -0.5387931034482705
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 81.25000000000001,
+        "market_accuracy": 71.42857142857143,
+        "accuracy_gap_pp": 9.821428571428584
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 84.23645320197042,
+        "market_accuracy": 71.14093959731544,
+        "accuracy_gap_pp": 13.095513604654982
+      }
+    ],
+    "new:oa_gpt55_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 68.81028938906752,
+        "market_accuracy": 56.3953488372093,
+        "accuracy_gap_pp": 12.414940551858223
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 80.18433179723499,
+        "market_accuracy": 71.92982456140352,
+        "accuracy_gap_pp": 8.254507235831468
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 65.74585635359115,
+        "market_accuracy": 66.66666666666667,
+        "accuracy_gap_pp": -0.9208103130755205
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 66.61442006269596,
+        "market_accuracy": 70.46413502109705,
+        "accuracy_gap_pp": -3.849714958401094
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 70.3125,
+        "market_accuracy": 74.71264367816092,
+        "accuracy_gap_pp": -4.400143678160916
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 49.10714285714287,
+        "market_accuracy": 75.0,
+        "accuracy_gap_pp": -25.89285714285713
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 72.41379310344827,
+        "market_accuracy": 80.53691275167785,
+        "accuracy_gap_pp": -8.123119648229576
+      }
+    ],
+    "new:oa_gpt56_luna_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 49.51768488745981,
+        "market_accuracy": 42.44186046511628,
+        "accuracy_gap_pp": 7.07582442234353
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 50.23041474654376,
+        "market_accuracy": 51.754385964912295,
+        "accuracy_gap_pp": -1.523971218368537
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 49.171270718232044,
+        "market_accuracy": 61.53846153846154,
+        "accuracy_gap_pp": -12.367190820229496
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 42.31974921630096,
+        "market_accuracy": 49.78902953586498,
+        "accuracy_gap_pp": -7.469280319564014
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 47.65625,
+        "market_accuracy": 44.252873563218394,
+        "accuracy_gap_pp": 3.403376436781606
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 41.07142857142858,
+        "market_accuracy": 60.714285714285715,
+        "accuracy_gap_pp": -19.64285714285714
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 37.4384236453202,
+        "market_accuracy": 30.872483221476514,
+        "accuracy_gap_pp": 6.565940423843685
+      }
+    ],
+    "new:oa_gpt56_terra_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 74.59807073954984,
+        "market_accuracy": 70.34883720930233,
+        "accuracy_gap_pp": 4.249233530247508
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 83.87096774193546,
+        "market_accuracy": 71.05263157894741,
+        "accuracy_gap_pp": 12.818336162988047
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 64.64088397790054,
+        "market_accuracy": 76.92307692307692,
+        "accuracy_gap_pp": -12.282192945176376
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 70.06269592476491,
+        "market_accuracy": 74.05063291139241,
+        "accuracy_gap_pp": -3.9879369866275027
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 69.53125,
+        "market_accuracy": 75.28735632183908,
+        "accuracy_gap_pp": -5.756106321839084
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 59.821428571428584,
+        "market_accuracy": 85.71428571428571,
+        "accuracy_gap_pp": -25.892857142857125
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 70.44334975369458,
+        "market_accuracy": 77.85234899328859,
+        "accuracy_gap_pp": -7.40899923959401
+      }
+    ],
+    "new:oa_gpt56_sol_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 81.67202572347267,
+        "market_accuracy": 68.6046511627907,
+        "accuracy_gap_pp": 13.06737456068197
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 90.78341013824883,
+        "market_accuracy": 78.07017543859651,
+        "accuracy_gap_pp": 12.713234699652318
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 83.97790055248619,
+        "market_accuracy": 82.05128205128206,
+        "accuracy_gap_pp": 1.926618501204132
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 74.60815047021947,
+        "market_accuracy": 75.10548523206752,
+        "accuracy_gap_pp": -0.4973347618480517
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 77.734375,
+        "market_accuracy": 75.28735632183908,
+        "accuracy_gap_pp": 2.447018678160916
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 67.85714285714288,
+        "market_accuracy": 71.42857142857143,
+        "accuracy_gap_pp": -3.571428571428555
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 82.75862068965516,
+        "market_accuracy": 87.24832214765102,
+        "accuracy_gap_pp": -4.489701457995864
+      }
+    ],
+    "new:anthropic_sonnet45_disabled": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 80.70739549839229,
+        "market_accuracy": 59.88372093023255,
+        "accuracy_gap_pp": 20.82367456815974
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 87.55760368663593,
+        "market_accuracy": 67.54385964912282,
+        "accuracy_gap_pp": 20.013744037513106
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 72.37569060773481,
+        "market_accuracy": 69.23076923076923,
+        "accuracy_gap_pp": 3.144921376965584
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 68.80877742946711,
+        "market_accuracy": 66.24472573839664,
+        "accuracy_gap_pp": 2.5640516910704747
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 78.125,
+        "market_accuracy": 72.98850574712644,
+        "accuracy_gap_pp": 5.136494252873561
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 71.42857142857144,
+        "market_accuracy": 85.71428571428571,
+        "accuracy_gap_pp": -14.285714285714263
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 86.20689655172413,
+        "market_accuracy": 83.22147651006712,
+        "accuracy_gap_pp": 2.985420041657008
+      }
+    ],
+    "new:anthropic_opus45_disabled_low": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 74.91961414790997,
+        "market_accuracy": 68.60465116279069,
+        "accuracy_gap_pp": 6.31496298511928
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 89.40092165898615,
+        "market_accuracy": 75.4385964912281,
+        "accuracy_gap_pp": 13.962325167758053
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 70.7182320441989,
+        "market_accuracy": 71.7948717948718,
+        "accuracy_gap_pp": -1.0766397506728964
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 71.78683385579939,
+        "market_accuracy": 77.00421940928271,
+        "accuracy_gap_pp": -5.217385553483325
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 79.6875,
+        "market_accuracy": 82.75862068965517,
+        "accuracy_gap_pp": -3.0711206896551744
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 75.89285714285715,
+        "market_accuracy": 82.14285714285714,
+        "accuracy_gap_pp": -6.249999999999986
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 85.7142857142857,
+        "market_accuracy": 87.24832214765102,
+        "accuracy_gap_pp": -1.5340364333653298
+      }
+    ],
+    "new:an_opus47_disabled_low": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 82.95819935691318,
+        "market_accuracy": 70.34883720930232,
+        "accuracy_gap_pp": 12.609362147610867
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 83.87096774193546,
+        "market_accuracy": 84.2105263157895,
+        "accuracy_gap_pp": -0.33955857385403476
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 87.84530386740332,
+        "market_accuracy": 76.92307692307692,
+        "accuracy_gap_pp": 10.922226944326397
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 71.47335423197494,
+        "market_accuracy": 76.58227848101266,
+        "accuracy_gap_pp": -5.108924249037727
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 81.25,
+        "market_accuracy": 79.3103448275862,
+        "accuracy_gap_pp": 1.9396551724137936
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 73.21428571428572,
+        "market_accuracy": 92.85714285714286,
+        "accuracy_gap_pp": -19.64285714285714
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 84.23645320197042,
+        "market_accuracy": 89.93288590604027,
+        "accuracy_gap_pp": -5.696432704069849
+      }
+    ],
+    "new:an_opus48_disabled_low": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 79.42122186495175,
+        "market_accuracy": 65.11627906976743,
+        "accuracy_gap_pp": 14.304942795184317
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 79.72350230414744,
+        "market_accuracy": 80.70175438596493,
+        "accuracy_gap_pp": -0.9782520818174874
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 82.32044198895026,
+        "market_accuracy": 74.35897435897436,
+        "accuracy_gap_pp": 7.9614676299759
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 70.68965517241381,
+        "market_accuracy": 74.47257383966246,
+        "accuracy_gap_pp": -3.7829186672486514
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 78.90625,
+        "market_accuracy": 78.73563218390805,
+        "accuracy_gap_pp": 0.17061781609194782
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 83.92857142857144,
+        "market_accuracy": 82.14285714285714,
+        "accuracy_gap_pp": 1.785714285714306
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 83.743842364532,
+        "market_accuracy": 87.24832214765102,
+        "accuracy_gap_pp": -3.5044797831190238
+      }
+    ],
+    "new:an_sonnet5_disabled_low": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 83.92282958199357,
+        "market_accuracy": 75.58139534883722,
+        "accuracy_gap_pp": 8.341434233156349
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 88.47926267281103,
+        "market_accuracy": 84.2105263157895,
+        "accuracy_gap_pp": 4.268736357021538
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 71.2707182320442,
+        "market_accuracy": 74.35897435897436,
+        "accuracy_gap_pp": -3.088256126930162
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 73.98119122257054,
+        "market_accuracy": 77.21518987341773,
+        "accuracy_gap_pp": -3.233998650847184
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 72.265625,
+        "market_accuracy": 84.48275862068965,
+        "accuracy_gap_pp": -12.217133620689651
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 75.89285714285715,
+        "market_accuracy": 92.85714285714286,
+        "accuracy_gap_pp": -16.964285714285708
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 78.81773399014777,
+        "market_accuracy": 81.87919463087248,
+        "accuracy_gap_pp": -3.061460640724704
+      }
+    ],
+    "new:an_opus5_disabled_low": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 83.2797427652733,
+        "market_accuracy": 75.58139534883722,
+        "accuracy_gap_pp": 7.698347416436079
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 79.72350230414744,
+        "market_accuracy": 81.57894736842108,
+        "accuracy_gap_pp": -1.8554450642736384
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 85.63535911602209,
+        "market_accuracy": 74.35897435897436,
+        "accuracy_gap_pp": 11.276384757047722
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 77.2727272727273,
+        "market_accuracy": 83.54430379746836,
+        "accuracy_gap_pp": -6.271576524741064
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 78.90625,
+        "market_accuracy": 79.88505747126437,
+        "accuracy_gap_pp": -0.9788074712643748
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 78.57142857142858,
+        "market_accuracy": 89.28571428571429,
+        "accuracy_gap_pp": -10.714285714285708
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 80.78817733990147,
+        "market_accuracy": 85.90604026845638,
+        "accuracy_gap_pp": -5.1178629285549135
+      }
+    ],
+    "new:an_fable5_adaptive_low": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 80.06430868167202,
+        "market_accuracy": 82.55813953488372,
+        "accuracy_gap_pp": -2.493830853211705
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 84.33179723502302,
+        "market_accuracy": 78.94736842105266,
+        "accuracy_gap_pp": 5.384428813970359
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 90.05524861878453,
+        "market_accuracy": 82.05128205128206,
+        "accuracy_gap_pp": 8.003966567502474
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 79.15360501567399,
+        "market_accuracy": 88.60759493670886,
+        "accuracy_gap_pp": -9.453989921034875
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 82.03125,
+        "market_accuracy": 86.20689655172414,
+        "accuracy_gap_pp": -4.175646551724142
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 89.28571428571429,
+        "market_accuracy": 92.85714285714286,
+        "accuracy_gap_pp": -3.5714285714285694
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 85.7142857142857,
+        "market_accuracy": 85.90604026845638,
+        "accuracy_gap_pp": -0.19175455417068576
+      }
+    ],
+    "new:gg_gemini31lite_minimal": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 75.2411575562701,
+        "market_accuracy": 59.88372093023255,
+        "accuracy_gap_pp": 15.357436626037547
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 90.78341013824883,
+        "market_accuracy": 66.6666666666667,
+        "accuracy_gap_pp": 24.116743471582126
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 74.58563535911603,
+        "market_accuracy": 71.7948717948718,
+        "accuracy_gap_pp": 2.79076356424423
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 67.24137931034487,
+        "market_accuracy": 65.40084388185655,
+        "accuracy_gap_pp": 1.840535428488323
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 75.0,
+        "market_accuracy": 74.13793103448276,
+        "accuracy_gap_pp": 0.8620689655172384
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 83.92857142857144,
+        "market_accuracy": 78.57142857142857,
+        "accuracy_gap_pp": 5.357142857142875
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 75.36945812807882,
+        "market_accuracy": 88.59060402684564,
+        "accuracy_gap_pp": -13.221145898766821
+      }
+    ],
+    "new:gg_gemini35_minimal": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 86.4951768488746,
+        "market_accuracy": 51.16279069767441,
+        "accuracy_gap_pp": 35.3323861512002
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 89.40092165898615,
+        "market_accuracy": 77.19298245614038,
+        "accuracy_gap_pp": 12.207939202845765
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 75.69060773480663,
+        "market_accuracy": 79.48717948717949,
+        "accuracy_gap_pp": -3.7965717523728557
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 74.60815047021946,
+        "market_accuracy": 69.19831223628692,
+        "accuracy_gap_pp": 5.409838233932533
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 80.078125,
+        "market_accuracy": 83.9080459770115,
+        "accuracy_gap_pp": -3.829920977011497
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 65.17857142857144,
+        "market_accuracy": 82.14285714285714,
+        "accuracy_gap_pp": -16.964285714285694
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 73.89162561576353,
+        "market_accuracy": 88.59060402684564,
+        "accuracy_gap_pp": -14.69897841108211
+      }
+    ],
+    "new:gg_gemini36_minimal": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 81.67202572347267,
+        "market_accuracy": 63.37209302325581,
+        "accuracy_gap_pp": 18.299932700216864
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 88.01843317972349,
+        "market_accuracy": 75.4385964912281,
+        "accuracy_gap_pp": 12.57983668849539
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 79.00552486187846,
+        "market_accuracy": 76.92307692307692,
+        "accuracy_gap_pp": 2.0824479388015362
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 78.84012539184954,
+        "market_accuracy": 67.51054852320677,
+        "accuracy_gap_pp": 11.329576868642775
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 81.25,
+        "market_accuracy": 82.183908045977,
+        "accuracy_gap_pp": -0.9339080459770059
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 59.821428571428584,
+        "market_accuracy": 89.28571428571429,
+        "accuracy_gap_pp": -29.464285714285708
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 82.75862068965516,
+        "market_accuracy": 85.23489932885907,
+        "accuracy_gap_pp": -2.476278639203912
+      }
+    ],
+    "new:or_grok420_reasoning_disabled": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 55.948553054662376,
+        "market_accuracy": 45.93023255813953,
+        "accuracy_gap_pp": 10.018320496522847
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 63.59447004608292,
+        "market_accuracy": 62.28070175438599,
+        "accuracy_gap_pp": 1.313768291696931
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 67.40331491712706,
+        "market_accuracy": 58.97435897435897,
+        "accuracy_gap_pp": 8.428955942768091
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 53.60501567398123,
+        "market_accuracy": 52.32067510548523,
+        "accuracy_gap_pp": 1.284340568495999
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 55.46875,
+        "market_accuracy": 53.44827586206897,
+        "accuracy_gap_pp": 2.020474137931032
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 65.17857142857144,
+        "market_accuracy": 60.714285714285715,
+        "accuracy_gap_pp": 4.4642857142857295
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 54.67980295566502,
+        "market_accuracy": 53.020134228187935,
+        "accuracy_gap_pp": 1.659668727477083
+      }
+    ],
+    "new:or_grok43_none": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 51.44694533762058,
+        "market_accuracy": 55.23255813953488,
+        "accuracy_gap_pp": -3.785612801914297
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 69.58525345622118,
+        "market_accuracy": 57.017543859649145,
+        "accuracy_gap_pp": 12.567709596572037
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 76.24309392265194,
+        "market_accuracy": 76.92307692307692,
+        "accuracy_gap_pp": -0.6799830004249827
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 57.210031347962406,
+        "market_accuracy": 56.751054852320685,
+        "accuracy_gap_pp": 0.45897649564172127
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 62.109375,
+        "market_accuracy": 53.44827586206897,
+        "accuracy_gap_pp": 8.661099137931032
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 44.64285714285715,
+        "market_accuracy": 60.714285714285715,
+        "accuracy_gap_pp": -16.071428571428562
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 63.54679802955665,
+        "market_accuracy": 82.5503355704698,
+        "accuracy_gap_pp": -19.00353754091315
+      }
+    ],
+    "new:or_grok45_low": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 89.38906752411576,
+        "market_accuracy": 77.32558139534885,
+        "accuracy_gap_pp": 12.063486128766911
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 93.54838709677418,
+        "market_accuracy": 73.68421052631582,
+        "accuracy_gap_pp": 19.864176570458355
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 75.69060773480663,
+        "market_accuracy": 76.92307692307692,
+        "accuracy_gap_pp": -1.2324691882702865
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 82.13166144200629,
+        "market_accuracy": 83.54430379746836,
+        "accuracy_gap_pp": -1.4126423554620686
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 83.984375,
+        "market_accuracy": 87.35632183908046,
+        "accuracy_gap_pp": -3.371946839080465
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 70.53571428571429,
+        "market_accuracy": 92.85714285714286,
+        "accuracy_gap_pp": -22.32142857142857
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 82.75862068965516,
+        "market_accuracy": 91.94630872483222,
+        "accuracy_gap_pp": -9.187688035177061
+      }
+    ],
+    "new:local_llama4_scout_17b_16e_w4a16": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 80.38585209003215,
+        "market_accuracy": 50.581395348837205,
+        "accuracy_gap_pp": 29.80445674119494
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 78.34101382488477,
+        "market_accuracy": 46.49122807017545,
+        "accuracy_gap_pp": 31.849785754709316
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 82.32044198895026,
+        "market_accuracy": 69.23076923076923,
+        "accuracy_gap_pp": 13.089672758181038
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 74.13793103448278,
+        "market_accuracy": 56.11814345991562,
+        "accuracy_gap_pp": 18.019787574567154
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 67.96875,
+        "market_accuracy": 57.47126436781609,
+        "accuracy_gap_pp": 10.49748563218391
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 60.71428571428573,
+        "market_accuracy": 57.142857142857146,
+        "accuracy_gap_pp": 3.5714285714285836
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 73.89162561576353,
+        "market_accuracy": 67.78523489932887,
+        "accuracy_gap_pp": 6.10639071643466
+      }
+    ],
+    "new:local_qwen35_0_8b_nf4": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 49.83922829581993,
+        "market_accuracy": 40.11627906976744,
+        "accuracy_gap_pp": 9.722949226052492
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 57.14285714285713,
+        "market_accuracy": 37.71929824561404,
+        "accuracy_gap_pp": 19.42355889724309
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 69.61325966850829,
+        "market_accuracy": 56.41025641025641,
+        "accuracy_gap_pp": 13.203003258251883
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 62.85266457680253,
+        "market_accuracy": 47.679324894514764,
+        "accuracy_gap_pp": 15.173339682287768
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 53.90625,
+        "market_accuracy": 54.59770114942529,
+        "accuracy_gap_pp": -0.6914511494252906
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 61.60714285714287,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 11.607142857142868
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 65.51724137931033,
+        "market_accuracy": 57.046979865771824,
+        "accuracy_gap_pp": 8.47026151353851
+      }
+    ],
+    "new:local_qwen35_2b_w4_bf16": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 50.80385852090031,
+        "market_accuracy": 36.627906976744185,
+        "accuracy_gap_pp": 14.175951544156128
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 55.760368663594456,
+        "market_accuracy": 37.71929824561404,
+        "accuracy_gap_pp": 18.041070417980414
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 74.58563535911603,
+        "market_accuracy": 61.53846153846154,
+        "accuracy_gap_pp": 13.047173820654486
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 66.14420062695928,
+        "market_accuracy": 45.14767932489451,
+        "accuracy_gap_pp": 20.996521302064764
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 53.90625,
+        "market_accuracy": 53.44827586206897,
+        "accuracy_gap_pp": 0.45797413793103203
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 56.25000000000001,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 6.250000000000007
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 65.51724137931033,
+        "market_accuracy": 65.10067114093961,
+        "accuracy_gap_pp": 0.41657023837072416
+      }
+    ],
+    "new:local_qwen35_4b_awq": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 52.73311897106108,
+        "market_accuracy": 43.604651162790695,
+        "accuracy_gap_pp": 9.128467808270386
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 57.14285714285713,
+        "market_accuracy": 37.71929824561404,
+        "accuracy_gap_pp": 19.42355889724309
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 74.58563535911603,
+        "market_accuracy": 58.97435897435897,
+        "accuracy_gap_pp": 15.611276384757055
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 69.43573667711601,
+        "market_accuracy": 50.210970464135016,
+        "accuracy_gap_pp": 19.224766212980995
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 57.8125,
+        "market_accuracy": 55.747126436781606,
+        "accuracy_gap_pp": 2.065373563218394
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 66.96428571428572,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 16.964285714285722
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 65.51724137931033,
+        "market_accuracy": 71.14093959731544,
+        "accuracy_gap_pp": -5.623698218005103
+      }
+    ],
+    "new:local_qwen35_9b_awq": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 52.73311897106108,
+        "market_accuracy": 44.76744186046511,
+        "accuracy_gap_pp": 7.965677110595969
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 64.9769585253456,
+        "market_accuracy": 37.71929824561405,
+        "accuracy_gap_pp": 27.257660279731546
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 74.58563535911603,
+        "market_accuracy": 58.97435897435897,
+        "accuracy_gap_pp": 15.611276384757055
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 68.33855799373043,
+        "market_accuracy": 59.071729957805914,
+        "accuracy_gap_pp": 9.266828035924519
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 62.5,
+        "market_accuracy": 59.770114942528735,
+        "accuracy_gap_pp": 2.7298850574712645
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 74.10714285714288,
+        "market_accuracy": 57.142857142857146,
+        "accuracy_gap_pp": 16.96428571428573
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 68.47290640394088,
+        "market_accuracy": 71.81208053691276,
+        "accuracy_gap_pp": -3.339174132971877
+      }
+    ],
+    "new:local_qwen35_27b_gptq": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 82.95819935691318,
+        "market_accuracy": 60.46511627906977,
+        "accuracy_gap_pp": 22.493083077843416
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 81.56682027649767,
+        "market_accuracy": 60.526315789473706,
+        "accuracy_gap_pp": 21.04050448702396
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 72.3756906077348,
+        "market_accuracy": 61.53846153846154,
+        "accuracy_gap_pp": 10.837229069273256
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 82.7586206896552,
+        "market_accuracy": 65.82278481012658,
+        "accuracy_gap_pp": 16.935835879528625
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 78.125,
+        "market_accuracy": 75.28735632183908,
+        "accuracy_gap_pp": 2.837643678160916
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 78.57142857142858,
+        "market_accuracy": 64.28571428571429,
+        "accuracy_gap_pp": 14.285714285714292
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 82.75862068965516,
+        "market_accuracy": 79.19463087248323,
+        "accuracy_gap_pp": 3.5639898171719295
+      }
+    ],
+    "new:local_qwen35_35b_a3b_gptq": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 80.38585209003215,
+        "market_accuracy": 51.16279069767441,
+        "accuracy_gap_pp": 29.223061392357735
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 83.41013824884791,
+        "market_accuracy": 53.50877192982459,
+        "accuracy_gap_pp": 29.901366319023325
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 82.32044198895028,
+        "market_accuracy": 64.1025641025641,
+        "accuracy_gap_pp": 18.217877886386177
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 72.10031347962384,
+        "market_accuracy": 64.13502109704642,
+        "accuracy_gap_pp": 7.965292382577417
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 75.78125,
+        "market_accuracy": 62.06896551724138,
+        "accuracy_gap_pp": 13.71228448275862
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 75.89285714285715,
+        "market_accuracy": 78.57142857142857,
+        "accuracy_gap_pp": -2.6785714285714164
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 69.45812807881772,
+        "market_accuracy": 84.56375838926174,
+        "accuracy_gap_pp": -15.105630310444013
+      }
+    ],
+    "new:local_qwen36_27b_gptq": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 79.09967845659163,
+        "market_accuracy": 68.60465116279069,
+        "accuracy_gap_pp": 10.495027293800945
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 82.02764976958524,
+        "market_accuracy": 64.91228070175441,
+        "accuracy_gap_pp": 17.115369067830827
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 75.69060773480663,
+        "market_accuracy": 46.15384615384615,
+        "accuracy_gap_pp": 29.53676158096048
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 77.74294670846399,
+        "market_accuracy": 63.71308016877638,
+        "accuracy_gap_pp": 14.02986653968761
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 76.5625,
+        "market_accuracy": 66.66666666666667,
+        "accuracy_gap_pp": 9.895833333333329
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 87.5,
+        "market_accuracy": 50.0,
+        "accuracy_gap_pp": 37.5
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 81.2807881773399,
+        "market_accuracy": 83.22147651006712,
+        "accuracy_gap_pp": -1.9406883327272197
+      }
+    ],
+    "new:local_qwen36_35b_a3b_awq": [
+      {
+        "id": "healthcare",
+        "name": "Healthcare",
+        "sample_size": 80.5,
+        "intervention_sample_size": 51.833333333333336,
+        "market_sample_size": 28.666666666666668,
+        "intervention_accuracy": 81.0289389067524,
+        "market_accuracy": 47.093023255813954,
+        "accuracy_gap_pp": 33.93591565093845
+      },
+      {
+        "id": "welfare_redistribution",
+        "name": "Welfare & Redistribution",
+        "sample_size": 55.16666666666667,
+        "intervention_sample_size": 36.16666666666667,
+        "market_sample_size": 18.999999999999996,
+        "intervention_accuracy": 74.6543778801843,
+        "market_accuracy": 55.263157894736864,
+        "accuracy_gap_pp": 19.391219985447435
+      },
+      {
+        "id": "education",
+        "name": "Education",
+        "sample_size": 49.66666666666667,
+        "intervention_sample_size": 30.166666666666668,
+        "market_sample_size": 19.5,
+        "intervention_accuracy": 82.32044198895028,
+        "market_accuracy": 58.97435897435897,
+        "accuracy_gap_pp": 23.346083014591308
+      },
+      {
+        "id": "labor",
+        "name": "Labor",
+        "sample_size": 185.33333333333331,
+        "intervention_sample_size": 106.3333333333333,
+        "market_sample_size": 79.0,
+        "intervention_accuracy": 80.40752351097181,
+        "market_accuracy": 51.89873417721519,
+        "accuracy_gap_pp": 28.508789333756624
+      },
+      {
+        "id": "financial_regulation",
+        "name": "Financial Regulation",
+        "sample_size": 215.0,
+        "intervention_sample_size": 128.0,
+        "market_sample_size": 87.0,
+        "intervention_accuracy": 75.78125,
+        "market_accuracy": 67.24137931034483,
+        "accuracy_gap_pp": 8.539870689655174
+      },
+      {
+        "id": "trade",
+        "name": "Trade",
+        "sample_size": 32.666666666666664,
+        "intervention_sample_size": 18.666666666666664,
+        "market_sample_size": 14.0,
+        "intervention_accuracy": 65.17857142857144,
+        "market_accuracy": 64.28571428571429,
+        "accuracy_gap_pp": 0.892857142857153
+      },
+      {
+        "id": "taxation",
+        "name": "Taxation",
+        "sample_size": 58.666666666666664,
+        "intervention_sample_size": 33.833333333333336,
+        "market_sample_size": 24.83333333333333,
+        "intervention_accuracy": 69.45812807881772,
+        "market_accuracy": 84.56375838926174,
+        "accuracy_gap_pp": -15.105630310444013
+      }
+    ]
+  },
+  "sources": {
+    "paper_subfields": {
+      "path": "data/camera-ready-subfields-878.v1.json",
+      "sha256": "e9919566667df35fec1af5adc9ec7027af75e868606911d75b5b6109dac79dbf"
+    },
+    "old_hosted": {
+      "path": "/home/donggyu/econ_causality/colm_web_standard_parallel_20260805T121530Z/runs/full_20260806T094208Z/results.jsonl",
+      "sha256": "505d1abc3f5ee0cced7061fb2e726f6bb28f07a12016768d50f4223d4a49c506"
+    },
+    "new_selected": {
+      "path": "/home/donggyu/econ_causality/web_four_model_eval_20260812T145553Z/website_selected_results.jsonl",
+      "sha256": "4d8a3795ad84a4ac80cf8f3044da09bffe9fe9b71c6b89892801361e9a9b4b8e",
+      "rows": 4224
+    },
+    "dataset": {
+      "path": "/home/donggyu/econ_causality/data/task1_ideology_subset_1056.jsonl",
+      "sha256": "300681f47a018ffa1bb96b6655c11a81518bab9582374a6b990f85ace82717fb"
+    },
+    "classifier": {
+      "path": "/home/donggyu/econ_causality/extended/classification_results/ideology_triplet_subset_current.jsonl",
+      "sha256": "7973d3e6021854b276178badca59bed61312cbe9252a13e4875975a5683ee60f"
+    }
+  }
+}
