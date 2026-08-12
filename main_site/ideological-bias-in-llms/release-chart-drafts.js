@@ -352,10 +352,14 @@ function renderFocusChart(rows) {
         return button;
     });
     const setFamily = (selected) => {
+        const isOverview = selected === 'All';
         controls.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.family === selected)));
-        svg.querySelectorAll('.focus-point').forEach((point) => point.classList.toggle('is-active', selected === 'All' || point.dataset.family === selected));
-        svg.querySelectorAll('.focus-line').forEach((line) => line.classList.toggle('is-active', selected !== 'All' && line.dataset.family === selected));
-        svg.querySelectorAll('.focus-label').forEach((label) => label.classList.toggle('is-active', selected !== 'All' && label.dataset.family === selected));
+        svg.querySelectorAll('.focus-point').forEach((point) => point.classList.toggle('is-active', isOverview || point.dataset.family === selected));
+        svg.querySelectorAll('.focus-line').forEach((line) => {
+            line.classList.toggle('is-overview', isOverview);
+            line.classList.toggle('is-active', !isOverview && line.dataset.family === selected);
+        });
+        svg.querySelectorAll('.focus-label').forEach((label) => label.classList.toggle('is-active', !isOverview && label.dataset.family === selected));
     };
     controls.forEach((button) => {
         button.addEventListener('click', () => setFamily(button.dataset.family));

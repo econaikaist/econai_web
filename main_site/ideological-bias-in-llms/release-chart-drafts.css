@@ -266,6 +266,7 @@ main {
 .focus-point { opacity: 0.2; transition: opacity 0.18s ease; }
 .focus-point.is-active { opacity: 1; }
 .focus-line { opacity: 0; transition: opacity 0.18s ease; }
+.focus-line.is-overview { opacity: 0.5; }
 .focus-line.is-active { opacity: 0.82; }
 .focus-label { opacity: 0; transition: opacity 0.18s ease; }
 .focus-label.is-active { opacity: 1; }
