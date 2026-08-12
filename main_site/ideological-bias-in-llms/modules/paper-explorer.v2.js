@@ -1,8 +1,6 @@
-const DATA_URL = new URL('../data/paper-data.v2.json?v=20260812a', import.meta.url);
-const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260812a', import.meta.url);
+const DATA_URL = new URL('../data/paper-data.v2.json?v=20260812b', import.meta.url);
+const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260812b', import.meta.url);
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const RELEASE_POINT_SPACING = 48;
-const RELEASE_POINT_RADIUS = 22;
 const MAIN_EXCLUDED_CONDITIONS = new Set([
     // Minimum-setting reruns of models already represented by their paper result.
     'oa_gpt5_nano_minimal',
@@ -175,41 +173,34 @@ function svgElement(tag, attributes = {}, text = '') {
     return element;
 }
 
-function pointDistance(first, second) {
-    return Math.hypot(first.x - second.x, first.y - second.y);
-}
-
-function layoutReleasePoints(points, bounds) {
-    const placed = [];
-    const radiusStep = 8;
-    const angleCount = 36;
-    const maxRadius = Math.ceil(Math.hypot(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY));
-
-    points.forEach((point, pointIndex) => {
-        let selected = null;
-        const phase = ((pointIndex * 137.508) % 360) * (Math.PI / 180);
-        for (let radius = 0; radius <= maxRadius && !selected; radius += radiusStep) {
-            const candidates = radius === 0
-                ? [{ x: point.actualX, y: point.actualY }]
-                : Array.from({ length: angleCount }, (_, angleIndex) => {
-                    const angle = phase + (angleIndex / angleCount) * Math.PI * 2;
-                    return {
-                        x: point.actualX + Math.cos(angle) * radius,
-                        y: point.actualY + Math.sin(angle) * radius,
-                    };
-                });
-            selected = candidates.find((candidate) => (
-                candidate.x >= bounds.minX && candidate.x <= bounds.maxX
-                && candidate.y >= bounds.minY && candidate.y <= bounds.maxY
-                && placed.every((other) => pointDistance(candidate, other) >= RELEASE_POINT_SPACING)
-            )) || null;
-        }
-        if (!selected) throw new Error(`Unable to place independent release-chart control for ${point.row.resultKey}.`);
-        point.displayX = selected.x;
-        point.displayY = selected.y;
-        placed.push(selected);
-    });
-    return points;
+function releaseMarkerElement(point, style) {
+    const { actualX: x, actualY: y, row } = point;
+    const radius = 6;
+    const attributes = {
+        class: 'release-svg-point',
+        fill: style.color,
+        stroke: '#fff',
+        'stroke-width': 2,
+        'data-result-key': row.resultKey,
+        'data-family': row.family,
+        'data-x': x,
+        'data-y': y,
+    };
+    if (style.marker === 'circle') {
+        return svgElement('circle', { ...attributes, cx: x, cy: y, r: radius });
+    }
+    if (style.marker === 'square') {
+        return svgElement('rect', { ...attributes, x: x - radius, y: y - radius, width: radius * 2, height: radius * 2, rx: 1.5 });
+    }
+    if (style.marker === 'diamond') {
+        return svgElement('polygon', { ...attributes, points: `${x},${y - radius - 1} ${x + radius + 1},${y} ${x},${y + radius + 1} ${x - radius - 1},${y}` });
+    }
+    const sides = style.marker === 'triangle' ? 3 : style.marker === 'pentagon' ? 5 : 6;
+    const points = Array.from({ length: sides }, (_, index) => {
+        const angle = -Math.PI / 2 + (index / sides) * Math.PI * 2;
+        return `${x + Math.cos(angle) * (radius + 1)},${y + Math.sin(angle) * (radius + 1)}`;
+    }).join(' ');
+    return svgElement('polygon', { ...attributes, points });
 }
 
 function ensurePaperBaseline(data) {
@@ -1044,9 +1035,9 @@ export async function initPaperExplorer({ announce }) {
             : null;
         if (focusedResultKey) hideQuickDetail();
         releaseChart.dataset.pointLayoutReady = 'false';
-        const width = Math.max(900, Math.round(releaseChart.clientWidth));
-        const height = width < 520 ? 450 : 510;
-        const margin = { top: 28, right: width < 520 ? 12 : 24, bottom: 58, left: width < 520 ? 50 : 70 };
+        const width = Math.max(320, Math.round(releaseChart.clientWidth));
+        const height = 520;
+        const margin = { top: 28, right: 24, bottom: 58, left: 70 };
         const plotWidth = width - margin.left - margin.right;
         const plotHeight = height - margin.top - margin.bottom;
         const dates = mainModelRows.map((row) => Date.parse(`${row.releaseDate}T00:00:00Z`));
@@ -1058,25 +1049,18 @@ export async function initPaperExplorer({ announce }) {
         const yMax = Math.ceil(Math.max(5, ...gapValues) / 5) * 5;
         const xScale = (date) => margin.left + ((date - xMin) / (xMax - xMin)) * plotWidth;
         const yScale = (value) => margin.top + ((yMax - value) / (yMax - yMin)) * plotHeight;
-        const releasePoints = layoutReleasePoints(
-            mainModelRows.map((row, originalIndex) => ({
+        const releasePoints = mainModelRows.map((row, originalIndex) => ({
                 row,
                 originalIndex,
                 releaseTimestamp: Date.parse(`${row.releaseDate}T00:00:00Z`),
                 actualX: xScale(Date.parse(`${row.releaseDate}T00:00:00Z`)),
                 actualY: yScale(row.gap),
-            })).sort((first, second) => first.releaseTimestamp - second.releaseTimestamp || first.originalIndex - second.originalIndex),
-            {
-                minX: Math.max(margin.left, RELEASE_POINT_RADIUS),
-                maxX: Math.min(width - margin.right, width - RELEASE_POINT_RADIUS),
-                minY: Math.max(margin.top, RELEASE_POINT_RADIUS),
-                maxY: Math.min(height - margin.bottom, height - RELEASE_POINT_RADIUS),
-            },
-        );
+            })).sort((first, second) => first.releaseTimestamp - second.releaseTimestamp || first.originalIndex - second.originalIndex);
         releaseChart.replaceChildren();
         const svg = svgElement('svg', {
             class: 'release-chart-svg', viewBox: `0 0 ${width} ${height}`, width, height, 'aria-hidden': 'true',
         });
+        svg.style.height = `${height}px`;
         for (let tick = yMin; tick <= yMax; tick += 5) {
             const y = yScale(tick);
             svg.appendChild(svgElement('line', { x1: margin.left, x2: width - margin.right, y1: y, y2: y, class: tick === 0 ? 'release-zero-line' : 'release-grid-line' }));
@@ -1095,33 +1079,57 @@ export async function initPaperExplorer({ announce }) {
         Object.keys(FAMILY_STYLES).forEach((family) => {
             const points = releasePoints.filter((point) => point.row.family === family)
                 .sort((first, second) => first.releaseTimestamp - second.releaseTimestamp || first.originalIndex - second.originalIndex)
-                .map((point) => `${point.displayX},${point.displayY}`).join(' ');
+                .map((point) => `${point.actualX},${point.actualY}`).join(' ');
             if (points) svg.appendChild(svgElement('polyline', { points, class: 'release-family-line', stroke: FAMILY_STYLES[family].color, 'data-family': family }));
+        });
+        releasePoints.forEach((point) => {
+            svg.appendChild(releaseMarkerElement(point, FAMILY_STYLES[point.row.family]));
         });
         releaseChart.appendChild(svg);
         releasePoints.forEach((point) => {
             const { row } = point;
             const style = FAMILY_STYLES[row.family];
+            const marker = [...svg.querySelectorAll('.release-svg-point')]
+                .find((candidate) => candidate.dataset.resultKey === row.resultKey);
+            const familyLine = [...svg.querySelectorAll('.release-family-line')]
+                .find((candidate) => candidate.dataset.family === row.family);
+            const highlight = (active) => {
+                marker?.classList.toggle('is-highlighted', active);
+                familyLine?.classList.toggle('is-highlighted', active);
+            };
             const button = document.createElement('button');
             button.type = 'button';
             button.className = `release-point-button family-marker-${style.marker}`;
             button.dataset.resultKey = row.resultKey;
             button.dataset.family = row.family;
-            button.style.left = `${point.displayX}px`;
-            button.style.top = `${point.displayY}px`;
+            button.style.left = `${point.actualX}px`;
+            button.style.top = `${point.actualY}px`;
             button.style.setProperty('--family-color', style.color);
             button.setAttribute('aria-label', `${row.family} ${row.displayName}, released ${formatDate(row.releaseDate)}, accuracy gap ${formatSigned(row.gap, ' percentage points')}. Open details.`);
             button.setAttribute('aria-describedby', tooltip.id);
-            button.addEventListener('mouseenter', () => showReleaseDetail(button, row));
-            button.addEventListener('mouseleave', () => hideQuickDetailFor(button, true));
-            button.addEventListener('focus', () => showReleaseDetail(button, row));
-            button.addEventListener('blur', () => hideQuickDetailFor(button));
+            button.addEventListener('mouseenter', () => {
+                highlight(true);
+                showReleaseDetail(button, row);
+            });
+            button.addEventListener('mouseleave', () => {
+                highlight(false);
+                hideQuickDetailFor(button, true);
+            });
+            button.addEventListener('focus', () => {
+                highlight(true);
+                showReleaseDetail(button, row);
+            });
+            button.addEventListener('blur', () => {
+                highlight(false);
+                hideQuickDetailFor(button);
+            });
             button.addEventListener('click', () => openBenchmarkRow(row, button));
             releaseChart.appendChild(button);
             if (dialogResultKey === row.resultKey) lastDialogTrigger = button;
         });
         releaseChart.dataset.modelCount = String(mainModelRows.length);
-        releaseChart.dataset.minimumPointSpacing = String(RELEASE_POINT_SPACING);
+        releaseChart.dataset.coordinateSystem = 'exact-data-coordinates';
+        releaseChart.dataset.familyLineOrder = 'release-date-ascending';
         releaseChart.dataset.pointLayoutReady = 'true';
         releaseChart.querySelectorAll('.release-point-button').forEach((button) => {
             button.dataset.interactive = 'true';

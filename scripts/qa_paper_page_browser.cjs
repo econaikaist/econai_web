@@ -480,6 +480,58 @@ async function validateReleaseChart(page, width) {
         return { name: item.dataset.resultKey, width: rect.width, height: rect.height };
     }));
     checkTouchTargets(targetMetrics, `${width}px release-chart controls`);
+    const geometry = await chart.evaluate((element) => {
+        const svg = element.querySelector('.release-chart-svg');
+        const svgRect = svg.getBoundingClientRect();
+        const markers = [...svg.querySelectorAll('.release-svg-point')];
+        const buttons = [...element.querySelectorAll('.release-point-button')];
+        const markerByKey = new Map(markers.map((marker) => [marker.dataset.resultKey, marker]));
+        const pointAlignment = buttons.map((button) => {
+            const marker = markerByKey.get(button.dataset.resultKey);
+            const buttonRect = button.getBoundingClientRect();
+            const markerAnchor = marker ? svg.createSVGPoint() : null;
+            if (markerAnchor) {
+                markerAnchor.x = Number(marker.dataset.x);
+                markerAnchor.y = Number(marker.dataset.y);
+            }
+            const markerScreenAnchor = markerAnchor?.matrixTransform(svg.getScreenCTM());
+            return {
+                key: button.dataset.resultKey,
+                missing: !marker,
+                dx: markerScreenAnchor ? Math.abs((buttonRect.left + buttonRect.width / 2) - markerScreenAnchor.x) : null,
+                dy: markerScreenAnchor ? Math.abs((buttonRect.top + buttonRect.height / 2) - markerScreenAnchor.y) : null,
+            };
+        });
+        const lineOrder = [...svg.querySelectorAll('.release-family-line')].map((line) => {
+            const xs = line.getAttribute('points').trim().split(/\s+/).map((pair) => Number(pair.split(',')[0]));
+            return {
+                family: line.dataset.family,
+                nondecreasing: xs.every((value, index) => index === 0 || value >= xs[index - 1] - 0.001),
+            };
+        });
+        return {
+            coordinateSystem: element.dataset.coordinateSystem,
+            lineOrderContract: element.dataset.familyLineOrder,
+            markerCount: markers.length,
+            buttonCount: buttons.length,
+            svgWidth: svgRect.width,
+            chartContentWidth: element.clientWidth,
+            pointAlignment,
+            lineOrder,
+        };
+    });
+    assert.equal(geometry.coordinateSystem, 'exact-data-coordinates', `${width}px release coordinate contract`);
+    assert.equal(geometry.lineOrderContract, 'release-date-ascending', `${width}px release line-order contract`);
+    assert.equal(geometry.markerCount, 47, `${width}px release SVG marker count`);
+    assert.equal(geometry.buttonCount, 47, `${width}px release hit-target count`);
+    assert.ok(Math.abs(geometry.svgWidth - geometry.chartContentWidth) < 1, `${width}px SVG/chart width drift`);
+    geometry.pointAlignment.forEach((point) => {
+        assert.equal(point.missing, false, `${width}px missing marker for ${point.key}`);
+        assert.ok(point.dx < 1 && point.dy < 1, `${width}px ${point.key} marker/hit drift ${point.dx},${point.dy}`);
+    });
+    geometry.lineOrder.forEach((line) => {
+        assert.equal(line.nondecreasing, true, `${width}px ${line.family} line moves backward in time`);
+    });
     if (width === 1024) {
         const updatedPoint = chart.locator('.release-point-button[data-result-key^="new:"]').first();
         const resultKey = await updatedPoint.getAttribute('data-result-key');

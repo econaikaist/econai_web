@@ -1356,7 +1356,7 @@ p {
 }
 
 .release-chart-scroll .release-chart {
-    min-width: 900px;
+    min-width: 1040px;
 }
 
 .release-chart-svg {
@@ -1391,8 +1391,29 @@ p {
     fill: none;
     stroke-width: 1.5;
     stroke-linecap: round;
-    opacity: 0.55;
+    stroke-linejoin: round;
+    opacity: 0.32;
     vector-effect: non-scaling-stroke;
+    transition: opacity 0.15s ease, stroke-width 0.15s ease;
+}
+
+.release-family-line.is-highlighted {
+    stroke-width: 2.6;
+    opacity: 0.92;
+}
+
+.release-svg-point {
+    pointer-events: none;
+    filter: drop-shadow(0 2px 3px rgba(15, 32, 60, 0.22));
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: filter 0.15s ease, transform 0.15s ease;
+    vector-effect: non-scaling-stroke;
+}
+
+.release-svg-point.is-highlighted {
+    filter: drop-shadow(0 0 5px rgba(255, 191, 71, 0.95));
+    transform: scale(1.5);
 }
 
 .release-point-button {
@@ -1408,34 +1429,6 @@ p {
     background: transparent;
     cursor: pointer;
     transform: translate(-50%, -50%);
-}
-
-.release-point-button::before {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 14px;
-    height: 14px;
-    border: 2px solid #fff;
-    content: "";
-    background: var(--family-color);
-    box-shadow: 0 0 0 1.5px var(--family-color), 0 3px 8px rgba(15, 32, 60, 0.2);
-    transform: translate(-50%, -50%);
-    transition: width 0.15s ease, height 0.15s ease, box-shadow 0.15s ease;
-}
-
-.release-point-button.family-marker-circle::before { border-radius: 50%; }
-.release-point-button.family-marker-square::before { border-radius: 2px; }
-.release-point-button.family-marker-diamond::before { transform: translate(-50%, -50%) rotate(45deg); }
-.release-point-button.family-marker-triangle::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
-.release-point-button.family-marker-pentagon::before { clip-path: polygon(50% 0, 96% 35%, 78% 100%, 22% 100%, 4% 35%); }
-.release-point-button.family-marker-hexagon::before { clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%); }
-
-.release-point-button:hover::before,
-.release-point-button:focus-visible::before {
-    width: 19px;
-    height: 19px;
-    box-shadow: 0 0 0 4px rgba(255, 191, 71, 0.55), 0 5px 14px rgba(15, 32, 60, 0.28);
 }
 
 .release-point-button:focus-visible {
@@ -3257,13 +3250,13 @@ body:has(.model-detail-dialog[open]) {
     }
 
     .release-chart {
-        min-height: 450px;
+        min-height: 520px;
         margin-top: 18px;
         border-radius: 14px;
     }
 
     .release-chart-svg {
-        height: 450px;
+        height: 520px;
     }
 
     .model-detail-dialog {
@@ -4004,8 +3997,8 @@ body:has(.model-detail-dialog[open]) {
 .release-chart {
     display: grid;
     min-height: 0;
-    padding: 10px 16px;
-    overflow: visible;
+    padding: 0;
+    overflow: hidden;
     gap: 0;
 }
 

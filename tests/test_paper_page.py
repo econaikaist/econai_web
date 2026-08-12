@@ -528,7 +528,7 @@ class PaperPageStaticTests(unittest.TestCase):
             self.assertEqual(background_image.group(1).strip(), "none")
 
     def test_interactive_assets_use_matching_cache_busters(self):
-        asset_version = "20260812a"
+        asset_version = "20260812b"
         self.assertIn(f'href="styles.css?v={asset_version}"', self.html)
         self.assertIn(f'src="script.js?v={asset_version}"', self.html)
         entrypoint = (PAGE_ROOT / "script.js").read_text(encoding="utf-8")
@@ -832,6 +832,13 @@ class PaperPageStaticTests(unittest.TestCase):
         self.assertIn("data-result-key", renderer)
         self.assertIn("releaseChart.dataset.modelCount = String(mainModelRows.length)", renderer)
         self.assertIn("mainModelRows", renderer)
+        self.assertIn("releaseMarkerElement", renderer)
+        self.assertIn("`${point.actualX},${point.actualY}`", renderer)
+        self.assertIn("releaseChart.dataset.coordinateSystem = 'exact-data-coordinates'", renderer)
+        self.assertIn("releaseChart.dataset.familyLineOrder = 'release-date-ascending'", renderer)
+        self.assertNotIn("layoutReleasePoints", self.explorer)
+        self.assertNotIn("displayX", renderer)
+        self.assertNotIn("displayY", renderer)
 
     def test_main_model_sequence_uses_capability_groups(self):
         self.assertIn("const MAIN_MODEL_GROUPS", self.explorer)
@@ -891,7 +898,7 @@ class PaperPageStaticTests(unittest.TestCase):
             'href="https://arxiv.org/abs/2604.21334"',
             'content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png"',
             'data-copy-target="bibtex"',
-            'type="module" src="script.js?v=20260812a"',
+            'type="module" src="script.js?v=20260812b"',
         ):
             self.assertIn(value, self.html)
 
