@@ -528,7 +528,7 @@ class PaperPageStaticTests(unittest.TestCase):
             self.assertEqual(background_image.group(1).strip(), "none")
 
     def test_interactive_assets_use_matching_cache_busters(self):
-        asset_version = "20260813b"
+        asset_version = "20260813c"
         self.assertIn(f'href="styles.css?v={asset_version}"', self.html)
         self.assertIn(f'src="script.js?v={asset_version}"', self.html)
         entrypoint = (PAGE_ROOT / "script.js").read_text(encoding="utf-8")
@@ -917,7 +917,7 @@ class PaperPageStaticTests(unittest.TestCase):
             'href="https://arxiv.org/abs/2604.21334"',
             'content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png"',
             'data-copy-target="bibtex"',
-            'type="module" src="script.js?v=20260813b"',
+            'type="module" src="script.js?v=20260813c"',
         ):
             self.assertIn(value, self.html)
 
@@ -1139,6 +1139,14 @@ class PaperPageStaticTests(unittest.TestCase):
                 )
             )
         self.assertEqual(observed, list(EXPECTED_AGGREGATE_SUBFIELDS))
+        for name in ("Taxation", "Trade"):
+            row = re.search(
+                rf'<button\b[^>]*data-subfield-name="{name}".*?</button>',
+                section,
+                flags=re.DOTALL,
+            )
+            self.assertIsNotNone(row)
+            self.assertIn('class="negative-value"', row.group(0))
         self.assertRegex(
             section,
             r'id="subfield-detail"[^>]*aria-live="polite"[^>]*aria-atomic="true"[^>]*hidden',

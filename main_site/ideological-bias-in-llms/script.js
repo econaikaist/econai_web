@@ -2,7 +2,7 @@ import { announce, initCitationCopy } from './modules/citation.v2.js';
 
 initCitationCopy();
 
-import('./modules/paper-explorer.v2.js?v=20260813b')
+import('./modules/paper-explorer.v2.js?v=20260813c')
     .then(({ initPaperExplorer }) => initPaperExplorer({ announce }))
     .catch((error) => {
         console.error('Paper explorer could not be initialized.', error);

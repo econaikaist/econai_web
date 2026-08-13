@@ -1,5 +1,5 @@
-const DATA_URL = new URL('../data/paper-data.v2.json?v=20260813b', import.meta.url);
-const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260813b', import.meta.url);
+const DATA_URL = new URL('../data/paper-data.v2.json?v=20260813c', import.meta.url);
+const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260813c', import.meta.url);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const MAIN_EXCLUDED_CONDITIONS = new Set([
     // Minimum-setting reruns of models already represented by their paper result.
@@ -1022,7 +1022,7 @@ export async function initPaperExplorer({ announce }) {
                 'openai-compact', 'openai-flagship', 'claude-general', 'claude-premium', 'gemini', 'grok',
             ], 'Closed and hosted models'),
             benchmarkGroupMarkup(mainModelRows, [
-                'llama', 'qwen-compact', 'qwen-large',
+                'qwen-compact', 'qwen-large', 'llama',
             ], 'Open-weight models'),
         ].join('');
         benchmarkChart.dataset.modelCount = String(mainModelRows.length);

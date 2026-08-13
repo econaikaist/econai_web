@@ -129,6 +129,17 @@ async function validateAggregateSubfields(page, width) {
     checkTouchTargets(targetMetrics, `${width}px subfield controls`);
     const orderedGaps = await rows.evaluateAll((buttons) => buttons.map((button) => Number(button.dataset.gap)));
     assert.ok(orderedGaps.every((gap, index) => index === 0 || orderedGaps[index - 1] >= gap), `${width}px subfields are not sorted by descending intervention advantage`);
+    const aggregateGapColors = await rows.evaluateAll((buttons) => buttons.map((button) => ({
+        name: button.dataset.subfieldName,
+        gap: Number(button.dataset.gap),
+        color: getComputedStyle(button.querySelector(':scope > strong')).color,
+        negativeClass: button.querySelector(':scope > strong').classList.contains('negative-value'),
+    })));
+    const positiveColor = aggregateGapColors.find((row) => row.gap > 0).color;
+    aggregateGapColors.filter((row) => row.gap < 0).forEach((row) => {
+        assert.equal(row.negativeClass, true, `${width}px ${row.name} lacks negative value styling`);
+        assert.notEqual(row.color, positiveColor, `${width}px ${row.name} market advantage is not red`);
+    });
 
     const first = rows.first();
     const detail = page.locator('#subfield-detail');
@@ -706,7 +717,7 @@ async function validateViewport(browser, width) {
     ));
     assert.deepEqual(Object.keys(capabilityGroups), [
         'openai-compact', 'openai-flagship', 'claude-general', 'claude-premium', 'gemini',
-        'grok', 'llama', 'qwen-compact', 'qwen-large',
+        'grok', 'qwen-compact', 'qwen-large', 'llama',
     ]);
     assert.deepEqual(capabilityGroups['openai-compact'], ['paper:gpt-4o-mini', 'paper:gpt-5-nano', 'paper:gpt-5-mini', 'new:oa_gpt54_nano_none', 'new:oa_gpt54_mini_none', 'new:oa_gpt56_luna_none']);
     assert.deepEqual(capabilityGroups['openai-flagship'], ['paper:gpt-4o', 'new:openai_gpt5_minimal', 'new:openai_gpt51_none', 'paper:gpt-5-2', 'new:oa_gpt54_none', 'new:oa_gpt55_none', 'new:oa_gpt56_terra_none', 'new:oa_gpt56_sol_none']);
