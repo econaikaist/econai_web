@@ -528,7 +528,7 @@ class PaperPageStaticTests(unittest.TestCase):
             self.assertEqual(background_image.group(1).strip(), "none")
 
     def test_interactive_assets_use_matching_cache_busters(self):
-        asset_version = "20260813a"
+        asset_version = "20260813b"
         self.assertIn(f'href="styles.css?v={asset_version}"', self.html)
         self.assertIn(f'src="script.js?v={asset_version}"', self.html)
         entrypoint = (PAGE_ROOT / "script.js").read_text(encoding="utf-8")
@@ -917,7 +917,7 @@ class PaperPageStaticTests(unittest.TestCase):
             'href="https://arxiv.org/abs/2604.21334"',
             'content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png"',
             'data-copy-target="bibtex"',
-            'type="module" src="script.js?v=20260813a"',
+            'type="module" src="script.js?v=20260813b"',
         ):
             self.assertIn(value, self.html)
 
@@ -946,12 +946,24 @@ class PaperPageStaticTests(unittest.TestCase):
         self.assertNotIn("row.overall", updated_dialog)
         for label, field in (
             ("Provider", "row.provider"),
-            ("Requested model", "row.modelId"),
-            ("Canonical model", "row.canonicalModelId"),
             ("Setting", "row.setting"),
         ):
             self.assertIn(label, updated_dialog)
             self.assertIn(field, updated_dialog)
+        self.assertNotIn("Requested model", updated_dialog)
+        self.assertNotIn("Canonical model", updated_dialog)
+        self.assertNotIn("row.modelId", updated_dialog)
+        self.assertNotIn("row.canonicalModelId", updated_dialog)
+
+        updated_opener = self.explorer.split("function openUpdatedResult(row, trigger)", 1)[1].split(
+            "function openBenchmarkRow", 1
+        )[0]
+        self.assertIn("Official release: ${formatDate(row.releaseDate)}", updated_opener)
+        self.assertNotIn("experimentSettingLabel(row.setting)", updated_opener)
+
+        self.assertIn("function formatSampleSize(value)", self.explorer)
+        self.assertIn("Math.round(number)", self.explorer)
+        self.assertIn("formatSampleSize(subfield.sample_size)", self.explorer)
 
         row_normalizer = self.explorer.split("function normalizeBenchmarkRows", 1)[1].split(
             "function benchmarkRowMarkup", 1

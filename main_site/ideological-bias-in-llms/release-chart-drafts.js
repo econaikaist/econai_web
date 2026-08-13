@@ -1,5 +1,5 @@
-const PAPER_URL = new URL('./data/paper-data.v2.json?v=20260813a', import.meta.url);
-const RESULTS_URL = new URL('./data/website-experiment-results.v1.json?v=20260813a', import.meta.url);
+const PAPER_URL = new URL('./data/paper-data.v2.json?v=20260813b', import.meta.url);
+const RESULTS_URL = new URL('./data/website-experiment-results.v1.json?v=20260813b', import.meta.url);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const EXCLUDED_CONDITIONS = new Set([
     'oa_gpt5_nano_minimal',

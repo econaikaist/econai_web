@@ -460,16 +460,25 @@ async function validateUpdatedModelDialog(page, width) {
     assert.equal(await page.locator('[data-model-tab]').count(), 3, `${width}px updated dialog changed the tab contract`);
     assert.equal(await page.locator('[data-model-tab]:visible').count(), 3, `${width}px updated dialog does not expose all tabs`);
     assert.equal(await page.locator('#model-panel-overview .metric-card').count(), 4, `${width}px updated overview metric count`);
-    assert.equal(await page.locator('#model-panel-overview .updated-result-provenance > div').count(), 4, `${width}px updated provenance count`);
+    const metricRows = await page.locator('#model-panel-overview .metric-card').evaluateAll((cards) => cards.map((card) => Math.round(card.getBoundingClientRect().top)));
+    assert.deepEqual([...new Set(metricRows.map((top) => metricRows.filter((value) => value === top).length))], [2], `${width}px updated metrics are not balanced 2 by 2`);
+    assert.equal(await page.locator('#model-panel-overview .updated-result-provenance > div').count(), 2, `${width}px updated provenance count`);
     const overviewText = await page.locator('#model-panel-overview').innerText();
     for (const label of ['Intervention-truth', 'Market-truth', 'Accuracy gap']) {
         assert.ok(overviewText.includes(label), `${width}px updated dialog is missing ${label}`);
     }
     assert.doesNotMatch(overviewText, /Overall accuracy/i, `${width}px updated dialog still shows overall accuracy`);
+    assert.doesNotMatch(overviewText, /Requested model|Canonical model/i, `${width}px updated dialog still shows model IDs`);
+    const releaseText = await page.locator('#model-detail-release').innerText();
+    assert.match(releaseText, /^Official release: /, `${width}px updated dialog release label`);
+    assert.doesNotMatch(releaseText, / · |reason|thinking|effort|disabled|adaptive|minimal|none/i, `${width}px release label still shows inference settings`);
     await page.locator('#model-tab-examples').click();
     assert.equal(await page.locator('#model-panel-examples .example-card').count(), 2, `${width}px updated dialog examples`);
     await page.locator('#model-tab-subfields').click();
     assert.equal(await page.locator('#model-panel-subfields .model-subfield-card').count(), 8, `${width}px updated dialog subfields`);
+    const sampleLabels = await page.locator('#model-panel-subfields .model-subfield-card h3 small').allInnerTexts();
+    assert.equal(sampleLabels.length, 8, `${width}px updated subfield sample labels`);
+    sampleLabels.forEach((label) => assert.match(label, /^n=\d+$/, `${width}px non-integer sample label ${label}`));
     await closeDialog(page);
     assert.ok(await trigger.evaluate((element) => element === document.activeElement), `${width}px updated dialog did not restore focus`);
 }
@@ -658,6 +667,21 @@ async function validateViewport(browser, width) {
     assert.equal(await page.locator('#model-benchmark-chart .model-score-row[data-condition-key]').count(), 31, `${width}px added benchmark models`);
     assert.equal(await page.locator('#model-benchmark-chart .model-score-row[data-condition-key^="local_"]').count(), 9, `${width}px local benchmark rows`);
     assert.equal(await page.locator('#model-benchmark-chart .model-family-group').count(), 9, `${width}px capability groups`);
+    if (width <= 680) {
+        const familyWidths = await page.locator('#model-benchmark-chart .model-family-group').evaluateAll((groups) => groups.map((group) => {
+            const groupRect = group.getBoundingClientRect();
+            const bars = [...group.querySelectorAll('.model-score-bars')].map((element) => element.getBoundingClientRect());
+            return {
+                name: group.dataset.modelGroup,
+                overflowX: getComputedStyle(group).overflowX,
+                visibleBarsFit: bars.every((rect) => rect.left >= groupRect.left - 1 && rect.right <= groupRect.right + 1),
+            };
+        }));
+        familyWidths.forEach((group) => {
+            assert.equal(group.overflowX, 'hidden', `${width}px ${group.name} still exposes horizontal scrolling`);
+            assert.equal(group.visibleBarsFit, true, `${width}px ${group.name} clips visible bars: ${JSON.stringify(group)}`);
+        });
+    }
     assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-model-count'), '51', `${width}px main model count`);
     assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-positive-gap-count'), '44', `${width}px positive-gap count`);
     assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-order'), 'capability-groups', `${width}px grouping contract`);

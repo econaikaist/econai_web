@@ -1,5 +1,5 @@
-const DATA_URL = new URL('../data/paper-data.v2.json?v=20260813a', import.meta.url);
-const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260813a', import.meta.url);
+const DATA_URL = new URL('../data/paper-data.v2.json?v=20260813b', import.meta.url);
+const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260813b', import.meta.url);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const MAIN_EXCLUDED_CONDITIONS = new Set([
     // Minimum-setting reruns of models already represented by their paper result.
@@ -105,6 +105,12 @@ function formatOne(value) {
 
 function formatPercent(value) {
     return `${formatOne(value)}%`;
+}
+
+function formatSampleSize(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return '';
+    return String(Math.round(number));
 }
 
 function formatSigned(value, suffix = '') {
@@ -757,8 +763,6 @@ export async function initPaperExplorer({ announce }) {
             </dl>
             <dl class="updated-result-provenance">
                 <div><dt>Provider</dt><dd>${escapeHtml(row.provider)}</dd></div>
-                <div><dt>Requested model</dt><dd><code>${escapeHtml(row.modelId)}</code></dd></div>
-                <div><dt>Canonical model</dt><dd><code>${escapeHtml(row.canonicalModelId)}</code></dd></div>
                 <div><dt>Setting</dt><dd>${escapeHtml(experimentSettingLabel(row.setting))}</dd></div>
             </dl>
             <p class="definition-hint">Intervention-truth, market-truth, accuracy gap, and B<sub>dir</sub> use the 878 directionally aligned cases.</p>`;
@@ -800,7 +804,7 @@ export async function initPaperExplorer({ announce }) {
             },
         ] : [];
         document.getElementById('model-panel-subfields').innerHTML = subfieldRows.length
-            ? `<p class="model-subfield-note">This evaluation’s total and seven named subfields use the 878 directionally aligned cases.</p><div class="model-subfield-columns" aria-hidden="true"><span>Subfield</span><span>Intervention</span><span>Market</span><span>Gap</span></div><ul class="model-subfield-list">${subfieldRows.map((subfield) => `<li class="model-subfield-card${subfield.isTotal ? ' is-total' : ''}"><header><h3>${escapeHtml(subfield.name)} <small>n=${escapeHtml(subfield.sample_size)}</small></h3></header><dl><div class="is-intervention"><dt class="visually-hidden">Intervention-truth accuracy</dt><dd>${formatPercent(subfield.intervention_accuracy)}</dd></div><div class="is-market"><dt class="visually-hidden">Market-truth accuracy</dt><dd>${formatPercent(subfield.market_accuracy)}</dd></div><div class="${signedTone(subfield.accuracy_gap_pp)}"><dt class="visually-hidden">Accuracy gap</dt><dd>${escapeHtml(formatSigned(subfield.accuracy_gap_pp, ' pp'))}</dd></div></dl></li>`).join('')}</ul>`
+            ? `<p class="model-subfield-note">This evaluation’s total and seven named subfields use the 878 directionally aligned cases.</p><div class="model-subfield-columns" aria-hidden="true"><span>Subfield</span><span>Intervention</span><span>Market</span><span>Gap</span></div><ul class="model-subfield-list">${subfieldRows.map((subfield) => `<li class="model-subfield-card${subfield.isTotal ? ' is-total' : ''}"><header><h3>${escapeHtml(subfield.name)} <small>n=${escapeHtml(formatSampleSize(subfield.sample_size))}</small></h3></header><dl><div class="is-intervention"><dt class="visually-hidden">Intervention-truth accuracy</dt><dd>${formatPercent(subfield.intervention_accuracy)}</dd></div><div class="is-market"><dt class="visually-hidden">Market-truth accuracy</dt><dd>${formatPercent(subfield.market_accuracy)}</dd></div><div class="${signedTone(subfield.accuracy_gap_pp)}"><dt class="visually-hidden">Accuracy gap</dt><dd>${escapeHtml(formatSigned(subfield.accuracy_gap_pp, ' pp'))}</dd></div></dl></li>`).join('')}</ul>`
             : '<p class="model-subfield-empty">Per-subfield results are unavailable for this evaluation.</p>';
     }
 
@@ -907,7 +911,7 @@ export async function initPaperExplorer({ announce }) {
         lastDialogTrigger = trigger || document.activeElement;
         dialogFamily.textContent = `${row.family} · ${row.provider}`;
         dialogTitle.textContent = `${row.family} ${row.displayName}`;
-        dialogRelease.textContent = `Official release: ${formatDate(row.releaseDate)} · ${experimentSettingLabel(row.setting)}`;
+        dialogRelease.textContent = `Official release: ${formatDate(row.releaseDate)}`;
         renderUpdatedOverview(row);
         renderUpdatedSupplementaryPanels(row);
         activateTab('overview');
