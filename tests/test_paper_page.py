@@ -87,6 +87,13 @@ EXPECTED_AGGREGATE_SUBFIELDS = (
         14.466669520100034,
     ),
     (
+        "Education",
+        60.0,
+        72.74401473296501,
+        65.81196581196583,
+        6.932048920999179,
+    ),
+    (
         "Labor",
         218.0,
         68.70121089188028,
@@ -99,13 +106,6 @@ EXPECTED_AGGREGATE_SUBFIELDS = (
         69.33210784313725,
         65.58485463150777,
         3.7472532116294843,
-    ),
-    (
-        "Education",
-        60.0,
-        72.74401473296501,
-        65.81196581196583,
-        6.932048920999179,
     ),
     (
         "Taxation",
@@ -528,7 +528,7 @@ class PaperPageStaticTests(unittest.TestCase):
             self.assertEqual(background_image.group(1).strip(), "none")
 
     def test_interactive_assets_use_matching_cache_busters(self):
-        asset_version = "20260812d"
+        asset_version = "20260813a"
         self.assertIn(f'href="styles.css?v={asset_version}"', self.html)
         self.assertIn(f'src="script.js?v={asset_version}"', self.html)
         entrypoint = (PAGE_ROOT / "script.js").read_text(encoding="utf-8")
@@ -790,8 +790,7 @@ class PaperPageStaticTests(unittest.TestCase):
 
         page_text = normalized_markup_text(self.html)
         exact_copy = (
-            "A persistent left–right reliability gap Models remain less reliable when the evidence "
-            "points right.",
+            "Left-Advantage Score Left-truth accuracy minus right-truth accuracy.",
             "Figure 1. Accuracy asymmetry across model generations. Lines connect releases only "
             "within the same model family; hover, focus, or click any model for exact results.",
             "Do LLMs exhibit systematic ideological bias when reasoning about economic causal effects?",
@@ -860,13 +859,13 @@ class PaperPageStaticTests(unittest.TestCase):
     def test_main_model_sequence_uses_capability_groups(self):
         self.assertIn("const MAIN_MODEL_GROUPS", self.explorer)
         expected_groups = (
-            "openai-compact", "openai-flagship", "claude", "gemini",
+            "openai-compact", "openai-flagship", "claude-general", "claude-premium", "gemini",
             "grok", "llama", "qwen-compact", "qwen-large",
         )
         for group in expected_groups:
             self.assertIn(f"key: '{group}'", self.explorer)
         for removed_group in (
-            "claude-general", "claude-opus", "gemini-flash", "grok-fast",
+            "claude", "claude-opus", "gemini-flash", "grok-fast",
             "grok-flagship", "llama-compact", "llama-large",
         ):
             self.assertNotIn(f"key: '{removed_group}'", self.explorer)
@@ -874,32 +873,33 @@ class PaperPageStaticTests(unittest.TestCase):
         groups_block = self.explorer.split("const MAIN_MODEL_GROUPS =", 1)[1].split(
             "const FAMILY_STYLES", 1
         )[0]
-        self.assertEqual(groups_block.count("key: '"), 8)
+        self.assertEqual(groups_block.count("key: '"), 9)
         self.assertEqual(groups_block.count("family: 'OpenAI'"), 2)
+        self.assertEqual(groups_block.count("family: 'Claude'"), 2)
         self.assertEqual(groups_block.count("family: 'Qwen'"), 2)
-        for family in ("Claude", "Gemini", "Grok", "Llama"):
+        for family in ("Gemini", "Grok", "Llama"):
             self.assertEqual(groups_block.count(f"family: '{family}'"), 1)
 
-        claude_group = groups_block.split("key: 'claude'", 1)[1].split("},", 1)[0]
+        claude_general = groups_block.split("key: 'claude-general'", 1)[1].split("},", 1)[0]
+        claude_premium = groups_block.split("key: 'claude-premium'", 1)[1].split("},", 1)[0]
+        self.assertLess(claude_general.index("paper:claude-haiku-4-5"), claude_general.index("new:anthropic_sonnet45_disabled"))
+        self.assertLess(claude_general.index("new:anthropic_sonnet45_disabled"), claude_general.index("paper:claude-sonnet-4-6"))
+        self.assertLess(claude_general.index("paper:claude-sonnet-4-6"), claude_general.index("new:an_sonnet5_disabled_low"))
         for older, newer in zip(
             (
-                "paper:claude-haiku-4-5", "new:anthropic_sonnet45_disabled",
-                "new:anthropic_opus45_disabled_low", "paper:claude-sonnet-4-6",
-                "paper:claude-opus-4-6", "new:an_opus47_disabled_low",
-                "new:an_opus48_disabled_low", "new:an_sonnet5_disabled_low",
+                "new:anthropic_opus45_disabled_low", "paper:claude-opus-4-6",
+                "new:an_opus47_disabled_low", "new:an_opus48_disabled_low",
                 "new:an_opus5_disabled_low",
             ),
             (
-                "new:anthropic_sonnet45_disabled", "new:anthropic_opus45_disabled_low",
-                "paper:claude-sonnet-4-6", "paper:claude-opus-4-6",
-                "new:an_opus47_disabled_low", "new:an_opus48_disabled_low",
-                "new:an_sonnet5_disabled_low", "new:an_opus5_disabled_low",
+                "paper:claude-opus-4-6", "new:an_opus47_disabled_low",
+                "new:an_opus48_disabled_low", "new:an_opus5_disabled_low",
                 "new:an_fable5_adaptive_low",
             ),
         ):
-            self.assertLess(claude_group.index(older), claude_group.index(newer))
+            self.assertLess(claude_premium.index(older), claude_premium.index(newer))
         self.assertIn("benchmarkChart.dataset.order = 'capability-groups'", self.explorer)
-        self.assertIn("Only families with more than ten models are split", self.explorer)
+        self.assertIn("OpenAI and Claude are split by capability tier", self.explorer)
         self.assertIn("new:oa_gpt56_terra_none", self.explorer)
         self.assertIn("new:an_sonnet5_disabled_low", self.explorer)
         self.assertIn("new:gg_gemini36_minimal", self.explorer)
@@ -917,7 +917,7 @@ class PaperPageStaticTests(unittest.TestCase):
             'href="https://arxiv.org/abs/2604.21334"',
             'content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png"',
             'data-copy-target="bibtex"',
-            'type="module" src="script.js?v=20260812d"',
+            'type="module" src="script.js?v=20260813a"',
         ):
             self.assertIn(value, self.html)
 
@@ -936,13 +936,14 @@ class PaperPageStaticTests(unittest.TestCase):
             "function configureDialogTabs", 1
         )[0]
         for label, field in (
-            ("Overall accuracy", "row.overall"),
             ("Intervention-truth", "row.intervention"),
             ("Market-truth", "row.market"),
             ("Accuracy gap", "row.gap"),
         ):
             self.assertIn(label, updated_dialog)
             self.assertIn(field, updated_dialog)
+        self.assertNotIn("Overall accuracy", updated_dialog)
+        self.assertNotIn("row.overall", updated_dialog)
         for label, field in (
             ("Provider", "row.provider"),
             ("Requested model", "row.modelId"),

@@ -23,7 +23,7 @@
     <meta name="twitter:image" content="https://econai.kaist.ac.kr/ideological-bias-in-llms/assets/og-card.png">
 
     <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
-    <link rel="stylesheet" href="styles.css?v=20260812d">
+    <link rel="stylesheet" href="styles.css?v=20260813a">
 
     <script type="application/ld+json">
     {
@@ -114,13 +114,12 @@
                 <article class="release-panel release-panel-primary" aria-labelledby="release-bias-heading">
                     <div class="release-panel-header">
                         <div>
-                            <span class="figure-label">A persistent left–right reliability gap</span>
-                            <h2 id="release-bias-heading">Models remain less reliable when the evidence points right.</h2>
-                            <p>Accuracy gap is intervention-truth accuracy minus market-truth accuracy. Positive values indicate an intervention-truth advantage; negative values indicate a market-truth advantage.</p>
+                            <h2 id="release-bias-heading">Left-Advantage Score</h2>
+                            <p>Left-truth accuracy minus right-truth accuracy. Positive values indicate higher accuracy when the empirical evidence aligns with the left; negative values indicate a right-truth advantage.</p>
                         </div>
                         <div id="release-family-legend" class="release-family-legend" aria-label="Focus the release chart by model family"></div>
                     </div>
-                    <div class="release-chart-scroll" tabindex="0" role="region" aria-label="Interactive release-date and accuracy-gap view for all evaluated models. Every family path is shown in the default All models view; choosing a family emphasizes that path without changing the data.">
+                    <div class="release-chart-scroll" tabindex="0" role="region" aria-label="Interactive release-date and Left-Advantage Score view for all evaluated models. OpenAI is focused initially; choosing another family emphasizes that path without changing the data.">
                         <div id="release-chart" class="release-chart"></div>
                     </div>
                 </article>
@@ -186,7 +185,6 @@
             <article class="model-benchmark" aria-labelledby="model-benchmark-heading">
                 <div class="model-benchmark-header">
                     <div>
-                        <span class="figure-label">All-model accuracy</span>
                         <h3 id="model-benchmark-heading">Most models are more accurate on intervention-truth cases.</h3>
                         <p id="model-benchmark-description">Each model appears once, ordered by generation and then performance within its generation.</p>
                     </div>
@@ -373,6 +371,11 @@
                     <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:57.9%"></span></span>
                     <strong>+14.5</strong>
                 </button>
+                <button class="subfield-row" type="button" data-subfield-name="Education" data-sample-size="60" data-intervention-accuracy="72.74401473296501" data-market-accuracy="65.81196581196583" data-gap="6.932048920999179" aria-expanded="false" aria-controls="subfield-detail">
+                    <span class="subfield-name">Education <small>n=60</small></span>
+                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:27.7%"></span></span>
+                    <strong>+6.9</strong>
+                </button>
                 <button class="subfield-row" type="button" data-subfield-name="Labor" data-sample-size="218" data-intervention-accuracy="68.70121089188028" data-market-accuracy="62.14941672871679" data-gap="6.551794163163493" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Labor <small>n=218</small></span>
                     <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:26.2%"></span></span>
@@ -382,11 +385,6 @@
                     <span class="subfield-name">Financial Regulation <small>n=220</small></span>
                     <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:15.0%"></span></span>
                     <strong>+3.7</strong>
-                </button>
-                <button class="subfield-row" type="button" data-subfield-name="Education" data-sample-size="60" data-intervention-accuracy="72.74401473296501" data-market-accuracy="65.81196581196583" data-gap="6.932048920999179" aria-expanded="false" aria-controls="subfield-detail">
-                    <span class="subfield-name">Education <small>n=60</small></span>
-                    <span class="subfield-track"><i class="zero-line"></i><span class="subfield-bar positive" style="--bar-width:27.7%"></span></span>
-                    <strong>+6.9</strong>
                 </button>
                 <button class="subfield-row" type="button" data-subfield-name="Taxation" data-sample-size="77" data-intervention-accuracy="72.08538587848932" data-market-accuracy="72.95696802210817" data-gap="-0.871582143618852" aria-expanded="false" aria-controls="subfield-detail">
                     <span class="subfield-name">Taxation <small>n=77</small></span>
@@ -527,6 +525,6 @@
     </footer>
 
     <div class="copy-status" role="status" aria-live="polite" aria-atomic="true"></div>
-    <script type="module" src="script.js?v=20260812d"></script>
+    <script type="module" src="script.js?v=20260813a"></script>
 </body>
 </html>

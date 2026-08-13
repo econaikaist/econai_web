@@ -110,15 +110,6 @@
       "accuracy_gap_pp": 3.7472532116294843
     },
     {
-      "id": "trade",
-      "name": "Trade",
-      "model_count": 51,
-      "sample_size": 32.66666666666667,
-      "intervention_accuracy": 65.406162464986,
-      "market_accuracy": 66.66666666666666,
-      "accuracy_gap_pp": -1.2605042016806607
-    },
-    {
       "id": "taxation",
       "name": "Taxation",
       "model_count": 51,
@@ -126,6 +117,15 @@
       "intervention_accuracy": 72.08538587848932,
       "market_accuracy": 72.95696802210817,
       "accuracy_gap_pp": -0.871582143618852
+    },
+    {
+      "id": "trade",
+      "name": "Trade",
+      "model_count": 51,
+      "sample_size": 32.66666666666667,
+      "intervention_accuracy": 65.406162464986,
+      "market_accuracy": 66.66666666666666,
+      "accuracy_gap_pp": -1.2605042016806607
     }
   ],
   "per_model": {

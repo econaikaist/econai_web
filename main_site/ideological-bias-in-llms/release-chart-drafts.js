@@ -1,5 +1,5 @@
-const PAPER_URL = new URL('./data/paper-data.v2.json?v=20260812d', import.meta.url);
-const RESULTS_URL = new URL('./data/website-experiment-results.v1.json?v=20260812d', import.meta.url);
+const PAPER_URL = new URL('./data/paper-data.v2.json?v=20260813a', import.meta.url);
+const RESULTS_URL = new URL('./data/website-experiment-results.v1.json?v=20260813a', import.meta.url);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const EXCLUDED_CONDITIONS = new Set([
     'oa_gpt5_nano_minimal',
@@ -75,7 +75,7 @@ function displayDate(value) {
 }
 
 function showTooltip(row, anchor) {
-    tooltip.innerHTML = `<strong>${row.family} ${row.name}</strong><span>${displayDate(row.releaseDate)}</span><span>Accuracy gap: <b>${signed(row.gap)}</b></span>`;
+    tooltip.innerHTML = `<strong>${row.family} ${row.name}</strong><span>${displayDate(row.releaseDate)}</span><span>Left-Advantage Score: <b>${signed(row.gap)}</b></span>`;
     tooltip.hidden = false;
     const rect = anchor.getBoundingClientRect();
     const box = tooltip.getBoundingClientRect();
@@ -90,7 +90,7 @@ function showTooltip(row, anchor) {
 function bindTooltip(target, row) {
     target.setAttribute('tabindex', '0');
     target.setAttribute('role', 'img');
-    target.setAttribute('aria-label', `${row.family} ${row.name}, released ${displayDate(row.releaseDate)}, accuracy gap ${signed(row.gap)}.`);
+    target.setAttribute('aria-label', `${row.family} ${row.name}, released ${displayDate(row.releaseDate)}, Left-Advantage Score ${signed(row.gap)}.`);
     target.addEventListener('pointerenter', () => showTooltip(row, target));
     target.addEventListener('pointerleave', () => { tooltip.hidden = true; });
     target.addEventListener('focus', () => showTooltip(row, target));
@@ -105,7 +105,7 @@ function renderFocusChart(rows) {
     const width = 1050;
     const height = 520;
     const target = document.getElementById('chart-focus');
-    const svg = svgElement('svg', { viewBox: `0 0 ${width} ${height}`, width, height, role: 'img', 'aria-label': 'Release-date and accuracy-gap plot with selectable family focus.' });
+    const svg = svgElement('svg', { viewBox: `0 0 ${width} ${height}`, width, height, role: 'img', 'aria-label': 'Release-date and Left-Advantage Score plot with selectable family focus.' });
     svg.appendChild(svgElement('rect', { width, height, class: 'chart-bg' }));
     target.replaceChildren(svg);
     const day = 86400000;
@@ -174,7 +174,7 @@ function renderFocusChart(rows) {
         svg.querySelectorAll('.focus-label').forEach((label) => label.classList.toggle('is-active', !overview && label.dataset.family === selected));
     };
     controls.forEach((button) => button.addEventListener('click', () => setFamily(button.dataset.family)));
-    setFamily('All');
+    setFamily('OpenAI');
 }
 
 async function initialize() {

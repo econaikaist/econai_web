@@ -127,6 +127,8 @@ async function validateAggregateSubfields(page, width) {
         return { name: button.dataset.subfieldName, width: rect.width, height: rect.height };
     }));
     checkTouchTargets(targetMetrics, `${width}px subfield controls`);
+    const orderedGaps = await rows.evaluateAll((buttons) => buttons.map((button) => Number(button.dataset.gap)));
+    assert.ok(orderedGaps.every((gap, index) => index === 0 || orderedGaps[index - 1] >= gap), `${width}px subfields are not sorted by descending intervention advantage`);
 
     const first = rows.first();
     const detail = page.locator('#subfield-detail');
@@ -430,19 +432,24 @@ async function validateUpdatedModelDialog(page, width) {
     const trigger = page.locator('.model-open-button[data-condition-key]').first();
     const conditionKey = await trigger.getAttribute('data-condition-key');
     const resultKey = await trigger.getAttribute('data-result-key');
+    const expectedDisplayName = extensionData.main_benchmark.results.find((row) => row.condition_key === conditionKey)?.display_name;
     assert.ok(conditionKey, `${width}px updated-result trigger has no condition key`);
     assert.match(resultKey, /^new:/, `${width}px updated-result trigger key`);
+    assert.ok(expectedDisplayName, `${width}px updated-result display name is missing`);
 
     await page.mouse.move(1, 1);
     await trigger.focus();
-    await page.waitForFunction(() => (
+    await page.waitForFunction((displayName) => (
         !document.querySelector('#model-quick-detail').hidden
-        && document.querySelectorAll('#model-quick-detail .quick-detail-grid > div').length === 5
-    ));
+        && document.querySelector('#model-quick-detail .quick-detail-header strong')?.textContent.includes(displayName)
+        && document.querySelectorAll('#model-quick-detail .quick-detail-grid > div').length === 4
+        && [...document.querySelectorAll('#model-quick-detail dt')].some((label) => label.textContent.trim() === 'Accuracy gap')
+    ), expectedDisplayName);
     const quickText = await page.locator('#model-quick-detail').innerText();
-    for (const label of ['Overall', 'Intervention-truth', 'Market-truth', 'Accuracy gap']) {
+    for (const label of ['Intervention-truth', 'Market-truth', 'Accuracy gap']) {
         assert.ok(quickText.includes(label), `${width}px updated-result hover is missing ${label}`);
     }
+    assert.doesNotMatch(quickText, /Overall(?: accuracy)?/i, `${width}px updated-result hover still shows overall accuracy`);
 
     await trigger.press('Enter');
     const dialog = page.locator('#model-detail-dialog');
@@ -452,12 +459,13 @@ async function validateUpdatedModelDialog(page, width) {
     assert.equal(await dialog.getAttribute('data-model-id'), null, `${width}px updated dialog inherited a paper model id`);
     assert.equal(await page.locator('[data-model-tab]').count(), 3, `${width}px updated dialog changed the tab contract`);
     assert.equal(await page.locator('[data-model-tab]:visible').count(), 3, `${width}px updated dialog does not expose all tabs`);
-    assert.equal(await page.locator('#model-panel-overview .metric-card').count(), 5, `${width}px updated overview metric count`);
+    assert.equal(await page.locator('#model-panel-overview .metric-card').count(), 4, `${width}px updated overview metric count`);
     assert.equal(await page.locator('#model-panel-overview .updated-result-provenance > div').count(), 4, `${width}px updated provenance count`);
     const overviewText = await page.locator('#model-panel-overview').innerText();
-    for (const label of ['Overall accuracy', 'Intervention-truth', 'Market-truth', 'Accuracy gap']) {
+    for (const label of ['Intervention-truth', 'Market-truth', 'Accuracy gap']) {
         assert.ok(overviewText.includes(label), `${width}px updated dialog is missing ${label}`);
     }
+    assert.doesNotMatch(overviewText, /Overall accuracy/i, `${width}px updated dialog still shows overall accuracy`);
     await page.locator('#model-tab-examples').click();
     assert.equal(await page.locator('#model-panel-examples .example-card').count(), 2, `${width}px updated dialog examples`);
     await page.locator('#model-tab-subfields').click();
@@ -471,6 +479,17 @@ async function validateReleaseChart(page, width) {
     const points = chart.locator('.release-point-button');
     assert.equal(await page.locator('#bias-map, .bias-map-marker, .bias-scatter-marker').count(), 0, `${width}px removed bias map remains`);
     assert.equal(await points.count(), 51, `${width}px release-chart rows`);
+    const pressedFamily = await page.locator('[data-release-family][aria-pressed="true"]').getAttribute('data-release-family');
+    assert.equal(pressedFamily, 'OpenAI', `${width}px release chart does not initially focus OpenAI`);
+    const initialFocus = await chart.evaluate((element) => ({
+        highlightedLines: [...element.querySelectorAll('.release-family-line.is-highlighted')].map((line) => line.dataset.family),
+        contextLines: [...element.querySelectorAll('.release-family-line.is-context')].map((line) => line.dataset.family),
+        visibleLabelFamilies: [...element.querySelectorAll('.release-model-label.is-visible')].map((label) => label.dataset.family),
+    }));
+    assert.deepEqual(initialFocus.highlightedLines, ['OpenAI'], `${width}px initial release-line focus`);
+    assert.equal(initialFocus.contextLines.length, 5, `${width}px initial context-line count`);
+    assert.ok(initialFocus.contextLines.every((family) => family !== 'OpenAI'), `${width}px OpenAI line was dimmed`);
+    assert.ok(initialFocus.visibleLabelFamilies.length > 0 && initialFocus.visibleLabelFamilies.every((family) => family === 'OpenAI'), `${width}px initial model labels are not OpenAI-only`);
     const releaseKeys = await points.evaluateAll((items) => items.map((item) => item.dataset.resultKey));
     const mainKeys = await page.locator('.model-open-button').evaluateAll((items) => items.map((item) => item.dataset.resultKey));
     assert.equal(new Set(releaseKeys).size, 51, `${width}px duplicate release keys`);
@@ -574,6 +593,9 @@ async function validateEffortCharts(page, width) {
         ['Overall accuracy', 'Accuracy gap'],
         `${width}px effort legend series`,
     );
+    const effortColors = await page.locator('#effort-explorer-controls .effort-series-key').evaluateAll((keys) => keys.map((key) => getComputedStyle(key).getPropertyValue('--series-color').trim()));
+    assert.deepEqual(effortColors, ['#6d28d9', '#a15c00'], `${width}px effort series colors`);
+    assert.notEqual(effortColors[0], effortColors[1], `${width}px effort series colors overlap`);
     assert.equal(await grid.locator('.effort-series-point[data-metric="overall"]').count(), 17);
     assert.equal(await grid.locator('.effort-series-point[data-metric="gap"]').count(), 17);
     const geometry = await hits.evaluateAll((items) => items.map((item) => {
@@ -635,7 +657,7 @@ async function validateViewport(browser, width) {
     assert.equal(await page.locator('#model-benchmark-chart .model-score-row').count(), 51, `${width}px unified benchmark rows`);
     assert.equal(await page.locator('#model-benchmark-chart .model-score-row[data-condition-key]').count(), 31, `${width}px added benchmark models`);
     assert.equal(await page.locator('#model-benchmark-chart .model-score-row[data-condition-key^="local_"]').count(), 9, `${width}px local benchmark rows`);
-    assert.equal(await page.locator('#model-benchmark-chart .model-family-group').count(), 8, `${width}px capability groups`);
+    assert.equal(await page.locator('#model-benchmark-chart .model-family-group').count(), 9, `${width}px capability groups`);
     assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-model-count'), '51', `${width}px main model count`);
     assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-positive-gap-count'), '44', `${width}px positive-gap count`);
     assert.equal(await page.locator('#model-benchmark-chart').getAttribute('data-order'), 'capability-groups', `${width}px grouping contract`);
@@ -659,12 +681,13 @@ async function validateViewport(browser, width) {
         ]),
     ));
     assert.deepEqual(Object.keys(capabilityGroups), [
-        'openai-compact', 'openai-flagship', 'claude', 'gemini',
+        'openai-compact', 'openai-flagship', 'claude-general', 'claude-premium', 'gemini',
         'grok', 'llama', 'qwen-compact', 'qwen-large',
     ]);
     assert.deepEqual(capabilityGroups['openai-compact'], ['paper:gpt-4o-mini', 'paper:gpt-5-nano', 'paper:gpt-5-mini', 'new:oa_gpt54_nano_none', 'new:oa_gpt54_mini_none', 'new:oa_gpt56_luna_none']);
     assert.deepEqual(capabilityGroups['openai-flagship'], ['paper:gpt-4o', 'new:openai_gpt5_minimal', 'new:openai_gpt51_none', 'paper:gpt-5-2', 'new:oa_gpt54_none', 'new:oa_gpt55_none', 'new:oa_gpt56_terra_none', 'new:oa_gpt56_sol_none']);
-    assert.deepEqual(capabilityGroups.claude, ['paper:claude-haiku-4-5', 'new:anthropic_sonnet45_disabled', 'new:anthropic_opus45_disabled_low', 'paper:claude-sonnet-4-6', 'paper:claude-opus-4-6', 'new:an_opus47_disabled_low', 'new:an_opus48_disabled_low', 'new:an_sonnet5_disabled_low', 'new:an_opus5_disabled_low', 'new:an_fable5_adaptive_low']);
+    assert.deepEqual(capabilityGroups['claude-general'], ['paper:claude-haiku-4-5', 'new:anthropic_sonnet45_disabled', 'paper:claude-sonnet-4-6', 'new:an_sonnet5_disabled_low']);
+    assert.deepEqual(capabilityGroups['claude-premium'], ['new:anthropic_opus45_disabled_low', 'paper:claude-opus-4-6', 'new:an_opus47_disabled_low', 'new:an_opus48_disabled_low', 'new:an_opus5_disabled_low', 'new:an_fable5_adaptive_low']);
     assert.deepEqual(capabilityGroups.gemini, ['paper:gemini-2-5-flash', 'paper:gemini-3-flash', 'new:gg_gemini31lite_minimal', 'new:gg_gemini35_minimal', 'new:gg_gemini36_minimal']);
     assert.deepEqual(capabilityGroups.grok, ['paper:grok-3-mini', 'paper:grok-3', 'paper:grok-4-1-fast', 'new:or_grok420_reasoning_disabled', 'new:or_grok43_none', 'new:or_grok45_low']);
     assert.deepEqual(

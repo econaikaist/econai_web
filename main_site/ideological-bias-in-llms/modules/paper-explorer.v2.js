@@ -1,5 +1,5 @@
-const DATA_URL = new URL('../data/paper-data.v2.json?v=20260812d', import.meta.url);
-const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260812d', import.meta.url);
+const DATA_URL = new URL('../data/paper-data.v2.json?v=20260813a', import.meta.url);
+const EXTENSION_DATA_URL = new URL('../data/website-experiment-results.v1.json?v=20260813a', import.meta.url);
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const MAIN_EXCLUDED_CONDITIONS = new Set([
     // Minimum-setting reruns of models already represented by their paper result.
@@ -27,12 +27,17 @@ const MAIN_MODEL_GROUPS = [
         ],
     },
     {
-        key: 'claude', family: 'Claude', label: 'Claude',
+        key: 'claude-general', family: 'Claude', label: 'Claude · Haiku / Sonnet',
         resultKeys: [
             'paper:claude-haiku-4-5', 'new:anthropic_sonnet45_disabled',
-            'new:anthropic_opus45_disabled_low', 'paper:claude-sonnet-4-6',
-            'paper:claude-opus-4-6', 'new:an_opus47_disabled_low',
-            'new:an_opus48_disabled_low', 'new:an_sonnet5_disabled_low',
+            'paper:claude-sonnet-4-6', 'new:an_sonnet5_disabled_low',
+        ],
+    },
+    {
+        key: 'claude-premium', family: 'Claude', label: 'Claude · Opus / Fable',
+        resultKeys: [
+            'new:anthropic_opus45_disabled_low', 'paper:claude-opus-4-6',
+            'new:an_opus47_disabled_low', 'new:an_opus48_disabled_low',
             'new:an_opus5_disabled_low', 'new:an_fable5_adaptive_low',
         ],
     },
@@ -356,8 +361,7 @@ function normalizeBenchmarkRows(paperData, experimentData) {
 }
 
 function benchmarkRowMarkup(row) {
-    const aria = `${row.family} ${row.displayName}: overall accuracy ${formatOne(row.overall)} percent, `
-        + `intervention-truth accuracy ${formatOne(row.intervention)} percent, `
+    const aria = `${row.family} ${row.displayName}: intervention-truth accuracy ${formatOne(row.intervention)} percent, `
         + `market-truth accuracy ${formatOne(row.market)} percent, `
         + `gap ${formatSigned(row.gap)} percentage points, B dir ${formatSigned(row.bias)}.`;
     const paperAttribute = row.paperModelId
@@ -408,8 +412,8 @@ function benchmarkGroupMarkup(rows, groupKeys, label) {
 }
 
 const EFFORT_SERIES = {
-    overall: { field: 'contested_accuracy_pct', label: 'Overall accuracy', shortLabel: 'Overall', color: '#0050a4', suffix: '%', marker: 'circle' },
-    gap: { field: 'accuracy_gap_pp', label: 'Accuracy gap', shortLabel: 'Gap', color: '#2563eb', suffix: ' pp', signed: true, marker: 'square' },
+    overall: { field: 'contested_accuracy_pct', label: 'Overall accuracy', shortLabel: 'Overall', color: '#6d28d9', suffix: '%', marker: 'circle' },
+    gap: { field: 'accuracy_gap_pp', label: 'Accuracy gap', shortLabel: 'Gap', color: '#a15c00', suffix: ' pp', signed: true, marker: 'square' },
 };
 
 function effortMetricValue(row, metricKey) {
@@ -631,7 +635,7 @@ export async function initPaperExplorer({ announce }) {
     let lastDialogTrigger = null;
     let quickDetailContext = null;
     let pinnedSubfieldRow = null;
-    let activeReleaseFamily = 'All';
+    let activeReleaseFamily = 'OpenAI';
 
     function hideQuickDetail() {
         tooltip.hidden = true;
@@ -688,7 +692,6 @@ export async function initPaperExplorer({ announce }) {
         tooltip.innerHTML = `
             <header class="quick-detail-header"><strong>${escapeHtml(`${row.family} ${row.displayName}`)}</strong></header>
             <dl class="quick-detail-grid">
-                <div><dt>Overall</dt><dd>${formatPercent(row.overall)}</dd></div>
                 <div class="${signedTone(row.bias)}"><dt aria-label="B dir">B<sub>dir</sub></dt><dd>${escapeHtml(formatSigned(row.bias))}<small>${escapeHtml(biasDirection(row.bias))}</small></dd></div>
                 <div><dt>Intervention-truth</dt><dd>${formatPercent(row.intervention)}</dd></div>
                 <div><dt>Market-truth</dt><dd>${formatPercent(row.market)}</dd></div>
@@ -700,6 +703,9 @@ export async function initPaperExplorer({ announce }) {
 
     function showReleaseDetail(trigger, row) {
         showBiasDetail(trigger, row);
+        quickDetailContext.releaseView = true;
+        const gapLabel = tooltip.querySelector('.quick-detail-grid > div:last-child dt');
+        if (gapLabel) gapLabel.textContent = 'Left-Advantage Score';
         tooltip.querySelector('.quick-detail-header').insertAdjacentHTML(
             'beforeend',
             `<time datetime="${escapeHtml(row.releaseDate)}">${escapeHtml(formatDate(row.releaseDate))}</time>`,
@@ -744,7 +750,6 @@ export async function initPaperExplorer({ announce }) {
     function renderUpdatedOverview(row) {
         document.getElementById('model-panel-overview').innerHTML = `
             <dl class="metric-grid updated-result-metrics">
-                ${metricCard('Overall accuracy', formatPercent(row.overall))}
                 ${metricCard('Intervention-truth', formatPercent(row.intervention), 'intervention-metric')}
                 ${metricCard('Market-truth', formatPercent(row.market), 'market-metric')}
                 ${metricCard('Accuracy gap', `${escapeHtml(formatSigned(row.gap))}<small>pp</small>`, signedTone(row.gap), gapDirection(row.gap))}
@@ -756,7 +761,7 @@ export async function initPaperExplorer({ announce }) {
                 <div><dt>Canonical model</dt><dd><code>${escapeHtml(row.canonicalModelId)}</code></dd></div>
                 <div><dt>Setting</dt><dd>${escapeHtml(experimentSettingLabel(row.setting))}</dd></div>
             </dl>
-            <p class="definition-hint">Overall accuracy uses all 1,056 contested cases. Intervention-truth, market-truth, accuracy gap, and B<sub>dir</sub> use the 878 directionally aligned cases.</p>`;
+            <p class="definition-hint">Intervention-truth, market-truth, accuracy gap, and B<sub>dir</sub> use the 878 directionally aligned cases.</p>`;
         document.getElementById('model-panel-examples').replaceChildren();
         document.getElementById('model-panel-subfields').replaceChildren();
     }
@@ -1007,10 +1012,10 @@ export async function initPaperExplorer({ announce }) {
         }
         const positiveCount = mainModelRows.filter((row) => row.gap > 0).length;
         benchmarkHeading.textContent = `${positiveCount} of ${mainModelRows.length} models are more accurate on intervention-truth cases.`;
-        benchmarkDescription.textContent = 'Each model appears once. Only families with more than ten models are split; within each panel, older generations appear first and lower-capability models precede stronger peers.';
+        benchmarkDescription.textContent = 'Each model appears once. OpenAI and Claude are split by capability tier; within each panel, older generations appear first and lower-capability models precede stronger peers.';
         benchmarkChart.innerHTML = [
             benchmarkGroupMarkup(mainModelRows, [
-                'openai-compact', 'openai-flagship', 'claude', 'gemini', 'grok',
+                'openai-compact', 'openai-flagship', 'claude-general', 'claude-premium', 'gemini', 'grok',
             ], 'Closed and hosted models'),
             benchmarkGroupMarkup(mainModelRows, [
                 'llama', 'qwen-compact', 'qwen-large',
@@ -1093,7 +1098,7 @@ export async function initPaperExplorer({ announce }) {
             svg.appendChild(svgElement('text', { x, y: height - margin.bottom + 24, 'text-anchor': width < 520 && index === xTickCount - 1 ? 'end' : 'middle', class: 'release-tick-label' }, label));
         }
         svg.appendChild(svgElement('text', { x: margin.left + plotWidth / 2, y: height - 12, 'text-anchor': 'middle', class: 'release-axis-label' }, 'First official public release'));
-        svg.appendChild(svgElement('text', { x: 16, y: margin.top + plotHeight / 2, transform: `rotate(-90 16 ${margin.top + plotHeight / 2})`, 'text-anchor': 'middle', class: 'release-axis-label' }, 'Accuracy gap, Δacc (pp)'));
+        svg.appendChild(svgElement('text', { x: 16, y: margin.top + plotHeight / 2, transform: `rotate(-90 16 ${margin.top + plotHeight / 2})`, 'text-anchor': 'middle', class: 'release-axis-label' }, 'Left-Advantage Score (pp)'));
         Object.keys(FAMILY_STYLES).forEach((family) => {
             const points = releasePoints.filter((point) => point.row.family === family)
                 .sort((first, second) => first.releaseTimestamp - second.releaseTimestamp || first.originalIndex - second.originalIndex)
@@ -1143,7 +1148,7 @@ export async function initPaperExplorer({ announce }) {
             button.style.left = `${point.actualX}px`;
             button.style.top = `${point.actualY}px`;
             button.style.setProperty('--family-color', style.color);
-            button.setAttribute('aria-label', `${row.family} ${row.displayName}, released ${formatDate(row.releaseDate)}, accuracy gap ${formatSigned(row.gap, ' percentage points')}. Open details.`);
+            button.setAttribute('aria-label', `${row.family} ${row.displayName}, released ${formatDate(row.releaseDate)}, Left-Advantage Score ${formatSigned(row.gap, ' percentage points')}. Open details.`);
             button.setAttribute('aria-describedby', tooltip.id);
             button.addEventListener('mouseenter', () => {
                 highlight(true);
@@ -1243,7 +1248,8 @@ export async function initPaperExplorer({ announce }) {
         if (context && document.activeElement === context.trigger && context.model) {
             showQuickDetail(context.trigger, context.model, context.releaseView);
         } else if (context && document.activeElement === context.trigger && context.row) {
-            showReleaseDetail(context.trigger, context.row);
+            if (context.releaseView) showReleaseDetail(context.trigger, context.row);
+            else showBiasDetail(context.trigger, context.row);
         } else {
             hideQuickDetail();
         }

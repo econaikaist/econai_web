@@ -356,6 +356,7 @@ def main() -> None:
             "intervention_accuracy": ia, "market_accuracy": ma,
             "accuracy_gap_pp": ia - ma,
         })
+    aggregate.sort(key=lambda row: row["accuracy_gap_pp"], reverse=True)
     all_artifact = {
         "schema_version": "all-model-subfields-878.v1",
         "method": "equal-weight mean across 51 visible models; every model uses top-tied vote-weighted JEL themes on the current 878 directional cases",
