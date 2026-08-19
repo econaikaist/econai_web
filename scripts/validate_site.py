@@ -12,6 +12,9 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
+from validate_econcausal_data import ValidationError as EconCausalDataError
+from validate_econcausal_data import validate_core as validate_econcausal_data
+
 
 SITE_FOOTER_PAIR = (
     "<!-- SITE:FOOTER:START -->",
@@ -241,6 +244,24 @@ def validate(site_dir: Path) -> List[str]:
     for required in ("site.css", "favicon.svg", "banner.png", "img/EconAI@KAIST.svg"):
         if not (site_dir / required).exists():
             errors.append(f"missing required static asset: {required}")
+
+    econcausal_dir = site_dir / "econcausal"
+    if econcausal_dir.exists():
+        for relative_path in (
+            "index.html",
+            "styles.css",
+            "script.js",
+            "data/paper-data.v1.json",
+            "assets/og-card.png",
+        ):
+            if not (econcausal_dir / relative_path).is_file():
+                errors.append(f"econcausal: missing required asset {relative_path}")
+        data_path = econcausal_dir / "data/paper-data.v1.json"
+        if data_path.is_file():
+            try:
+                validate_econcausal_data(json.loads(data_path.read_text(encoding="utf-8")))
+            except (EconCausalDataError, json.JSONDecodeError) as exc:
+                errors.append(f"econcausal: invalid paper data: {exc}")
     return errors
 
 

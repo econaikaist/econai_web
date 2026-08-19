@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EconCausal: A Context-Aware Economic Reasoning Benchmark for Large Language Models</title>
+  <meta name="description" content="EconCausal provides 10,490 context-annotated causal triplets from 2,595 economics and finance studies to evaluate LLM reasoning under context shifts.">
+  <meta name="theme-color" content="#f4efe4">
+  <link rel="canonical" href="https://econai.kaist.ac.kr/econcausal/">
+  <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=20260819a">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="KAIST EconAI Lab">
+  <meta property="og:title" content="EconCausal: A Context-Aware Economic Reasoning Benchmark for Large Language Models">
+  <meta property="og:description" content="10,490 context-annotated causal triplets for evaluating whether LLM reasoning changes with the economic setting.">
+  <meta property="og:url" content="https://econai.kaist.ac.kr/econcausal/">
+  <meta property="og:image" content="https://econai.kaist.ac.kr/econcausal/assets/og-card.png">
+  <meta property="og:image:alt" content="EconCausal benchmark title card">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EconCausal: A Context-Aware Economic Reasoning Benchmark">
+  <meta name="twitter:description" content="Can LLMs revise a causal judgment when the economic context changes?">
+  <meta name="twitter:image" content="https://econai.kaist.ac.kr/econcausal/assets/og-card.png">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "EconCausal: A Context-Aware Economic Reasoning Benchmark for Large Language Models",
+    "description": "A benchmark for context-aware causal reasoning in economics and finance.",
+    "url": "https://econai.kaist.ac.kr/econcausal/",
+    "sameAs": ["https://arxiv.org/abs/2510.07231", "https://doi.org/10.48550/arXiv.2510.07231"],
+    "identifier": "arXiv:2510.07231",
+    "datePublished": "2025-10-08",
+    "dateModified": "2026-05-26",
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "author": [
+      {"@type":"Person","name":"Donggyu Lee"},
+      {"@type":"Person","name":"Hyeok Yun"},
+      {"@type":"Person","name":"Meeyoung Cha"},
+      {"@type":"Person","name":"Sungwon Park"},
+      {"@type":"Person","name":"Sangyoon Park"},
+      {"@type":"Person","name":"Jihee Kim"}
+    ]
+  }
+  </script>
+</head>
+<body data-mode="explore">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header class="paper-nav">
+    <div class="shell nav-inner">
+      <a class="lab-brand" href="../" aria-label="KAIST EconAI Lab home">
+        <img src="../img/EconAI@KAIST.svg" alt="KAIST EconAI Lab" width="260" height="64">
+      </a>
+      <nav class="section-nav" aria-label="Paper sections">
+        <a class="explore-nav" href="#context-lab">Context lab</a>
+        <a href="#tasks">Tasks</a>
+        <a href="#results">Models</a>
+        <a href="#transfer">Transfer</a>
+        <a href="#diagnostics">Diagnostics</a>
+      </nav>
+      <div class="view-switch" role="group" aria-label="Page mode">
+        <button type="button" data-view-mode="explore" aria-pressed="true">Explore</button>
+        <button type="button" data-view-mode="results" aria-pressed="false">Results-only</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero shell" aria-labelledby="paper-title">
+      <div class="hero-copy">
+        <p class="venue-badge"><span aria-hidden="true"></span>Preprint · Submitted to EMNLP 2026</p>
+        <h1 id="paper-title">Econ<span>Causal</span></h1>
+        <p class="hero-deck">The same cause can lead somewhere else when the context changes.</p>
+        <p class="authors">
+          <a href="https://donggyu-lee1.github.io" target="_blank" rel="noopener"><strong>Donggyu Lee</strong></a>,
+          Hyeok Yun, Meeyoung Cha, Sungwon Park, Sangyoon Park, Jihee Kim
+        </p>
+        <p class="affiliations">KAIST · Data Science for Humanity Group, MPI-SP · HKUST</p>
+        <div class="hero-actions" aria-label="Paper resources">
+          <a class="button primary" href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener">Read on arXiv <span aria-hidden="true">↗</span></a>
+          <a class="button secondary" href="#context-lab">Try a context switch</a>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="The same treatment-outcome relation can have different signs across contexts">
+        <div class="context-chip source"><span>Source context · sign +</span><strong>Treatment → Outcome</strong></div>
+        <div class="switch-mark" aria-hidden="true">context shifts</div>
+        <div class="context-chip target"><span>Target context · sign −</span><strong>Treatment → Outcome</strong></div>
+        <p><i class="cue-dot" aria-hidden="true"></i> A familiar sign may not transfer.</p>
+      </div>
+
+      <dl class="hero-stats" aria-label="Benchmark scale">
+        <div><dt data-stat="triplets">10,490</dt><dd>causal triplets</dd></div>
+        <div><dt data-stat="papers">2,595</dt><dd>empirical studies</dd></div>
+        <div><dt data-stat="models">18</dt><dd>evaluated models</dd></div>
+      </dl>
+    </section>
+
+    <section id="context-lab" class="section shell context-lab" aria-labelledby="context-heading">
+      <div class="section-heading compact">
+        <div>
+          <p class="kicker">Context Switch Lab</p>
+          <h2 id="context-heading">Would the sign move?</h2>
+        </div>
+        <label class="case-picker" for="case-select">Case
+          <select id="case-select">
+            <option value="fallback-case">Loading curated cases…</option>
+          </select>
+        </label>
+      </div>
+
+      <article class="case-stage" id="context-stage" aria-live="polite">
+        <div class="case-topline"><span>Economics</span><span>Source → target</span></div>
+        <h3>A treatment, an outcome, two settings.</h3>
+        <div class="case-contexts">
+          <section class="case-context source-context">
+            <p>Source context</p>
+            <strong>Published evidence in the original setting.</strong>
+          </section>
+          <div class="relation" aria-label="Treatment causes outcome">
+            <span>Treatment</span><b aria-hidden="true">→</b><span>Outcome</span>
+          </div>
+          <section class="case-context target-context">
+            <p>Target context</p>
+            <strong>A related study changes the institutional setting.</strong>
+          </section>
+        </div>
+        <p class="case-question">Predict the target effect sign.</p>
+        <div class="guess-row" role="group" aria-label="Choose the target effect sign">
+          <button type="button" data-sign-choice="Positive" aria-pressed="false">+</button>
+          <button type="button" data-sign-choice="Negative" aria-pressed="false">−</button>
+          <button type="button" data-sign-choice="None" aria-pressed="false">None</button>
+          <button type="button" data-sign-choice="Mixed" aria-pressed="false">Mixed</button>
+          <button class="reveal-button" type="button" data-case-reveal>Reveal</button>
+        </div>
+        <div class="case-result" data-case-result hidden></div>
+      </article>
+    </section>
+
+    <section id="tasks" class="section shell task-section" aria-labelledby="tasks-heading">
+      <div class="section-heading compact">
+        <div><p class="kicker">Three escalating tests</p><h2 id="tasks-heading">From recall to robustness.</h2></div>
+        <p class="section-note">The benchmark asks for a sign, then asks whether it still travels.</p>
+      </div>
+      <div class="task-rail">
+        <article class="task-card"><span>01</span><h3>Fixed context</h3><p>Identify a sign with the setting shown.</p><strong data-task-count="task1">1,807</strong></article>
+        <article class="task-card"><span>02</span><h3>Context shift</h3><p>Revise the sign for a related setting.</p><strong data-task-count="task2">284</strong></article>
+        <article class="task-card"><span>03</span><h3>Misleading cue</h3><p>Reject an incorrect source sign.</p><strong data-task-count="task3">852</strong></article>
+      </div>
+    </section>
+
+    <section id="results" class="section shell" aria-labelledby="results-heading">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">All-model results</p>
+          <h2 id="results-heading">Context is the hard part.</h2>
+        </div>
+        <p class="section-note" id="results-summary">Choose a task and metric. Select a model for its full scorecard.</p>
+      </div>
+
+      <div class="result-controls" aria-label="Model result controls">
+        <div class="tab-group task-tabs" role="tablist" aria-label="Benchmark task">
+          <button type="button" role="tab" aria-selected="true" data-task="task2_overall">Task 2</button>
+          <button type="button" role="tab" aria-selected="false" data-task="task2_sign_mismatch" tabindex="-1">Sign-switch</button>
+          <button type="button" role="tab" aria-selected="false" data-task="task1_econ" tabindex="-1">T1 Econ</button>
+          <button type="button" role="tab" aria-selected="false" data-task="task1_finance" tabindex="-1">T1 Finance</button>
+          <button type="button" role="tab" aria-selected="false" data-task="task3" tabindex="-1">Task 3</button>
+        </div>
+        <div class="tab-group metric-tabs" role="group" aria-label="Metric">
+          <button type="button" data-metric="accuracy" aria-pressed="true">Accuracy</button>
+          <button type="button" data-metric="macro_f1" aria-pressed="false">Macro F1</button>
+        </div>
+        <label>Access
+          <select id="access-filter"><option value="all">All</option><option value="closed">Closed</option><option value="open">Open</option></select>
+        </label>
+        <label>Family
+          <select id="family-filter"><option value="all">All families</option></select>
+        </label>
+      </div>
+
+      <div id="model-chart" class="model-chart" aria-live="polite">
+        <button class="model-row" type="button" data-model-id="static-closed">
+          <span class="model-identity"><strong>Closed-source mean</strong><small>Task 2</small></span>
+          <span class="bar-track"><i style="--value:73.9%"></i></span><b>73.9</b>
+        </button>
+        <button class="model-row" type="button" data-model-id="static-open">
+          <span class="model-identity"><strong>Open-weight mean</strong><small>Task 2</small></span>
+          <span class="bar-track"><i style="--value:65.4%"></i></span><b>65.4</b>
+        </button>
+      </div>
+      <p class="chart-status" id="model-chart-status" role="status">Static group snapshot; interactive model data loads when available.</p>
+    </section>
+
+    <section id="transfer" class="section section-tint" aria-labelledby="transfer-heading">
+      <div class="shell">
+        <div class="section-heading">
+          <div><p class="kicker">Context transfer</p><h2 id="transfer-heading">A 32-point context penalty.</h2></div>
+          <p class="section-note">Accuracy when the target sign disagrees with the source example.</p>
+        </div>
+        <div id="transfer-chart" class="transfer-chart">
+          <article class="transfer-row"><strong>Closed-source</strong><div><span style="--value:73.9%">Overall 73.9</span><span style="--value:41.3%">Sign-switch 41.3</span></div><b>−32.6 pp</b></article>
+          <article class="transfer-row"><strong>Open-weight</strong><div><span style="--value:65.4%">Overall 65.4</span><span style="--value:31.8%">Sign-switch 31.8</span></div><b>−33.6 pp</b></article>
+        </div>
+        <div id="transfer-distribution" class="distribution-strip" aria-label="Prediction distribution"></div>
+      </div>
+    </section>
+
+    <section id="diagnostics" class="section shell" aria-labelledby="diagnostics-heading">
+      <div class="section-heading">
+        <div><p class="kicker">Diagnostics</p><h2 id="diagnostics-heading">Where confidence breaks.</h2></div>
+        <p class="section-note">Sign accuracy and calibration expose different failure modes.</p>
+      </div>
+      <div class="diagnostic-grid">
+        <article class="diagnostic-card">
+          <header><span>01</span><div><h3>Sign accuracy</h3><p>Mean across tasks</p></div></header>
+          <div id="sign-chart" class="sign-chart">
+            <div><span>None</span><i><b style="--value:13.83%"></b></i><strong>13.8</strong></div>
+            <div><span>Mixed</span><i><b style="--value:22.82%"></b></i><strong>22.8</strong></div>
+          </div>
+        </article>
+        <article class="diagnostic-card">
+          <header><span>02</span><div><h3>Calibration error</h3><p>Lower is better</p></div></header>
+          <div id="calibration-chart" class="calibration-chart">
+            <p>Models remain poorly calibrated on null and mixed effects. Interactive category values load from the paper data.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="closing shell" aria-labelledby="closing-heading">
+      <p class="kicker">Benchmark</p>
+      <h2 id="closing-heading">Reason about the setting, not just the sign.</h2>
+      <div class="closing-actions">
+        <a class="button primary" href="https://arxiv.org/pdf/2510.07231" target="_blank" rel="noopener">Paper PDF <span aria-hidden="true">↗</span></a>
+        <a class="button secondary" href="https://huggingface.co/datasets/qwqw3535/econcausal-benchmark" target="_blank" rel="noopener">Dataset <span aria-hidden="true">↗</span></a>
+        <a class="text-link" href="https://github.com/econaikaist/econcausal-benchmark" target="_blank" rel="noopener">Code ↗</a>
+      </div>
+      <details class="citation">
+        <summary>Cite EconCausal</summary>
+        <pre id="bibtex">@misc{lee2026econcausalcontextawareeconomicreasoning,
+  title={EconCausal: A Context-Aware Economic Reasoning Benchmark for Large Language Models},
+  author={Lee, Donggyu and Yun, Hyeok and Cha, Meeyoung and Park, Sungwon and Park, Sangyoon and Kim, Jihee},
+  year={2026}, eprint={2510.07231}, archivePrefix={arXiv}, primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2510.07231}
+}</pre>
+      </details>
+      <p class="research-note">Research benchmark only. Verify against the cited empirical studies before any high-stakes policy, financial, legal, medical, or investment use.</p>
+    </section>
+  </main>
+
+  <div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div>
+
+  <dialog id="model-detail-dialog" class="model-dialog" aria-labelledby="model-detail-title">
+    <div class="dialog-shell">
+      <header>
+        <div><p id="model-detail-meta" class="kicker">Model</p><h2 id="model-detail-title">Model scorecard</h2></div>
+        <button type="button" class="dialog-close" data-dialog-close aria-label="Close model details">×</button>
+      </header>
+      <div id="model-detail-body" class="dialog-body"></div>
+    </div>
+  </dialog>
+
+  <noscript><p class="noscript-note">This page includes a static result snapshot. Enable JavaScript for filters, case reveals, and model details.</p></noscript>
+
+  <footer class="paper-footer">
+    <div class="shell footer-inner">
+      <a href="../" aria-label="KAIST EconAI Lab home"><img src="../img/EconAI@KAIST.svg" alt="KAIST EconAI Lab" width="260" height="64"></a>
+      <p>Context-aware economic reasoning.</p>
+      <a href="#main-content">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script src="script.js?v=20260819a" defer></script>
+</body>
+</html>

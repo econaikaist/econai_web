@@ -1,0 +1,735 @@
+{
+  "meta": {
+    "schema_version": "econcausal.paper-data.v1",
+  "dataset_version": "arxiv-v4-2026-05-26",
+    "title": "EconCausal: A Context-Aware Economic Reasoning Benchmark for Large Language Models",
+    "short_title": "EconCausal",
+  "authors_display": "Donggyu Lee, Hyeok Yun, Meeyoung Cha, Sungwon Park, Sangyoon Park, Jihee Kim",
+  "paper_status": "preprint_submitted_emnlp_2026",
+    "model_metric_unit": "proportion",
+    "summary_metric_unit": "percent",
+    "sign_labels": {
+      "positive": "+",
+      "negative": "−",
+      "none": "None",
+      "mixed": "Mixed"
+    },
+    "content_policy": {
+      "included": [
+        "paper-reported aggregate metrics",
+        "public benchmark metadata",
+        "public benchmark context summaries"
+      ],
+      "excluded": [
+        "raw prompts",
+        "model responses",
+        "model reasoning or rationales",
+        "hidden chain-of-thought",
+        "verbatim source-paper evidence"
+      ],
+      "context_note": "Example contexts are the released benchmark summaries, not source-paper quotations or model-evaluation reasoning."
+    }
+  },
+  "stats": {
+    "causal_triplets": 10490,
+    "source_papers": 2595,
+    "matched_source_corpus_papers": 5006,
+    "publication_year_start": 1991,
+    "publication_year_end": 2025,
+    "journal_count": 8,
+    "economics_journal_count": 5,
+    "finance_journal_count": 3,
+    "evaluated_models": 18,
+    "benchmark_tasks": 3,
+    "benchmark_instances": 2943,
+    "sign_distribution": {
+      "positive": {"count": 1603, "pct": 54.5},
+      "negative": {"count": 1013, "pct": 34.4},
+      "none": {"count": 266, "pct": 9.0},
+      "mixed": {"count": 61, "pct": 2.1}
+    },
+    "headline": {
+      "top_task1_econ_accuracy_pct": 88.4,
+      "closed_task2_overall_accuracy_pct": 73.9,
+      "closed_task2_sign_mismatch_accuracy_pct": 41.3,
+      "context_shift_drop_pp": 32.6,
+      "closed_task3_accuracy_pct": 49.3,
+      "open_task3_accuracy_pct": 44.3,
+      "mean_none_accuracy_pct": 13.83
+    }
+  },
+  "tasks": [
+    {
+      "id": "task1",
+      "name": "Causal Sign Identification",
+      "short_name": "Fixed context",
+      "research_question": "Can a model identify an empirical causal sign when the relevant context is explicit?",
+      "description": "Predict one of four causal signs from a treatment, outcome, and a single study context.",
+      "instances": 1807,
+      "subsets": [
+        {"id": "task1_econ", "label": "Economics", "instances": 947},
+        {"id": "task1_finance", "label": "Finance", "instances": 860}
+      ]
+    },
+    {
+      "id": "task2",
+      "name": "Context-Dependent Sign Prediction",
+      "short_name": "Context shift",
+      "research_question": "Can a model revise a causal sign when a comparable relation appears in a different context?",
+      "description": "Use a signed source example as background, then predict the sign for a semantically matched treatment-outcome pair in a target context.",
+      "instances": 284,
+      "sign_mismatch_instances": 101
+    },
+    {
+      "id": "task3",
+      "name": "Misinformation-Robust Sign Prediction",
+      "short_name": "Misleading evidence",
+      "research_question": "Can a model discount an incorrect source sign and still judge the target context?",
+      "description": "Repeat Task 2 after replacing each source sign with each of the other three labels.",
+      "instances": 852,
+      "variants_per_task2_instance": 3
+    }
+  ],
+  "models": [
+    {
+      "id": "gemini-3-flash",
+      "name": "Gemini 3 Flash",
+      "family": "Gemini",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.884, "macro_f1": 0.548},
+        "task1_finance": {"accuracy": 0.868, "macro_f1": 0.613},
+        "task2_overall": {"accuracy": 0.824, "macro_f1": 0.587},
+        "task2_sign_mismatch": {"accuracy": 0.634, "macro_f1": 0.511},
+        "task3": {"accuracy": 0.624, "macro_f1": 0.452}
+      }
+    },
+    {
+      "id": "gemini-2-5-pro",
+      "name": "Gemini 2.5 Pro",
+      "family": "Gemini",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.829, "macro_f1": 0.482},
+        "task1_finance": {"accuracy": 0.808, "macro_f1": 0.503},
+        "task2_overall": {"accuracy": 0.747, "macro_f1": 0.521},
+        "task2_sign_mismatch": {"accuracy": 0.535, "macro_f1": 0.443},
+        "task3": {"accuracy": 0.552, "macro_f1": 0.408}
+      }
+    },
+    {
+      "id": "gemini-2-5-flash",
+      "name": "Gemini 2.5 Flash",
+      "family": "Gemini",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.810, "macro_f1": 0.432},
+        "task1_finance": {"accuracy": 0.800, "macro_f1": 0.521},
+        "task2_overall": {"accuracy": 0.725, "macro_f1": 0.498},
+        "task2_sign_mismatch": {"accuracy": 0.426, "macro_f1": 0.342},
+        "task3": {"accuracy": 0.386, "macro_f1": 0.295}
+      }
+    },
+    {
+      "id": "gpt-5-2",
+      "name": "GPT-5.2",
+      "family": "OpenAI",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.771, "macro_f1": 0.440},
+        "task1_finance": {"accuracy": 0.782, "macro_f1": 0.518},
+        "task2_overall": {"accuracy": 0.782, "macro_f1": 0.571},
+        "task2_sign_mismatch": {"accuracy": 0.485, "macro_f1": 0.414},
+        "task3": {"accuracy": 0.572, "macro_f1": 0.426}
+      }
+    },
+    {
+      "id": "gpt-5-mini",
+      "name": "GPT-5 mini",
+      "family": "OpenAI",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.753, "macro_f1": 0.442},
+        "task1_finance": {"accuracy": 0.750, "macro_f1": 0.456},
+        "task2_overall": {"accuracy": 0.750, "macro_f1": 0.517},
+        "task2_sign_mismatch": {"accuracy": 0.416, "macro_f1": 0.338},
+        "task3": {"accuracy": 0.534, "macro_f1": 0.382}
+      }
+    },
+    {
+      "id": "gpt-5-nano",
+      "name": "GPT-5 nano",
+      "family": "OpenAI",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.736, "macro_f1": 0.422},
+        "task1_finance": {"accuracy": 0.720, "macro_f1": 0.435},
+        "task2_overall": {"accuracy": 0.729, "macro_f1": 0.477},
+        "task2_sign_mismatch": {"accuracy": 0.366, "macro_f1": 0.284},
+        "task3": {"accuracy": 0.447, "macro_f1": 0.326}
+      }
+    },
+    {
+      "id": "gpt-4o",
+      "name": "GPT-4o",
+      "family": "OpenAI",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.665, "macro_f1": 0.411},
+        "task1_finance": {"accuracy": 0.704, "macro_f1": 0.443},
+        "task2_overall": {"accuracy": 0.658, "macro_f1": 0.469},
+        "task2_sign_mismatch": {"accuracy": 0.346, "macro_f1": 0.303},
+        "task3": {"accuracy": 0.357, "macro_f1": 0.290}
+      }
+    },
+    {
+      "id": "gpt-4o-mini",
+      "name": "GPT-4o mini",
+      "family": "OpenAI",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.679, "macro_f1": 0.364},
+        "task1_finance": {"accuracy": 0.634, "macro_f1": 0.339},
+        "task2_overall": {"accuracy": 0.690, "macro_f1": 0.467},
+        "task2_sign_mismatch": {"accuracy": 0.168, "macro_f1": 0.150},
+        "task3": {"accuracy": 0.338, "macro_f1": 0.250}
+      }
+    },
+    {
+      "id": "grok-4-1-fast",
+      "name": "Grok-4.1 Fast",
+      "family": "Grok",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.834, "macro_f1": 0.476},
+        "task1_finance": {"accuracy": 0.813, "macro_f1": 0.521},
+        "task2_overall": {"accuracy": 0.775, "macro_f1": 0.525},
+        "task2_sign_mismatch": {"accuracy": 0.465, "macro_f1": 0.363},
+        "task3": {"accuracy": 0.541, "macro_f1": 0.405}
+      }
+    },
+    {
+      "id": "grok-3",
+      "name": "Grok-3",
+      "family": "Grok",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.802, "macro_f1": 0.424},
+        "task1_finance": {"accuracy": 0.767, "macro_f1": 0.461},
+        "task2_overall": {"accuracy": 0.739, "macro_f1": 0.501},
+        "task2_sign_mismatch": {"accuracy": 0.346, "macro_f1": 0.267},
+        "task3": {"accuracy": 0.531, "macro_f1": 0.394}
+      }
+    },
+    {
+      "id": "grok-3-mini",
+      "name": "Grok-3 mini",
+      "family": "Grok",
+      "access": "closed_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.828, "macro_f1": 0.485},
+        "task1_finance": {"accuracy": 0.798, "macro_f1": 0.490},
+        "task2_overall": {"accuracy": 0.711, "macro_f1": 0.490},
+        "task2_sign_mismatch": {"accuracy": 0.356, "macro_f1": 0.298},
+        "task3": {"accuracy": 0.547, "macro_f1": 0.411}
+      }
+    },
+    {
+      "id": "llama-3-3-70b",
+      "name": "Llama 3.3 70B",
+      "family": "Llama",
+      "access": "open_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.761, "macro_f1": 0.418},
+        "task1_finance": {"accuracy": 0.718, "macro_f1": 0.436},
+        "task2_overall": {"accuracy": 0.747, "macro_f1": 0.490},
+        "task2_sign_mismatch": {"accuracy": 0.327, "macro_f1": 0.245},
+        "task3": {"accuracy": 0.525, "macro_f1": 0.352}
+      }
+    },
+    {
+      "id": "llama-3-1-8b",
+      "name": "Llama 3.1 8B",
+      "family": "Llama",
+      "access": "open_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.565, "macro_f1": 0.290},
+        "task1_finance": {"accuracy": 0.509, "macro_f1": 0.295},
+        "task2_overall": {"accuracy": 0.676, "macro_f1": 0.353},
+        "task2_sign_mismatch": {"accuracy": 0.297, "macro_f1": 0.141},
+        "task3": {"accuracy": 0.473, "macro_f1": 0.242}
+      }
+    },
+    {
+      "id": "llama-3-2-3b",
+      "name": "Llama 3.2 3B",
+      "family": "Llama",
+      "access": "open_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.582, "macro_f1": 0.230},
+        "task1_finance": {"accuracy": 0.585, "macro_f1": 0.252},
+        "task2_overall": {"accuracy": 0.609, "macro_f1": 0.244},
+        "task2_sign_mismatch": {"accuracy": 0.257, "macro_f1": 0.114},
+        "task3": {"accuracy": 0.445, "macro_f1": 0.212}
+      }
+    },
+    {
+      "id": "llama-3-2-1b",
+      "name": "Llama 3.2 1B",
+      "family": "Llama",
+      "access": "open_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.620, "macro_f1": 0.191},
+        "task1_finance": {"accuracy": 0.599, "macro_f1": 0.187},
+        "task2_overall": {"accuracy": 0.486, "macro_f1": 0.132},
+        "task2_sign_mismatch": {"accuracy": 0.386, "macro_f1": 0.112},
+        "task3": {"accuracy": 0.511, "macro_f1": 0.171}
+      }
+    },
+    {
+      "id": "qwen3-32b",
+      "name": "Qwen3 32B",
+      "family": "Qwen",
+      "access": "open_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.692, "macro_f1": 0.380},
+        "task1_finance": {"accuracy": 0.654, "macro_f1": 0.402},
+        "task2_overall": {"accuracy": 0.725, "macro_f1": 0.463},
+        "task2_sign_mismatch": {"accuracy": 0.307, "macro_f1": 0.230},
+        "task3": {"accuracy": 0.412, "macro_f1": 0.302}
+      }
+    },
+    {
+      "id": "qwen3-14b",
+      "name": "Qwen3 14B",
+      "family": "Qwen",
+      "access": "open_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.626, "macro_f1": 0.348},
+        "task1_finance": {"accuracy": 0.600, "macro_f1": 0.372},
+        "task2_overall": {"accuracy": 0.630, "macro_f1": 0.423},
+        "task2_sign_mismatch": {"accuracy": 0.317, "macro_f1": 0.247},
+        "task3": {"accuracy": 0.392, "macro_f1": 0.298}
+      }
+    },
+    {
+      "id": "qwen3-8b",
+      "name": "Qwen3 8B",
+      "family": "Qwen",
+      "access": "open_source",
+      "metrics": {
+        "task1_econ": {"accuracy": 0.773, "macro_f1": 0.419},
+        "task1_finance": {"accuracy": 0.714, "macro_f1": 0.413},
+        "task2_overall": {"accuracy": 0.704, "macro_f1": 0.474},
+        "task2_sign_mismatch": {"accuracy": 0.337, "macro_f1": 0.265},
+        "task3": {"accuracy": 0.343, "macro_f1": 0.262}
+      }
+    }
+  ],
+  "group_averages": [
+    {
+      "id": "closed_source",
+      "label": "Closed-source LLMs",
+      "model_count": 11,
+      "metrics": {
+        "task1_econ": {"accuracy": 0.781, "macro_f1": 0.448},
+        "task1_finance": {"accuracy": 0.768, "macro_f1": 0.482},
+        "task2_overall": {"accuracy": 0.739, "macro_f1": 0.511},
+        "task2_sign_mismatch": {"accuracy": 0.413, "macro_f1": 0.338},
+        "task3": {"accuracy": 0.493, "macro_f1": 0.367}
+      }
+    },
+    {
+      "id": "open_source",
+      "label": "Open-source LLMs",
+      "model_count": 7,
+      "metrics": {
+        "task1_econ": {"accuracy": 0.660, "macro_f1": 0.325},
+        "task1_finance": {"accuracy": 0.626, "macro_f1": 0.337},
+        "task2_overall": {"accuracy": 0.654, "macro_f1": 0.368},
+        "task2_sign_mismatch": {"accuracy": 0.318, "macro_f1": 0.194},
+        "task3": {"accuracy": 0.443, "macro_f1": 0.262}
+      }
+    }
+  ],
+  "transfer": {
+    "sign_mismatch_instances": 101,
+    "sign_mismatch_share_pct": 35.6,
+    "groups": [
+      {
+        "id": "closed_source",
+        "label": "Closed-source LLMs",
+        "overall_accuracy_pct": 73.9,
+        "sign_mismatch_accuracy_pct": 41.3,
+        "drop_pp": 32.6
+      },
+      {
+        "id": "open_source",
+        "label": "Open-source LLMs",
+        "overall_accuracy_pct": 65.4,
+        "sign_mismatch_accuracy_pct": 31.8,
+        "drop_pp": 33.6
+      }
+    ],
+    "prediction_distribution": [
+      {
+        "condition": "target_only",
+        "label": "Task 1 (question only)",
+        "correct_pct": 52.70,
+        "source_sign_error_pct": 27.28,
+        "other_error_pct": 20.02
+      },
+      {
+        "condition": "with_source_example",
+        "label": "Task 2 (with example)",
+        "correct_pct": 37.62,
+        "source_sign_error_pct": 49.23,
+        "other_error_pct": 13.15
+      }
+    ],
+    "prediction_distribution_delta_pp": {
+      "correct": -15.08,
+      "source_sign_error": 21.95,
+      "other_error": -6.87
+    },
+    "incorrect_errors_matching_source_sign_pct": {
+      "target_only": 57.67,
+      "with_example": 78.99
+    }
+  },
+  "sign_accuracy": {
+    "unit": "percent",
+    "rows": [
+      {"task_id": "task1_econ", "label": "Task 1 (Economics)", "positive": 81.58, "negative": 65.43, "none": 9.89, "mixed": 10.23, "overall": 73.47},
+      {"task_id": "task1_finance", "label": "Task 1 (Finance)", "positive": 81.49, "negative": 63.48, "none": 10.18, "mixed": 21.52, "overall": 71.42},
+      {"task_id": "task2", "label": "Task 2", "positive": 81.38, "negative": 71.04, "none": 16.90, "mixed": 24.60, "overall": 70.60},
+      {"task_id": "task3", "label": "Task 3", "positive": 54.84, "negative": 44.62, "none": 18.36, "mixed": 34.92, "overall": 47.38}
+    ],
+    "mean_across_tasks": {
+      "positive": 74.82,
+      "negative": 61.14,
+      "none": 13.83,
+      "mixed": 22.82
+    }
+  },
+  "calibration": {
+    "model_id": "gpt-4o",
+    "metric": "expected_calibration_error",
+    "abstention_unknown_pct": {
+      "economics": 6.8,
+      "finance": 9.4
+    },
+    "ece_by_category": {
+      "economics": {"positive": 0.094, "negative": 0.237, "mixed": 0.743, "none": 0.616},
+      "finance": {"positive": 0.111, "negative": 0.264, "mixed": 0.580, "none": 0.839}
+    }
+  },
+  "examples": [
+    {
+      "id": "task2-10852-14804",
+      "domain": "finance",
+      "transition": "positive_to_negative",
+      "similarity": 0.9561,
+      "source": {
+        "paper_id": "14804",
+        "title": "Maxing Out: Stocks as Lotteries and the Cross-Section of Expected Returns",
+        "year": 2009,
+        "journal": "Journal of Financial Economics",
+        "url": "https://www.nber.org/papers/w14804",
+        "treatment": "Idiosyncratic volatility",
+        "outcome": "Expected stock returns",
+        "sign": "positive",
+        "context": "The paper analyzes U.S. equity markets (CRSP/Compustat: NYSE, AMEX, NASDAQ) over July 1962–December 2005 at the individual firm/stock level. For this triplet, the authors document a significant positive relation between idiosyncratic volatility and expected returns conditional on controlling for prior-month extreme positive returns (MAX), using equal-weighted portfolio sorts and Fama–MacBeth cross-sectional regressions with Newey–West t-statistics and standard controls (size, BM, momentum, reversal, liquidity, skewness)."
+      },
+      "target": {
+        "paper_id": "10852",
+        "title": "The Cross-Section of Volatility and Expected Returns",
+        "year": 2004,
+        "journal": "Journal of Finance",
+        "url": "https://www.nber.org/papers/w10852",
+        "treatment": "Idiosyncratic volatility",
+        "outcome": "Average stock returns",
+        "sign": "negative",
+        "context": "This paper examines US equity returns for individual stocks listed on the NYSE, AMEX and NASDAQ over roughly 1986–2000, using daily and monthly returns and the CBOE VIX as a proxy for aggregate volatility. The authors estimate firm-level sensitivities to VIX innovations with short-window daily regressions, form value-weighted portfolio sorts, construct a mimicking volatility factor, and use time-series alphas and Fama–MacBeth cross-sectional regressions to test whether aggregate volatility risk and idiosyncratic volatility are priced in the cross-section."
+      },
+      "selection": {"slot": 1, "reason": "Asset-pricing pair with opposite volatility-return signs across two finance settings."}
+    },
+    {
+      "id": "task2-21808-15831",
+      "domain": "finance",
+      "transition": "none_to_positive",
+      "similarity": 0.8429,
+      "source": {
+        "paper_id": "15831",
+        "title": "The Consequences of Entrepreneurial Finance: A Regression Discontinuity Analysis",
+        "year": 2010,
+        "journal": "Review of Financial Studies",
+        "url": "https://www.nber.org/papers/w15831",
+        "treatment": "Angel funding",
+        "outcome": "Subsequent external financing",
+        "sign": "none",
+        "context": "This paper studies the causal impact of angel investments on start-up survival, growth, and follow-on financing for ventures that pitched to two U.S. angel groups — Tech Coast Angels (Southern California) and CommonAngels (Boston) — using pitches from 2001–2006 and outcomes through January 2010. Units are early-stage ventures presenting to these groups. The institutional setting is angel-group voting/ballot procedures (counts of interested angels or high-score ballots) that create discontinuities in funding probability; outcome data include survival, Alexa web-traffic (2008/2010), and subsequent financing records."
+      },
+      "target": {
+        "paper_id": "21808",
+        "title": "The Globalization of Angel Investments: Evidence across Countries",
+        "year": 2015,
+        "journal": "Journal of Financial Economics",
+        "url": "https://www.nber.org/papers/w21808",
+        "treatment": "Angel financing",
+        "outcome": "Follow-on financing",
+        "sign": "positive",
+        "context": "This study examines 1,682 startup funding applications (295 funded) to 13 organized angel groups based in 12 countries, with applicants from 21 countries across Europe, Asia–Pacific, Latin America, and North America. Data on applications and firm outcomes were compiled in Feb–Oct 2014 (covering application cohorts from prior years) at the firm level (survival, employment, patents, exits, follow-on financing). The institutional setting is organized angel-group decision processes with member voting; cross-country heterogeneity in VC market depth and ease of starting firms frames the analysis."
+      },
+      "selection": {"slot": 2, "reason": "Entrepreneurial-finance pair contrasting two-country-group and cross-country settings."}
+    },
+    {
+      "id": "task2-18259-21811",
+      "domain": "economics",
+      "transition": "negative_to_positive",
+      "similarity": 0.8941,
+      "source": {
+        "paper_id": "21811",
+        "title": "Productivity and Organization in Portuguese Firms",
+        "year": 2015,
+        "journal": "Journal of Political Economy",
+        "url": "https://www.nber.org/papers/w21811",
+        "treatment": "Adding a management layer",
+        "outcome": "Average wage in preexisting layers",
+        "sign": "negative",
+        "context": "This paper studies Portuguese manufacturing firms (firm and firm-product-year units) over the 1995–2005 period (matched employer–employee, balance-sheet, and firm-product data, excluding 2001). It examines how changes in organizational structure (adding/dropping management layers inferred from occupations) respond to exogenous demand/cost shocks and affect quantity-based versus revenue-based productivity. Analyses exploit industry shocks (notably quota removals after China’s WTO entry), firm export/import patterns, real exchange rates, and model-based estimates of past shocks to support causal interpretations."
+      },
+      "target": {
+        "paper_id": "18259",
+        "title": "The Anatomy of French Production Hierarchies",
+        "year": 2012,
+        "journal": "Journal of Political Economy",
+        "url": "https://www.nber.org/papers/w18259",
+        "treatment": "Dropping a management layer",
+        "outcome": "Average wages in pre-existing layers",
+        "sign": "positive",
+        "context": "This paper analyzes the internal organization of French manufacturing firms using linked administrative BRN (balance-sheet) and DADS (worker-level) data for 2002–2007. The unit of analysis is the firm-year (and within-firm occupational ‘layers’ constructed from PCS-ESE categories and wages). The study documents how firm size, value added, and export entry relate to changes in hierarchical layers, employment by layer, and the wage distribution, exploiting firm panel variation and within-firm transitions in layers and export status in the French manufacturing sector."
+      },
+      "selection": {"slot": 3, "reason": "Firm-organization pair spanning Portuguese and French production hierarchies."}
+    },
+    {
+      "id": "task2-27013-5692",
+      "domain": "economics",
+      "transition": "positive_to_none",
+      "similarity": 0.9113,
+      "source": {
+        "paper_id": "5692",
+        "title": "Federal Reserve Private Information and the Behavior of Interest Rates",
+        "year": 1996,
+        "journal": "American Economic Review",
+        "url": "https://www.nber.org/papers/w5692",
+        "treatment": "Monetary policy tightening",
+        "outcome": "Commercial inflation forecasts (revisions)",
+        "sign": "positive",
+        "context": "This paper studies U.S. monthly data on Federal Reserve internal \"Green Book\" forecasts (1965–1991) and commercial forecasts (Blue Chip, DRI, SPF), focusing empirically on periods 1974:9–1979:9 and 1984:3–1991:12. Units are monthly forecast observations and forecast errors for the GDP deflator and real GDP; institutional setting is FOMC policy meetings, federal funds rate target changes, and press-reported Fed actions. The analysis tests whether Fed private information is signaled by monetary actions and causes revisions in market inflation expectations and the term structure."
+      },
+      "target": {
+        "paper_id": "27013",
+        "title": "An Alternative Explanation for the “Fed Information Effect”",
+        "year": 2020,
+        "journal": "American Economic Review",
+        "url": "https://www.nber.org/papers/w27013",
+        "treatment": "Monetary policy tightening",
+        "outcome": "Inflation forecast revision",
+        "sign": "none",
+        "context": "This paper examines U.S. Federal Reserve monetary policy announcements and their informational content using monthly Blue Chip forecast revisions, thirty-minute high-frequency futures changes around FOMC meetings, and financial-market responses from January 1990 through June 2019 (with subsamples such as 1995–2014 and 1990–2007). Units of analysis are FOMC announcement events and Blue Chip forecasters (panel ≈50 firms), supplemented by market-price observations and comparisons to Fed Greenbook forecasts. The institutional setting is the U.S. FOMC (rate decisions, statements, dot plots, SEP) and public macro news releases."
+      },
+      "selection": {"slot": 4, "reason": "Monetary-policy communication pair separated by data vintages and announcement designs."}
+    },
+    {
+      "id": "task2-9273-20787",
+      "domain": "economics",
+      "transition": "negative_to_none",
+      "similarity": 0.8273,
+      "source": {
+        "paper_id": "20787",
+        "title": "Universal Gravity",
+        "year": 2014,
+        "journal": "Journal of Political Economy",
+        "url": "https://www.nber.org/papers/w20787",
+        "treatment": "WTO membership",
+        "outcome": "bilateral trade frictions",
+        "sign": "negative",
+        "context": "This paper analyzes global bilateral trade flows across about 201 countries (CEPII data) and exploits WTO accession between 1995 and 2005 as a quasi-experimental shock to bilateral trade frictions. Units are country-pair trade flows and country-level incomes/welfare. The setting is a general-equilibrium gravity framework (exporter/importer shifters, balanced trade) used to structurally estimate gravity constants from pre/post trade-flow changes and to compute welfare-maximizing reductions in trade frictions."
+      },
+      "target": {
+        "paper_id": "9273",
+        "title": "Do We Really Know that the WTO Increases Trade?",
+        "year": 2002,
+        "journal": "American Economic Review",
+        "url": "https://www.nber.org/papers/w9273",
+        "treatment": "GATT/WTO membership",
+        "outcome": "Bilateral trade",
+        "sign": "none",
+        "context": "The paper analyzes bilateral merchandise trade for about 175–178 trading entities worldwide over 1948–1999 (with openness analyses 1950–1998), using country-pair-year observations. It estimates how membership in the GATT/WTO and beneficiary status under the Generalized System of Preferences (GSP) affected trade, exploiting accession timing and variation across GATT rounds. The empirical setting is global bilateral trade governed by gravity determinants (distance, GDP, population), cultural and historical ties, regional trade agreements, currency unions, and measured tariff/GSP treatment policies."
+      },
+      "selection": {"slot": 5, "reason": "International-trade pair contrasting accession-based structural and historical panel settings."}
+    },
+    {
+      "id": "task2-14606-18674",
+      "domain": "economics",
+      "transition": "none_to_negative",
+      "similarity": 0.8325,
+      "source": {
+        "paper_id": "18674",
+        "title": "Modest, Secure and Informed: Successful Development in Conflict Zones",
+        "year": 2013,
+        "journal": "American Economic Review",
+        "url": "https://www.nber.org/papers/w18674",
+        "treatment": "Large non-CERP reconstruction spending",
+        "outcome": "Insurgent attacks per capita",
+        "sign": "none",
+        "context": "Using panel data from Feb 2004–Dec 2008/Feb 2009 on Iraq’s reconstruction, this paper studies effects of U.S. development spending across districts (N≈103) observed in half‑year intervals. It links IRMS project‑level spending (CERP, USAID CAP/CSP, large vs. small projects), troop strength (maneuver battalions), and Provincial Reconstruction Team presence to SIGACT insurgent‑incident rates, exploiting variation in timing, project size, local security, and implementation modality to evaluate when aid reduced violence during the Iraq war and U.S. counterinsurgency operations."
+      },
+      "target": {
+        "paper_id": "14606",
+        "title": "Can Hearts and Minds Be Bought? The Economics of Counterinsurgency in Iraq",
+        "year": 2008,
+        "journal": "Journal of Political Economy",
+        "url": "https://www.nber.org/papers/w14606",
+        "treatment": "CERP reconstruction spending",
+        "outcome": "Insurgent violence",
+        "sign": "negative",
+        "context": "This paper studies Iraq during 2004–2008 using district-level panel data (104 districts) on attacks against Coalition and Iraqi security forces, geo-located reconstruction spending—particularly small-scale CERP projects—and local characteristics (sectarian status, socio-economic indicators, and oil infrastructure). It evaluates how U.S. reconstruction and counterinsurgency policies, including the 2007 troop surge and the Commander’s Emergency Response Program, affected insurgent violence by exploiting variation in project timing, size, and district-level spending over time."
+      },
+      "selection": {"slot": 6, "reason": "Conflict-and-development pair where project scale and implementation context differ."}
+    },
+    {
+      "id": "task2-7269-21433",
+      "domain": "economics",
+      "transition": "mixed_to_negative",
+      "similarity": 0.8971,
+      "source": {
+        "paper_id": "21433",
+        "title": "Clearing Up the Fiscal Multiplier Morass: Prior and Posterior Analysis",
+        "year": 2015,
+        "journal": "American Economic Review",
+        "url": "https://www.nber.org/papers/w21433",
+        "treatment": "Government spending increase",
+        "outcome": "Investment",
+        "sign": "mixed",
+        "context": "This paper uses U.S. quarterly macro data (1955q1–2014q2, with pre-Volcker and Great Moderation subperiods) to estimate a monetary DSGE model augmented with fiscal details—government consumption and transfers, maturity structure of nominal government debt, and steady-state distortionary taxes—to quantify government spending multipliers under two monetary–fiscal regimes (active monetary/passive fiscal and active fiscal/passive monetary). The unit is the aggregate U.S. economy; observables include output, consumption, investment, hours, wages, government consumption, market-value debt, inflation and the federal funds rate."
+      },
+      "target": {
+        "paper_id": "7269",
+        "title": "An Empirical Characterization of the Dynamic Effects of Changes in Government Spending and Taxes on Output",
+        "year": 1999,
+        "journal": "Quarterly Journal of Economics",
+        "url": "https://www.nber.org/papers/w7269",
+        "treatment": "Government spending increase",
+        "outcome": "Investment spending",
+        "sign": "negative",
+        "context": "Analyzes U.S. quarterly macrodata on real per‑capita GDP, government purchases (consumption+investment), and net taxes mainly over 1960:Q1–1997:Q4 (with extensions back to 1947), using institutional details of the U.S. tax/transfer system and tax‑collection timing. Identifies effects of discretionary and automatic fiscal shocks (including the 1975:Q2 tax rebate and the 1950–52 Korean War buildup). Units are national quarterly aggregates; setting is U.S. fiscal policy and macroeconomic responses."
+      },
+      "selection": {"slot": 7, "reason": "Fiscal-policy pair contrasting regime-dependent structural estimates with historical shocks."}
+    },
+    {
+      "id": "task2-20387-18463",
+      "domain": "economics",
+      "transition": "none_to_mixed",
+      "similarity": 0.8178,
+      "source": {
+        "paper_id": "18463",
+        "title": "Agricultural Decisions after Relaxing Credit and Risk Constraints",
+        "year": 2012,
+        "journal": "Quarterly Journal of Economics",
+        "url": "https://www.nber.org/papers/w18463",
+        "treatment": "Cash grant",
+        "outcome": "Agricultural investment",
+        "sign": "none",
+        "context": "This paper studies randomized field experiments conducted 2009–2011 in northern Ghana among smallholder maize farmers/households. It tests how relaxing credit and risk constraints—via per‑acre cash grants and rainfall‑index insurance (free grants, subsidized and market‑priced offers, and a commercial product)—affects agricultural investment, input use, cultivated acreage, and harvests. Interventions were delivered through NGOs and government partners, payouts tied to local rain gauges, and the setting is rain‑fed, low‑income agriculture with limited formal credit and insurance markets."
+      },
+      "target": {
+        "paper_id": "20387",
+        "title": "Selection into Credit Markets: Evidence from Agriculture in Mali",
+        "year": 2014,
+        "journal": "Econometrica",
+        "url": "https://www.nber.org/papers/w20387",
+        "treatment": "Cash grant",
+        "outcome": "Agricultural output value",
+        "sign": "mixed",
+        "context": "This paper reports a two-stage randomized field experiment conducted in 198 rural villages in southern Mali during 2010–2012 (with a long-term follow-up in 2017), offering group agricultural loans to women’s associations in 88 villages and cash grants (40,000 FCFA) randomly to individuals across villages. Units are female farmers/households in a rain‑fed, capital‑poor agricultural setting with limited formal finance; the microcredit program (Soro Yiriwaso) used group liability and balloon repayments timed to planting/harvest. The study assesses selection into borrowing and heterogeneous returns of grants and loans on agricultural investment, output and profits."
+      },
+      "selection": {"slot": 8, "reason": "Agricultural-credit pair spanning Ghana and Mali field experiments and heterogeneous outcomes."}
+    }
+  ],
+  "provenance": {
+    "generated_at": "2026-08-19",
+    "numerical_authority": {
+    "label": "Submitted manuscript PDF (numerical authority)",
+      "filename": "13193_EconCausal_A_Context_Awa (1).pdf",
+      "sha256": "ab4d93b8187b15329b5599d04ff5c1189d5d2d10efd076877fb7e748b834f9ed",
+      "locations": {
+        "dataset_and_task_counts": "abstract, Section 3.4, Figure 4",
+        "models_and_group_averages": "Table 2",
+        "transfer": "Section 4.3 and Table 3",
+        "calibration": "Figure 3",
+        "sign_accuracy": "Table 9",
+        "source_paper_counts": "Table 4"
+      }
+    },
+    "public_benchmark": {
+      "task2_path": "econcausal-benchmark/data/tasks/task2.jsonl",
+      "task2_sha256": "d0ce22483255a45c438e01f0e8d9b5e8baf015228728b399f732414814df86d6",
+      "causal_triplets_path": "econcausal-benchmark/data/causal_triplets/causal_triplets.jsonl",
+      "causal_triplets_sha256": "dc360df8654bac95b5dffebf692f3bac465303552f8686f3e476b3ca597720de",
+      "license_path": "econcausal-benchmark/LICENSE",
+      "license_sha256": "2e4fdee496d33cc550676f222446626ab72b7d2521bf28fdfea08a29dd3fcf0b"
+    },
+    "field_sources": {
+      "stats_tasks_models_group_averages_transfer_sign_accuracy_calibration": "submitted PDF",
+      "examples": "public Task 2 rows joined to public causal triplets by paper_id, treatment, outcome, and sign",
+      "example_contexts": "public benchmark context fields"
+    },
+    "source_priority": [
+      "The submitted PDF controls all reported metrics and headline claims.",
+      "Public benchmark JSONL controls example IDs, signs, contexts, and similarities.",
+      "The public README is descriptive only and cannot override the PDF or released JSONL."
+    ],
+    "known_conflicts": [
+      {
+        "source": "public README",
+        "stale_claim": "Task 3 collapses to 37%",
+        "authoritative_value": "PDF Table 2 reports 49.3% closed-source and 44.3% open-source group-average accuracy; the best model reaches 62.4%."
+      },
+      {
+        "source": "public README",
+        "stale_claim": "9.5% accuracy on null effects",
+        "authoritative_value": "PDF Table 9 reports a four-task mean None accuracy of 13.83%."
+      }
+    ],
+    "example_selection": {
+      "candidate_rule": "Use the highest-similarity (first) Task 2 reference example and retain rows where its sign differs from the target sign; this reproduces the paper's 101/284 sign-mismatch subset.",
+      "eligibility": [
+        "exact source join exists in the released causal-triplets file",
+        "source and target have distinct paper IDs",
+        "no raw question, answer, prompt, or model output is included"
+      ],
+      "coverage_rule": "Fill eight fixed topical slots in order—asset pricing, entrepreneurial finance, firm organization, monetary policy, international trade, conflict and development, fiscal policy, and agricultural credit—while using unique source and target papers, covering all four sign labels, and including two finance targets.",
+      "tie_break": "Within a topical slot, sort by similarity descending, then target paper_id ascending, then source paper_id ascending.",
+      "selected_ids": [
+        "task2-10852-14804",
+        "task2-21808-15831",
+        "task2-18259-21811",
+        "task2-27013-5692",
+        "task2-9273-20787",
+        "task2-14606-18674",
+        "task2-7269-21433",
+        "task2-20387-18463"
+      ]
+    },
+    "license": {
+      "dataset": "CC BY-NC 4.0",
+      "note": "The benchmark is released for noncommercial research use; source papers remain the intellectual property of their authors and publishers."
+    },
+  "anonymity": {
+    "status": "public_preprint",
+    "rule": "Use public arXiv v4 author metadata; do not expose review identifiers, review materials, or the anonymous submission PDF."
+  }
+}
+}
