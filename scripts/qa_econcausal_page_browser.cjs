@@ -78,13 +78,15 @@ async function main() {
                 }));
                 const title = document.querySelector('#paper-title').getBoundingClientRect();
                 const concept = document.querySelector('.hero-concept').getBoundingClientRect();
+                const pipeline = document.querySelector('.paper-pipeline img').getBoundingClientRect();
                 return {
                     headerHeight,
                     viewportHeight: window.innerHeight,
                     scrollSnapType: getComputedStyle(document.documentElement).scrollSnapType,
                     scenes,
-                    titleBottom: title.bottom,
-                    conceptTop: concept.top,
+                    title: { top: title.top, right: title.right, bottom: title.bottom, left: title.left },
+                    concept: { top: concept.top, right: concept.right, bottom: concept.bottom, left: concept.left },
+                    pipeline: { width: pipeline.width, height: pipeline.height },
                 };
             });
             assert.equal(sceneContract.scrollSnapType, 'y mandatory', `${width}px document snap type`);
@@ -98,7 +100,14 @@ async function main() {
                 );
                 assert.ok(scene.scrollHeight <= scene.clientHeight + 1, `${width}px ${scene.id} content is clipped`);
             }
-            assert.ok(sceneContract.titleBottom <= sceneContract.conceptTop + 1, `${width}px title overlaps concept figure`);
+            const titleConceptOverlap = !(
+                sceneContract.title.right <= sceneContract.concept.left + 1
+                || sceneContract.concept.right <= sceneContract.title.left + 1
+                || sceneContract.title.bottom <= sceneContract.concept.top + 1
+                || sceneContract.concept.bottom <= sceneContract.title.top + 1
+            );
+            assert.equal(titleConceptOverlap, false, `${width}px title overlaps concept figure`);
+            assert.ok(sceneContract.pipeline.width > 0 && sceneContract.pipeline.height > 0, `${width}px paper pipeline figure is not visible`);
 
             await page.locator('.hero-actions a[href="#benchmark"]').click();
             await page.waitForTimeout(500);
@@ -133,6 +142,10 @@ async function main() {
                     `${width}px ${model.id} accuracy bar values`,
                 );
             }
+            const taskColors = await page.locator('[data-model-id]').first().locator('[data-accuracy-bar]').evaluateAll((bars) => (
+                bars.map((bar) => getComputedStyle(bar).backgroundColor)
+            ));
+            assert.equal(new Set(taskColors).size, 4, `${width}px task bars need four distinct high-contrast colors`);
 
             const geometry = await page.evaluate(() => ({
                 documentWidth: document.documentElement.scrollWidth,
@@ -198,6 +211,32 @@ async function main() {
             }
             await page.close();
         }
+
+        const motionPage = await browser.newPage({ viewport: { width: 1366, height: 768 } });
+        await motionPage.emulateMedia({ reducedMotion: 'no-preference' });
+        await motionPage.goto(baseUrl, { waitUntil: 'networkidle' });
+        const motionTarget = await motionPage.locator('#benchmark').evaluate((element) => (
+            element.offsetTop - document.querySelector('.paper-nav').getBoundingClientRect().height
+        ));
+        await motionPage.mouse.wheel(0, 180);
+        await motionPage.waitForTimeout(25);
+        await motionPage.mouse.wheel(0, 160);
+        await motionPage.waitForTimeout(25);
+        await motionPage.mouse.wheel(0, 120);
+        const motionSamples = [];
+        for (let index = 0; index < 24; index += 1) {
+            await motionPage.waitForTimeout(35);
+            motionSamples.push(await motionPage.evaluate(() => window.scrollY));
+        }
+        for (let index = 1; index < motionSamples.length; index += 1) {
+            assert.ok(
+                motionSamples[index] >= motionSamples[index - 1] - 1,
+                `scene paging reversed at sample ${index}: ${motionSamples[index - 1]} -> ${motionSamples[index]}`,
+            );
+        }
+        assert.ok(Math.max(...motionSamples) <= motionTarget + 3, 'scene paging overshot and snapped backward');
+        assert.ok(Math.abs(motionSamples.at(-1) - motionTarget) <= 3, 'scene paging did not settle on the benchmark scene');
+        await motionPage.close();
     } finally {
         await browser.close();
     }

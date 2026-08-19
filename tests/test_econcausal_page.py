@@ -15,6 +15,7 @@ CSS_PATH = PAGE_ROOT / "styles.css"
 SCRIPT_PATH = PAGE_ROOT / "script.js"
 DATA_PATH = PAGE_ROOT / "data" / "paper-data.v1.json"
 OG_IMAGE_PATH = PAGE_ROOT / "assets" / "og-card.png"
+PIPELINE_IMAGE_PATH = PAGE_ROOT / "assets" / "figure-2-pipeline.png"
 
 
 class _ReferenceParser(HTMLParser):
@@ -162,21 +163,20 @@ class EconCausalPageTests(unittest.TestCase):
                 self.assertGreaterEqual(accuracy, 0, f"{model['id']}/{task_id}")
                 self.assertLessEqual(accuracy, 1, f"{model['id']}/{task_id}")
 
-    def test_construction_pipeline_and_responsive_concept_figure_are_present(self):
+    def test_construction_uses_the_paper_figure_and_clear_hero_concept(self):
         for value in (
             'id="construction"',
             'class="hero-concept"',
             "Same causal question",
-            "Context changes",
-            "The effect can change",
-            "Consensus extraction",
-            "Context refinement",
-            "Conservative filter",
-            "27.3%",
-            "2,943 evaluations",
+            "Same relation. Different setting. The sign may flip.",
+            'assets/figure-2-pipeline.png',
+            "Figure 2 from the paper",
+            "Open full size",
         ):
             self.assertIn(value, self.html)
         self.assertNotIn("figure-1-overview.png", self.html)
+        self.assertTrue(PIPELINE_IMAGE_PATH.is_file())
+        self.assertGreater(PIPELINE_IMAGE_PATH.stat().st_size, 250_000)
 
     def test_benchmark_is_the_second_full_page_scene(self):
         overview = self.html.index('id="overview"')

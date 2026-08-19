@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#edf5fb">
   <link rel="canonical" href="https://econai.kaist.ac.kr/econcausal/">
   <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20260819c">
+  <link rel="stylesheet" href="styles.css?v=20260819d">
 
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="KAIST EconAI Lab">
@@ -76,48 +76,44 @@
 
   <main id="main-content">
     <section id="overview" class="hero scene shell" data-scene="overview" aria-labelledby="paper-title">
-      <div class="hero-head">
+      <div class="hero-stage">
         <div class="hero-copy">
           <p class="venue-badge"><span aria-hidden="true"></span>Preprint · Submitted to EMNLP 2026</p>
-          <h1 id="paper-title">Econ<span>Causal</span></h1>
+          <h1 id="paper-title"><span>Econ</span><strong>Causal</strong></h1>
           <p class="hero-deck">Does an LLM change its causal answer when the economic context changes?</p>
-        </div>
-        <div class="hero-meta">
-          <p class="authors">
-            <a href="https://donggyu-lee1.github.io" target="_blank" rel="noopener"><strong>Donggyu Lee</strong></a>,
-            Hyeok Yun, Meeyoung Cha, Sungwon Park, Sangyoon Park, Jihee Kim
-          </p>
+          <p class="authors"><a href="https://donggyu-lee1.github.io" target="_blank" rel="noopener"><strong>Donggyu Lee</strong></a>, Hyeok Yun, Meeyoung Cha, Sungwon Park, Sangyoon Park, Jihee Kim</p>
           <p class="affiliations">KAIST · Data Science for Humanity Group, MPI-SP · HKUST</p>
           <div class="hero-actions" aria-label="Paper resources">
             <a class="button primary" href="#benchmark">See the results <span aria-hidden="true">↓</span></a>
             <a class="button secondary" href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener">Read on arXiv <span aria-hidden="true">↗</span></a>
           </div>
+          <dl class="hero-stats" aria-label="Benchmark scale">
+            <div><dt data-stat="triplets">10,490</dt><dd>causal triplets</dd></div>
+            <div><dt data-stat="papers">2,595</dt><dd>empirical studies</dd></div>
+            <div><dt data-stat="models">18</dt><dd>evaluated models</dd></div>
+          </dl>
         </div>
+        <figure class="hero-concept" aria-label="The same causal question can have a different answer when the economic context changes">
+          <div class="concept-relation">
+            <small>Same causal question</small>
+            <div><b>Minimum wage</b><span aria-hidden="true">↑</span><i>→</i><b>Employment</b></div>
+          </div>
+          <div class="context-comparison">
+            <article>
+              <header><span>A</span><small>Study context</small></header>
+              <p><b>Time 1</b><b>Market A</b><b>Policy A</b></p>
+              <strong><small>Causal sign</small>−</strong>
+            </article>
+            <div class="context-shift" aria-label="The context changes"><span>Context changes</span><b aria-hidden="true">→</b></div>
+            <article>
+              <header><span>B</span><small>New context</small></header>
+              <p><b>Time 2</b><b>Market B</b><b>Policy B</b></p>
+              <strong><small>Causal sign</small>+</strong>
+            </article>
+          </div>
+          <figcaption><strong>Can the model revise its judgment?</strong><span>Same relation. Different setting. The sign may flip.</span></figcaption>
+        </figure>
       </div>
-
-      <figure class="hero-concept" aria-label="EconCausal concept: the same treatment-outcome relation can have different causal signs across contexts">
-        <article class="concept-question">
-          <small>Same causal question</small>
-          <strong>Minimum wage ↑</strong>
-          <span aria-hidden="true">→</span>
-          <strong>Employment</strong>
-        </article>
-        <article class="concept-context">
-          <small>Context changes</small>
-          <div><b>Time</b><b>Place</b><b>Market</b><b>Institutions</b></div>
-        </article>
-        <article class="concept-effects">
-          <small>The effect can change</small>
-          <div><b><i>+</i>Increase</b><b><i>−</i>Decrease</b><b><i>∅</i>None</b><b><i>±</i>Mixed</b></div>
-        </article>
-        <figcaption><strong>EconCausal</strong> tests whether the model reconsiders the sign instead of copying a familiar answer.</figcaption>
-      </figure>
-
-      <dl class="hero-stats" aria-label="Benchmark scale">
-        <div><dt data-stat="triplets">10,490</dt><dd>causal triplets</dd></div>
-        <div><dt data-stat="papers">2,595</dt><dd>empirical studies</dd></div>
-        <div><dt data-stat="models">18</dt><dd>evaluated models</dd></div>
-      </dl>
     </section>
 
     <section id="benchmark" class="section scene benchmark-section" data-scene="benchmark" aria-labelledby="benchmark-heading">
@@ -163,31 +159,12 @@
         <div><p class="kicker">How it was built</p><h2 id="construction-heading">From papers to grounded tests.</h2></div>
         <p class="section-note">A four-stage extraction pipeline with agreement, context refinement, and independent quality checks.</p>
       </div>
-      <div class="construction-flow" aria-label="EconCausal construction pipeline">
-        <article>
-          <span>3×</span><small>01</small>
-          <h3>Consensus extraction</h3>
-          <p>Keep a treatment–outcome pair when at least two of three independent runs agree.</p>
-        </article>
-        <article>
-          <span>C + ID</span><small>02–03</small>
-          <h3>Context refinement</h3>
-          <p>Attach setting and identification method, then minimally refine triplet-specific cases.</p>
-        </article>
-        <article>
-          <span>3 critics</span><small>04</small>
-          <h3>Conservative filter</h3>
-          <p>Score six quality dimensions and remove 27.3% of candidates below the thresholds.</p>
-        </article>
-        <article class="construction-output">
-          <span>10,490</span><small>Output</small>
-          <h3>Grounded triplets</h3>
-          <p>Context-annotated causal claims drawn from 2,595 economics and finance papers.</p>
-        </article>
-      </div>
-      <div class="task-equation" aria-label="Benchmark task instance counts">
-        <span><b>1,807</b> T1</span><i aria-hidden="true">+</i><span><b>284</b> T2</span><i aria-hidden="true">+</i><span><b>852</b> T3</span><i aria-hidden="true">=</i><strong>2,943 evaluations</strong>
-      </div>
+      <figure class="paper-pipeline">
+        <a href="assets/figure-2-pipeline.png" target="_blank" rel="noopener" aria-label="Open Figure 2 from the EconCausal paper at full resolution">
+          <img src="assets/figure-2-pipeline.png" width="1760" height="900" alt="Figure 2 from the EconCausal paper: four-stage dataset extraction pipeline from PDF papers through consensus extraction, global context and method extraction, local refinement, and multi-critic filtering.">
+        </a>
+        <figcaption><span>Figure 2 from the paper · 10,490 context-aware triplets from 2,595 studies</span><strong>Open full size ↗</strong></figcaption>
+      </figure>
     </section>
 
     <section id="tasks" class="section scene shell task-section" data-scene="tasks" aria-labelledby="tasks-heading">
@@ -274,6 +251,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=20260819c" defer></script>
+  <script src="script.js?v=20260819d" defer></script>
 </body>
 </html>

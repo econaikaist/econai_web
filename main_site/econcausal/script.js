@@ -21,7 +21,10 @@
     data: null,
     familyIndex: 0,
     previousFocus: null,
-    wheelLocked: false,
+    scenePagingLocked: false,
+    scenePagingStarted: 0,
+    scenePagingTarget: 0,
+    sceneUnlockTimer: null,
     scrollFrame: null
   };
 
@@ -358,20 +361,44 @@
       return closest;
     }
 
+    function releasePaging() {
+      window.scrollTo({ top: state.scenePagingTarget, behavior: "auto" });
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          document.documentElement.classList.remove("scene-paging");
+          state.scenePagingLocked = false;
+        });
+      });
+    }
+
+    function scheduleRelease() {
+      if (state.sceneUnlockTimer) window.clearTimeout(state.sceneUnlockTimer);
+      var elapsed = performance.now() - state.scenePagingStarted;
+      state.sceneUnlockTimer = window.setTimeout(releasePaging, Math.max(180, 650 - elapsed));
+    }
+
     function pageTo(index) {
       if (index < 0 || index >= scenes.length) return false;
-      state.wheelLocked = true;
+      state.scenePagingLocked = true;
+      state.scenePagingStarted = performance.now();
+      state.scenePagingTarget = Math.max(0, scenes[index].offsetTop - headerHeight());
+      document.documentElement.classList.add("scene-paging");
       window.scrollTo({
-        top: Math.max(0, scenes[index].offsetTop - headerHeight()),
+        top: state.scenePagingTarget,
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
       });
-      window.setTimeout(function () { state.wheelLocked = false; }, 650);
+      scheduleRelease();
       return true;
     }
 
     window.addEventListener("wheel", function (event) {
-      if (event.ctrlKey || state.wheelLocked || Math.abs(event.deltaX) >= Math.abs(event.deltaY) || Math.abs(event.deltaY) < 8) return;
+      if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY) || Math.abs(event.deltaY) < 8) return;
       if (dialog && dialog.hasAttribute("open")) return;
+      if (state.scenePagingLocked) {
+        event.preventDefault();
+        scheduleRelease();
+        return;
+      }
       var direction = event.deltaY > 0 ? 1 : -1;
       if (pageTo(currentSceneIndex() + direction)) event.preventDefault();
     }, { passive: false });
