@@ -21,7 +21,7 @@
     data: null,
     familyIndex: 0,
     previousFocus: null,
-    figureFocus: null,
+    wheelLocked: false,
     scrollFrame: null
   };
 
@@ -30,7 +30,6 @@
   var tooltip = document.getElementById("chart-tooltip");
   var dialog = document.getElementById("model-detail-dialog");
   var dialogClose = dialog && dialog.querySelector("[data-dialog-close]");
-  var figureDialog = document.getElementById("figure-dialog");
 
   function escapeHtml(value) {
     return String(value == null ? "" : value)
@@ -290,36 +289,6 @@
     });
   }
 
-  function bindFigureDialog() {
-    if (!figureDialog) return;
-    var openButton = document.querySelector("[data-figure-open]");
-    var closeButton = figureDialog.querySelector("[data-figure-close]");
-    function closeFigure() {
-      if (!figureDialog.hasAttribute("open")) return;
-      if (typeof figureDialog.close === "function") figureDialog.close();
-      else figureDialog.removeAttribute("open");
-      if (state.figureFocus && typeof state.figureFocus.focus === "function") state.figureFocus.focus();
-    }
-    openButton.addEventListener("click", function () {
-      state.figureFocus = openButton;
-      if (typeof figureDialog.showModal === "function") figureDialog.showModal();
-      else { figureDialog.setAttribute("open", ""); figureDialog.setAttribute("aria-modal", "true"); }
-      window.requestAnimationFrame(function () { closeButton.focus(); });
-    });
-    closeButton.addEventListener("click", closeFigure);
-    figureDialog.addEventListener("click", function (event) { if (event.target === figureDialog) closeFigure(); });
-    figureDialog.addEventListener("cancel", function () {
-      window.setTimeout(function () {
-        if (state.figureFocus && typeof state.figureFocus.focus === "function") state.figureFocus.focus();
-      }, 0);
-    });
-    figureDialog.addEventListener("close", function () {
-      window.setTimeout(function () {
-        if (state.figureFocus && typeof state.figureFocus.focus === "function") state.figureFocus.focus();
-      }, 0);
-    });
-  }
-
   function renderTransfer(data) {
     var transfer = data.transfer || {};
     var target = document.getElementById("transfer-chart");
@@ -366,6 +335,48 @@
     sections.forEach(function (section) { observer.observe(section); });
   }
 
+  function bindScenePaging() {
+    var scenes = Array.from(document.querySelectorAll("main > .scene"));
+    if (!scenes.length) return;
+
+    function headerHeight() {
+      var header = document.querySelector(".paper-nav");
+      return header ? header.getBoundingClientRect().height : 0;
+    }
+
+    function currentSceneIndex() {
+      var anchor = headerHeight();
+      var closest = 0;
+      var distance = Infinity;
+      scenes.forEach(function (scene, index) {
+        var nextDistance = Math.abs(scene.getBoundingClientRect().top - anchor);
+        if (nextDistance < distance) {
+          distance = nextDistance;
+          closest = index;
+        }
+      });
+      return closest;
+    }
+
+    function pageTo(index) {
+      if (index < 0 || index >= scenes.length) return false;
+      state.wheelLocked = true;
+      window.scrollTo({
+        top: Math.max(0, scenes[index].offsetTop - headerHeight()),
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
+      });
+      window.setTimeout(function () { state.wheelLocked = false; }, 650);
+      return true;
+    }
+
+    window.addEventListener("wheel", function (event) {
+      if (event.ctrlKey || state.wheelLocked || Math.abs(event.deltaX) >= Math.abs(event.deltaY) || Math.abs(event.deltaY) < 8) return;
+      if (dialog && dialog.hasAttribute("open")) return;
+      var direction = event.deltaY > 0 ? 1 : -1;
+      if (pageTo(currentSceneIndex() + direction)) event.preventDefault();
+    }, { passive: false });
+  }
+
   function initializeData(data) {
     state.data = data;
     updateStats(data);
@@ -390,8 +401,8 @@
   }
 
   bindDialog();
-  bindFigureDialog();
   bindFamilyNavigation();
   bindSceneNavigation();
+  bindScenePaging();
   loadData();
 }());

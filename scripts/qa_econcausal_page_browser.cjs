@@ -40,7 +40,8 @@ async function main() {
     const browser = await chromium.launch({ executablePath, headless: true });
     try {
         for (const width of viewports) {
-            const page = await browser.newPage({ viewport: { width, height: 1000 } });
+            const height = width <= 320 ? 700 : width <= 375 ? 812 : width <= 768 ? 720 : width <= 1024 ? 768 : width <= 1440 ? 900 : 1080;
+            const page = await browser.newPage({ viewport: { width, height } });
             const consoleErrors = [];
             const failedRequests = [];
             page.on('console', (message) => {
@@ -64,6 +65,57 @@ async function main() {
             assert.equal(await page.locator('[data-family-panel]').count(), 5, `${width}px family panel count`);
             assert.equal(await page.locator('[data-model-id]').count(), 18, `${width}px model count`);
             assert.equal(await page.locator('[data-accuracy-bar][data-task]').count(), 72, `${width}px accuracy bar count`);
+
+            const sceneContract = await page.evaluate(() => {
+                const headerHeight = document.querySelector('.paper-nav').getBoundingClientRect().height;
+                const scenes = [...document.querySelectorAll('main > .scene')].map((scene) => ({
+                    id: scene.id || 'closing',
+                    height: scene.getBoundingClientRect().height,
+                    clientHeight: scene.clientHeight,
+                    scrollHeight: scene.scrollHeight,
+                    snapAlign: getComputedStyle(scene).scrollSnapAlign,
+                    snapStop: getComputedStyle(scene).scrollSnapStop,
+                }));
+                const title = document.querySelector('#paper-title').getBoundingClientRect();
+                const concept = document.querySelector('.hero-concept').getBoundingClientRect();
+                return {
+                    headerHeight,
+                    viewportHeight: window.innerHeight,
+                    scrollSnapType: getComputedStyle(document.documentElement).scrollSnapType,
+                    scenes,
+                    titleBottom: title.bottom,
+                    conceptTop: concept.top,
+                };
+            });
+            assert.equal(sceneContract.scrollSnapType, 'y mandatory', `${width}px document snap type`);
+            assert.deepEqual(sceneContract.scenes.slice(0, 3).map((scene) => scene.id), ['overview', 'benchmark', 'construction'], `${width}px scene order`);
+            for (const scene of sceneContract.scenes) {
+                assert.equal(scene.snapAlign, 'start', `${width}px ${scene.id} snap alignment`);
+                assert.equal(scene.snapStop, 'always', `${width}px ${scene.id} snap stop`);
+                assert.ok(
+                    Math.abs(scene.height - (sceneContract.viewportHeight - sceneContract.headerHeight)) <= 1,
+                    `${width}px ${scene.id} is not one viewport tall`,
+                );
+                assert.ok(scene.scrollHeight <= scene.clientHeight + 1, `${width}px ${scene.id} content is clipped`);
+            }
+            assert.ok(sceneContract.titleBottom <= sceneContract.conceptTop + 1, `${width}px title overlaps concept figure`);
+
+            await page.locator('.hero-actions a[href="#benchmark"]').click();
+            await page.waitForTimeout(500);
+            const linkedBenchmarkTop = await page.locator('#benchmark').evaluate((element) => element.getBoundingClientRect().top);
+            assert.ok(
+                Math.abs(linkedBenchmarkTop - sceneContract.headerHeight) <= 3,
+                `${width}px results link did not align the benchmark scene: ${linkedBenchmarkTop}`,
+            );
+
+            await page.evaluate(() => window.scrollTo(0, 0));
+            await page.mouse.wheel(0, 900);
+            await page.waitForTimeout(500);
+            const snappedBenchmarkTop = await page.locator('#benchmark').evaluate((element) => element.getBoundingClientRect().top);
+            assert.ok(
+                Math.abs(snappedBenchmarkTop - sceneContract.headerHeight) <= 3,
+                `${width}px wheel did not stop on the benchmark scene: ${snappedBenchmarkTop}`,
+            );
 
             const benchmarkLayout = await page.locator('[data-model-id]').evaluateAll((models) => models.map((model) => ({
                 id: model.dataset.modelId,
@@ -123,16 +175,6 @@ async function main() {
             await page.locator('#family-prev').click();
             await page.waitForFunction(() => document.querySelector('#family-status')?.textContent.includes('Gemini'));
 
-            const figureButton = page.locator('[data-figure-open]');
-            await figureButton.focus();
-            await figureButton.press('Enter');
-            const figureDialog = page.locator('#figure-dialog');
-            await figureDialog.waitFor({ state: 'visible' });
-            await page.keyboard.press('Escape');
-            await page.waitForFunction(() => !document.querySelector('#figure-dialog').open);
-            await page.waitForFunction(() => document.querySelector('[data-figure-open]') === document.activeElement);
-            assert.equal(await figureButton.evaluate((element) => element === document.activeElement), true, `${width}px figure focus not restored`);
-
             const firstModel = page.locator('[data-model-id]').first();
             await firstModel.focus();
             await firstModel.press('Enter');
@@ -145,7 +187,7 @@ async function main() {
             assert.equal(await firstModel.evaluate((element) => element === document.activeElement), true, `${width}px focus not restored`);
 
             await checkTouchTargets(
-                page.locator('#family-prev, #family-next, [data-model-id], [data-dialog-close], [data-figure-open], [data-figure-close]'),
+                page.locator('#family-prev, #family-next, [data-model-id], [data-dialog-close]'),
                 `${width}px control`,
             );
             if (!skipScreenshots) {

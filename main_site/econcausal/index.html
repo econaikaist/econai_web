@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#edf5fb">
   <link rel="canonical" href="https://econai.kaist.ac.kr/econcausal/">
   <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20260819b">
+  <link rel="stylesheet" href="styles.css?v=20260819c">
 
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="KAIST EconAI Lab">
@@ -55,9 +55,9 @@
       </a>
       <nav class="section-nav" aria-label="Paper sections">
         <a href="#overview">Overview</a>
+        <a href="#benchmark">Benchmark</a>
         <a href="#construction">Build</a>
         <a href="#tasks">Tasks</a>
-        <a href="#benchmark">Benchmark</a>
         <a href="#transfer">Context gap</a>
         <a href="#diagnostics">Sign errors</a>
       </nav>
@@ -67,36 +67,50 @@
 
   <nav class="scene-nav" aria-label="Page progress">
     <a href="#overview" data-scene-link="overview"><span>01</span><b>Overview</b></a>
-    <a href="#construction" data-scene-link="construction"><span>02</span><b>Build</b></a>
-    <a href="#tasks" data-scene-link="tasks"><span>03</span><b>Tasks</b></a>
-    <a href="#benchmark" data-scene-link="benchmark"><span>04</span><b>Benchmark</b></a>
+    <a href="#benchmark" data-scene-link="benchmark"><span>02</span><b>Benchmark</b></a>
+    <a href="#construction" data-scene-link="construction"><span>03</span><b>Build</b></a>
+    <a href="#tasks" data-scene-link="tasks"><span>04</span><b>Tasks</b></a>
     <a href="#transfer" data-scene-link="transfer"><span>05</span><b>Context gap</b></a>
     <a href="#diagnostics" data-scene-link="diagnostics"><span>06</span><b>Sign errors</b></a>
   </nav>
 
   <main id="main-content">
     <section id="overview" class="hero scene shell" data-scene="overview" aria-labelledby="paper-title">
-      <div class="hero-copy">
-        <p class="venue-badge"><span aria-hidden="true"></span>Preprint · Submitted to EMNLP 2026</p>
-        <h1 id="paper-title">Econ<span>Causal</span></h1>
-        <p class="hero-deck">Can a model change its causal judgment when the economy changes?</p>
-        <p class="authors">
-          <a href="https://donggyu-lee1.github.io" target="_blank" rel="noopener"><strong>Donggyu Lee</strong></a>,
-          Hyeok Yun, Meeyoung Cha, Sungwon Park, Sangyoon Park, Jihee Kim
-        </p>
-        <p class="affiliations">KAIST · Data Science for Humanity Group, MPI-SP · HKUST</p>
-        <div class="hero-actions" aria-label="Paper resources">
-          <a class="button primary" href="#benchmark">See the results <span aria-hidden="true">↓</span></a>
-          <a class="button secondary" href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener">Read on arXiv <span aria-hidden="true">↗</span></a>
+      <div class="hero-head">
+        <div class="hero-copy">
+          <p class="venue-badge"><span aria-hidden="true"></span>Preprint · Submitted to EMNLP 2026</p>
+          <h1 id="paper-title">Econ<span>Causal</span></h1>
+          <p class="hero-deck">Does an LLM change its causal answer when the economic context changes?</p>
+        </div>
+        <div class="hero-meta">
+          <p class="authors">
+            <a href="https://donggyu-lee1.github.io" target="_blank" rel="noopener"><strong>Donggyu Lee</strong></a>,
+            Hyeok Yun, Meeyoung Cha, Sungwon Park, Sangyoon Park, Jihee Kim
+          </p>
+          <p class="affiliations">KAIST · Data Science for Humanity Group, MPI-SP · HKUST</p>
+          <div class="hero-actions" aria-label="Paper resources">
+            <a class="button primary" href="#benchmark">See the results <span aria-hidden="true">↓</span></a>
+            <a class="button secondary" href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener">Read on arXiv <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
       </div>
 
-      <figure class="hero-figure">
-        <button type="button" class="figure-expand" data-figure-open aria-label="Expand paper Figure 1">
-          <img src="assets/figure-1-overview.png" width="1705" height="815" alt="A minimum-wage treatment can increase, decrease, not change, or have mixed effects on employment depending on time, location, market conditions, and institutions; EconCausal benchmarks this context-dependent reasoning.">
-          <span>Expand figure ↗</span>
-        </button>
-        <figcaption><span>Paper Figure 1</span> One relation. Different contexts. Different effects.</figcaption>
+      <figure class="hero-concept" aria-label="EconCausal concept: the same treatment-outcome relation can have different causal signs across contexts">
+        <article class="concept-question">
+          <small>Same causal question</small>
+          <strong>Minimum wage ↑</strong>
+          <span aria-hidden="true">→</span>
+          <strong>Employment</strong>
+        </article>
+        <article class="concept-context">
+          <small>Context changes</small>
+          <div><b>Time</b><b>Place</b><b>Market</b><b>Institutions</b></div>
+        </article>
+        <article class="concept-effects">
+          <small>The effect can change</small>
+          <div><b><i>+</i>Increase</b><b><i>−</i>Decrease</b><b><i>∅</i>None</b><b><i>±</i>Mixed</b></div>
+        </article>
+        <figcaption><strong>EconCausal</strong> tests whether the model reconsiders the sign instead of copying a familiar answer.</figcaption>
       </figure>
 
       <dl class="hero-stats" aria-label="Benchmark scale">
@@ -104,6 +118,44 @@
         <div><dt data-stat="papers">2,595</dt><dd>empirical studies</dd></div>
         <div><dt data-stat="models">18</dt><dd>evaluated models</dd></div>
       </dl>
+    </section>
+
+    <section id="benchmark" class="section scene benchmark-section" data-scene="benchmark" aria-labelledby="benchmark-heading">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">All-model accuracy</p>
+            <h2 id="benchmark-heading">Four tests. One view.</h2>
+          </div>
+          <p class="section-note">Models are grouped by family. Within every model: T1 Econ, T1 Finance, T2, then T3.</p>
+        </div>
+
+        <div class="benchmark-card">
+          <div class="benchmark-topline">
+            <div class="chart-legend" aria-label="Task legend">
+              <span><i class="task-color task1-econ"></i>T1 Econ</span>
+              <span><i class="task-color task1-finance"></i>T1 Finance</span>
+              <span><i class="task-color task2"></i>T2</span>
+              <span><i class="task-color task3"></i>T3</span>
+            </div>
+            <p><span aria-hidden="true">↔</span> Swipe families · select a model for details</p>
+          </div>
+          <div class="benchmark-plot">
+            <div class="y-axis" aria-hidden="true">
+              <strong>Accuracy (%)</strong>
+              <span style="--tick:0%">100</span><span style="--tick:25%">75</span><span style="--tick:50%">50</span><span style="--tick:75%">25</span><span style="--tick:100%">0</span>
+            </div>
+            <div id="family-chart" class="family-chart" tabindex="0" aria-label="Model accuracy by family; horizontally scrollable">
+              <p class="empty-state">Loading all-model benchmark…</p>
+            </div>
+          </div>
+          <div class="family-nav" aria-label="Choose model family">
+            <button type="button" id="family-prev" aria-label="Previous model family">←</button>
+            <p id="family-status" role="status">Loading families…</p>
+            <button type="button" id="family-next" aria-label="Next model family">→</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="construction" class="section scene shell construction-section" data-scene="construction" aria-labelledby="construction-heading">
@@ -149,44 +201,6 @@
         <article class="task-card"><span>03 · T3</span><h3>Misleading cue</h3><p>Ignore a deliberately wrong source sign and judge the target.</p><strong data-task-count="task3">852</strong><small>stress tests</small></article>
       </div>
       <a class="scene-next" href="#benchmark">Compare all 18 models <span aria-hidden="true">↓</span></a>
-    </section>
-
-    <section id="benchmark" class="section scene benchmark-section" data-scene="benchmark" aria-labelledby="benchmark-heading">
-      <div class="shell">
-        <div class="section-heading">
-          <div>
-            <p class="kicker">All-model accuracy</p>
-            <h2 id="benchmark-heading">Four tests. One view.</h2>
-          </div>
-          <p class="section-note">Models are grouped by family. Within every model: T1 Econ, T1 Finance, T2, then T3.</p>
-        </div>
-
-        <div class="benchmark-card">
-          <div class="benchmark-topline">
-            <div class="chart-legend" aria-label="Task legend">
-              <span><i class="task-color task1-econ"></i>T1 Econ</span>
-              <span><i class="task-color task1-finance"></i>T1 Finance</span>
-              <span><i class="task-color task2"></i>T2</span>
-              <span><i class="task-color task3"></i>T3</span>
-            </div>
-            <p><span aria-hidden="true">↔</span> Swipe families · select a model for details</p>
-          </div>
-          <div class="benchmark-plot">
-            <div class="y-axis" aria-hidden="true">
-              <strong>Accuracy (%)</strong>
-              <span style="--tick:0%">100</span><span style="--tick:25%">75</span><span style="--tick:50%">50</span><span style="--tick:75%">25</span><span style="--tick:100%">0</span>
-            </div>
-            <div id="family-chart" class="family-chart" tabindex="0" aria-label="Model accuracy by family; horizontally scrollable">
-              <p class="empty-state">Loading all-model benchmark…</p>
-            </div>
-          </div>
-          <div class="family-nav" aria-label="Choose model family">
-            <button type="button" id="family-prev" aria-label="Previous model family">←</button>
-            <p id="family-status" role="status">Loading families…</p>
-            <button type="button" id="family-next" aria-label="Next model family">→</button>
-          </div>
-        </div>
-      </div>
     </section>
 
     <section id="transfer" class="section scene section-tint" data-scene="transfer" aria-labelledby="transfer-heading">
@@ -240,15 +254,6 @@
 
   <div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div>
 
-  <dialog id="figure-dialog" class="figure-dialog" aria-labelledby="figure-dialog-title">
-    <div class="figure-dialog-shell">
-      <header><div><p class="kicker">Paper Figure 1</p><h2 id="figure-dialog-title">Why context changes the answer</h2></div><button type="button" data-figure-close aria-label="Close expanded figure">×</button></header>
-      <div class="figure-dialog-scroll">
-        <img src="assets/figure-1-overview.png" width="1705" height="815" alt="Context-dependent socio-economic causality and the EconCausal benchmark overview.">
-      </div>
-    </div>
-  </dialog>
-
   <dialog id="model-detail-dialog" class="model-dialog" aria-labelledby="model-detail-title">
     <div class="dialog-shell">
       <header>
@@ -269,6 +274,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=20260819b" defer></script>
+  <script src="script.js?v=20260819c" defer></script>
 </body>
 </html>
