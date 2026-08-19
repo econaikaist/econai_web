@@ -14,6 +14,7 @@ const viewports = (process.env.ECONCAUSAL_QA_VIEWPORTS || '320,375,768,1024,1440
     .split(',')
     .map((value) => Number(value.trim()))
     .filter((value) => Number.isFinite(value) && value > 0);
+const expectedTaskOrder = ['task1_econ', 'task1_finance', 'task2_overall', 'task3'];
 
 function visibleOverflow(metrics, width) {
     return metrics.filter((item) => item.visible && (item.left < -1 || item.right > width + 1));
@@ -50,17 +51,48 @@ async function main() {
             });
             await page.emulateMedia({ reducedMotion: 'reduce' });
             await page.goto(baseUrl, { waitUntil: 'networkidle' });
-            await page.waitForFunction(() => document.querySelectorAll('[data-model-id]').length === 18);
+            await page.waitForFunction(() => (
+                document.querySelectorAll('[data-family-panel]').length === 5
+                && document.querySelectorAll('[data-model-id]').length === 18
+                && document.querySelectorAll('[data-accuracy-bar]').length === 72
+            ));
 
             assert.equal(consoleErrors.length, 0, `${width}px console errors: ${consoleErrors.join('\n')}`);
             assert.equal(failedRequests.length, 0, `${width}px request failures: ${failedRequests.join('\n')}`);
-            assert.equal(await page.locator('#case-select option[data-case-id]').count(), 8, `${width}px curated case count`);
+            assert.equal(await page.locator('#context-lab').count(), 0, `${width}px Context Lab must be absent`);
+            assert.equal(await page.locator('#calibration-chart').count(), 0, `${width}px calibration must be absent`);
+            assert.equal(await page.locator('[data-family-panel]').count(), 5, `${width}px family panel count`);
             assert.equal(await page.locator('[data-model-id]').count(), 18, `${width}px model count`);
+            assert.equal(await page.locator('[data-accuracy-bar][data-task]').count(), 72, `${width}px accuracy bar count`);
+
+            const benchmarkLayout = await page.locator('[data-model-id]').evaluateAll((models) => models.map((model) => ({
+                id: model.dataset.modelId,
+                family: model.closest('[data-family-panel]')?.dataset.familyPanel || '',
+                tasks: [...model.querySelectorAll('[data-accuracy-bar]')].map((bar) => bar.dataset.task),
+                values: [...model.querySelectorAll('[data-accuracy-bar]')]
+                    .map((bar) => Number.parseFloat(bar.style.getPropertyValue('--score'))),
+            })));
+            assert.equal(new Set(benchmarkLayout.map((model) => model.id)).size, 18, `${width}px unique model IDs`);
+            assert.equal(new Set(benchmarkLayout.map((model) => model.family)).size, 5, `${width}px represented families`);
+            for (const model of benchmarkLayout) {
+                assert.deepEqual(model.tasks, expectedTaskOrder, `${width}px ${model.id} task order`);
+                assert.ok(
+                    model.values.every((value) => Number.isFinite(value) && value >= 0 && value <= 100),
+                    `${width}px ${model.id} accuracy bar values`,
+                );
+            }
 
             const geometry = await page.evaluate(() => ({
                 documentWidth: document.documentElement.scrollWidth,
                 viewportWidth: window.innerWidth,
-                elements: [...document.querySelectorAll('main section, [data-model-id], #case-select')]
+                familyOverflow: [...document.querySelectorAll('[data-family-panel]')]
+                    .filter((element) => element.getClientRects().length > 0)
+                    .map((element) => ({
+                        family: element.dataset.familyPanel,
+                        clientWidth: element.clientWidth,
+                        scrollWidth: element.scrollWidth,
+                    })),
+                elements: [...document.querySelectorAll('main > section, #family-chart')]
                     .map((element) => {
                         const rect = element.getBoundingClientRect();
                         return {
@@ -76,21 +108,30 @@ async function main() {
                 `${width}px document overflows by ${geometry.documentWidth - geometry.viewportWidth}px`,
             );
             assert.deepEqual(visibleOverflow(geometry.elements, width), [], `${width}px visible elements overflow`);
+            for (const panel of geometry.familyOverflow) {
+                assert.ok(
+                    panel.scrollWidth <= panel.clientWidth + 1,
+                    `${width}px ${panel.family} panel has internal horizontal overflow`,
+                );
+            }
 
-            const resultsMode = page.locator('[data-view-mode="results"]');
-            const exploreMode = page.locator('[data-view-mode="explore"]');
-            await resultsMode.click();
-            assert.equal(await resultsMode.getAttribute('aria-pressed'), 'true', `${width}px results mode pressed`);
-            assert.equal(await page.locator('#context-lab').isVisible(), false, `${width}px lab remains visible`);
-            await exploreMode.click();
-            assert.equal(await exploreMode.getAttribute('aria-pressed'), 'true', `${width}px explore mode pressed`);
-            assert.equal(await page.locator('#context-lab').isVisible(), true, `${width}px lab is hidden`);
+            const familyStatus = page.locator('#family-status');
+            assert.match(await familyStatus.textContent(), /Gemini/, `${width}px initial family status`);
+            await page.locator('#family-next').click();
+            await page.waitForFunction(() => document.querySelector('#family-status')?.textContent.includes('OpenAI'));
+            assert.ok(await page.locator('#family-chart').evaluate((element) => element.scrollLeft > 0), `${width}px family chart did not move`);
+            await page.locator('#family-prev').click();
+            await page.waitForFunction(() => document.querySelector('#family-status')?.textContent.includes('Gemini'));
 
-            const firstChoice = page.locator('[data-sign-choice]').first();
-            await firstChoice.click();
-            const reveal = page.locator('[data-case-reveal]');
-            if (await reveal.count()) await reveal.click();
-            assert.equal(await page.locator('[data-case-result]').isVisible(), true, `${width}px reveal feedback hidden`);
+            const figureButton = page.locator('[data-figure-open]');
+            await figureButton.focus();
+            await figureButton.press('Enter');
+            const figureDialog = page.locator('#figure-dialog');
+            await figureDialog.waitFor({ state: 'visible' });
+            await page.keyboard.press('Escape');
+            await page.waitForFunction(() => !document.querySelector('#figure-dialog').open);
+            await page.waitForFunction(() => document.querySelector('[data-figure-open]') === document.activeElement);
+            assert.equal(await figureButton.evaluate((element) => element === document.activeElement), true, `${width}px figure focus not restored`);
 
             const firstModel = page.locator('[data-model-id]').first();
             await firstModel.focus();
@@ -100,9 +141,13 @@ async function main() {
             assert.equal(await dialog.getAttribute('open'), '', `${width}px model dialog did not open`);
             await page.keyboard.press('Escape');
             await page.waitForFunction(() => !document.querySelector('#model-detail-dialog').open);
+            await page.waitForFunction(() => document.querySelector('[data-model-id]') === document.activeElement);
             assert.equal(await firstModel.evaluate((element) => element === document.activeElement), true, `${width}px focus not restored`);
 
-            await checkTouchTargets(page.locator('[data-view-mode], [data-case-id], [data-sign-choice]'), `${width}px control`);
+            await checkTouchTargets(
+                page.locator('#family-prev, #family-next, [data-model-id], [data-dialog-close], [data-figure-open], [data-figure-close]'),
+                `${width}px control`,
+            );
             if (!skipScreenshots) {
                 await page.screenshot({
                     path: path.join(screenshotDir, `econcausal-${width}.png`),

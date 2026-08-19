@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EconCausal: A Context-Aware Economic Reasoning Benchmark for Large Language Models</title>
   <meta name="description" content="EconCausal provides 10,490 context-annotated causal triplets from 2,595 economics and finance studies to evaluate LLM reasoning under context shifts.">
-  <meta name="theme-color" content="#f4efe4">
+  <meta name="theme-color" content="#edf5fb">
   <link rel="canonical" href="https://econai.kaist.ac.kr/econcausal/">
   <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20260819a">
+  <link rel="stylesheet" href="styles.css?v=20260819b">
 
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="KAIST EconAI Lab">
@@ -45,7 +45,7 @@
   }
   </script>
 </head>
-<body data-mode="explore">
+<body>
   <a class="skip-link" href="#main-content">Skip to content</a>
 
   <header class="paper-nav">
@@ -54,42 +54,50 @@
         <img src="../img/EconAI@KAIST.svg" alt="KAIST EconAI Lab" width="260" height="64">
       </a>
       <nav class="section-nav" aria-label="Paper sections">
-        <a class="explore-nav" href="#context-lab">Context lab</a>
+        <a href="#overview">Overview</a>
+        <a href="#construction">Build</a>
         <a href="#tasks">Tasks</a>
-        <a href="#results">Models</a>
-        <a href="#transfer">Transfer</a>
-        <a href="#diagnostics">Diagnostics</a>
+        <a href="#benchmark">Benchmark</a>
+        <a href="#transfer">Context gap</a>
+        <a href="#diagnostics">Sign errors</a>
       </nav>
-      <div class="view-switch" role="group" aria-label="Page mode">
-        <button type="button" data-view-mode="explore" aria-pressed="true">Explore</button>
-        <button type="button" data-view-mode="results" aria-pressed="false">Results-only</button>
-      </div>
+      <a class="nav-paper" href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener">Paper <span aria-hidden="true">↗</span></a>
     </div>
   </header>
 
+  <nav class="scene-nav" aria-label="Page progress">
+    <a href="#overview" data-scene-link="overview"><span>01</span><b>Overview</b></a>
+    <a href="#construction" data-scene-link="construction"><span>02</span><b>Build</b></a>
+    <a href="#tasks" data-scene-link="tasks"><span>03</span><b>Tasks</b></a>
+    <a href="#benchmark" data-scene-link="benchmark"><span>04</span><b>Benchmark</b></a>
+    <a href="#transfer" data-scene-link="transfer"><span>05</span><b>Context gap</b></a>
+    <a href="#diagnostics" data-scene-link="diagnostics"><span>06</span><b>Sign errors</b></a>
+  </nav>
+
   <main id="main-content">
-    <section class="hero shell" aria-labelledby="paper-title">
+    <section id="overview" class="hero scene shell" data-scene="overview" aria-labelledby="paper-title">
       <div class="hero-copy">
         <p class="venue-badge"><span aria-hidden="true"></span>Preprint · Submitted to EMNLP 2026</p>
         <h1 id="paper-title">Econ<span>Causal</span></h1>
-        <p class="hero-deck">The same cause can lead somewhere else when the context changes.</p>
+        <p class="hero-deck">Can a model change its causal judgment when the economy changes?</p>
         <p class="authors">
           <a href="https://donggyu-lee1.github.io" target="_blank" rel="noopener"><strong>Donggyu Lee</strong></a>,
           Hyeok Yun, Meeyoung Cha, Sungwon Park, Sangyoon Park, Jihee Kim
         </p>
         <p class="affiliations">KAIST · Data Science for Humanity Group, MPI-SP · HKUST</p>
         <div class="hero-actions" aria-label="Paper resources">
-          <a class="button primary" href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener">Read on arXiv <span aria-hidden="true">↗</span></a>
-          <a class="button secondary" href="#context-lab">Try a context switch</a>
+          <a class="button primary" href="#benchmark">See the results <span aria-hidden="true">↓</span></a>
+          <a class="button secondary" href="https://arxiv.org/abs/2510.07231" target="_blank" rel="noopener">Read on arXiv <span aria-hidden="true">↗</span></a>
         </div>
       </div>
 
-      <div class="hero-visual" aria-label="The same treatment-outcome relation can have different signs across contexts">
-        <div class="context-chip source"><span>Source context · sign +</span><strong>Treatment → Outcome</strong></div>
-        <div class="switch-mark" aria-hidden="true">context shifts</div>
-        <div class="context-chip target"><span>Target context · sign −</span><strong>Treatment → Outcome</strong></div>
-        <p><i class="cue-dot" aria-hidden="true"></i> A familiar sign may not transfer.</p>
-      </div>
+      <figure class="hero-figure">
+        <button type="button" class="figure-expand" data-figure-open aria-label="Expand paper Figure 1">
+          <img src="assets/figure-1-overview.png" width="1705" height="815" alt="A minimum-wage treatment can increase, decrease, not change, or have mixed effects on employment depending on time, location, market conditions, and institutions; EconCausal benchmarks this context-dependent reasoning.">
+          <span>Expand figure ↗</span>
+        </button>
+        <figcaption><span>Paper Figure 1</span> One relation. Different contexts. Different effects.</figcaption>
+      </figure>
 
       <dl class="hero-stats" aria-label="Benchmark scale">
         <div><dt data-stat="triplets">10,490</dt><dd>causal triplets</dd></div>
@@ -98,106 +106,94 @@
       </dl>
     </section>
 
-    <section id="context-lab" class="section shell context-lab" aria-labelledby="context-heading">
+    <section id="construction" class="section scene shell construction-section" data-scene="construction" aria-labelledby="construction-heading">
       <div class="section-heading compact">
-        <div>
-          <p class="kicker">Context Switch Lab</p>
-          <h2 id="context-heading">Would the sign move?</h2>
-        </div>
-        <label class="case-picker" for="case-select">Case
-          <select id="case-select">
-            <option value="fallback-case">Loading curated cases…</option>
-          </select>
-        </label>
+        <div><p class="kicker">How it was built</p><h2 id="construction-heading">From papers to grounded tests.</h2></div>
+        <p class="section-note">A four-stage extraction pipeline with agreement, context refinement, and independent quality checks.</p>
       </div>
-
-      <article class="case-stage" id="context-stage" aria-live="polite">
-        <div class="case-topline"><span>Economics</span><span>Source → target</span></div>
-        <h3>A treatment, an outcome, two settings.</h3>
-        <div class="case-contexts">
-          <section class="case-context source-context">
-            <p>Source context</p>
-            <strong>Published evidence in the original setting.</strong>
-          </section>
-          <div class="relation" aria-label="Treatment causes outcome">
-            <span>Treatment</span><b aria-hidden="true">→</b><span>Outcome</span>
-          </div>
-          <section class="case-context target-context">
-            <p>Target context</p>
-            <strong>A related study changes the institutional setting.</strong>
-          </section>
-        </div>
-        <p class="case-question">Predict the target effect sign.</p>
-        <div class="guess-row" role="group" aria-label="Choose the target effect sign">
-          <button type="button" data-sign-choice="Positive" aria-pressed="false">+</button>
-          <button type="button" data-sign-choice="Negative" aria-pressed="false">−</button>
-          <button type="button" data-sign-choice="None" aria-pressed="false">None</button>
-          <button type="button" data-sign-choice="Mixed" aria-pressed="false">Mixed</button>
-          <button class="reveal-button" type="button" data-case-reveal>Reveal</button>
-        </div>
-        <div class="case-result" data-case-result hidden></div>
-      </article>
+      <div class="construction-flow" aria-label="EconCausal construction pipeline">
+        <article>
+          <span>3×</span><small>01</small>
+          <h3>Consensus extraction</h3>
+          <p>Keep a treatment–outcome pair when at least two of three independent runs agree.</p>
+        </article>
+        <article>
+          <span>C + ID</span><small>02–03</small>
+          <h3>Context refinement</h3>
+          <p>Attach setting and identification method, then minimally refine triplet-specific cases.</p>
+        </article>
+        <article>
+          <span>3 critics</span><small>04</small>
+          <h3>Conservative filter</h3>
+          <p>Score six quality dimensions and remove 27.3% of candidates below the thresholds.</p>
+        </article>
+        <article class="construction-output">
+          <span>10,490</span><small>Output</small>
+          <h3>Grounded triplets</h3>
+          <p>Context-annotated causal claims drawn from 2,595 economics and finance papers.</p>
+        </article>
+      </div>
+      <div class="task-equation" aria-label="Benchmark task instance counts">
+        <span><b>1,807</b> T1</span><i aria-hidden="true">+</i><span><b>284</b> T2</span><i aria-hidden="true">+</i><span><b>852</b> T3</span><i aria-hidden="true">=</i><strong>2,943 evaluations</strong>
+      </div>
     </section>
 
-    <section id="tasks" class="section shell task-section" aria-labelledby="tasks-heading">
+    <section id="tasks" class="section scene shell task-section" data-scene="tasks" aria-labelledby="tasks-heading">
       <div class="section-heading compact">
-        <div><p class="kicker">Three escalating tests</p><h2 id="tasks-heading">From recall to robustness.</h2></div>
-        <p class="section-note">The benchmark asks for a sign, then asks whether it still travels.</p>
+        <div><p class="kicker">Three escalating tests</p><h2 id="tasks-heading">Know the sign. Then question it.</h2></div>
+        <p class="section-note">Four labels throughout: +, −, none, or mixed.</p>
       </div>
       <div class="task-rail">
-        <article class="task-card"><span>01</span><h3>Fixed context</h3><p>Identify a sign with the setting shown.</p><strong data-task-count="task1">1,807</strong></article>
-        <article class="task-card"><span>02</span><h3>Context shift</h3><p>Revise the sign for a related setting.</p><strong data-task-count="task2">284</strong></article>
-        <article class="task-card"><span>03</span><h3>Misleading cue</h3><p>Reject an incorrect source sign.</p><strong data-task-count="task3">852</strong></article>
+        <article class="task-card"><span>01 · T1</span><h3>Fixed context</h3><p>Read one study setting and identify its causal sign.</p><strong data-task-count="task1">1,807</strong><small>instances</small></article>
+        <article class="task-card"><span>02 · T2</span><h3>Context shift</h3><p>Move to a matched study and decide whether the sign travels.</p><strong data-task-count="task2">284</strong><small>pairs</small></article>
+        <article class="task-card"><span>03 · T3</span><h3>Misleading cue</h3><p>Ignore a deliberately wrong source sign and judge the target.</p><strong data-task-count="task3">852</strong><small>stress tests</small></article>
+      </div>
+      <a class="scene-next" href="#benchmark">Compare all 18 models <span aria-hidden="true">↓</span></a>
+    </section>
+
+    <section id="benchmark" class="section scene benchmark-section" data-scene="benchmark" aria-labelledby="benchmark-heading">
+      <div class="shell">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">All-model accuracy</p>
+            <h2 id="benchmark-heading">Four tests. One view.</h2>
+          </div>
+          <p class="section-note">Models are grouped by family. Within every model: T1 Econ, T1 Finance, T2, then T3.</p>
+        </div>
+
+        <div class="benchmark-card">
+          <div class="benchmark-topline">
+            <div class="chart-legend" aria-label="Task legend">
+              <span><i class="task-color task1-econ"></i>T1 Econ</span>
+              <span><i class="task-color task1-finance"></i>T1 Finance</span>
+              <span><i class="task-color task2"></i>T2</span>
+              <span><i class="task-color task3"></i>T3</span>
+            </div>
+            <p><span aria-hidden="true">↔</span> Swipe families · select a model for details</p>
+          </div>
+          <div class="benchmark-plot">
+            <div class="y-axis" aria-hidden="true">
+              <strong>Accuracy (%)</strong>
+              <span style="--tick:0%">100</span><span style="--tick:25%">75</span><span style="--tick:50%">50</span><span style="--tick:75%">25</span><span style="--tick:100%">0</span>
+            </div>
+            <div id="family-chart" class="family-chart" tabindex="0" aria-label="Model accuracy by family; horizontally scrollable">
+              <p class="empty-state">Loading all-model benchmark…</p>
+            </div>
+          </div>
+          <div class="family-nav" aria-label="Choose model family">
+            <button type="button" id="family-prev" aria-label="Previous model family">←</button>
+            <p id="family-status" role="status">Loading families…</p>
+            <button type="button" id="family-next" aria-label="Next model family">→</button>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section id="results" class="section shell" aria-labelledby="results-heading">
-      <div class="section-heading">
-        <div>
-          <p class="kicker">All-model results</p>
-          <h2 id="results-heading">Context is the hard part.</h2>
-        </div>
-        <p class="section-note" id="results-summary">Choose a task and metric. Select a model for its full scorecard.</p>
-      </div>
-
-      <div class="result-controls" aria-label="Model result controls">
-        <div class="tab-group task-tabs" role="tablist" aria-label="Benchmark task">
-          <button type="button" role="tab" aria-selected="true" data-task="task2_overall">Task 2</button>
-          <button type="button" role="tab" aria-selected="false" data-task="task2_sign_mismatch" tabindex="-1">Sign-switch</button>
-          <button type="button" role="tab" aria-selected="false" data-task="task1_econ" tabindex="-1">T1 Econ</button>
-          <button type="button" role="tab" aria-selected="false" data-task="task1_finance" tabindex="-1">T1 Finance</button>
-          <button type="button" role="tab" aria-selected="false" data-task="task3" tabindex="-1">Task 3</button>
-        </div>
-        <div class="tab-group metric-tabs" role="group" aria-label="Metric">
-          <button type="button" data-metric="accuracy" aria-pressed="true">Accuracy</button>
-          <button type="button" data-metric="macro_f1" aria-pressed="false">Macro F1</button>
-        </div>
-        <label>Access
-          <select id="access-filter"><option value="all">All</option><option value="closed">Closed</option><option value="open">Open</option></select>
-        </label>
-        <label>Family
-          <select id="family-filter"><option value="all">All families</option></select>
-        </label>
-      </div>
-
-      <div id="model-chart" class="model-chart" aria-live="polite">
-        <button class="model-row" type="button" data-model-id="static-closed">
-          <span class="model-identity"><strong>Closed-source mean</strong><small>Task 2</small></span>
-          <span class="bar-track"><i style="--value:73.9%"></i></span><b>73.9</b>
-        </button>
-        <button class="model-row" type="button" data-model-id="static-open">
-          <span class="model-identity"><strong>Open-weight mean</strong><small>Task 2</small></span>
-          <span class="bar-track"><i style="--value:65.4%"></i></span><b>65.4</b>
-        </button>
-      </div>
-      <p class="chart-status" id="model-chart-status" role="status">Static group snapshot; interactive model data loads when available.</p>
-    </section>
-
-    <section id="transfer" class="section section-tint" aria-labelledby="transfer-heading">
+    <section id="transfer" class="section scene section-tint" data-scene="transfer" aria-labelledby="transfer-heading">
       <div class="shell">
         <div class="section-heading">
           <div><p class="kicker">Context transfer</p><h2 id="transfer-heading">A 32-point context penalty.</h2></div>
-          <p class="section-note">Accuracy when the target sign disagrees with the source example.</p>
+          <p class="section-note">When the target disagrees with the source sign, accuracy drops sharply.</p>
         </div>
         <div id="transfer-chart" class="transfer-chart">
           <article class="transfer-row"><strong>Closed-source</strong><div><span style="--value:73.9%">Overall 73.9</span><span style="--value:41.3%">Sign-switch 41.3</span></div><b>−32.6 pp</b></article>
@@ -207,30 +203,22 @@
       </div>
     </section>
 
-    <section id="diagnostics" class="section shell" aria-labelledby="diagnostics-heading">
+    <section id="diagnostics" class="section scene shell" data-scene="diagnostics" aria-labelledby="diagnostics-heading">
       <div class="section-heading">
-        <div><p class="kicker">Diagnostics</p><h2 id="diagnostics-heading">Where confidence breaks.</h2></div>
-        <p class="section-note">Sign accuracy and calibration expose different failure modes.</p>
+        <div><p class="kicker">Sign errors</p><h2 id="diagnostics-heading">Null and mixed effects are missed.</h2></div>
+        <p class="section-note">Mean accuracy across tasks, separated by the true effect sign.</p>
       </div>
-      <div class="diagnostic-grid">
-        <article class="diagnostic-card">
-          <header><span>01</span><div><h3>Sign accuracy</h3><p>Mean across tasks</p></div></header>
-          <div id="sign-chart" class="sign-chart">
-            <div><span>None</span><i><b style="--value:13.83%"></b></i><strong>13.8</strong></div>
-            <div><span>Mixed</span><i><b style="--value:22.82%"></b></i><strong>22.8</strong></div>
-          </div>
-        </article>
-        <article class="diagnostic-card">
-          <header><span>02</span><div><h3>Calibration error</h3><p>Lower is better</p></div></header>
-          <div id="calibration-chart" class="calibration-chart">
-            <p>Models remain poorly calibrated on null and mixed effects. Interactive category values load from the paper data.</p>
-          </div>
-        </article>
-      </div>
+      <article class="diagnostic-card sign-diagnostic">
+        <header><span>+</span><div><h3>Accuracy by effect sign</h3><p>Positive · Negative · None · Mixed</p></div></header>
+        <div id="sign-chart" class="sign-chart">
+          <div><span>None</span><i><b style="--value:13.83%"></b></i><strong>13.8</strong></div>
+          <div><span>Mixed</span><i><b style="--value:22.82%"></b></i><strong>22.8</strong></div>
+        </div>
+      </article>
     </section>
 
-    <section class="closing shell" aria-labelledby="closing-heading">
-      <p class="kicker">Benchmark</p>
+    <section class="closing scene shell" aria-labelledby="closing-heading">
+      <p class="kicker">Use EconCausal</p>
       <h2 id="closing-heading">Reason about the setting, not just the sign.</h2>
       <div class="closing-actions">
         <a class="button primary" href="https://arxiv.org/pdf/2510.07231" target="_blank" rel="noopener">Paper PDF <span aria-hidden="true">↗</span></a>
@@ -252,6 +240,15 @@
 
   <div id="chart-tooltip" class="chart-tooltip" role="tooltip" hidden></div>
 
+  <dialog id="figure-dialog" class="figure-dialog" aria-labelledby="figure-dialog-title">
+    <div class="figure-dialog-shell">
+      <header><div><p class="kicker">Paper Figure 1</p><h2 id="figure-dialog-title">Why context changes the answer</h2></div><button type="button" data-figure-close aria-label="Close expanded figure">×</button></header>
+      <div class="figure-dialog-scroll">
+        <img src="assets/figure-1-overview.png" width="1705" height="815" alt="Context-dependent socio-economic causality and the EconCausal benchmark overview.">
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="model-detail-dialog" class="model-dialog" aria-labelledby="model-detail-title">
     <div class="dialog-shell">
       <header>
@@ -262,7 +259,7 @@
     </div>
   </dialog>
 
-  <noscript><p class="noscript-note">This page includes a static result snapshot. Enable JavaScript for filters, case reveals, and model details.</p></noscript>
+  <noscript><p class="noscript-note">Enable JavaScript to load the all-model chart and model details.</p></noscript>
 
   <footer class="paper-footer">
     <div class="shell footer-inner">
@@ -272,6 +269,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=20260819a" defer></script>
+  <script src="script.js?v=20260819b" defer></script>
 </body>
 </html>

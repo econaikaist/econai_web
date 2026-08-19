@@ -15,6 +15,7 @@ CSS_PATH = PAGE_ROOT / "styles.css"
 SCRIPT_PATH = PAGE_ROOT / "script.js"
 DATA_PATH = PAGE_ROOT / "data" / "paper-data.v1.json"
 OG_IMAGE_PATH = PAGE_ROOT / "assets" / "og-card.png"
+HERO_FIGURE_PATH = PAGE_ROOT / "assets" / "figure-1-overview.png"
 
 
 class _ReferenceParser(HTMLParser):
@@ -54,18 +55,27 @@ class EconCausalPageTests(unittest.TestCase):
         self.assertIn('property="og:image"', self.html)
         self.assertIn('type="application/ld+json"', self.html)
 
-    def test_text_light_page_has_both_comparison_modes_and_core_surfaces(self):
+    def test_text_light_page_has_grouped_benchmark_and_no_removed_surfaces(self):
+        combined = f"{self.html}\n{self.script}"
         for value in (
+            'id="family-chart"',
+            'id="family-prev"',
+            'id="family-next"',
+            'id="family-status"',
+            'id="model-detail-dialog"',
+            "data-family-panel",
+            "data-accuracy-bar",
+        ):
+            self.assertIn(value, combined)
+        for removed in (
+            'id="context-lab"',
+            'id="calibration-chart"',
             'data-view-mode="explore"',
             'data-view-mode="results"',
-            'id="context-lab"',
-            'id="model-chart"',
-            'id="transfer-chart"',
-            'id="sign-chart"',
-            'id="calibration-chart"',
-            'id="model-detail-dialog"',
+            "Context Lab",
+            "Context lab",
         ):
-            self.assertIn(value, self.html)
+            self.assertNotIn(removed, combined)
         self.assertRegex(self.html, r'<main\b')
         self.assertRegex(self.html, r'class="[^"]*skip-link')
 
@@ -97,15 +107,17 @@ class EconCausalPageTests(unittest.TestCase):
 
     def test_interactions_are_keyboard_and_motion_aware(self):
         for value in (
-            "aria-pressed",
             "showModal",
             "focus()",
             "Escape",
+            ":focus-visible",
             "prefers-reduced-motion",
         ):
             self.assertIn(value, f"{self.html}\n{self.css}\n{self.script}")
-        self.assertNotIn("overflow-x: auto", self.css)
-        self.assertNotIn("overflow-x:auto", self.css)
+        self.assertNotRegex(
+            self.css,
+            r"(?:html|body)[^{]*\{[^}]*overflow-x\s*:\s*auto",
+        )
 
     def test_authoritative_dataset_shape_and_headline_numbers(self):
         self.assertEqual(self.data["stats"]["causal_triplets"], 10490)
@@ -126,6 +138,42 @@ class EconCausalPageTests(unittest.TestCase):
         sign_accuracy = self.data["sign_accuracy"]["mean_across_tasks"]
         self.assertAlmostEqual(sign_accuracy["none"], 13.83)
         self.assertAlmostEqual(sign_accuracy["mixed"], 22.82)
+
+    def test_grouped_benchmark_contract_has_five_families_and_72_accuracy_bars(self):
+        task_order = (
+            "task1_econ",
+            "task1_finance",
+            "task2_overall",
+            "task3",
+        )
+        families = {model["family"] for model in self.data["models"]}
+        self.assertEqual(families, {"Gemini", "OpenAI", "Grok", "Llama", "Qwen"})
+        self.assertEqual(len(families), 5)
+        self.assertEqual(len(self.data["models"]) * len(task_order), 72)
+        for model in self.data["models"]:
+            self.assertEqual(
+                tuple(key for key in task_order if key in model["metrics"]),
+                task_order,
+                model["id"],
+            )
+            for task_id in task_order:
+                accuracy = model["metrics"][task_id]["accuracy"]
+                self.assertGreaterEqual(accuracy, 0, f"{model['id']}/{task_id}")
+                self.assertLessEqual(accuracy, 1, f"{model['id']}/{task_id}")
+
+    def test_construction_pipeline_and_paper_figure_are_present(self):
+        for value in (
+            'id="construction"',
+            "Consensus extraction",
+            "Context refinement",
+            "Conservative filter",
+            "27.3%",
+            "2,943 evaluations",
+            'id="figure-dialog"',
+        ):
+            self.assertIn(value, self.html)
+        self.assertTrue(HERO_FIGURE_PATH.is_file())
+        self.assertGreater(HERO_FIGURE_PATH.stat().st_size, 100_000)
 
     def test_bespoke_social_card_is_present(self):
         self.assertTrue(OG_IMAGE_PATH.is_file())

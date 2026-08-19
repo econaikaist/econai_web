@@ -2,32 +2,35 @@
   "use strict";
 
   var DATA_URL = "data/paper-data.v1.json";
-  var TASK_ORDER = ["task2_overall", "task2_sign_mismatch", "task1_econ", "task1_finance", "task3"];
+  var CHART_TASKS = ["task1_econ", "task1_finance", "task2_overall", "task3"];
+  var DETAIL_TASKS = ["task1_econ", "task1_finance", "task2_overall", "task2_sign_mismatch", "task3"];
   var TASK_LABELS = {
     task1_econ: "Task 1 · Economics",
     task1_finance: "Task 1 · Finance",
-    task2_overall: "Task 2 · Overall",
-    task2_sign_mismatch: "Task 2 · Sign-switch",
+    task2_overall: "Task 2 · Context shift",
+    task2_sign_mismatch: "Task 2 · Sign-switch subset",
     task3: "Task 3 · Misleading evidence"
+  };
+  var TASK_SHORT = {
+    task1_econ: "T1 Econ",
+    task1_finance: "T1 Finance",
+    task2_overall: "T2",
+    task3: "T3"
   };
   var state = {
     data: null,
-    task: "task2_overall",
-    metric: "accuracy",
-    access: "all",
-    family: "all",
-    exampleIndex: 0,
-    guess: null,
-    previousFocus: null
+    familyIndex: 0,
+    previousFocus: null,
+    figureFocus: null,
+    scrollFrame: null
   };
 
-  var body = document.body;
-  var contextLab = document.getElementById("context-lab");
-  var modelChart = document.getElementById("model-chart");
-  var chartStatus = document.getElementById("model-chart-status");
+  var familyChart = document.getElementById("family-chart");
+  var familyStatus = document.getElementById("family-status");
   var tooltip = document.getElementById("chart-tooltip");
   var dialog = document.getElementById("model-detail-dialog");
   var dialogClose = dialog && dialog.querySelector("[data-dialog-close]");
+  var figureDialog = document.getElementById("figure-dialog");
 
   function escapeHtml(value) {
     return String(value == null ? "" : value)
@@ -39,9 +42,9 @@
   }
 
   function pct(value) {
-    var number = Number(value);
-    if (!Number.isFinite(number)) return null;
-    return number <= 1 ? number * 100 : number;
+    var parsed = Number(value);
+    if (!Number.isFinite(parsed)) return null;
+    return parsed <= 1 ? parsed * 100 : parsed;
   }
 
   function number(value, digits) {
@@ -59,48 +62,24 @@
   }
 
   function accessLabel(model) {
-    return accessKey(model) === "closed" ? "Closed-source" : "Open-source";
+    return accessKey(model) === "closed" ? "Closed-source" : "Open-weight";
   }
 
   function modelName(model) {
     return model.display_name || model.name || model.id;
   }
 
-  function modelMetrics(model) {
-    return model.metrics || model.scores || {};
-  }
-
   function scoreFor(model, task, metric) {
-    var metrics = modelMetrics(model);
+    var metrics = model.metrics || model.scores || {};
     var taskData = metrics[task];
     if (!taskData && task === "task2_sign_mismatch") taskData = metrics.task2_mismatch;
-    if (!taskData) return null;
-    var raw = taskData[metric];
-    if (raw == null && metric === "macro_f1") raw = taskData.f1;
-    return pct(raw);
+    return taskData ? pct(taskData[metric || "accuracy"]) : null;
   }
 
-  function setMode(mode, updateUrl) {
-    var next = mode === "results" ? "results" : "explore";
-    body.dataset.mode = next;
-    document.querySelectorAll("[data-view-mode]").forEach(function (button) {
-      button.setAttribute("aria-pressed", String(button.dataset.viewMode === next));
-    });
-    if (contextLab) contextLab.hidden = next === "results";
-    if (updateUrl && window.history && window.URL) {
-      var url = new URL(window.location.href);
-      if (next === "results") url.searchParams.set("view", "results");
-      else url.searchParams.delete("view");
-      window.history.replaceState({}, "", url.pathname + url.search + url.hash);
-    }
-  }
-
-  function bindModeSwitch() {
-    document.querySelectorAll("[data-view-mode]").forEach(function (button) {
-      button.addEventListener("click", function () { setMode(button.dataset.viewMode, true); });
-    });
-    var requested = new URLSearchParams(window.location.search).get("view");
-    setMode(requested === "results" ? "results" : "explore", false);
+  function signLabel(sign) {
+    var key = String(sign || "").toLowerCase();
+    var labels = state.data && state.data.meta && state.data.meta.sign_labels;
+    return labels && labels[key] ? labels[key] : key === "positive" ? "+" : key === "negative" ? "−" : key ? key[0].toUpperCase() + key.slice(1) : "—";
   }
 
   function updateStats(data) {
@@ -120,70 +99,114 @@
     });
   }
 
-  function populateFilters(data) {
-    var familySelect = document.getElementById("family-filter");
-    var families = Array.from(new Set((data.models || []).map(function (model) { return model.family; }).filter(Boolean))).sort();
-    familySelect.innerHTML = '<option value="all">All families</option>' + families.map(function (family) {
-      return '<option value="' + escapeHtml(family) + '">' + escapeHtml(family) + '</option>';
-    }).join("");
-  }
-
-  function taskDescription(task) {
-    var tasks = (state.data && state.data.tasks) || [];
-    var base = task.indexOf("task1_") === 0 ? "task1" : task.indexOf("task2_") === 0 ? "task2" : task;
-    return tasks.find(function (item) { return item.id === base; });
-  }
-
-  function renderModels() {
-    if (!state.data || !modelChart) return;
-    var models = (state.data.models || []).filter(function (model) {
-      return (state.access === "all" || accessKey(model) === state.access) &&
-        (state.family === "all" || model.family === state.family) &&
-        scoreFor(model, state.task, state.metric) != null;
-    }).sort(function (a, b) {
-      return scoreFor(b, state.task, state.metric) - scoreFor(a, state.task, state.metric);
+  function familyGroups(models) {
+    var groups = [];
+    var byName = new Map();
+    models.forEach(function (model) {
+      var family = model.family || "Other";
+      if (!byName.has(family)) {
+        var group = { family: family, models: [] };
+        byName.set(family, group);
+        groups.push(group);
+      }
+      byName.get(family).models.push(model);
     });
+    return groups;
+  }
 
-    if (!models.length) {
-      modelChart.innerHTML = '<p class="empty-state">No models match these filters.</p>';
-      chartStatus.textContent = "0 models shown.";
-      return;
-    }
+  function chartBar(model, task) {
+    var score = scoreFor(model, task, "accuracy");
+    var tooltipText = modelName(model) + " · " + TASK_SHORT[task] + " · " + number(score) + "% accuracy";
+    return '<i class="accuracy-bar ' + task.replace(/_/g, "-") + '" data-accuracy-bar data-task="' + task + '" ' +
+      'data-tooltip="' + escapeHtml(tooltipText) + '" style="--score:' + number(score, 2) + '%" role="meter" ' +
+      'aria-label="' + escapeHtml(tooltipText) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + number(score, 1) + '">' +
+      '<em>' + number(score) + '</em></i>';
+  }
 
-    modelChart.innerHTML = models.map(function (model) {
-      var score = scoreFor(model, state.task, state.metric);
-      var tooltipText = modelName(model) + " · " + TASK_LABELS[state.task] + " · " +
-        (state.metric === "accuracy" ? "Accuracy " : "Macro F1 ") + number(score) + "%";
-      return '<button class="model-row" type="button" data-model-id="' + escapeHtml(model.id) + '" ' +
-        'data-tooltip="' + escapeHtml(tooltipText) + '" aria-label="Open ' + escapeHtml(tooltipText) + ' details">' +
-        '<span class="model-identity"><strong>' + escapeHtml(modelName(model)) + '</strong><small>' +
-        escapeHtml(model.family || "Other") + ' · ' + accessLabel(model) + '</small></span>' +
-        '<span class="bar-track" aria-hidden="true"><i style="--value:' + score.toFixed(2) + '%"></i></span>' +
-        '<b>' + number(score) + '</b></button>';
+  function modelCluster(model) {
+    var scoreText = CHART_TASKS.map(function (task) {
+      return TASK_SHORT[task] + " " + number(scoreFor(model, task, "accuracy")) + "%";
+    }).join(", ");
+    return '<button class="model-cluster" type="button" data-model-id="' + escapeHtml(model.id) + '" ' +
+      'data-tooltip="' + escapeHtml(modelName(model) + " · " + scoreText) + '" ' +
+      'aria-label="Open ' + escapeHtml(modelName(model) + " details. " + scoreText) + '">' +
+      '<span class="model-bars">' + CHART_TASKS.map(function (task) { return chartBar(model, task); }).join("") + '</span>' +
+      '<strong>' + escapeHtml(modelName(model)) + '</strong><small>' + escapeHtml(accessLabel(model)) + '</small></button>';
+  }
+
+  function renderFamilyChart(data) {
+    if (!familyChart) return;
+    var groups = familyGroups(data.models || []);
+    familyChart.innerHTML = groups.map(function (group, index) {
+      return '<section class="family-panel" data-family-panel="' + escapeHtml(group.family) + '" data-family-index="' + index + '" ' +
+        'aria-label="' + escapeHtml(group.family) + ' family, ' + group.models.length + ' models">' +
+        '<header><span>' + String(index + 1).padStart(2, "0") + '</span><h3>' + escapeHtml(group.family) + '</h3><p>' + group.models.length + ' model' + (group.models.length === 1 ? '' : 's') + '</p></header>' +
+        '<div class="family-models" style="--model-count:' + group.models.length + '">' + group.models.map(modelCluster).join("") + '</div></section>';
     }).join("");
+    state.familyIndex = 0;
+    updateFamilyStatus();
+    bindChartInteractions(data.models || []);
+  }
 
-    bindModelRows(models);
-    var detail = taskDescription(state.task);
-    var taskN = detail && state.task === "task2_sign_mismatch" ? detail.sign_mismatch_instances : detail && detail.instances;
-    chartStatus.textContent = models.length + " models · " + TASK_LABELS[state.task] + " · " +
-      (state.metric === "accuracy" ? "Accuracy" : "Macro F1") + (taskN ? " · n=" + comma(taskN) : "");
-    var summary = document.getElementById("results-summary");
-    if (summary && detail) summary.textContent = detail.research_question || detail.description;
+  function familyPanels() {
+    return familyChart ? Array.from(familyChart.querySelectorAll("[data-family-panel]")) : [];
+  }
+
+  function updateFamilyStatus() {
+    var panels = familyPanels();
+    var active = panels[state.familyIndex];
+    if (!active || !familyStatus) return;
+    familyStatus.textContent = String(state.familyIndex + 1).padStart(2, "0") + " / " + String(panels.length).padStart(2, "0") + " · " + active.dataset.familyPanel;
+    var prev = document.getElementById("family-prev");
+    var next = document.getElementById("family-next");
+    if (prev) prev.disabled = state.familyIndex === 0;
+    if (next) next.disabled = state.familyIndex === panels.length - 1;
+  }
+
+  function goToFamily(index) {
+    var panels = familyPanels();
+    if (!panels.length) return;
+    state.familyIndex = Math.max(0, Math.min(index, panels.length - 1));
+    var panel = panels[state.familyIndex];
+    var chartRect = familyChart.getBoundingClientRect();
+    var panelRect = panel.getBoundingClientRect();
+    familyChart.scrollTo({
+      left: familyChart.scrollLeft + panelRect.left - chartRect.left,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
+    });
+    updateFamilyStatus();
+  }
+
+  function syncFamilyFromScroll() {
+    var panels = familyPanels();
+    if (!panels.length) return;
+    var chartLeft = familyChart.getBoundingClientRect().left;
+    var closest = 0;
+    var distance = Infinity;
+    panels.forEach(function (panel, index) {
+      var nextDistance = Math.abs(panel.getBoundingClientRect().left - chartLeft);
+      if (nextDistance < distance) {
+        distance = nextDistance;
+        closest = index;
+      }
+    });
+    if (closest !== state.familyIndex) {
+      state.familyIndex = closest;
+      updateFamilyStatus();
+    }
   }
 
   function positionTooltip(event, target) {
     if (!tooltip || tooltip.hidden) return;
     var rect = target.getBoundingClientRect();
-    var x = event && Number.isFinite(event.clientX) ? event.clientX + 12 : rect.left + Math.min(rect.width, 220);
+    var x = event && Number.isFinite(event.clientX) ? event.clientX + 12 : rect.left + Math.min(rect.width, 170);
     var y = event && Number.isFinite(event.clientY) ? event.clientY + 12 : rect.top - tooltip.offsetHeight - 8;
-    var maxX = window.innerWidth - tooltip.offsetWidth - 10;
-    var maxY = window.innerHeight - tooltip.offsetHeight - 10;
-    tooltip.style.left = Math.max(10, Math.min(x, maxX)) + "px";
-    tooltip.style.top = Math.max(10, Math.min(y, maxY)) + "px";
+    tooltip.style.left = Math.max(10, Math.min(x, window.innerWidth - tooltip.offsetWidth - 10)) + "px";
+    tooltip.style.top = Math.max(10, Math.min(y, window.innerHeight - tooltip.offsetHeight - 10)) + "px";
   }
 
   function showTooltip(target, event) {
-    if (!tooltip) return;
+    if (!tooltip || !target) return;
     tooltip.textContent = target.dataset.tooltip || "";
     tooltip.hidden = false;
     positionTooltip(event, target);
@@ -193,15 +216,33 @@
     if (tooltip) tooltip.hidden = true;
   }
 
-  function bindModelRows(models) {
+  function bindChartInteractions(models) {
     var lookup = new Map(models.map(function (model) { return [model.id, model]; }));
-    modelChart.querySelectorAll("[data-model-id]").forEach(function (row) {
-      row.addEventListener("click", function () { openModel(lookup.get(row.dataset.modelId), row); });
-      row.addEventListener("pointerenter", function (event) { showTooltip(row, event); });
-      row.addEventListener("pointermove", function (event) { positionTooltip(event, row); });
-      row.addEventListener("pointerleave", hideTooltip);
-      row.addEventListener("focus", function () { showTooltip(row); });
-      row.addEventListener("blur", hideTooltip);
+    familyChart.querySelectorAll("[data-model-id]").forEach(function (cluster) {
+      cluster.addEventListener("click", function () { openModel(lookup.get(cluster.dataset.modelId), cluster); });
+      cluster.addEventListener("pointermove", function (event) {
+        var bar = event.target.closest("[data-accuracy-bar]");
+        showTooltip(bar || cluster, event);
+      });
+      cluster.addEventListener("pointerleave", hideTooltip);
+      cluster.addEventListener("focus", function () { showTooltip(cluster); });
+      cluster.addEventListener("blur", hideTooltip);
+    });
+    familyChart.addEventListener("scroll", function () {
+      if (state.scrollFrame) window.cancelAnimationFrame(state.scrollFrame);
+      state.scrollFrame = window.requestAnimationFrame(syncFamilyFromScroll);
+    }, { passive: true });
+  }
+
+  function bindFamilyNavigation() {
+    var prev = document.getElementById("family-prev");
+    var next = document.getElementById("family-next");
+    if (prev) prev.addEventListener("click", function () { goToFamily(state.familyIndex - 1); });
+    if (next) next.addEventListener("click", function () { goToFamily(state.familyIndex + 1); });
+    if (familyChart) familyChart.addEventListener("keydown", function (event) {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+      event.preventDefault();
+      goToFamily(state.familyIndex + (event.key === "ArrowRight" ? 1 : -1));
     });
   }
 
@@ -211,7 +252,7 @@
     state.previousFocus = trigger || document.activeElement;
     document.getElementById("model-detail-title").textContent = modelName(model);
     document.getElementById("model-detail-meta").textContent = (model.family || "Model") + " · " + accessLabel(model);
-    document.getElementById("model-detail-body").innerHTML = '<div class="scorecard-grid">' + TASK_ORDER.map(function (task) {
+    document.getElementById("model-detail-body").innerHTML = '<div class="scorecard-grid">' + DETAIL_TASKS.map(function (task) {
       var accuracy = scoreFor(model, task, "accuracy");
       var macroF1 = scoreFor(model, task, "macro_f1");
       return '<article class="scorecard"><strong>' + escapeHtml(TASK_LABELS[task]) + '</strong>' +
@@ -239,134 +280,57 @@
         if (state.previousFocus && typeof state.previousFocus.focus === "function") state.previousFocus.focus();
       }, 0);
     });
+    dialog.addEventListener("close", function () {
+      window.setTimeout(function () {
+        if (state.previousFocus && typeof state.previousFocus.focus === "function") state.previousFocus.focus();
+      }, 0);
+    });
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && dialog.hasAttribute("open")) closeDialog();
     });
   }
 
-  function bindResultControls() {
-    var taskButtons = Array.from(document.querySelectorAll("[data-task]"));
-    taskButtons.forEach(function (button, index) {
-      button.addEventListener("click", function () {
-        state.task = button.dataset.task;
-        taskButtons.forEach(function (item) {
-          var selected = item === button;
-          item.setAttribute("aria-selected", String(selected));
-          item.tabIndex = selected ? 0 : -1;
-        });
-        renderModels();
-      });
-      button.addEventListener("keydown", function (event) {
-        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-        event.preventDefault();
-        var offset = event.key === "ArrowRight" ? 1 : -1;
-        taskButtons[(index + offset + taskButtons.length) % taskButtons.length].focus();
-      });
+  function bindFigureDialog() {
+    if (!figureDialog) return;
+    var openButton = document.querySelector("[data-figure-open]");
+    var closeButton = figureDialog.querySelector("[data-figure-close]");
+    function closeFigure() {
+      if (!figureDialog.hasAttribute("open")) return;
+      if (typeof figureDialog.close === "function") figureDialog.close();
+      else figureDialog.removeAttribute("open");
+      if (state.figureFocus && typeof state.figureFocus.focus === "function") state.figureFocus.focus();
+    }
+    openButton.addEventListener("click", function () {
+      state.figureFocus = openButton;
+      if (typeof figureDialog.showModal === "function") figureDialog.showModal();
+      else { figureDialog.setAttribute("open", ""); figureDialog.setAttribute("aria-modal", "true"); }
+      window.requestAnimationFrame(function () { closeButton.focus(); });
     });
-    document.querySelectorAll("[data-metric]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        state.metric = button.dataset.metric;
-        document.querySelectorAll("[data-metric]").forEach(function (item) {
-          item.setAttribute("aria-pressed", String(item === button));
-        });
-        renderModels();
-      });
+    closeButton.addEventListener("click", closeFigure);
+    figureDialog.addEventListener("click", function (event) { if (event.target === figureDialog) closeFigure(); });
+    figureDialog.addEventListener("cancel", function () {
+      window.setTimeout(function () {
+        if (state.figureFocus && typeof state.figureFocus.focus === "function") state.figureFocus.focus();
+      }, 0);
     });
-    document.getElementById("access-filter").addEventListener("change", function (event) {
-      state.access = event.target.value;
-      renderModels();
+    figureDialog.addEventListener("close", function () {
+      window.setTimeout(function () {
+        if (state.figureFocus && typeof state.figureFocus.focus === "function") state.figureFocus.focus();
+      }, 0);
     });
-    document.getElementById("family-filter").addEventListener("change", function (event) {
-      state.family = event.target.value;
-      renderModels();
-    });
-  }
-
-  function signLabel(sign) {
-    var key = String(sign || "").toLowerCase();
-    var labels = state.data && state.data.meta && state.data.meta.sign_labels;
-    return labels && labels[key] ? labels[key] : key === "positive" ? "+" : key === "negative" ? "−" : key ? key[0].toUpperCase() + key.slice(1) : "—";
-  }
-
-  function transitionLabel(value) {
-    return String(value || "context switch").split("_").map(function (part) {
-      return signLabel(part);
-    }).join(" → ");
-  }
-
-  function renderExample(index) {
-    var examples = state.data.examples || [];
-    var example = examples[index];
-    if (!example) return;
-    state.exampleIndex = index;
-    state.guess = null;
-    var source = example.source || {};
-    var target = example.target || {};
-    var stage = document.getElementById("context-stage");
-    var select = document.getElementById("case-select");
-    select.dataset.activeCaseId = example.id;
-    stage.dataset.activeCaseId = example.id;
-    stage.innerHTML = '<div class="case-topline"><span>' + escapeHtml(example.domain || "Benchmark") + '</span>' +
-      '<span>' + escapeHtml(transitionLabel(example.transition)) + '</span></div>' +
-      '<h3>' + escapeHtml(target.treatment || source.treatment) + ' → ' + escapeHtml(target.outcome || source.outcome) + '</h3>' +
-      '<div class="case-contexts"><section class="case-context source-context"><p>Source · ' + escapeHtml(source.year || "") + '</p>' +
-      '<strong>' + escapeHtml(source.context) + '</strong></section>' +
-      '<div class="relation"><span>Source cue</span><b>' + escapeHtml(signLabel(source.sign)) + '</b><span>Predict target</span></div>' +
-      '<section class="case-context target-context"><p>Target · ' + escapeHtml(target.year || "") + '</p>' +
-      '<strong>' + escapeHtml(target.context) + '</strong></section></div>' +
-      '<p class="case-question">What is the target effect sign?</p>' +
-      '<div class="guess-row" role="group" aria-label="Choose the target effect sign">' +
-      ["positive", "negative", "none", "mixed"].map(function (sign) {
-        return '<button type="button" data-sign-choice="' + sign + '" aria-pressed="false">' + escapeHtml(signLabel(sign)) + '</button>';
-      }).join("") + '<button class="reveal-button" type="button" data-case-reveal>Reveal</button></div>' +
-      '<div class="case-result" data-case-result hidden></div>';
-    bindExampleControls(example);
-  }
-
-  function bindExampleControls(example) {
-    var stage = document.getElementById("context-stage");
-    var choices = stage.querySelectorAll("[data-sign-choice]");
-    choices.forEach(function (button) {
-      button.addEventListener("click", function () {
-        state.guess = button.dataset.signChoice;
-        choices.forEach(function (item) { item.setAttribute("aria-pressed", String(item === button)); });
-        stage.querySelector("[data-case-result]").hidden = true;
-      });
-    });
-    stage.querySelector("[data-case-reveal]").addEventListener("click", function () {
-      var result = stage.querySelector("[data-case-result]");
-      var targetSign = String(example.target && example.target.sign || "").toLowerCase();
-      var correct = state.guess && state.guess.toLowerCase() === targetSign;
-      result.innerHTML = (state.guess ? '<strong>' + (correct ? "Matched." : "Context switch.") + '</strong> ' : "") +
-        'Target sign: <strong>' + escapeHtml(signLabel(targetSign)) + '</strong>. ' +
-        escapeHtml(example.selection && example.selection.reason || "The target setting determines the benchmark label.");
-      result.hidden = false;
-      result.focus && result.focus();
-    });
-  }
-
-  function renderExamples(data) {
-    var select = document.getElementById("case-select");
-    var examples = data.examples || [];
-    select.innerHTML = examples.map(function (example, index) {
-      var target = example.target || {};
-      return '<option value="' + index + '" data-case-id="' + escapeHtml(example.id) + '">' +
-        String(index + 1).padStart(2, "0") + ' · ' + escapeHtml(target.treatment || example.domain || "Case") + '</option>';
-    }).join("");
-    select.addEventListener("change", function () { renderExample(Number(select.value)); });
-    if (examples.length) renderExample(0);
   }
 
   function renderTransfer(data) {
     var transfer = data.transfer || {};
     var target = document.getElementById("transfer-chart");
-    target.innerHTML = (transfer.groups || []).map(function (group) {
+    if (target) target.innerHTML = (transfer.groups || []).map(function (group) {
       return '<article class="transfer-row"><strong>' + escapeHtml(group.label) + '</strong><div>' +
         '<span style="--value:' + Number(group.overall_accuracy_pct) + '%">Overall ' + number(group.overall_accuracy_pct) + '</span>' +
         '<span style="--value:' + Number(group.sign_mismatch_accuracy_pct) + '%">Sign-switch ' + number(group.sign_mismatch_accuracy_pct) + '</span>' +
         '</div><b>−' + number(group.drop_pp) + ' pp</b></article>';
     }).join("");
-    document.getElementById("transfer-distribution").innerHTML = (transfer.prediction_distribution || []).map(function (row) {
+    var distribution = document.getElementById("transfer-distribution");
+    if (distribution) distribution.innerHTML = (transfer.prediction_distribution || []).map(function (row) {
       return '<article class="distribution-card"><strong>' + escapeHtml(row.label) + '</strong><div class="stacked-bar" aria-label="' +
         escapeHtml(number(row.correct_pct) + '% correct, ' + number(row.source_sign_error_pct) + '% source-sign error, ' + number(row.other_error_pct) + '% other error') + '">' +
         '<i class="correct" style="width:' + Number(row.correct_pct) + '%"></i>' +
@@ -378,36 +342,36 @@
 
   function renderSigns(data) {
     var means = data.sign_accuracy && data.sign_accuracy.mean_across_tasks || {};
-    document.getElementById("sign-chart").innerHTML = ["positive", "negative", "none", "mixed"].map(function (sign) {
+    var target = document.getElementById("sign-chart");
+    if (!target) return;
+    target.innerHTML = ["positive", "negative", "none", "mixed"].map(function (sign) {
       var value = Number(means[sign]);
       return '<div><span>' + escapeHtml(signLabel(sign)) + '</span><i aria-hidden="true"><b style="--value:' + value + '%"></b></i><strong>' + number(value) + '</strong></div>';
     }).join("");
   }
 
-  function renderCalibration(data) {
-    var calibration = data.calibration || {};
-    var ece = calibration.ece_by_category || {};
-    var abstention = calibration.abstention_unknown_pct || {};
-    var target = document.getElementById("calibration-chart");
-    target.innerHTML = '<p>' + escapeHtml(calibration.model_id || "Model") + ' · expected calibration error. Lower is better.</p>' +
-      Object.keys(ece).map(function (domain) {
-        return '<section class="ece-domain"><strong>' + escapeHtml(domain) + ' · unknown ' + number(abstention[domain]) + '%</strong>' +
-          '<div class="ece-list">' + ["positive", "negative", "none", "mixed"].map(function (sign) {
-            var value = Number(ece[domain][sign]);
-            return '<span style="--heat:' + Math.min(1, value) + '">' + escapeHtml(signLabel(sign)) + '<b>' + number(value, 3) + '</b></span>';
-          }).join("") + '</div></section>';
-      }).join("");
+  function bindSceneNavigation() {
+    var sections = Array.from(document.querySelectorAll("[data-scene]"));
+    var links = Array.from(document.querySelectorAll("[data-scene-link]"));
+    if (!("IntersectionObserver" in window)) return;
+    var observer = new IntersectionObserver(function (entries) {
+      var visible = entries.filter(function (entry) { return entry.isIntersecting; })
+        .sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; })[0];
+      if (!visible) return;
+      links.forEach(function (link) {
+        if (link.dataset.sceneLink === visible.target.dataset.scene) link.setAttribute("aria-current", "step");
+        else link.removeAttribute("aria-current");
+      });
+    }, { rootMargin: "-30% 0px -50%", threshold: [0, 0.2, 0.5, 0.8] });
+    sections.forEach(function (section) { observer.observe(section); });
   }
 
   function initializeData(data) {
     state.data = data;
     updateStats(data);
-    populateFilters(data);
-    renderExamples(data);
-    renderModels();
+    renderFamilyChart(data);
     renderTransfer(data);
     renderSigns(data);
-    renderCalibration(data);
     document.documentElement.dataset.dataReady = "true";
   }
 
@@ -419,13 +383,15 @@
       })
       .then(initializeData)
       .catch(function () {
-        if (chartStatus) chartStatus.textContent = "Interactive data is unavailable; showing the static paper snapshot.";
+        if (familyChart) familyChart.innerHTML = '<p class="empty-state">Interactive data is unavailable. Please use the paper PDF for the complete results.</p>';
+        if (familyStatus) familyStatus.textContent = "Data unavailable";
         document.documentElement.dataset.dataReady = "false";
       });
   }
 
-  bindModeSwitch();
   bindDialog();
-  bindResultControls();
+  bindFigureDialog();
+  bindFamilyNavigation();
+  bindSceneNavigation();
   loadData();
 }());
