@@ -4,6 +4,8 @@
   var DATA_URL = "data/paper-data.v1.json";
   var CHART_TASKS = ["task1_econ", "task1_finance", "task2_overall", "task3"];
   var DETAIL_TASKS = ["task1_econ", "task1_finance", "task2_overall", "task2_sign_mismatch", "task3"];
+  var SCENE_GESTURE_QUIET_MS = 520;
+  var SCENE_POST_GESTURE_GUARD_MS = 900;
   var TASK_LABELS = {
     task1_econ: "Task 1 · Economics",
     task1_finance: "Task 1 · Finance",
@@ -21,7 +23,7 @@
     data: null,
     previousFocus: null,
     scenePagingLocked: false,
-    scenePagingStarted: 0,
+    scenePagingLastInput: 0,
     scenePagingTarget: 0,
     scenePagingCooldownUntil: 0,
     sceneUnlockTimer: null,
@@ -303,27 +305,40 @@
       return closest;
     }
 
+    function sceneAtViewport() {
+      var probe = document.elementFromPoint(window.innerWidth / 2, Math.min(window.innerHeight - 2, headerHeight() + 12));
+      var scene = probe && probe.closest && probe.closest(".scene");
+      return scene || scenes[currentSceneIndex()];
+    }
+
+    function isFreeScrollScene(scene) {
+      return scene && scene.id === "benchmark" && window.matchMedia("(max-width: 900px)").matches;
+    }
+
     function releasePaging() {
       window.scrollTo({ top: state.scenePagingTarget, behavior: "auto" });
       window.requestAnimationFrame(function () {
         window.requestAnimationFrame(function () {
           document.documentElement.classList.remove("scene-paging");
           state.scenePagingLocked = false;
-          state.scenePagingCooldownUntil = performance.now() + 700;
+          state.scenePagingCooldownUntil = Math.max(
+            state.scenePagingCooldownUntil,
+            performance.now() + SCENE_POST_GESTURE_GUARD_MS
+          );
         });
       });
     }
 
     function scheduleRelease() {
       if (state.sceneUnlockTimer) window.clearTimeout(state.sceneUnlockTimer);
-      var elapsed = performance.now() - state.scenePagingStarted;
-      state.sceneUnlockTimer = window.setTimeout(releasePaging, Math.max(180, 650 - elapsed));
+      var elapsed = performance.now() - state.scenePagingLastInput;
+      state.sceneUnlockTimer = window.setTimeout(releasePaging, Math.max(100, SCENE_GESTURE_QUIET_MS - elapsed));
     }
 
     function pageTo(index) {
       if (index < 0 || index >= scenes.length) return false;
       state.scenePagingLocked = true;
-      state.scenePagingStarted = performance.now();
+      state.scenePagingLastInput = performance.now();
       state.scenePagingTarget = Math.max(0, scenes[index].offsetTop - headerHeight());
       document.documentElement.classList.add("scene-paging");
       window.scrollTo({
@@ -337,14 +352,17 @@
     window.addEventListener("wheel", function (event) {
       if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY) || Math.abs(event.deltaY) < 8) return;
       if (dialog && dialog.hasAttribute("open")) return;
+      if (!state.scenePagingLocked && isFreeScrollScene(sceneAtViewport())) return;
       if (state.scenePagingLocked) {
         event.preventDefault();
+        state.scenePagingLastInput = performance.now();
+        state.scenePagingCooldownUntil = state.scenePagingLastInput + SCENE_POST_GESTURE_GUARD_MS;
         scheduleRelease();
         return;
       }
       if (performance.now() < state.scenePagingCooldownUntil) {
         event.preventDefault();
-        state.scenePagingCooldownUntil = performance.now() + 320;
+        state.scenePagingCooldownUntil = performance.now() + SCENE_POST_GESTURE_GUARD_MS;
         return;
       }
       var direction = event.deltaY > 0 ? 1 : -1;

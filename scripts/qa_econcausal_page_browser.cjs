@@ -96,12 +96,28 @@ async function main() {
                 `${width}px scene order`,
             );
             for (const scene of sceneContract.scenes) {
-                assert.equal(scene.snapAlign, 'start', `${width}px ${scene.id} snap alignment`);
-                assert.equal(scene.snapStop, 'always', `${width}px ${scene.id} snap stop`);
-                assert.ok(
-                    Math.abs(scene.height - (sceneContract.viewportHeight - sceneContract.headerHeight)) <= 1,
-                    `${width}px ${scene.id} is not one viewport tall`,
+                const isNarrowBenchmark = width <= 900 && scene.id === 'benchmark';
+                assert.equal(
+                    scene.snapAlign,
+                    'start',
+                    `${width}px ${scene.id} snap alignment`,
                 );
+                assert.equal(
+                    scene.snapStop,
+                    isNarrowBenchmark ? 'normal' : 'always',
+                    `${width}px ${scene.id} snap stop`,
+                );
+                if (isNarrowBenchmark) {
+                    assert.ok(
+                        scene.height >= sceneContract.viewportHeight - sceneContract.headerHeight,
+                        `${width}px benchmark is shorter than one viewport`,
+                    );
+                } else {
+                    assert.ok(
+                        Math.abs(scene.height - (sceneContract.viewportHeight - sceneContract.headerHeight)) <= 1,
+                        `${width}px ${scene.id} is not one viewport tall`,
+                    );
+                }
                 assert.ok(scene.scrollHeight <= scene.clientHeight + 1, `${width}px ${scene.id} content is clipped`);
             }
             const titleConceptOverlap = !(
@@ -120,8 +136,19 @@ async function main() {
                 Math.abs(linkedBenchmarkTop - sceneContract.headerHeight) <= 3,
                 `${width}px results link did not align the benchmark scene: ${linkedBenchmarkTop}`,
             );
+            if (width <= 900) {
+                const benchmarkStart = await page.evaluate(() => window.scrollY);
+                await page.mouse.wheel(0, 180);
+                await page.waitForTimeout(120);
+                const benchmarkScroll = await page.evaluate(() => window.scrollY);
+                assert.ok(
+                    benchmarkScroll > benchmarkStart + 20,
+                    `${width}px benchmark cards cannot scroll naturally on a narrow screen`,
+                );
+            }
 
-            await page.evaluate(() => window.scrollTo(0, 0));
+            await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'auto' }));
+            await page.waitForTimeout(80);
             await page.mouse.wheel(0, 900);
             await page.waitForTimeout(500);
             const snappedTasksTop = await page.locator('#tasks').evaluate((element) => element.getBoundingClientRect().top);
@@ -284,12 +311,15 @@ async function main() {
             'initial wheel gesture did not settle on the Tasks scene',
         );
 
-        // Simulate late momentum at roughly 700 ms from the initial gesture.
-        // It must be absorbed by the post-release cooldown, not interpreted as
-        // a deliberate second gesture that advances to Benchmark.
+        // A heavy gesture can emit trailing wheel events well after the initial
+        // movement. They must remain part of the same gesture.
         await motionPage.mouse.wheel(0, 70);
+        await motionPage.waitForTimeout(150);
+        await motionPage.mouse.wheel(0, 60);
+        await motionPage.waitForTimeout(150);
+        await motionPage.mouse.wheel(0, 45);
         const lateMomentumSamples = [];
-        for (let index = 0; index < 10; index += 1) {
+        for (let index = 0; index < 18; index += 1) {
             await motionPage.waitForTimeout(35);
             lateMomentumSamples.push(await motionPage.evaluate(() => window.scrollY));
         }
@@ -302,9 +332,9 @@ async function main() {
             'late momentum moved the viewport off the Tasks scene',
         );
 
-        // Once the 700 ms post-release cooldown has expired (~1.5 s from the
-        // first gesture), a new deliberate wheel gesture may advance one scene.
-        await motionPage.waitForTimeout(550);
+        // Once the quiet period and post-gesture guard have expired, a new
+        // deliberate wheel gesture may advance exactly one scene.
+        await motionPage.waitForTimeout(1150);
         await motionPage.mouse.wheel(0, 180);
         const deliberateGestureSamples = [];
         for (let index = 0; index < 22; index += 1) {

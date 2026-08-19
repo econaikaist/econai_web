@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#edf5fb">
   <link rel="canonical" href="https://econai.kaist.ac.kr/econcausal/">
   <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20260819e">
+  <link rel="stylesheet" href="styles.css?v=20260819f">
 
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="KAIST EconAI Lab">
@@ -135,7 +135,7 @@
             <p class="kicker">All-model accuracy</p>
             <h2 id="benchmark-heading">Four tests. One view.</h2>
           </div>
-          <p class="section-note">Models are grouped by family. Within every model: T1 Econ, T1 Finance, T2, then T3.</p>
+          <p class="section-note">Each family box uses the same 0–100% accuracy scale. Within every model: T1 Econ, T1 Finance, T2, then T3.</p>
         </div>
 
         <div class="benchmark-card">
@@ -149,11 +149,7 @@
             <p>All 18 models · select any model for details</p>
           </div>
           <div class="benchmark-plot">
-            <div class="y-axis" aria-hidden="true">
-              <strong>Accuracy (%)</strong>
-              <span style="--tick:0%">100</span><span style="--tick:25%">75</span><span style="--tick:50%">50</span><span style="--tick:75%">25</span><span style="--tick:100%">0</span>
-            </div>
-            <div id="family-chart" class="family-chart" aria-label="Accuracy for all 18 models, grouped by model family">
+            <div id="family-chart" class="family-chart" aria-label="Accuracy for all 18 models, grouped into five model-family boxes on a shared 0 to 100 percent scale">
               <p class="empty-state">Loading all-model benchmark…</p>
             </div>
           </div>
@@ -245,6 +241,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=20260819e" defer></script>
+  <script src="script.js?v=20260819f" defer></script>
 </body>
 </html>
