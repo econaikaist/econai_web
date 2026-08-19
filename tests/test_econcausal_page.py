@@ -59,9 +59,6 @@ class EconCausalPageTests(unittest.TestCase):
         combined = f"{self.html}\n{self.script}"
         for value in (
             'id="family-chart"',
-            'id="family-prev"',
-            'id="family-next"',
-            'id="family-status"',
             'id="model-detail-dialog"',
             "data-family-panel",
             "data-accuracy-bar",
@@ -76,6 +73,13 @@ class EconCausalPageTests(unittest.TestCase):
             "Context lab",
         ):
             self.assertNotIn(removed, combined)
+        for removed_control in (
+            'id="family-prev"',
+            'id="family-next"',
+            'id="family-status"',
+            'class="family-nav"',
+        ):
+            self.assertNotIn(removed_control, self.html)
         self.assertRegex(self.html, r'<main\b')
         self.assertRegex(self.html, r'class="[^"]*skip-link')
 
@@ -117,6 +121,10 @@ class EconCausalPageTests(unittest.TestCase):
         self.assertNotRegex(
             self.css,
             r"(?:html|body)[^{]*\{[^}]*overflow-x\s*:\s*auto",
+        )
+        self.assertNotRegex(
+            self.css,
+            r"\.family-chart\s*\{[^}]*overflow-x\s*:\s*(?:auto|scroll)",
         )
         self.assertIn("scroll-snap-type: y mandatory", self.css)
         self.assertIn("scroll-snap-stop: always", self.css)
@@ -167,8 +175,9 @@ class EconCausalPageTests(unittest.TestCase):
         for value in (
             'id="construction"',
             'class="hero-concept"',
-            "Same causal question",
-            "Same relation. Different setting. The sign may flip.",
+            "One question. Two settings.",
+            "Same relation",
+            "same causal answer",
             'assets/figure-2-pipeline.png',
             "Figure 2 from the paper",
             "Open full size",
@@ -178,12 +187,18 @@ class EconCausalPageTests(unittest.TestCase):
         self.assertTrue(PIPELINE_IMAGE_PATH.is_file())
         self.assertGreater(PIPELINE_IMAGE_PATH.stat().st_size, 250_000)
 
-    def test_benchmark_is_the_second_full_page_scene(self):
+    def test_tasks_precede_benchmark_and_journal_scope_is_explicit(self):
         overview = self.html.index('id="overview"')
+        tasks = self.html.index('id="tasks"')
         benchmark = self.html.index('id="benchmark"')
         construction = self.html.index('id="construction"')
-        self.assertLess(overview, benchmark)
+        self.assertLess(overview, tasks)
+        self.assertLess(tasks, benchmark)
         self.assertLess(benchmark, construction)
+        self.assertIn(
+            "economics’ top five and finance’s top three journals",
+            self.html,
+        )
 
     def test_bespoke_social_card_is_present(self):
         self.assertTrue(OG_IMAGE_PATH.is_file())

@@ -19,17 +19,15 @@
   };
   var state = {
     data: null,
-    familyIndex: 0,
     previousFocus: null,
     scenePagingLocked: false,
     scenePagingStarted: 0,
     scenePagingTarget: 0,
+    scenePagingCooldownUntil: 0,
     sceneUnlockTimer: null,
-    scrollFrame: null
   };
 
   var familyChart = document.getElementById("family-chart");
-  var familyStatus = document.getElementById("family-status");
   var tooltip = document.getElementById("chart-tooltip");
   var dialog = document.getElementById("model-detail-dialog");
   var dialogClose = dialog && dialog.querySelector("[data-dialog-close]");
@@ -69,6 +67,16 @@
 
   function modelName(model) {
     return model.display_name || model.name || model.id;
+  }
+
+  function compactModelName(model) {
+    var name = modelName(model);
+    var family = String(model.family || "");
+    if (family === "OpenAI") return name.replace(/^GPT-/i, "");
+    if (family && name.toLowerCase().indexOf(family.toLowerCase()) === 0) {
+      return name.slice(family.length).replace(/^[-\s]+/, "") || name;
+    }
+    return name;
   }
 
   function scoreFor(model, task, metric) {
@@ -133,7 +141,8 @@
       'data-tooltip="' + escapeHtml(modelName(model) + " · " + scoreText) + '" ' +
       'aria-label="Open ' + escapeHtml(modelName(model) + " details. " + scoreText) + '">' +
       '<span class="model-bars">' + CHART_TASKS.map(function (task) { return chartBar(model, task); }).join("") + '</span>' +
-      '<strong>' + escapeHtml(modelName(model)) + '</strong><small>' + escapeHtml(accessLabel(model)) + '</small></button>';
+      '<strong><span class="model-name-full">' + escapeHtml(modelName(model)) + '</span><span class="model-name-short">' + escapeHtml(compactModelName(model)) + '</span></strong>' +
+      '<small>' + escapeHtml(accessLabel(model)) + '</small></button>';
   }
 
   function renderFamilyChart(data) {
@@ -141,61 +150,11 @@
     var groups = familyGroups(data.models || []);
     familyChart.innerHTML = groups.map(function (group, index) {
       return '<section class="family-panel" data-family-panel="' + escapeHtml(group.family) + '" data-family-index="' + index + '" ' +
-        'aria-label="' + escapeHtml(group.family) + ' family, ' + group.models.length + ' models">' +
+        'style="--model-count:' + group.models.length + '" aria-label="' + escapeHtml(group.family) + ' family, ' + group.models.length + ' models">' +
         '<header><span>' + String(index + 1).padStart(2, "0") + '</span><h3>' + escapeHtml(group.family) + '</h3><p>' + group.models.length + ' model' + (group.models.length === 1 ? '' : 's') + '</p></header>' +
         '<div class="family-models" style="--model-count:' + group.models.length + '">' + group.models.map(modelCluster).join("") + '</div></section>';
     }).join("");
-    state.familyIndex = 0;
-    updateFamilyStatus();
     bindChartInteractions(data.models || []);
-  }
-
-  function familyPanels() {
-    return familyChart ? Array.from(familyChart.querySelectorAll("[data-family-panel]")) : [];
-  }
-
-  function updateFamilyStatus() {
-    var panels = familyPanels();
-    var active = panels[state.familyIndex];
-    if (!active || !familyStatus) return;
-    familyStatus.textContent = String(state.familyIndex + 1).padStart(2, "0") + " / " + String(panels.length).padStart(2, "0") + " · " + active.dataset.familyPanel;
-    var prev = document.getElementById("family-prev");
-    var next = document.getElementById("family-next");
-    if (prev) prev.disabled = state.familyIndex === 0;
-    if (next) next.disabled = state.familyIndex === panels.length - 1;
-  }
-
-  function goToFamily(index) {
-    var panels = familyPanels();
-    if (!panels.length) return;
-    state.familyIndex = Math.max(0, Math.min(index, panels.length - 1));
-    var panel = panels[state.familyIndex];
-    var chartRect = familyChart.getBoundingClientRect();
-    var panelRect = panel.getBoundingClientRect();
-    familyChart.scrollTo({
-      left: familyChart.scrollLeft + panelRect.left - chartRect.left,
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
-    });
-    updateFamilyStatus();
-  }
-
-  function syncFamilyFromScroll() {
-    var panels = familyPanels();
-    if (!panels.length) return;
-    var chartLeft = familyChart.getBoundingClientRect().left;
-    var closest = 0;
-    var distance = Infinity;
-    panels.forEach(function (panel, index) {
-      var nextDistance = Math.abs(panel.getBoundingClientRect().left - chartLeft);
-      if (nextDistance < distance) {
-        distance = nextDistance;
-        closest = index;
-      }
-    });
-    if (closest !== state.familyIndex) {
-      state.familyIndex = closest;
-      updateFamilyStatus();
-    }
   }
 
   function positionTooltip(event, target) {
@@ -227,24 +186,7 @@
         showTooltip(bar || cluster, event);
       });
       cluster.addEventListener("pointerleave", hideTooltip);
-      cluster.addEventListener("focus", function () { showTooltip(cluster); });
       cluster.addEventListener("blur", hideTooltip);
-    });
-    familyChart.addEventListener("scroll", function () {
-      if (state.scrollFrame) window.cancelAnimationFrame(state.scrollFrame);
-      state.scrollFrame = window.requestAnimationFrame(syncFamilyFromScroll);
-    }, { passive: true });
-  }
-
-  function bindFamilyNavigation() {
-    var prev = document.getElementById("family-prev");
-    var next = document.getElementById("family-next");
-    if (prev) prev.addEventListener("click", function () { goToFamily(state.familyIndex - 1); });
-    if (next) next.addEventListener("click", function () { goToFamily(state.familyIndex + 1); });
-    if (familyChart) familyChart.addEventListener("keydown", function (event) {
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-      event.preventDefault();
-      goToFamily(state.familyIndex + (event.key === "ArrowRight" ? 1 : -1));
     });
   }
 
@@ -367,6 +309,7 @@
         window.requestAnimationFrame(function () {
           document.documentElement.classList.remove("scene-paging");
           state.scenePagingLocked = false;
+          state.scenePagingCooldownUntil = performance.now() + 700;
         });
       });
     }
@@ -399,6 +342,11 @@
         scheduleRelease();
         return;
       }
+      if (performance.now() < state.scenePagingCooldownUntil) {
+        event.preventDefault();
+        state.scenePagingCooldownUntil = performance.now() + 320;
+        return;
+      }
       var direction = event.deltaY > 0 ? 1 : -1;
       if (pageTo(currentSceneIndex() + direction)) event.preventDefault();
     }, { passive: false });
@@ -422,13 +370,11 @@
       .then(initializeData)
       .catch(function () {
         if (familyChart) familyChart.innerHTML = '<p class="empty-state">Interactive data is unavailable. Please use the paper PDF for the complete results.</p>';
-        if (familyStatus) familyStatus.textContent = "Data unavailable";
         document.documentElement.dataset.dataReady = "false";
       });
   }
 
   bindDialog();
-  bindFamilyNavigation();
   bindSceneNavigation();
   bindScenePaging();
   loadData();

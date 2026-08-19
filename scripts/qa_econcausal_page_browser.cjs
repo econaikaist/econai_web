@@ -90,7 +90,11 @@ async function main() {
                 };
             });
             assert.equal(sceneContract.scrollSnapType, 'y mandatory', `${width}px document snap type`);
-            assert.deepEqual(sceneContract.scenes.slice(0, 3).map((scene) => scene.id), ['overview', 'benchmark', 'construction'], `${width}px scene order`);
+            assert.deepEqual(
+                sceneContract.scenes.slice(0, 4).map((scene) => scene.id),
+                ['overview', 'tasks', 'benchmark', 'construction'],
+                `${width}px scene order`,
+            );
             for (const scene of sceneContract.scenes) {
                 assert.equal(scene.snapAlign, 'start', `${width}px ${scene.id} snap alignment`);
                 assert.equal(scene.snapStop, 'always', `${width}px ${scene.id} snap stop`);
@@ -120,10 +124,10 @@ async function main() {
             await page.evaluate(() => window.scrollTo(0, 0));
             await page.mouse.wheel(0, 900);
             await page.waitForTimeout(500);
-            const snappedBenchmarkTop = await page.locator('#benchmark').evaluate((element) => element.getBoundingClientRect().top);
+            const snappedTasksTop = await page.locator('#tasks').evaluate((element) => element.getBoundingClientRect().top);
             assert.ok(
-                Math.abs(snappedBenchmarkTop - sceneContract.headerHeight) <= 3,
-                `${width}px wheel did not stop on the benchmark scene: ${snappedBenchmarkTop}`,
+                Math.abs(snappedTasksTop - sceneContract.headerHeight) <= 3,
+                `${width}px one wheel gesture skipped or missed the Tasks scene: ${snappedTasksTop}`,
             );
 
             const benchmarkLayout = await page.locator('[data-model-id]').evaluateAll((models) => models.map((model) => ({
@@ -147,46 +151,79 @@ async function main() {
             ));
             assert.equal(new Set(taskColors).size, 4, `${width}px task bars need four distinct high-contrast colors`);
 
-            const geometry = await page.evaluate(() => ({
-                documentWidth: document.documentElement.scrollWidth,
-                viewportWidth: window.innerWidth,
-                familyOverflow: [...document.querySelectorAll('[data-family-panel]')]
-                    .filter((element) => element.getClientRects().length > 0)
-                    .map((element) => ({
-                        family: element.dataset.familyPanel,
-                        clientWidth: element.clientWidth,
-                        scrollWidth: element.scrollWidth,
-                    })),
-                elements: [...document.querySelectorAll('main > section, #family-chart')]
-                    .map((element) => {
+            const geometry = await page.evaluate(() => {
+                const chart = document.querySelector('#family-chart');
+                const chartRect = chart.getBoundingClientRect();
+                return {
+                    documentWidth: document.documentElement.scrollWidth,
+                    viewportWidth: window.innerWidth,
+                    chart: {
+                        clientWidth: chart.clientWidth,
+                        scrollWidth: chart.scrollWidth,
+                        clientHeight: chart.clientHeight,
+                        scrollHeight: chart.scrollHeight,
+                    },
+                    familyOverflow: [...document.querySelectorAll('[data-family-panel]')]
+                        .filter((element) => element.getClientRects().length > 0)
+                        .map((element) => ({
+                            family: element.dataset.familyPanel,
+                            clientWidth: element.clientWidth,
+                            scrollWidth: element.scrollWidth,
+                        })),
+                    models: [...document.querySelectorAll('[data-model-id]')].map((element) => {
                         const rect = element.getBoundingClientRect();
+                        const style = getComputedStyle(element);
                         return {
-                            name: element.id || element.dataset.modelId || element.dataset.caseId || element.tagName,
-                            visible: element.getClientRects().length > 0,
-                            left: rect.left,
-                            right: rect.right,
+                            id: element.dataset.modelId,
+                            visible: element.getClientRects().length > 0
+                                && style.display !== 'none'
+                                && style.visibility !== 'hidden'
+                                && rect.width > 0
+                                && rect.height > 0,
+                            insideChart: rect.left >= chartRect.left - 1
+                                && rect.right <= chartRect.right + 1
+                                && rect.top >= chartRect.top - 1
+                                && rect.bottom <= chartRect.bottom + 1,
                         };
                     }),
-            }));
+                    elements: [...document.querySelectorAll('main > section, #family-chart')]
+                        .map((element) => {
+                            const rect = element.getBoundingClientRect();
+                            return {
+                                name: element.id || element.tagName,
+                                visible: element.getClientRects().length > 0,
+                                left: rect.left,
+                                right: rect.right,
+                            };
+                        }),
+                };
+            });
             assert.ok(
                 geometry.documentWidth <= geometry.viewportWidth + 1,
                 `${width}px document overflows by ${geometry.documentWidth - geometry.viewportWidth}px`,
             );
             assert.deepEqual(visibleOverflow(geometry.elements, width), [], `${width}px visible elements overflow`);
+            assert.ok(
+                geometry.chart.scrollWidth <= geometry.chart.clientWidth + 1,
+                `${width}px family chart has horizontal overflow`,
+            );
+            assert.ok(
+                geometry.chart.scrollHeight <= geometry.chart.clientHeight + 1,
+                `${width}px family chart hides models behind vertical scrolling`,
+            );
+            assert.equal(geometry.models.length, 18, `${width}px visible-model geometry count`);
+            assert.deepEqual(
+                geometry.models.filter((model) => !model.visible || !model.insideChart),
+                [],
+                `${width}px all 18 models must be visible in the chart at once`,
+            );
             for (const panel of geometry.familyOverflow) {
                 assert.ok(
                     panel.scrollWidth <= panel.clientWidth + 1,
                     `${width}px ${panel.family} panel has internal horizontal overflow`,
                 );
             }
-
-            const familyStatus = page.locator('#family-status');
-            assert.match(await familyStatus.textContent(), /Gemini/, `${width}px initial family status`);
-            await page.locator('#family-next').click();
-            await page.waitForFunction(() => document.querySelector('#family-status')?.textContent.includes('OpenAI'));
-            assert.ok(await page.locator('#family-chart').evaluate((element) => element.scrollLeft > 0), `${width}px family chart did not move`);
-            await page.locator('#family-prev').click();
-            await page.waitForFunction(() => document.querySelector('#family-status')?.textContent.includes('Gemini'));
+            assert.equal(await page.locator('#family-prev, #family-next, #family-status, .family-nav').count(), 0, `${width}px family carousel controls must be absent`);
 
             const firstModel = page.locator('[data-model-id]').first();
             await firstModel.focus();
@@ -200,7 +237,7 @@ async function main() {
             assert.equal(await firstModel.evaluate((element) => element === document.activeElement), true, `${width}px focus not restored`);
 
             await checkTouchTargets(
-                page.locator('#family-prev, #family-next, [data-model-id], [data-dialog-close]'),
+                page.locator('[data-model-id], [data-dialog-close]'),
                 `${width}px control`,
             );
             if (!skipScreenshots) {
@@ -215,27 +252,73 @@ async function main() {
         const motionPage = await browser.newPage({ viewport: { width: 1366, height: 768 } });
         await motionPage.emulateMedia({ reducedMotion: 'no-preference' });
         await motionPage.goto(baseUrl, { waitUntil: 'networkidle' });
-        const motionTarget = await motionPage.locator('#benchmark').evaluate((element) => (
-            element.offsetTop - document.querySelector('.paper-nav').getBoundingClientRect().height
-        ));
+        const motionTargets = await motionPage.evaluate(() => {
+            const headerHeight = document.querySelector('.paper-nav').getBoundingClientRect().height;
+            return {
+                tasks: document.querySelector('#tasks').offsetTop - headerHeight,
+                benchmark: document.querySelector('#benchmark').offsetTop - headerHeight,
+            };
+        });
         await motionPage.mouse.wheel(0, 180);
         await motionPage.waitForTimeout(25);
         await motionPage.mouse.wheel(0, 160);
         await motionPage.waitForTimeout(25);
         await motionPage.mouse.wheel(0, 120);
-        const motionSamples = [];
-        for (let index = 0; index < 24; index += 1) {
+        const initialGestureSamples = [];
+        for (let index = 0; index < 18; index += 1) {
             await motionPage.waitForTimeout(35);
-            motionSamples.push(await motionPage.evaluate(() => window.scrollY));
+            initialGestureSamples.push(await motionPage.evaluate(() => window.scrollY));
         }
-        for (let index = 1; index < motionSamples.length; index += 1) {
+        for (let index = 1; index < initialGestureSamples.length; index += 1) {
             assert.ok(
-                motionSamples[index] >= motionSamples[index - 1] - 1,
-                `scene paging reversed at sample ${index}: ${motionSamples[index - 1]} -> ${motionSamples[index]}`,
+                initialGestureSamples[index] >= initialGestureSamples[index - 1] - 1,
+                `scene paging reversed at sample ${index}: ${initialGestureSamples[index - 1]} -> ${initialGestureSamples[index]}`,
             );
         }
-        assert.ok(Math.max(...motionSamples) <= motionTarget + 3, 'scene paging overshot and snapped backward');
-        assert.ok(Math.abs(motionSamples.at(-1) - motionTarget) <= 3, 'scene paging did not settle on the benchmark scene');
+        assert.ok(
+            Math.max(...initialGestureSamples) <= motionTargets.tasks + 3,
+            'one wheel gesture skipped past the Tasks scene',
+        );
+        assert.ok(
+            Math.abs(initialGestureSamples.at(-1) - motionTargets.tasks) <= 3,
+            'initial wheel gesture did not settle on the Tasks scene',
+        );
+
+        // Simulate late momentum at roughly 700 ms from the initial gesture.
+        // It must be absorbed by the post-release cooldown, not interpreted as
+        // a deliberate second gesture that advances to Benchmark.
+        await motionPage.mouse.wheel(0, 70);
+        const lateMomentumSamples = [];
+        for (let index = 0; index < 10; index += 1) {
+            await motionPage.waitForTimeout(35);
+            lateMomentumSamples.push(await motionPage.evaluate(() => window.scrollY));
+        }
+        assert.ok(
+            Math.max(...lateMomentumSamples) <= motionTargets.tasks + 3,
+            'late wheel momentum skipped from Tasks to Benchmark during cooldown',
+        );
+        assert.ok(
+            Math.abs(lateMomentumSamples.at(-1) - motionTargets.tasks) <= 3,
+            'late momentum moved the viewport off the Tasks scene',
+        );
+
+        // Once the 700 ms post-release cooldown has expired (~1.5 s from the
+        // first gesture), a new deliberate wheel gesture may advance one scene.
+        await motionPage.waitForTimeout(550);
+        await motionPage.mouse.wheel(0, 180);
+        const deliberateGestureSamples = [];
+        for (let index = 0; index < 22; index += 1) {
+            await motionPage.waitForTimeout(35);
+            deliberateGestureSamples.push(await motionPage.evaluate(() => window.scrollY));
+        }
+        assert.ok(
+            Math.max(...deliberateGestureSamples) <= motionTargets.benchmark + 3,
+            'deliberate second gesture skipped past the Benchmark scene',
+        );
+        assert.ok(
+            Math.abs(deliberateGestureSamples.at(-1) - motionTargets.benchmark) <= 3,
+            'deliberate second gesture did not settle on the Benchmark scene',
+        );
         await motionPage.close();
     } finally {
         await browser.close();

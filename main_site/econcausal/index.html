@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#edf5fb">
   <link rel="canonical" href="https://econai.kaist.ac.kr/econcausal/">
   <link rel="icon" href="../favicon.svg?v=20260804" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20260819d">
+  <link rel="stylesheet" href="styles.css?v=20260819e">
 
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="KAIST EconAI Lab">
@@ -55,9 +55,9 @@
       </a>
       <nav class="section-nav" aria-label="Paper sections">
         <a href="#overview">Overview</a>
+        <a href="#tasks">Tasks</a>
         <a href="#benchmark">Benchmark</a>
         <a href="#construction">Build</a>
-        <a href="#tasks">Tasks</a>
         <a href="#transfer">Context gap</a>
         <a href="#diagnostics">Sign errors</a>
       </nav>
@@ -67,9 +67,9 @@
 
   <nav class="scene-nav" aria-label="Page progress">
     <a href="#overview" data-scene-link="overview"><span>01</span><b>Overview</b></a>
-    <a href="#benchmark" data-scene-link="benchmark"><span>02</span><b>Benchmark</b></a>
-    <a href="#construction" data-scene-link="construction"><span>03</span><b>Build</b></a>
-    <a href="#tasks" data-scene-link="tasks"><span>04</span><b>Tasks</b></a>
+    <a href="#tasks" data-scene-link="tasks"><span>02</span><b>Tasks</b></a>
+    <a href="#benchmark" data-scene-link="benchmark"><span>03</span><b>Benchmark</b></a>
+    <a href="#construction" data-scene-link="construction"><span>04</span><b>Build</b></a>
     <a href="#transfer" data-scene-link="transfer"><span>05</span><b>Context gap</b></a>
     <a href="#diagnostics" data-scene-link="diagnostics"><span>06</span><b>Sign errors</b></a>
   </nav>
@@ -93,27 +93,39 @@
             <div><dt data-stat="models">18</dt><dd>evaluated models</dd></div>
           </dl>
         </div>
-        <figure class="hero-concept" aria-label="The same causal question can have a different answer when the economic context changes">
-          <div class="concept-relation">
-            <small>Same causal question</small>
-            <div><b>Minimum wage</b><span aria-hidden="true">↑</span><i>→</i><b>Employment</b></div>
-          </div>
+        <figure class="hero-concept" aria-label="The same causal relation can have a different sign in a new economic context">
+          <header>
+            <span>THE BENCHMARK IN ONE GLANCE</span>
+            <strong>One question. Two settings.</strong>
+          </header>
+          <div class="concept-relation"><b>Minimum wage ↑</b><i aria-hidden="true">→</i><b>Employment</b></div>
           <div class="context-comparison">
             <article>
-              <header><span>A</span><small>Study context</small></header>
-              <p><b>Time 1</b><b>Market A</b><b>Policy A</b></p>
-              <strong><small>Causal sign</small>−</strong>
+              <div><strong>Context A</strong><p>Time 1 · Market A · Policy A</p></div>
+              <b aria-label="Negative causal sign">−</b>
             </article>
-            <div class="context-shift" aria-label="The context changes"><span>Context changes</span><b aria-hidden="true">→</b></div>
+            <span class="context-shift"><small>context changes</small><b aria-hidden="true">→</b></span>
             <article>
-              <header><span>B</span><small>New context</small></header>
-              <p><b>Time 2</b><b>Market B</b><b>Policy B</b></p>
-              <strong><small>Causal sign</small>+</strong>
+              <div><strong>Context B</strong><p>Time 2 · Market B · Policy B</p></div>
+              <b aria-label="Positive causal sign">+</b>
             </article>
           </div>
-          <figcaption><strong>Can the model revise its judgment?</strong><span>Same relation. Different setting. The sign may flip.</span></figcaption>
+          <figcaption><span>Same relation</span><b>≠</b><strong>same causal answer</strong></figcaption>
         </figure>
       </div>
+    </section>
+
+    <section id="tasks" class="section scene shell task-section" data-scene="tasks" aria-labelledby="tasks-heading">
+      <div class="section-heading compact">
+        <div><p class="kicker">Three escalating tests</p><h2 id="tasks-heading">Know the sign. Then question it.</h2></div>
+        <p class="section-note">Grounded in papers published in economics’ top five and finance’s top three journals. Four labels throughout: +, −, none, or mixed.</p>
+      </div>
+      <div class="task-rail">
+        <article class="task-card"><span>01 · T1</span><h3>Fixed context</h3><p>Read one top-journal study setting and identify its causal sign.</p><strong data-task-count="task1">1,807</strong><small>instances</small></article>
+        <article class="task-card"><span>02 · T2</span><h3>Context shift</h3><p>Move to a matched study and decide whether the sign travels.</p><strong data-task-count="task2">284</strong><small>pairs</small></article>
+        <article class="task-card"><span>03 · T3</span><h3>Misleading cue</h3><p>Ignore a deliberately wrong source sign and judge the target.</p><strong data-task-count="task3">852</strong><small>stress tests</small></article>
+      </div>
+      <a class="scene-next" href="#benchmark">Compare all 18 models <span aria-hidden="true">↓</span></a>
     </section>
 
     <section id="benchmark" class="section scene benchmark-section" data-scene="benchmark" aria-labelledby="benchmark-heading">
@@ -134,21 +146,16 @@
               <span><i class="task-color task2"></i>T2</span>
               <span><i class="task-color task3"></i>T3</span>
             </div>
-            <p><span aria-hidden="true">↔</span> Swipe families · select a model for details</p>
+            <p>All 18 models · select any model for details</p>
           </div>
           <div class="benchmark-plot">
             <div class="y-axis" aria-hidden="true">
               <strong>Accuracy (%)</strong>
               <span style="--tick:0%">100</span><span style="--tick:25%">75</span><span style="--tick:50%">50</span><span style="--tick:75%">25</span><span style="--tick:100%">0</span>
             </div>
-            <div id="family-chart" class="family-chart" tabindex="0" aria-label="Model accuracy by family; horizontally scrollable">
+            <div id="family-chart" class="family-chart" aria-label="Accuracy for all 18 models, grouped by model family">
               <p class="empty-state">Loading all-model benchmark…</p>
             </div>
-          </div>
-          <div class="family-nav" aria-label="Choose model family">
-            <button type="button" id="family-prev" aria-label="Previous model family">←</button>
-            <p id="family-status" role="status">Loading families…</p>
-            <button type="button" id="family-next" aria-label="Next model family">→</button>
           </div>
         </div>
       </div>
@@ -165,19 +172,6 @@
         </a>
         <figcaption><span>Figure 2 from the paper · 10,490 context-aware triplets from 2,595 studies</span><strong>Open full size ↗</strong></figcaption>
       </figure>
-    </section>
-
-    <section id="tasks" class="section scene shell task-section" data-scene="tasks" aria-labelledby="tasks-heading">
-      <div class="section-heading compact">
-        <div><p class="kicker">Three escalating tests</p><h2 id="tasks-heading">Know the sign. Then question it.</h2></div>
-        <p class="section-note">Four labels throughout: +, −, none, or mixed.</p>
-      </div>
-      <div class="task-rail">
-        <article class="task-card"><span>01 · T1</span><h3>Fixed context</h3><p>Read one study setting and identify its causal sign.</p><strong data-task-count="task1">1,807</strong><small>instances</small></article>
-        <article class="task-card"><span>02 · T2</span><h3>Context shift</h3><p>Move to a matched study and decide whether the sign travels.</p><strong data-task-count="task2">284</strong><small>pairs</small></article>
-        <article class="task-card"><span>03 · T3</span><h3>Misleading cue</h3><p>Ignore a deliberately wrong source sign and judge the target.</p><strong data-task-count="task3">852</strong><small>stress tests</small></article>
-      </div>
-      <a class="scene-next" href="#benchmark">Compare all 18 models <span aria-hidden="true">↓</span></a>
     </section>
 
     <section id="transfer" class="section scene section-tint" data-scene="transfer" aria-labelledby="transfer-heading">
@@ -251,6 +245,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=20260819d" defer></script>
+  <script src="script.js?v=20260819e" defer></script>
 </body>
 </html>
