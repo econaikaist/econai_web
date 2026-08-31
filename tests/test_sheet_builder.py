@@ -175,6 +175,30 @@ def _csv_text(columns: tuple[str, ...], rows: list[dict[str, str]]) -> str:
 
 
 class SheetBuilderTests(unittest.TestCase):
+    def test_crawler_files_allow_indexing_and_cover_public_pages(self) -> None:
+        crawler_errors = site_validator._validate_crawler_files(
+            REPOSITORY_ROOT / "main_site"
+        )
+        self.assertEqual(crawler_errors, [])
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            site_dir = Path(temporary_directory)
+            shutil.copy2(REPOSITORY_ROOT / "main_site/robots.txt", site_dir)
+            shutil.copy2(REPOSITORY_ROOT / "main_site/sitemap.xml", site_dir)
+
+            (site_dir / "robots.txt").write_text(
+                "User-agent: *\nDisallow: /\n", encoding="utf-8"
+            )
+            errors = site_validator._validate_crawler_files(site_dir)
+            self.assertIn("robots.txt must allow the whole public site", errors)
+            self.assertIn("robots.txt must not block the whole public site", errors)
+
+            (site_dir / "robots.txt").unlink()
+            errors = site_validator._validate_crawler_files(site_dir)
+            self.assertTrue(
+                any(error.startswith("invalid or missing robots.txt:") for error in errors)
+            )
+
     IMAGE_ENDPOINT = "https://script.google.com/macros/s/test-deployment/exec"
     IMAGE_TOKEN = "t" * 32
     IMAGE_1_URL = "https://lh3.googleusercontent.com/research-image-one"

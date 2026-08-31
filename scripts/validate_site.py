@@ -11,6 +11,7 @@ import urllib.parse
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
+from xml.etree import ElementTree
 
 from validate_econcausal_data import ValidationError as EconCausalDataError
 from validate_econcausal_data import validate_core as validate_econcausal_data
@@ -55,6 +56,71 @@ MARKER_PAIRS = {
     ),
 }
 EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel", "data"}
+SITE_ORIGIN = "https://econai.kaist.ac.kr"
+REQUIRED_SITEMAP_URLS = {
+    f"{SITE_ORIGIN}/",
+    f"{SITE_ORIGIN}/members.html",
+    f"{SITE_ORIGIN}/research.html",
+    f"{SITE_ORIGIN}/publications.html",
+    f"{SITE_ORIGIN}/projects.html",
+    f"{SITE_ORIGIN}/contact.html",
+    f"{SITE_ORIGIN}/ideological-bias-in-llms/",
+    f"{SITE_ORIGIN}/econcausal/",
+}
+
+
+def _validate_crawler_files(site_dir: Path) -> List[str]:
+    errors: List[str] = []
+    robots_path = site_dir / "robots.txt"
+    try:
+        robots_text = robots_path.read_text(encoding="utf-8")
+    except (FileNotFoundError, UnicodeDecodeError) as exc:
+        errors.append(f"invalid or missing robots.txt: {exc}")
+    else:
+        normalized_lines = {
+            line.strip().lower()
+            for line in robots_text.splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        }
+        if "user-agent: *" not in normalized_lines:
+            errors.append("robots.txt must include a wildcard user-agent")
+        if "allow: /" not in normalized_lines:
+            errors.append("robots.txt must allow the whole public site")
+        if "disallow: /" in normalized_lines:
+            errors.append("robots.txt must not block the whole public site")
+        if f"sitemap: {SITE_ORIGIN}/sitemap.xml" not in normalized_lines:
+            errors.append("robots.txt must advertise the canonical sitemap")
+
+    sitemap_path = site_dir / "sitemap.xml"
+    try:
+        sitemap_root = ElementTree.parse(sitemap_path).getroot()
+    except (FileNotFoundError, ElementTree.ParseError) as exc:
+        errors.append(f"invalid or missing sitemap.xml: {exc}")
+    else:
+        namespace = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
+        if sitemap_root.tag != f"{namespace}urlset":
+            errors.append("sitemap.xml must use the standard sitemap urlset")
+        sitemap_urls = {
+            location.text.strip()
+            for location in sitemap_root.findall(f"{namespace}url/{namespace}loc")
+            if location.text and location.text.strip()
+        }
+        missing_urls = sorted(REQUIRED_SITEMAP_URLS - sitemap_urls)
+        if missing_urls:
+            errors.append(
+                "sitemap.xml is missing public pages: " + ", ".join(missing_urls)
+            )
+        foreign_urls = sorted(
+            url for url in sitemap_urls if not url.startswith(f"{SITE_ORIGIN}/")
+        )
+        if foreign_urls:
+            errors.append(
+                "sitemap.xml contains non-canonical origins: "
+                + ", ".join(foreign_urls)
+            )
+    return errors
+
+
 class LinkCollector(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -106,6 +172,7 @@ def validate(site_dir: Path) -> List[str]:
     errors: List[str] = []
     rendered_footers: Dict[str, str] = {}
     site_dir = site_dir.resolve()
+    errors.extend(_validate_crawler_files(site_dir))
     metadata_path = site_dir / "data/sheet-build.json"
     try:
         metadata = json.loads(metadata_path.read_text(encoding="utf-8"))

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://econai.kaist.ac.kr/sitemap.xml
