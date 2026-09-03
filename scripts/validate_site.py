@@ -84,6 +84,11 @@ def _validate_crawler_files(site_dir: Path) -> List[str]:
         }
         if "user-agent: *" not in normalized_lines:
             errors.append("robots.txt must include a wildcard user-agent")
+        for user_agent in ("claudebot", "claude-user", "claude-searchbot"):
+            if f"user-agent: {user_agent}" not in normalized_lines:
+                errors.append(
+                    f"robots.txt must explicitly allow Anthropic agent {user_agent}"
+                )
         if "allow: /" not in normalized_lines:
             errors.append("robots.txt must allow the whole public site")
         if "disallow: /" in normalized_lines:

@@ -199,6 +199,22 @@ class SheetBuilderTests(unittest.TestCase):
                 any(error.startswith("invalid or missing robots.txt:") for error in errors)
             )
 
+    def test_nginx_serves_crawler_files_without_soft_404_fallback(self) -> None:
+        nginx_config = (REPOSITORY_ROOT / "nginx/conf.d/default.conf").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("location = /robots.txt {", nginx_config)
+        self.assertIn("location = /sitemap.xml {", nginx_config)
+        self.assertIn('default_type text/plain;', nginx_config)
+        self.assertIn('default_type application/xml;', nginx_config)
+        self.assertIn(
+            'add_header Cache-Control "public, max-age=300, must-revalidate" always;',
+            nginx_config,
+        )
+        self.assertIn("try_files $uri $uri/ =404;", nginx_config)
+        self.assertNotIn("try_files $uri $uri/ /index.html;", nginx_config)
+
     IMAGE_ENDPOINT = "https://script.google.com/macros/s/test-deployment/exec"
     IMAGE_TOKEN = "t" * 32
     IMAGE_1_URL = "https://lh3.googleusercontent.com/research-image-one"
