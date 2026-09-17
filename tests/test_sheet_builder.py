@@ -1371,35 +1371,35 @@ class SheetBuilderTests(unittest.TestCase):
                 "section": "Staff",
                 "name_en": "Sohyun Han",
                 "name_ko": "한소현",
-                "role": "Lab Administration & Operations",
+                "role": "Research Group Administration & Operations",
             },
             {
                 "publish": "TRUE",
-                "section": "Lab Internship",
+                "section": "Research Interns",
                 "group": "Summer 2026",
                 "name_en": "Junsik Min",
             },
             {
                 "publish": "TRUE",
-                "section": "Lab Internship",
+                "section": "Research Interns",
                 "group": "Spring 2026",
                 "name_en": "Junsik Min",
             },
             {
                 "publish": "TRUE",
-                "section": "Lab Internship",
+                "section": "Research Interns",
                 "group": "Summer 2026",
                 "name_en": "Jaewoo Choi",
             },
             {
                 "publish": "TRUE",
-                "section": "Lab Internship",
+                "section": "Research Interns",
                 "group": "Winter 2025",
                 "name_en": "Woojin Park",
             },
             {
                 "publish": "TRUE",
-                "section": "Lab Internship",
+                "section": "Research Interns",
                 "group": "Fall 2025",
                 "name_en": "Hyunwoo Oh",
             },
@@ -1422,16 +1422,35 @@ class SheetBuilderTests(unittest.TestCase):
         ]
         self.assertLess(summer.index("Junsik Min"), summer.index("Jaewoo Choi"))
         self.assertLess(
-            rendered.index("Lab Internship"),
+            rendered.index("Research Interns"),
             rendered.index(">Staff</h2>"),
         )
         self.assertLess(rendered.index(">Staff</h2>"), rendered.index(">Alumni</h2>"))
         self.assertIn("Sohyun Han | 한소현", rendered)
         self.assertIn(
-            '<p class="member-role">Lab Administration &amp; Operations</p>',
+            '<p class="member-role">Research Group Administration &amp; Operations</p>',
             rendered,
         )
         self.assertIn('src="img/basic_profile.png" alt="Sohyun Han"', rendered)
+
+    def test_legacy_lab_internship_section_normalises_to_research_interns(self) -> None:
+        self._allow_small_fixtures("Members")
+        rows = [
+            {
+                "publish": "TRUE",
+                "section": "Lab Internship",
+                "group": "Summer 2026",
+                "name_en": "Legacy Intern",
+            }
+        ]
+        members = builder._read_csv_text(
+            _csv_text(MEMBER_COLUMNS, rows), "Members"
+        )
+
+        self.assertEqual("Research Interns", members[0]["section"])
+        rendered = builder.render_members(members, REPOSITORY_ROOT / "main_site")
+        self.assertIn(">Research Interns</h2>", rendered)
+        self.assertNotIn(">Lab Internship</h2>", rendered)
 
     def test_member_cell_images_are_materialised_with_incremental_fallbacks(
         self,
@@ -1459,7 +1478,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "publish": "TRUE",
                 "section": "Staff",
                 "name_en": "Uploaded Staff",
-                "role": "Lab Administration & Operations",
+                "role": "Research Group Administration & Operations",
                 "photo": "",
             },
             {

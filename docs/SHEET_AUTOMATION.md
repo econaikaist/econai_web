@@ -54,7 +54,7 @@ cell are omitted.
 | `authors` | Comma-separated authors |
 | `venue` | Full venue name and emphasized short form, for example `Conference on Language Modeling (COLM 2026)`; use `arXiv` while it is preprint-only |
 | `paper_url` | One canonical full-text or paper landing-page URL |
-| `project_url` | Optional lab project page |
+| `project_url` | Optional research group project page |
 | `highlight` | Optional award or presentation label |
 | `research_title` | Optional shorter title used on Research cards |
 | `home_image` | Optional-schema column containing an image inserted with **Insert > Image > Insert image in cell** |
@@ -206,10 +206,10 @@ reported in the publisher log.
 | Column | What to enter |
 | --- | --- |
 | `publish` | Checkbox; checked rows are published |
-| `section` | `Faculty`, `Postdoctoral Researcher`, `Ph.D. Students`, `Master's Students`, `Lab Internship`, `Staff`, `Alumni`, or `Pre-EconAI Alumni` |
+| `section` | `Faculty`, `Postdoctoral Researcher`, `Ph.D. Students`, `Master's Students`, `Research Interns`, `Staff`, `Alumni`, or `Pre-EconAI Alumni` |
 | `group` | Internship term such as `Spring 2026`; blank otherwise |
 | `name_en`, `name_ko` | English name and optional Korean name |
-| `role` | Current role shown directly below a card name; for Staff, use a descriptive function such as `Lab Administration & Operations` rather than the generic `Staff` |
+| `role` | Current role shown directly below a card name; for Staff, use a descriptive function such as `Research Group Administration & Operations` rather than the generic `Staff` |
 | `details` | Optional longer description for Faculty/Student/Staff cards; required current position for alumni |
 | `photo` | Optional for every Faculty/Student/Staff card. Use **Insert > Image > Insert image in cell** to upload a photo; leave it blank to use the basic profile image |
 | `email` | Optional public email address for any member or alumnus |
@@ -218,7 +218,7 @@ reported in the publisher log.
 | `affiliations` | Faculty footer affiliations separated by `|` |
 | `joint_supervisor`, `joint_supervisor_url` | Optional paired alumni footnote label and HTTPS profile URL |
 
-Sections use the canonical order listed above, with Staff between Lab Internship
+Sections use the canonical order listed above, with Staff between Research Interns
 and Alumni. Rows within each section follow the physical Sheet order; internship
 terms follow the order in which each `group` first appears and are always expanded.
 Keep internship groups newest-first in the Sheet. For example, use `Summer 2026`,

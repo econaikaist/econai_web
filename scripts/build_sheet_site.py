@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the static EconAI website from the lab's Google Sheet.
+"""Build the static EconAI website from the research group's Google Sheet.
 
 The source HTML contains the stable page shells. During a build this script
 copies ``main_site`` to a staging directory, reads the five Sheet tabs, and
@@ -7,7 +7,7 @@ fills only explicitly marked content blocks. Dynamic content is not duplicated
 in the Git checkout.
 
 No Google API key is required: the Sheet must be viewable by anyone with the
-link, while edit access should remain restricted to lab accounts.
+link, while edit access should remain restricted to research group accounts.
 """
 
 from __future__ import annotations
@@ -184,11 +184,12 @@ MEMBER_SECTIONS = (
     "Postdoctoral Researcher",
     "Ph.D. Students",
     "Master's Students",
-    "Lab Internship",
+    "Research Interns",
     "Staff",
     "Alumni",
     "Pre-EconAI Alumni",
 )
+MEMBER_SECTION_ALIASES = {"Lab Internship": "Research Interns"}
 MEMBER_CARD_SECTIONS = {
     "Faculty",
     "Postdoctoral Researcher",
@@ -297,6 +298,8 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
     research_slugs: set[str] = set()
     for index, row in rows_with_numbers:
         if tab_name == "Members":
+            section = row.get("section", "")
+            row["section"] = MEMBER_SECTION_ALIASES.get(section, section)
             name = row.get("name_en", "")
             if not name:
                 raise SheetBuildError(f"{tab_name} row {index}: name_en is required")
@@ -394,13 +397,13 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
                 raise SheetBuildError(
                     f"{tab_name} row {index}: unknown section {section!r}"
                 )
-            if section == "Lab Internship" and not row.get("group"):
+            if section == "Research Interns" and not row.get("group"):
                 raise SheetBuildError(
-                    f"{tab_name} row {index}: group is required for Lab Internship"
+                    f"{tab_name} row {index}: group is required for Research Interns"
                 )
-            if section != "Lab Internship" and row.get("group"):
+            if section != "Research Interns" and row.get("group"):
                 raise SheetBuildError(
-                    f"{tab_name} row {index}: group is only used for Lab Internship"
+                    f"{tab_name} row {index}: group is only used for Research Interns"
                 )
             if section in MEMBER_CARD_SECTIONS and not row.get("role"):
                 raise SheetBuildError(
@@ -2320,7 +2323,7 @@ def render_members(
                     _member_card_lines(row, output_dir, resolved_member_images)
                 )
             lines.append("                </div>")
-        elif section == "Lab Internship":
+        elif section == "Research Interns":
             lines.append('                <div class="internship-terms">')
             groups: Dict[str, List[Dict[str, str]]] = {}
             for row in rows:
