@@ -181,6 +181,7 @@ SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MEMBER_SECTIONS = (
     "Faculty",
+    "Postdoctoral Researcher",
     "Ph.D. Students",
     "Master's Students",
     "Lab Internship",
@@ -190,6 +191,7 @@ MEMBER_SECTIONS = (
 )
 MEMBER_CARD_SECTIONS = {
     "Faculty",
+    "Postdoctoral Researcher",
     "Ph.D. Students",
     "Master's Students",
     "Staff",

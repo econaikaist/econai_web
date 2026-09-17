@@ -1529,6 +1529,13 @@ class SheetBuilderTests(unittest.TestCase):
             },
             {
                 "publish": "TRUE",
+                "section": "Postdoctoral Researcher",
+                "name_en": "Blank Postdoctoral Researcher",
+                "role": "Postdoctoral Researcher",
+                "photo": "",
+            },
+            {
+                "publish": "TRUE",
                 "section": "Ph.D. Students",
                 "name_en": "Blank PhD Student",
                 "role": "Ph.D. Student",
@@ -1562,7 +1569,16 @@ class SheetBuilderTests(unittest.TestCase):
                 "offline_csv",
             )
             member_text = (output / "members.html").read_text(encoding="utf-8")
-            self.assertEqual(member_text.count('src="img/basic_profile.png"'), 4)
+            self.assertEqual(member_text.count('src="img/basic_profile.png"'), 5)
+            self.assertIn(">Postdoctoral Researcher</h2>", member_text)
+            self.assertLess(
+                member_text.index(">Faculty</h2>"),
+                member_text.index(">Postdoctoral Researcher</h2>"),
+            )
+            self.assertLess(
+                member_text.index(">Postdoctoral Researcher</h2>"),
+                member_text.index(">Ph.D. Students</h2>"),
+            )
             self.assertEqual(site_validator.validate(output), [])
 
     def test_member_formula_uses_existing_site_image_without_network(self) -> None:

@@ -206,7 +206,7 @@ reported in the publisher log.
 | Column | What to enter |
 | --- | --- |
 | `publish` | Checkbox; checked rows are published |
-| `section` | `Faculty`, `Ph.D. Students`, `Master's Students`, `Lab Internship`, `Staff`, `Alumni`, or `Pre-EconAI Alumni` |
+| `section` | `Faculty`, `Postdoctoral Researcher`, `Ph.D. Students`, `Master's Students`, `Lab Internship`, `Staff`, `Alumni`, or `Pre-EconAI Alumni` |
 | `group` | Internship term such as `Spring 2026`; blank otherwise |
 | `name_en`, `name_ko` | English name and optional Korean name |
 | `role` | Current role shown directly below a card name; for Staff, use a descriptive function such as `Lab Administration & Operations` rather than the generic `Staff` |
