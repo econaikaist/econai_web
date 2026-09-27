@@ -2226,12 +2226,12 @@ def _member_name(row: Mapping[str, str]) -> str:
     return row["name_en"]
 
 
-def _alumni_name_html(row: Mapping[str, str]) -> str:
+def _alumni_name_html(row: Mapping[str, str], note_number: int | None = None) -> str:
     rendered = _escape(_member_name(row))
-    if row.get("joint_supervisor"):
+    if note_number is not None:
         rendered += (
             '<sup class="alumni-note-marker" '
-            'aria-label="Jointly supervised">†</sup>'
+            f'aria-label="Joint supervision note {note_number}">{note_number}</sup>'
         )
     return rendered
 
@@ -2351,27 +2351,29 @@ def render_members(
             lines.append('                <ul class="alumni-list">')
             footnotes: List[Tuple[str, str]] = []
             for row in rows:
+                note_number = None
+                if row.get("joint_supervisor"):
+                    note = (row["joint_supervisor"], row["joint_supervisor_url"])
+                    if note not in footnotes:
+                        footnotes.append(note)
+                    note_number = footnotes.index(note) + 1
                 alumni_detail = " · ".join(
                     value for value in (row.get("role", ""), row["details"]) if value
                 )
                 lines.extend(
                     [
                         '                    <li class="alumni-item sheet-member-item">',
-                        f'                        <div class="alumni-summary"><strong>{_alumni_name_html(row)}</strong> — {_escape(alumni_detail)}</div>',
+                        f'                        <div class="alumni-summary"><strong>{_alumni_name_html(row, note_number)}</strong> — {_escape(alumni_detail)}</div>',
                         *_member_link_lines(row),
                         "                    </li>",
                     ]
                 )
-                if row.get("joint_supervisor"):
-                    note = (row["joint_supervisor"], row["joint_supervisor_url"])
-                    if note not in footnotes:
-                        footnotes.append(note)
             lines.append("                </ul>")
             if footnotes:
                 lines.append('                <div class="alumni-footnotes">')
-                for supervisor, url in footnotes:
+                for note_number, (supervisor, url) in enumerate(footnotes, start=1):
                     lines.append(
-                        '                    <p><span aria-hidden="true">†</span> '
+                        f'                    <p>{note_number}. '
                         'Jointly supervised with '
                         f'<a href="{_escape(url, quote=True)}" target="_blank" rel="noopener noreferrer">{_escape(supervisor)}</a></p>'
                     )

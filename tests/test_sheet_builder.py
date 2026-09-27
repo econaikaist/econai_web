@@ -1239,13 +1239,14 @@ class SheetBuilderTests(unittest.TestCase):
         ):
             builder._read_csv_text(text, "News")
 
-    def test_alumni_joint_supervision_footnote_is_sheet_driven(self) -> None:
+    def test_alumni_joint_supervision_notes_match_each_student(self) -> None:
         self._allow_small_fixtures("Members")
         rows = [
             {
                 "publish": "TRUE",
                 "section": "Alumni",
                 "name_en": "Minhyuk Song",
+                "role": "M.S. 2026 (School of Computing)",
                 "details": "AI Researcher, LIG Defense & Aerospace",
                 "joint_supervisor": "Prof. Meeyoung Cha",
                 "joint_supervisor_url": "https://www.mpi-sp.org/cha",
@@ -1255,6 +1256,14 @@ class SheetBuilderTests(unittest.TestCase):
                 "section": "Alumni",
                 "name_en": "Sumin Lee",
                 "details": "Ph.D Student, Max Planck Institute for Security and Privacy",
+                "joint_supervisor": "Prof. Dongman Lee",
+                "joint_supervisor_url": "https://pure.kaist.ac.kr/en/persons/dongman-lee/",
+            },
+            {
+                "publish": "TRUE",
+                "section": "Alumni",
+                "name_en": "Another Alumnus",
+                "details": "Researcher",
                 "joint_supervisor": "Prof. Meeyoung Cha",
                 "joint_supervisor_url": "https://www.mpi-sp.org/cha",
             },
@@ -1265,14 +1274,30 @@ class SheetBuilderTests(unittest.TestCase):
         rendered = builder.render_members(members, REPOSITORY_ROOT / "main_site")
 
         self.assertIn(
-            "Minhyuk Song<sup class=\"alumni-note-marker\"", rendered
+            'Minhyuk Song<sup class="alumni-note-marker" '
+            'aria-label="Joint supervision note 1">1</sup>', rendered
         )
+        self.assertIn("M.S. 2026 (School of Computing)", rendered)
         self.assertIn("AI Researcher, LIG Defense &amp; Aerospace", rendered)
         self.assertIn(
-            "Sumin Lee<sup class=\"alumni-note-marker\"", rendered
+            'Sumin Lee<sup class="alumni-note-marker" '
+            'aria-label="Joint supervision note 2">2</sup>', rendered
         )
-        self.assertEqual(rendered.count("Jointly supervised with"), 1)
+        self.assertIn(
+            'Another Alumnus<sup class="alumni-note-marker" '
+            'aria-label="Joint supervision note 1">1</sup>', rendered
+        )
+        self.assertEqual(rendered.count("Jointly supervised with"), 2)
         self.assertEqual(rendered.count("https://www.mpi-sp.org/cha"), 1)
+        self.assertIn(
+            '<p>1. Jointly supervised with <a href="https://www.mpi-sp.org/cha"',
+            rendered,
+        )
+        self.assertIn(
+            '<p>2. Jointly supervised with '
+            '<a href="https://pure.kaist.ac.kr/en/persons/dongman-lee/"',
+            rendered,
+        )
         lab_authors = builder._lab_authors(
             members
             + [
@@ -1284,7 +1309,7 @@ class SheetBuilderTests(unittest.TestCase):
         )
         self.assertEqual(
             lab_authors,
-            {"Minhyuk Song", "Sumin Lee", "Legacy Author"},
+            {"Minhyuk Song", "Sumin Lee", "Another Alumnus", "Legacy Author"},
         )
         publication_html = builder.render_publications_page(
             [

@@ -209,7 +209,7 @@ reported in the publisher log.
 | `section` | `Faculty`, `Postdoctoral Researcher`, `Ph.D. Students`, `Master's Students`, `Research Interns`, `Staff`, `Alumni`, or `Pre-EconAI Alumni` |
 | `group` | Internship term such as `Spring 2026`; blank otherwise |
 | `name_en`, `name_ko` | English name and optional Korean name |
-| `role` | Current role shown directly below a card name; for Staff, use a descriptive function such as `Research Group Administration & Operations` rather than the generic `Staff` |
+| `role` | Current role shown directly below a card name; for alumni, include the degree, graduation year, and KAIST department, e.g. `M.S. 2026 (School of Computing)`; for Staff, use a descriptive function such as `Research Group Administration & Operations` rather than the generic `Staff` |
 | `details` | Optional longer description for Faculty/Student/Staff cards; required current position for alumni |
 | `photo` | Optional for every Faculty/Student/Staff card. Use **Insert > Image > Insert image in cell** to upload a photo; leave it blank to use the basic profile image |
 | `email` | Optional public email address for any member or alumnus |
@@ -226,8 +226,9 @@ Keep internship groups newest-first in the Sheet. For example, use `Summer 2026`
 row order. A person attending more than one term should have one row per term.
 Publication author names are bolded automatically for every checked member,
 including `Pre-EconAI Alumni`, so no manual highlight flag is needed. Repeated
-joint-supervisor pairs are rendered once as a linked footnote below that alumni
-section. The first checked Faculty row also supplies Contact and every page's footer
+joint-supervisor pairs are rendered once as a numbered, linked footnote below that alumni
+section. Each alumnus's superscript matches the correct supervisor's number; numbering
+restarts in each alumni section. The first checked Faculty row also supplies Contact and every page's footer
 affiliations.
 
 Member photos need no URL, file path, alt-text column, or Apps Script change.
