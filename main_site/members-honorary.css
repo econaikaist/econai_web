@@ -1,0 +1,18 @@
+/* Preserve the full, privacy-checked GPU photo instead of using portrait crops. */
+.honorary-member-card .member-photo {
+  height: auto;
+  width: 168px;
+  align-self: flex-start;
+  object-fit: contain;
+}
+
+.honorary-member-card .member-info {
+  padding-bottom: 0;
+}
+
+@media (max-width: 720px) {
+  .honorary-member-card .member-photo {
+    width: 100%;
+    max-width: 360px;
+  }
+}

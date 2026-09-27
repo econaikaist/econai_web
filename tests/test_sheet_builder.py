@@ -1962,6 +1962,21 @@ class SheetBuilderTests(unittest.TestCase):
             project_text = (output / "projects.html").read_text(encoding="utf-8")
             self.assertEqual(site_validator._classes(index_text, "sheet-news-item"), 2)
             self.assertEqual(site_validator._classes(member_text, "sheet-member-item"), 3)
+            # The honorary GPU stays at the end without affecting Sheet counts.
+            self.assertEqual(site_validator._classes(member_text, "honorary-member-card"), 1)
+            self.assertLess(
+                member_text.index("<!-- SHEET:MEMBERS:END -->"),
+                member_text.index('id="honorary-members"'),
+            )
+            self.assertLess(
+                member_text.index('id="h200-name"'),
+                member_text.index("</main>"),
+            )
+            self.assertIn("Honorary Compute Fellow", member_text)
+            self.assertEqual(
+                (output / "img/profile_h200.jpg").read_bytes(),
+                (source / "img/profile_h200.jpg").read_bytes(),
+            )
             self.assertIn("Professor A Author", contact_text)
             self.assertIn('mailto:professor@example.com', contact_text)
             self.assertLess(
