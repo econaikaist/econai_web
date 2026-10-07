@@ -849,7 +849,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "Example image",
             )
 
-    def test_publications_page_uses_sheet_order_within_newest_first_years(self) -> None:
+    def test_publications_page_sorts_by_date_with_preprints_after_all_accepted(self) -> None:
         rows = [
             {
                 "date": "2025-12-01",
@@ -879,6 +879,20 @@ class SheetBuilderTests(unittest.TestCase):
                 "venue": "AAAI Conference on Artificial Intelligence (AAAI 2025)",
                 "paper_url": "https://example.com/second-2025",
             },
+            {
+                "date": "2027-01-01",
+                "title": "Newest Preprint",
+                "authors": "E Author",
+                "venue": "arXiv",
+                "paper_url": "https://arxiv.org/abs/2701.00001",
+            },
+            {
+                "date": "2026-09-30",
+                "title": "Accepted Workshop With Arxiv Link",
+                "authors": "F Author",
+                "venue": "SocialAgent Workshop (NeurIPS 2026)",
+                "paper_url": "https://arxiv.org/abs/2609.00001",
+            },
         ]
 
         publication_page = builder.render_publications_page(rows, set())
@@ -887,15 +901,30 @@ class SheetBuilderTests(unittest.TestCase):
             publication_page.index('id="publications-2025"'),
         )
         self.assertLess(
-            publication_page.index("First 2026 Sheet Row"),
             publication_page.index("Second 2026 Sheet Row"),
+            publication_page.index("First 2026 Sheet Row"),
         )
         self.assertLess(
             publication_page.index("First 2025 Sheet Row"),
             publication_page.index("Second 2025 Sheet Row"),
         )
+        self.assertLess(
+            publication_page.index("Accepted Workshop With Arxiv Link"),
+            publication_page.index("Second 2026 Sheet Row"),
+        )
+        self.assertLess(
+            publication_page.index("Second 2025 Sheet Row"),
+            publication_page.index('id="preprints"'),
+        )
+        self.assertLess(
+            publication_page.index('id="preprints"'),
+            publication_page.index("Newest Preprint"),
+        )
+        self.assertEqual(publication_page.count("Accepted Workshop With Arxiv Link"), 1)
 
         home_latest = builder.render_home_latest(rows)
+        self.assertNotIn("Accepted Workshop With Arxiv Link", home_latest)
+        self.assertNotIn("Newest Preprint", home_latest)
         self.assertLess(
             home_latest.index("Second 2026 Sheet Row"),
             home_latest.index("First 2026 Sheet Row"),
@@ -904,6 +933,29 @@ class SheetBuilderTests(unittest.TestCase):
             home_latest.index("First 2026 Sheet Row"),
             home_latest.index("First 2025 Sheet Row"),
         )
+
+    def test_accepted_paper_without_public_url_is_listed_without_empty_link(self) -> None:
+        self._allow_small_fixtures("Publications")
+        rows = builder._read_csv_text(
+            _csv_text(PUBLICATION_COLUMNS, [{
+                "publish": "TRUE",
+                "date": "2026-09-30",
+                "title": "Accepted Workshop Paper",
+                "authors": "A Author",
+                "venue": "REO2 Workshop (NeurIPS 2026)",
+                "paper_url": "",
+            }]),
+            "Publications",
+        )
+        page = builder.render_publications_page(rows, set())
+        self.assertIn('<span class="publication-title">Accepted Workshop Paper</span>', page)
+        self.assertNotIn('href=""', page)
+        self.assertNotIn('id="preprints"', page)
+        self.assertEqual(builder._latest_home_publications(rows), [])
+        with self.assertRaisesRegex(builder.SheetBuildError, "needs a public paper_url"):
+            builder._resolve_publication(
+                rows[0]["title"], builder._publication_lookup(rows), "Research selection"
+            )
 
     def test_project_page_link_matches_award_badge_geometry(self) -> None:
         rendered = "\n".join(
@@ -1073,7 +1125,7 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertIn('class="site-header"', page_source)
             self.assertIn('class="desktop-nav"', page_source)
             self.assertIn('class="mobile-nav"', page_source)
-            self.assertIn("site.css?v=20260809-project-badge-fix", page_source)
+            self.assertRegex(page_source, r'site\.css\?v=[^"\s]+')
             self.assertNotIn("fixed-top", page_source)
             self.assertNotIn("bootstrap", page_source.lower())
 

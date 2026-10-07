@@ -49,11 +49,11 @@ cell are omitted.
 | Column | What to enter |
 | --- | --- |
 | `publish` | Checkbox; checked rows are published |
-| `date` | Published paper: actual publication date. Preprint: latest public version date. Use `YYYY-MM-DD`, `YYYY-MM`, or `YYYY`. |
+| `date` | Published paper: publication date. Accepted/forthcoming paper: acceptance date, or public acceptance-announcement date when the decision date is unavailable (note the source in the cell). Preprint: latest public version date. Use `YYYY-MM-DD`, `YYYY-MM`, or `YYYY`; do not invent missing date components. |
 | `title` | Paper title |
 | `authors` | Comma-separated authors |
 | `venue` | Full venue name and emphasized short form, for example `Conference on Language Modeling (COLM 2026)`; use `arXiv` while it is preprint-only |
-| `paper_url` | One canonical full-text or paper landing-page URL |
+| `paper_url` | One canonical full-text or paper landing-page URL. May be blank for an accepted paper whose public link is not yet available; its title is displayed without a link. A public URL is required before selecting it in a Research, News, or Projects publication dropdown. |
 | `project_url` | Optional research group project page |
 | `highlight` | Optional award or presentation label |
 | `research_title` | Optional shorter title used on Research cards |
@@ -61,11 +61,17 @@ cell are omitted.
 | `home_image_alt` | Accessible description of the homepage figure |
 | `home_image_credit` | Optional figure number or source/credit line |
 
-The site groups papers into newest-year-first sections and preserves the physical
-Sheet row order within each year. Move rows in this tab to curate arXiv-first or
-same-venue groupings. Title links replace redundant Paper buttons. The home page
-independently excludes `arXiv` rows and shows the three most recent conference or
-journal papers by exact `date` descending.
+The Publications page first lists **Accepted & Published** papers, followed by
+**Preprints**. Each section groups papers by year and sorts by `date` descending
+within each year, regardless of Sheet row order. Equal dates use title order.
+Venues beginning with `arXiv`, `Preprint`, or `Working paper` belong to Preprints;
+change the venue to the accepted conference/workshop/journal and update `date`
+when a paper is accepted. An arXiv **link** does not make an accepted paper a
+preprint. List a paper accepted at multiple workshops once, naming both venues.
+Title links replace redundant Paper buttons. The home page shows the three most
+recent main-conference or journal papers with public links, excluding preprints
+and venues containing `workshop`, so workshop additions do not replace the
+homepage's representative figures.
 
 The homepage pairs that three-paper list with one larger 5:3 figure card. Images use
 `object-fit: contain`, so a paper figure is never cropped or distorted. Subtle
@@ -78,7 +84,7 @@ all three. With the headers omitted, or with a complete header set but zero
 embedded or `IMAGE("https://...")` `home_image` cells, the homepage keeps the
 original clean text-only publication panel. This lets the columns be created
 before anyone signs in to upload figures. As soon as any image is inserted in
-the `home_image` column, each of the current latest three non-arXiv papers must
+the `home_image` column, each of the current latest three eligible homepage papers must
 have a real in-cell image or an allowed HTTPS `IMAGE()` formula and non-empty
 `home_image_alt`; a partial set fails the staged build and keeps the last valid
 release live.

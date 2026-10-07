@@ -792,6 +792,16 @@ a {
   max-width: 1060px;
 }
 
+.publication-category + .publication-category {
+  margin-top: 48px;
+}
+
+.publication-category-title {
+  color: var(--ink);
+  font-size: 1.35rem;
+  margin: 0 0 18px;
+}
+
 .publications-container .publication-year-block {
   border-top: 1px solid var(--line);
   display: grid;
@@ -800,7 +810,7 @@ a {
   padding-top: 6px;
 }
 
-.publications-container > .publication-year-block:first-child {
+.publication-category-title + .publication-year-block {
   border-top: 0;
 }
 
@@ -841,8 +851,8 @@ a {
   text-underline-offset: 3px;
 }
 
-.publications-container .publication-title:hover,
-.publications-container .publication-title:focus-visible {
+.publications-container a.publication-title:hover,
+.publications-container a.publication-title:focus-visible {
   color: var(--blue);
   text-decoration: underline;
   text-decoration-color: currentColor;

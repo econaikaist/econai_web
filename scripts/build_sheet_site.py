@@ -320,12 +320,13 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
         unique_rows.add(unique_key)
 
         if tab_name == "Publications":
-            for field in ("authors", "venue", "paper_url"):
+            for field in ("authors", "venue"):
                 if not row.get(field):
                     raise SheetBuildError(
                         f"{tab_name} row {index}: {field} is required"
                     )
-            _validate_url(row["paper_url"], f"{tab_name} row {index} paper_url")
+            if row.get("paper_url"):
+                _validate_url(row["paper_url"], f"{tab_name} row {index} paper_url")
             if row.get("project_url"):
                 _validate_url(
                     row["project_url"], f"{tab_name} row {index} project_url"
@@ -1669,9 +1670,16 @@ def _latest_home_publications(
     published = [
         row
         for row in rows
-        if not row.get("venue", "").strip().casefold().startswith("arxiv")
+        if not _is_preprint(row)
+        and "workshop" not in row.get("venue", "").casefold()
+        and row.get("paper_url")
     ]
     return _sort_publications(published)[:3]
+
+
+def _is_preprint(row: Mapping[str, str]) -> bool:
+    venue = row.get("venue", "").strip().casefold()
+    return venue.startswith(("arxiv", "preprint", "working paper"))
 
 
 def _escape(value: str, quote: bool = False) -> str:
@@ -1710,10 +1718,15 @@ def _distinction_kind(label: str) -> str:
 
 def _render_publication_item(row: Mapping[str, str], lab_authors: set[str]) -> List[str]:
     title = _escape(row["title"])
-    paper_url = _escape(row["paper_url"], quote=True)
+    paper_url = _escape(row.get("paper_url", ""), quote=True)
+    title_element = (
+        f'<a class="publication-title" href="{paper_url}" target="_blank" rel="noopener noreferrer">{title}</a>'
+        if paper_url
+        else f'<span class="publication-title">{title}</span>'
+    )
     lines = [
         '                        <li class="publication-item">',
-        f'                            <a class="publication-title" href="{paper_url}" target="_blank" rel="noopener noreferrer">{title}</a>',
+        f'                            {title_element}',
         f'                            <p class="publication-authors">{_render_authors(row["authors"], lab_authors)}</p>',
         '                            <div class="publication-meta">',
         f'                                <span class="publication-venue">{_render_venue(row["venue"])}</span>',
@@ -1741,29 +1754,41 @@ def _render_publication_item(row: Mapping[str, str], lab_authors: set[str]) -> L
 def render_publications_page(
     publications: Sequence[Dict[str, str]], lab_authors: set[str]
 ) -> str:
-    by_year: Dict[int, List[Dict[str, str]]] = defaultdict(list)
-    # The Sheet is the editorial ordering surface for each year.  Grouping the
-    # original sequence preserves that order while the year headings themselves
-    # remain newest first.  The home page intentionally uses date sorting via
-    # ``_sort_publications`` instead.
-    for row in publications:
-        by_year[_publication_year(row)].append(row)
-
     lines = [
         '        <section class="section-band publications-section">',
         '            <div class="container publications-container">',
     ]
-    for year in sorted(by_year, reverse=True):
+    for preprints, label, section_id in (
+        (False, "Accepted & Published", "accepted-publications"),
+        (True, "Preprints", "preprints"),
+    ):
+        rows = _sort_publications(
+            [row for row in publications if _is_preprint(row) == preprints]
+        )
+        if not rows:
+            continue
+        by_year: Dict[int, List[Dict[str, str]]] = defaultdict(list)
+        for row in rows:
+            by_year[_publication_year(row)].append(row)
         lines.extend(
             [
-                f'                <section class="publication-year-block" aria-labelledby="publications-{year}">',
-                f'                    <h2 class="publication-year" id="publications-{year}">{year}</h2>',
-                '                    <ol class="publication-list">',
+                f'                <section class="publication-category" aria-labelledby="{section_id}">',
+                f'                    <h2 class="publication-category-title" id="{section_id}">{_escape(label)}</h2>',
             ]
         )
-        for row in by_year[year]:
-            lines.extend(_render_publication_item(row, lab_authors))
-        lines.extend(["                    </ol>", "                </section>"])
+        for year, year_rows in by_year.items():
+            year_id = f"{'preprints' if preprints else 'publications'}-{year}"
+            lines.extend(
+                [
+                    f'                <section class="publication-year-block" aria-labelledby="{year_id}">',
+                    f'                    <h3 class="publication-year" id="{year_id}">{year}</h3>',
+                    '                    <ol class="publication-list">',
+                ]
+            )
+            for row in year_rows:
+                lines.extend(_render_publication_item(row, lab_authors))
+            lines.extend(["                    </ol>", "                </section>"])
+        lines.append("                </section>")
     lines.extend(["            </div>", "        </section>"])
     return "\n".join(lines)
 
@@ -1933,6 +1958,10 @@ def _resolve_publication(
         raise SheetBuildError(
             f"{reference_label} does not exactly match a published "
             f"Publications title: {publication_title!r}"
+        )
+    if not publication.get("paper_url"):
+        raise SheetBuildError(
+            f"{reference_label}: selected publication needs a public paper_url: {publication_title!r}"
         )
     return publication
 
