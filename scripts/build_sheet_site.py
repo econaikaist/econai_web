@@ -174,7 +174,7 @@ FALSEY = {"", "0", "false", "no", "n", "unchecked"}
 DATE_PATTERN = re.compile(r"^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?$")
 YEAR_PATTERN = re.compile(r"(?<!\d)((?:19|20)\d{2})(?!\d)")
 VENUE_HIGHLIGHT_PATTERN = re.compile(
-    r"\((?=[^()]*[A-Za-z])[^()]*(?:19|20)\d{2}\)"
+    r"\((?=[^()]*[A-Za-z])[^()]*(?:19|20)\d{2}[^()]*\)"
 )
 SAFE_SLUG_PATTERN = re.compile(r"[^a-z0-9]+")
 SLUG_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
