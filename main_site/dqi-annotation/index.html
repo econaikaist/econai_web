@@ -242,22 +242,18 @@ $('name').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();
 prepareBundled();
 </script>
 <script>const CLOUD_ENDPOINT='https://script.google.com/macros/s/AKfycbz2KKILT9ygG5nhX7oEj9r0izOxKnPbLzqfEvlkYgQO_c-Xmr3lcFnSYANJupCDXDl8/exec';
-const cloud={channel:crypto.randomUUID(),peer:null,origin:null,requests:new Map(),ready:false,sending:false,pending:{},revisions:[],snapshots:[],session:'',syncKey:'',connected:false,timer:null};
-let bridgeResolve,bridgeReject;
-const bridgeReady=new Promise((resolve,reject)=>{bridgeResolve=resolve;bridgeReject=reject;});
-// Attach a catch immediately; the user can retry after a network interruption.
-bridgeReady.catch(()=>{});
-window.addEventListener('message',e=>{
- const d=e.data;if(!d||d.channel!==cloud.channel)return;
- if(!/^https:\/\/([a-z0-9-]+-script\.googleusercontent\.com|script\.google\.com)$/.test(e.origin))return;
- if(d.type==='dqi-ready'){cloud.peer=e.source;cloud.origin=e.origin;cloud.ready=true;bridgeResolve();return;}
- if(d.type!=='dqi-result'||e.source!==cloud.peer)return;
- const request=cloud.requests.get(d.id);if(!request)return;clearTimeout(request.timeout);cloud.requests.delete(d.id);
- if(d.result&&d.result.ok)request.resolve(d.result);else request.reject(Error(d.result?.error||'구글시트 저장에 실패했습니다.'));
-});
+const cloud={sending:false,pending:{},revisions:[],snapshots:[],session:'',syncKey:'',connected:false,timer:null};
 async function rpc(payload){
- await Promise.race([bridgeReady,new Promise((_,reject)=>setTimeout(()=>reject(Error('구글시트 연결 시간이 초과되었습니다.')),25000))]);
- return new Promise((resolve,reject)=>{const id=crypto.randomUUID(),timeout=setTimeout(()=>{cloud.requests.delete(id);reject(Error('저장 확인이 늦어지고 있습니다.'));},30000);cloud.requests.set(id,{resolve,reject,timeout});cloud.peer.postMessage({channel:cloud.channel,id,payload},cloud.origin);});
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),45000);
+ try{
+  const response=await fetch(CLOUD_ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload),credentials:'omit',redirect:'follow',signal:controller.signal});
+  if(!response.ok)throw Error('구글시트 연결 오류 ('+response.status+')');
+  const result=await response.json();
+  if(!result||!result.ok)throw Error(result?.error||'구글시트 저장에 실패했습니다.');
+  return result;
+ }catch(e){if(e.name==='AbortError')throw Error('구글시트 연결 시간이 초과되었습니다.');throw e;}
+ finally{clearTimeout(timeout);}
 }
 function fingerprint(a){return JSON.stringify([a.scores,a.comment,!!a.flag]);}
 function saveSync(){try{localStorage.setItem(cloud.syncKey,JSON.stringify({session:cloud.session,pending:cloud.pending,revisions:cloud.revisions}));}catch{storageOK=false;}}
@@ -299,6 +295,5 @@ async function flushCloud(){
 $('retrySync').onclick=async()=>{try{if(!cloud.connected){await openCloud();render();}else flushCloud();}catch(e){toast(e.message);}};
 window.addEventListener('online',()=>{if(book){if(cloud.connected)flushCloud();else $('retrySync').click();}});
 window.addEventListener('beforeunload',e=>{if(book&&Object.keys(cloud.pending).length){e.preventDefault();e.returnValue='';}});
-const bridge=document.createElement('iframe');bridge.hidden=true;bridge.title='구글시트 자동 저장 연결';bridge.src=CLOUD_ENDPOINT+'?channel='+cloud.channel;document.body.append(bridge);
 </script>
 </body></html>
