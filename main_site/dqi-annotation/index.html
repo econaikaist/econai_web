@@ -176,9 +176,10 @@ async function start(b,name,resume=false){
  book=b;annotator=name.trim();key=stateKey(book.hash,annotator);answers=DQI.initial(book.items);idx=0;
  try{const saved=JSON.parse(localStorage.getItem(key)||'null');if(usable(saved)){answers=saved.answers;idx=Math.min(Math.max(saved.idx||0,0),answers.length-1);}}catch(e){toast('기기 저장 기록을 읽지 못했습니다. 구글시트 기록을 확인합니다.');}
  if(pdfUrl)URL.revokeObjectURL(pdfUrl);pdfUrl=book.pdf?URL.createObjectURL(new Blob([book.pdf],{type:'application/pdf'})):null;$('pdfBtn').hidden=!pdfUrl;
- try{await openCloud();}catch(e){toast(e.message+' 현재 점수는 기기에 임시 저장됩니다.');$('retrySync').hidden=false;cloud.snapshots=answers.map(fingerprint);}
- $('start').hidden=true;$('work').hidden=false;$('foot').hidden=false;$('fileBtn').hidden=false;$('exportBtn').hidden=false;$('identity').textContent=annotator;
+ const connection=openCloud();
+ $('start').hidden=true;$('work').hidden=false;$('foot').hidden=false;$('fileBtn').hidden=false;$('fileBtn').disabled=true;$('exportBtn').hidden=false;$('identity').textContent=annotator;
  render();persist();cloudStatus();
+ try{await connection;render();persist();}catch(e){toast(e.message+' 현재 점수는 기기에 임시 저장됩니다.');$('retrySync').hidden=false;}finally{$('fileBtn').disabled=false;cloudStatus();}
  const s={bytes:book.bytes,pdf:book.pdf,annotator,hash:book.hash};
  try{await cachePut(s);lastResume=s;}catch(e){toast('기기에서 이어 하기 정보를 보관하지 못했습니다. 구글시트 저장 상태를 확인해주세요.');}
 }
@@ -267,6 +268,7 @@ async function openCloud(){
  cloud.connected=false;cloud.syncKey=key+':cloud-v1';
  let previous;try{previous=JSON.parse(localStorage.getItem(cloud.syncKey)||'null');}catch{}
  cloud.session=previous?.session||crypto.randomUUID();cloud.pending=previous?.pending||{};cloud.revisions=previous?.revisions||Array(answers.length).fill(0);saveSync();
+ cloud.snapshots=answers.map(fingerprint);
  const response=await rpc({action:'open',hash:book.hash,session:cloud.session,name:annotator});
  if(!Array.isArray(response.answers)||response.answers.length!==answers.length)throw Error('저장된 항목 수를 확인할 수 없습니다.');
  for(let i=0;i<answers.length;i++){
