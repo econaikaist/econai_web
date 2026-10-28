@@ -4,25 +4,25 @@
 
 The production path is:
 
-`Google Sheet (public CSV/XLSX data + private Research image bridge) + GitHub main → school-server systemd timer → build and validation → versioned release → Docker Nginx`
+`Google Sheet (public CSV/XLSX data and embedded images) + GitHub main → school-server systemd timer → build and validation → versioned release → Docker Nginx`
 
 The existing `https://econai.kaist.ac.kr` URL, KAIST DNS A record, TLS certificate,
 and school server stay unchanged. GitHub Pages, a CNAME change, an inbound webhook,
-and an inbound Google-triggered webhook are not used. A small standalone Google
-Apps Script is used only for Research images stored directly in Sheet cells,
-because the anonymous CSV feed cannot expose those image objects. It is not the
-site host and it does not push or deploy anything. Homepage publication images
-use the Sheet's anonymous XLSX export instead, so adding those images does not
-require an Apps Script code change or Google owner login.
+and an inbound Google-triggered webhook are not used. Research, Publications, and
+Members images stored directly in Sheet cells are read from the same anonymous
+XLSX workbook export. Normal CLI builds, GitHub validation, and server publishing
+need no Apps Script endpoint, token, or Google owner login. The older private
+Research image bridge remains available only to explicit Python callers that
+provide bridge settings but no workbook; it is not used by normal publishing.
 
 Every five minutes the server:
 
 1. refreshes a dedicated, unprivileged checkout of GitHub `main`;
-2. downloads the five Sheet tabs through their public CSV feeds and, when the
-   Publications image columns exist, a matching XLSX workbook export;
-3. for direct Research images, requests fresh image transport URLs from the
-   token-authenticated Apps Script bridge and immediately downloads them into
-   staging;
+2. downloads the five Sheet tabs through their public CSV feeds and a matching
+   XLSX workbook export whenever Research, Publications, or Members need images;
+3. matches embedded images to published Sheet rows and validates their metadata,
+   drawing anchors, workbook relationships, and image bytes before copying them
+   into staging;
 4. builds and validates the complete static site in staging;
 5. compares the result with the current release; and
 6. atomically switches Nginx's `current` symlink only when content changed.
@@ -119,13 +119,20 @@ that publication's paper URL, venue, and optional short title. Figure presentati
 data belongs to Research because it controls the Research cards.
 
 Both direct image cells are required in every checked Research row. Do not enter
-an HTTPS URL, local path, or `=IMAGE()` formula: the final Sheet source is the
-actual in-cell image object. The private Apps Script bridge calls the authorized
-`CellImage` API and returns a fresh, short-lived content URL. During that same
-staged build, the server downloads and validates the bytes and writes a
-deterministic local image into the release. Rendered HTML references only that
-local file; the temporary Google URL is never stored in HTML, release metadata,
-logs, the Sheet, or GitHub.
+an HTTPS URL, local path, or `=IMAGE()` formula: the source is the actual in-cell
+image object. The builder reads the `Research` worksheet from the anonymous XLSX
+export and requires its published slugs and text metadata to match the CSV. Each
+published row must have exactly one embedded image in each figure column. Missing
+or duplicate images, stale rows, external workbook relationships, unsafe ZIP
+entries, and invalid image bytes fail the build. A failed workbook never falls
+back to old pictures or to the private bridge.
+
+The images become content-hashed local files under `img/sheet-research/`; rendered
+HTML contains no temporary Google image URL. `figure_1_alt` and `figure_2_alt`
+provide accessible descriptions. If one is blank, the builder uses the embedded
+image's alternative-text description or title, and rejects a figure with no
+usable alternative text. Credits may be blank. The whole website is validated
+before any new release replaces the current site.
 
 #### Research image schema transition
 
@@ -135,16 +142,20 @@ schemas:
 - Legacy mode has both `figure_1_url` and `figure_2_url`. It does not call the
   image bridge and exists only to keep the current site publishable during the
   migration.
-- Final direct-image mode replaces those headers with `figure_1_image` and
-  `figure_2_image`. Every checked row needs both real in-cell images, and both
-  `ECONAI_SHEET_IMAGE_ENDPOINT` and `ECONAI_SHEET_IMAGE_TOKEN` must be configured
-  on the server.
+- Direct-image mode replaces those headers with `figure_1_image` and
+  `figure_2_image`. Every checked row needs both real in-cell images. The normal
+  builder fetches their XLSX export automatically; no private image bridge
+  configuration is required.
 
-Mixed headers or mixed row-level modes are rejected. A missing bridge setting,
-missing image, expired/invalid response, failed download, or invalid image file
-fails the staged build and leaves the previous release live. The exact one-time
-owner authorization, deployment, server-secret, and Sheet migration procedure is
-in [`deploy/apps-script-research-images/README.md`](../deploy/apps-script-research-images/README.md).
+Mixed headers or mixed row-level modes are rejected. Missing images, mismatched
+CSV/XLSX snapshots, failed workbook downloads, or invalid image files fail the
+staged build and leave the previous release live. Offline builds using direct
+images must supply a matching `--xlsx-file` alongside `--csv-dir`.
+
+The historical bridge setup guide remains in
+[`deploy/apps-script-research-images/README.md`](../deploy/apps-script-research-images/README.md)
+for explicit callers without an XLSX workbook. When a workbook is supplied, it
+always takes precedence, including when obsolete bridge settings still exist.
 
 ### Projects
 
@@ -283,11 +294,12 @@ the systemd units and root-owned publisher entrypoint, creates the first validat
 release, recreates the existing Nginx container with the read-only release mount,
 and enables the timer. It does not change DNS, the public URL, or TLS certificates.
 
-Install the compatibility-capable publisher while Research is still in legacy URL
-mode. Before switching the Sheet to direct-image headers, complete the bridge setup
-and create the root-owned `/etc/econai-sheet-publisher.env` described in the bridge
-README. The service imports that file before dropping to the unprivileged publisher
-account; the endpoint and token must not be committed to GitHub.
+The normal publisher needs no Research image endpoint or token. Existing
+`/etc/econai-sheet-publisher.env` settings may remain for compatibility, but the
+current CLI uses the XLSX workbook and does not call that bridge. Do not put old
+bridge credentials in the Sheet or GitHub. An already installed, running publisher
+picks up builder changes from `main` on its normal polling cycle; changing the
+builder does not require a new server login.
 
 ## Operations
 
@@ -306,12 +318,17 @@ journalctl -u econai-sheet-publisher.service -n 100 --no-pager
 cat /srv/econai-site/state/status.json
 ```
 
-In direct Research-image mode, a bridge error appears in the service journal. A
-Publications workbook, anchor, alt-text, or image error is reported there as a
-Publications build error. The
-status file remains the last successful/no-change result, and the `current`
-symlink and public site remain on the previous validated release. Correct the
-Sheet cell or bridge configuration and start the service again.
+A workbook, anchor, alternative-text, or image error appears in the service
+journal with its Research, Publications, or Members context. The status file
+remains the last successful/no-change result, and the `current` symlink and public
+site remain on the previous validated release. Correct the Sheet cell and allow
+the next timer run, or start the service again.
+
+The GitHub workflow validates code and builds the Sheet-driven site; it does not
+deploy to KAIST or control the server timer. A successful GitHub run therefore
+confirms the source and current Sheet can build, not that the KAIST server has
+published them. If new content remains absent after the polling interval, someone
+with server access must inspect the timer/service logs above.
 
 To roll back, point `/srv/econai-site/current` to one of the retained directories
 under `/srv/econai-site/releases` using a temporary relative symlink and atomic

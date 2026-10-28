@@ -11,6 +11,7 @@ import sys
 import tempfile
 import unittest
 import zipfile
+import xml.etree.ElementTree as ElementTree
 from email.message import Message
 from pathlib import Path
 from unittest import mock
@@ -783,6 +784,73 @@ class SheetBuilderTests(unittest.TestCase):
             )
             for name, payload in media:
                 archive.writestr(name, payload)
+        return output.getvalue()
+
+    def _research_workbook(
+        self,
+        research_rows: list[dict[str, str]],
+        *,
+        omit_slot: tuple[str, int] | None = None,
+        duplicate_slot: tuple[str, int] | None = None,
+    ) -> bytes:
+        # Reuse the existing embedded-image ZIP fixture; map its member-photo
+        # anchors into the two Research figure cells for each physical row.
+        slot_rows = [
+            {"name_en": f"{row['slug']}-{slot}"}
+            for row in research_rows for slot in (1, 2)
+        ]
+        images = {
+            f"{row['slug']}-{slot}": TINY_PNG if slot == 1 else TINY_JPEG
+            for row in research_rows for slot in (1, 2)
+            if (row["slug"], slot) != omit_slot
+        }
+        duplicate_name = (
+            f"{duplicate_slot[0]}-{duplicate_slot[1]}" if duplicate_slot else ""
+        )
+        base = self._member_workbook(
+            slot_rows, images, duplicate_image_for=duplicate_name
+        )
+        with zipfile.ZipFile(io.BytesIO(base)) as archive:
+            files = {name: archive.read(name) for name in archive.namelist()}
+        files["xl/workbook.xml"] = files["xl/workbook.xml"].replace(
+            b'name="Members"', b'name="Research"'
+        )
+        sheet_rows = []
+        for row_number, values in enumerate(
+            [dict(zip(DIRECT_RESEARCH_COLUMNS, DIRECT_RESEARCH_COLUMNS))]
+            + research_rows,
+            start=1,
+        ):
+            cells = "".join(
+                f'<c r="{chr(65 + column)}{row_number}" t="inlineStr"><is><t>'
+                f'{xml_escape(values.get(header, ""))}</t></is></c>'
+                for column, header in enumerate(DIRECT_RESEARCH_COLUMNS)
+            )
+            sheet_rows.append(f'<row r="{row_number}">{cells}</row>')
+        worksheet = files["xl/worksheets/sheet1.xml"].decode()
+        files["xl/worksheets/sheet1.xml"] = re.sub(
+            r"<sheetData>.*?</sheetData>",
+            "<sheetData>" + "".join(sheet_rows) + "</sheetData>",
+            worksheet,
+        ).encode()
+        drawing = ElementTree.fromstring(files["xl/drawings/drawing1.xml"])
+        ns = builder.XLSX_DRAWING_NS
+        for anchor in drawing:
+            row_node = anchor.find(f"{{{ns}}}from/{{{ns}}}row")
+            column_node = anchor.find(f"{{{ns}}}from/{{{ns}}}col")
+            assert row_node is not None and column_node is not None
+            source_index = int(row_node.text or "") - 1
+            row_node.text = str(source_index // 2 + 1)
+            column_node.text = "7" if source_index % 2 == 0 else "11"
+        files["xl/drawings/drawing1.xml"] = ElementTree.tostring(drawing)
+        return self._zip_fixture_files(files)
+
+    @staticmethod
+    def _zip_fixture_files(files: dict[str, bytes]) -> bytes:
+        output = io.BytesIO()
+        with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
+            for name, content in files.items():
+                archive.writestr(name, content)
         return output.getvalue()
 
     def test_publications_are_sorted_by_exact_date_descending(self) -> None:
@@ -2126,6 +2194,153 @@ class SheetBuilderTests(unittest.TestCase):
             errors = site_validator.validate(output)
             self.assertIn("index.html news row count does not match Sheet metadata", errors)
             self.assertIn("members.html row count does not match Sheet metadata", errors)
+
+    def test_research_xlsx_images_build_without_private_bridge(self) -> None:
+        tabs = self._direct_image_tabs()
+        workbook = self._research_workbook(tabs["Research"])
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "site"
+            with (
+                mock.patch.object(builder, "_fetch_research_image_manifest") as bridge,
+                mock.patch.object(
+                    builder.urllib.request, "urlopen",
+                    side_effect=AssertionError("XLSX images must not need a network bridge"),
+                ),
+            ):
+                builder.build_site(
+                    tabs, REPOSITORY_ROOT / "main_site", output,
+                    "test-sheet", "offline_csv", publication_workbook=workbook,
+                    image_endpoint="obsolete-bridge", image_token="obsolete-token",
+                )
+            bridge.assert_not_called()
+            research_html = (output / "research.html").read_text()
+            for slot, payload, extension in ((1, TINY_PNG, "png"), (2, TINY_JPEG, "jpg")):
+                digest = hashlib.sha256(payload).hexdigest()[:16]
+                path = f"img/sheet-research/reference-test-{slot}-{digest}.{extension}"
+                self.assertEqual((output / path).read_bytes(), payload)
+                self.assertIn(path, research_html)
+            self.assertNotIn("obsolete-bridge", research_html)
+            self.assertEqual(site_validator.validate(output), [])
+
+    def test_research_workbook_preserves_optional_credit_and_image_alt_fallback(self) -> None:
+        rows = self._direct_image_tabs()["Research"]
+        rows[0].update(figure_1_alt="", figure_1_credit="", figure_2_credit="")
+        with zipfile.ZipFile(io.BytesIO(self._research_workbook(rows))) as archive:
+            files = {name: archive.read(name) for name in archive.namelist()}
+        drawing = ElementTree.fromstring(files["xl/drawings/drawing1.xml"])
+        picture = drawing.find(f".//{{{builder.XLSX_DRAWING_NS}}}cNvPr")
+        assert picture is not None
+        picture.set("descr", "Description stored on the cell image")
+        files["xl/drawings/drawing1.xml"] = ElementTree.tostring(drawing)
+        with tempfile.TemporaryDirectory() as directory:
+            assets = builder._materialise_research_workbook_images(
+                self._zip_fixture_files(files), rows, Path(directory)
+            )
+            self.assertEqual(assets[("reference-test", 1)]["alt"], "Description stored on the cell image")
+            self.assertEqual(assets[("reference-test", 1)]["credit"], "")
+
+    def test_research_workbook_matches_all_six_figures_and_ignores_unpublished_rows(self) -> None:
+        first = self._direct_image_tabs()["Research"][0]
+        rows = [dict(first, slug=f"area-{number}", title=f"Area {number}") for number in range(3)]
+        unpublished = dict(first, slug="private-area", publish="FALSE")
+        with tempfile.TemporaryDirectory() as directory:
+            assets = builder._materialise_research_workbook_images(
+                self._research_workbook(rows + [unpublished]), rows, Path(directory)
+            )
+            self.assertEqual(set(assets), {(f"area-{i}", slot) for i in range(3) for slot in (1, 2)})
+            self.assertEqual(len(list(Path(directory).rglob("*.png"))), 3)
+            self.assertEqual(len(list(Path(directory).rglob("*.jpg"))), 3)
+
+    def test_research_workbook_rejects_missing_and_duplicate_images(self) -> None:
+        rows = self._direct_image_tabs()["Research"]
+        cases = (
+            (self._research_workbook(rows, omit_slot=("reference-test", 2)), "missing"),
+            (self._research_workbook(rows, duplicate_slot=("reference-test", 1)), "duplicated"),
+        )
+        for workbook, error in cases:
+            with self.subTest(error=error), tempfile.TemporaryDirectory() as directory:
+                with self.assertRaisesRegex(builder.SheetBuildError, error):
+                    builder._materialise_research_workbook_images(workbook, rows, Path(directory))
+
+    def test_research_workbook_rejects_stale_published_rows_and_metadata(self) -> None:
+        rows = self._direct_image_tabs()["Research"]
+        variants = [
+            [dict(rows[0], slug="wrong-area")],
+            [dict(rows[0], publish="FALSE")],
+            [dict(rows[0], title="Changed title")],
+            [dict(rows[0], selected_publication_1="Changed paper")],
+            [dict(rows[0], figure_1_alt="Changed figure")],
+            [dict(rows[0]), dict(rows[0])],
+            [dict(rows[0]), dict(rows[0], slug="new-published-area")],
+        ]
+        for variant in variants:
+            with self.subTest(rows=variant), tempfile.TemporaryDirectory() as directory:
+                with self.assertRaisesRegex(builder.SheetBuildError, "out of sync|missing|duplicated"):
+                    builder._materialise_research_workbook_images(
+                        self._research_workbook(variant), rows, Path(directory)
+                    )
+
+    def test_research_workbook_rejects_invalid_images_headers_and_relationships(self) -> None:
+        rows = self._direct_image_tabs()["Research"]
+        with zipfile.ZipFile(io.BytesIO(self._research_workbook(rows))) as archive:
+            original = {name: archive.read(name) for name in archive.namelist()}
+        mutations = {
+            "corrupt image": {"xl/media/member1.png": b"not an image"},
+            "duplicate header": {
+                "xl/worksheets/sheet1.xml": original["xl/worksheets/sheet1.xml"].replace(
+                    b">title</t>", b">slug</t>"
+                )
+            },
+            "formula image": {
+                "xl/worksheets/sheet1.xml": original["xl/worksheets/sheet1.xml"].replace(
+                    b'<c r="H2" t="inlineStr"><is><t></t></is></c>',
+                    b'<c r="H2"><f>IMAGE("https://example.com/image.png")</f><v></v></c>',
+                )
+            },
+            "external relationship": {
+                "xl/drawings/_rels/drawing1.xml.rels": original[
+                    "xl/drawings/_rels/drawing1.xml.rels"
+                ].replace(b'../media/member1.png', b'https://example.com/image.png')
+            },
+            "unsafe zip": {"../escape.txt": b"unsafe"},
+        }
+        for name, changes in mutations.items():
+            with self.subTest(case=name), tempfile.TemporaryDirectory() as directory:
+                with self.assertRaises(builder.SheetBuildError):
+                    builder._materialise_research_workbook_images(
+                        self._zip_fixture_files(original | changes), rows, Path(directory)
+                    )
+
+    def test_invalid_research_workbook_never_falls_back_to_private_bridge(self) -> None:
+        tabs = self._direct_image_tabs()
+        workbook = self._research_workbook(tabs["Research"], omit_slot=("reference-test", 2))
+        with tempfile.TemporaryDirectory() as directory, mock.patch.object(
+            builder, "_fetch_research_image_manifest"
+        ) as bridge:
+            with self.assertRaisesRegex(builder.SheetBuildError, "missing"):
+                builder.build_site(
+                    tabs, REPOSITORY_ROOT / "main_site", Path(directory) / "site",
+                    "test-sheet", "offline_csv", publication_workbook=workbook,
+                    image_endpoint=self.IMAGE_ENDPOINT, image_token=self.IMAGE_TOKEN,
+                )
+            bridge.assert_not_called()
+
+    def test_live_cli_fetches_workbook_for_research_only_cell_images(self) -> None:
+        tabs = self._direct_image_tabs()
+        args = mock.Mock(
+            sheet_id="test-sheet", source_dir=REPOSITORY_ROOT / "main_site",
+            output_dir=REPOSITORY_ROOT / "_unused-test-output", csv_dir=None,
+            xlsx_file=None, timeout=12.5,
+        )
+        with (
+            mock.patch.object(builder, "parse_args", return_value=args),
+            mock.patch.object(builder, "load_sheet_tabs", return_value=tabs),
+            mock.patch.object(builder, "_fetch_workbook", return_value=b"workbook") as fetch,
+            mock.patch.object(builder, "build_site") as build,
+        ):
+            self.assertEqual(builder.main(), 0)
+        fetch.assert_called_once_with("test-sheet", 12.5)
+        self.assertEqual(build.call_args.kwargs["publication_workbook"], b"workbook")
 
     def test_direct_in_cell_images_are_materialised_without_url_leaks(self) -> None:
         tabs = self._direct_image_tabs()

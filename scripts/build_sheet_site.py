@@ -1177,6 +1177,151 @@ def _publication_asset_key(title: str) -> str:
     return hashlib.sha256(title.encode("utf-8")).hexdigest()[:16]
 
 
+def _materialise_research_workbook_images(
+    workbook_payload: bytes,
+    research_rows: Sequence[Dict[str, str]],
+    output_dir: Path,
+) -> Dict[Tuple[str, int], Dict[str, str]]:
+    """Read current Research cell images without a private Apps Script bridge.
+
+    Match the full published row set and figure metadata against the CSV before
+    using drawing anchors. A stale/incomplete export fails the build; it never
+    falls back to old assets or to the bridge after workbook validation fails.
+    """
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(workbook_payload))
+    except zipfile.BadZipFile as exc:
+        raise SheetBuildError("Research workbook export is not a valid XLSX") from exc
+
+    with archive:
+        _validate_xlsx_archive(archive)
+        worksheet_path, worksheet = _xlsx_named_sheet(archive, "Research")
+        values = _xlsx_cell_values(worksheet, _xlsx_shared_strings(archive))
+        formulas = _xlsx_cell_formulas(worksheet)
+        headers: Dict[str, int] = {}
+        for (row, column), value in values.items():
+            if row != 0 or not value:
+                continue
+            if value in headers:
+                raise SheetBuildError(f"Research workbook duplicated header {value!r}")
+            headers[value] = column
+        if _research_image_schema(headers) != "direct_cell":
+            raise SheetBuildError("Research workbook is missing direct image columns")
+
+        expected = {row["slug"]: row for row in research_rows}
+        if len(expected) != len(research_rows):
+            raise SheetBuildError("Research CSV contains duplicate slugs")
+        comparison_fields = set().union(*(row.keys() for row in research_rows)) - {
+            "publish", "figure_1_image", "figure_2_image",
+        }
+        for required in comparison_fields | {"publish", "slug"}:
+            if required not in headers:
+                raise SheetBuildError(f"Research workbook is missing header {required!r}")
+
+        row_to_slug: Dict[int, str] = {}
+        seen_slugs: set[str] = set()
+        for row in sorted({row for row, _ in values if row > 0}):
+            if values.get((row, headers["publish"]), "").casefold() not in TRUTHY:
+                continue
+            slug = values.get((row, headers["slug"]), "")
+            if slug not in expected:
+                raise SheetBuildError("Research workbook published slugs are out of sync")
+            if slug in seen_slugs:
+                raise SheetBuildError(f"Research workbook duplicated published slug {slug!r}")
+            seen_slugs.add(slug)
+            row_to_slug[row] = slug
+            for field in comparison_fields:
+                if values.get((row, headers[field]), "") != expected[slug].get(field, ""):
+                    raise SheetBuildError(
+                        f"Research workbook is out of sync for {slug!r}: {field}"
+                    )
+            for slot in (1, 2):
+                image_column = headers[f"figure_{slot}_image"]
+                if formulas.get((row, image_column)) or values.get((row, image_column)):
+                    raise SheetBuildError(
+                        f"Research {slug!r} figure {slot}: use an embedded cell image"
+                    )
+                for field in (f"figure_{slot}_alt", f"figure_{slot}_credit"):
+                    value = expected[slug].get(field, "")
+                    if len(value) > 4000:
+                        raise SheetBuildError(f"Research {slug!r}: needs valid {field}")
+        if seen_slugs != set(expected):
+            raise SheetBuildError("Research workbook is missing published slugs")
+
+        drawing = worksheet.find(f"{{{XLSX_MAIN_NS}}}drawing")
+        if drawing is None:
+            raise SheetBuildError("Research workbook is missing embedded images")
+        drawing_path = _xlsx_relationship_target(
+            archive, worksheet_path,
+            drawing.get(f"{{{XLSX_DOCUMENT_REL_NS}}}id", ""),
+            "drawing", "Research drawing",
+        )
+        drawing_root = _xlsx_xml(archive, drawing_path, "Research drawing")
+        image_columns = {headers[f"figure_{slot}_image"]: slot for slot in (1, 2)}
+        image_targets: Dict[Tuple[str, int], str] = {}
+        image_alt: Dict[Tuple[str, int], str] = {}
+        for anchor in drawing_root:
+            if anchor.tag != f"{{{XLSX_DRAWING_NS}}}oneCellAnchor":
+                raise SheetBuildError("Research drawing must use in-cell image anchors")
+            try:
+                row = int(anchor.findtext(
+                    f"{{{XLSX_DRAWING_NS}}}from/{{{XLSX_DRAWING_NS}}}row", ""
+                ))
+                column = int(anchor.findtext(
+                    f"{{{XLSX_DRAWING_NS}}}from/{{{XLSX_DRAWING_NS}}}col", ""
+                ))
+            except ValueError as exc:
+                raise SheetBuildError("Research drawing has an invalid image anchor") from exc
+            if row < 0 or column < 0:
+                raise SheetBuildError("Research drawing has an invalid image anchor")
+            if row not in row_to_slug or column not in image_columns:
+                continue
+            key = (row_to_slug[row], image_columns[column])
+            if key in image_targets:
+                raise SheetBuildError(f"Research image {key!r} is duplicated")
+            blip = anchor.find(f".//{{{XLSX_DRAWING_MAIN_NS}}}blip")
+            relationship_id = (
+                blip.get(f"{{{XLSX_DOCUMENT_REL_NS}}}embed", "")
+                if blip is not None else ""
+            )
+            if not relationship_id:
+                raise SheetBuildError(f"Research image {key!r} has no embedded file")
+            image_targets[key] = _xlsx_relationship_target(
+                archive, drawing_path, relationship_id, "image", f"Research image {key!r}"
+            )
+            picture = anchor.find(f".//{{{XLSX_DRAWING_NS}}}cNvPr")
+            cell_description = picture.get("descr", "").strip() if picture is not None else ""
+            cell_title = picture.get("title", "").strip() if picture is not None else ""
+            alt = expected[key[0]].get(f"figure_{key[1]}_alt", "") or cell_description or cell_title
+            if not alt or len(alt) > 4000:
+                raise SheetBuildError(f"Research image {key!r}: invalid alt text")
+            image_alt[key] = alt
+        expected_keys = {(slug, slot) for slug in expected for slot in (1, 2)}
+        if set(image_targets) != expected_keys:
+            raise SheetBuildError("Research workbook is missing required figure images")
+
+        assets: Dict[Tuple[str, int], Dict[str, str]] = {}
+        for key in sorted(expected_keys):
+            slug, slot = key
+            payload = _xlsx_read_member(archive, image_targets[key], f"Research image {key!r}")
+            if len(payload) > RESEARCH_IMAGE_FILE_LIMIT:
+                raise SheetBuildError(f"Research image {key!r} exceeds the size limit")
+            extension, _ = _detect_image_format(payload)
+            digest = hashlib.sha256(payload).hexdigest()
+            relative_path = RESEARCH_IMAGE_ASSET_DIR / f"{slug}-{slot}-{digest[:16]}.{extension}"
+            target = output_dir / relative_path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if target.exists() and target.read_bytes() != payload:
+                raise SheetBuildError(f"Research image {key!r}: asset name collision")
+            target.write_bytes(payload)
+            assets[key] = {
+                "url": relative_path.as_posix(),
+                "alt": image_alt[key],
+                "credit": expected[slug][f"figure_{slot}_credit"],
+            }
+    return assets
+
+
 def _materialise_publication_images(
     workbook_payload: bytes,
     publications: Sequence[Dict[str, str]],
@@ -2553,17 +2698,17 @@ def build_site(
         for row in members
         if row["section"] in MEMBER_CARD_SECTIONS and not row.get("photo")
     ]
-    research_images = (
-        _materialise_research_images(
-            research,
-            output_dir,
-            image_endpoint,
-            image_token,
-            timeout,
-        )
-        if research_image_schema == "direct_cell"
-        else None
-    )
+    research_images = None
+    if research_image_schema == "direct_cell":
+        if publication_workbook is not None:
+            research_images = _materialise_research_workbook_images(
+                publication_workbook, research, output_dir
+            )
+        else:
+            # Compatibility for explicit/offline callers without an XLSX export.
+            research_images = _materialise_research_images(
+                research, output_dir, image_endpoint, image_token, timeout
+            )
     if publication_image_schema == "direct_cell" and publication_workbook is None:
         raise SheetBuildError(
             "Publications direct home images require an XLSX workbook export"
@@ -2680,7 +2825,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help=(
             "offline XLSX export used for in-cell images; required with "
-            "--csv-dir when Publications or Members need embedded images"
+            "--csv-dir when Research, Publications, or Members need embedded images"
         ),
     )
     parser.add_argument("--timeout", type=float, default=30.0)
@@ -2701,7 +2846,8 @@ def main() -> int:
             and (args.csv_dir is None or args.xlsx_file is not None)
         )
         workbook_needed = (
-            _publication_image_schema(tabs["Publications"][0].keys())
+            _research_image_schema(tabs["Research"][0].keys()) == "direct_cell"
+            or _publication_image_schema(tabs["Publications"][0].keys())
             == "direct_cell"
             or member_image_candidates
         )
