@@ -1135,7 +1135,7 @@ class SheetBuilderTests(unittest.TestCase):
             '<h1 id="hero-title">Economic Progress and AI Research Group</h1>',
             index_source,
         )
-        self.assertIn('src="img/EconAI@KAIST.svg"', index_source)
+        self.assertIn('src="img/econai-kaist-logo.png"', index_source)
         self.assertNotIn(
             "Economic Analysis with Artificial Intelligence",
             index_source,
