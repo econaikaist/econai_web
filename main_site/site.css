@@ -75,23 +75,28 @@ a {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  min-height: 76px;
+  gap: 24px;
+  min-height: 96px;
+  padding-block: 10px;
 }
 
 .brand {
   display: inline-flex;
-  flex: 0 0 auto;
+  flex: 0 1 300px;
+  min-width: 0;
   text-decoration: none;
 }
 
 .brand img {
-  height: 34px;
-  width: auto;
+  display: block;
+  height: auto;
+  width: 100%;
 }
 
 .desktop-nav {
   align-items: stretch;
   display: flex;
+  flex-shrink: 0;
   gap: 25px;
   min-height: 76px;
 }
@@ -132,6 +137,7 @@ a {
 
 .mobile-nav {
   display: none;
+  flex-shrink: 0;
   position: relative;
 }
 
@@ -1512,11 +1518,12 @@ summary:focus-visible {
   }
 
   .navbar {
-    min-height: 64px;
+    gap: 12px;
+    min-height: 80px;
   }
 
-  .brand img {
-    height: 29px;
+  .brand {
+    flex-basis: 260px;
   }
 
   .hero {
