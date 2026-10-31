@@ -1286,7 +1286,6 @@ class SheetBuilderTests(unittest.TestCase):
             "members.html",
             "research.html",
             "publications.html",
-            "projects.html",
             "contact.html",
         ):
             page_source = (REPOSITORY_ROOT / "main_site" / page_name).read_text(
@@ -1295,6 +1294,7 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertIn('class="site-header"', page_source)
             self.assertIn('class="desktop-nav"', page_source)
             self.assertIn('class="mobile-nav"', page_source)
+            self.assertNotIn('href="projects.html"', page_source)
             if page_name != "index.html":
                 self.assertIn('class="compact-page-heading"', page_source)
                 self.assertNotIn('class="page-hero"', page_source)
@@ -2043,6 +2043,31 @@ class SheetBuilderTests(unittest.TestCase):
         ):
             builder._read_csv_text(text, "Members")
 
+    def test_legacy_project_urls_are_canonicalized_without_changing_external_links(self) -> None:
+        cases = {
+            "projects.html#sbs-sdf": "research.html#sbs-sdf",
+            "/projects.html?from=news#social-simulation": "/research.html?from=news#social-simulation",
+            "./projects.html": "./research.html",
+            "https://econai.kaist.ac.kr/projects.html?from=news#sbs-sdf":
+                "https://econai.kaist.ac.kr/research.html?from=news#sbs-sdf",
+            "http://econai.kaist.ac.kr/projects.html": "http://econai.kaist.ac.kr/research.html",
+            "//econai.kaist.ac.kr/projects.html#sbs-sdf": "//econai.kaist.ac.kr/research.html#sbs-sdf",
+        }
+        for old, canonical in cases.items():
+            with self.subTest(url=old):
+                self.assertEqual(builder._canonical_research_url(old), canonical)
+        for unchanged in (
+            "https://example.com/projects.html#sbs-sdf",
+            "https://econai.kaist.ac.kr.example.com/projects.html",
+            "https://econai.kaist.ac.kr/econcausal/",
+            "https://econai.kaist.ac.kr/nested/projects.html",
+            "https://econai.kaist.ac.kr/research.html#sbs-sdf",
+            "mailto:projects.html@example.com",
+            "#projects.html", "", "../projects.html",
+        ):
+            with self.subTest(url=unchanged):
+                self.assertEqual(builder._canonical_research_url(unchanged), unchanged)
+
     def test_five_tab_build_and_validation_are_consistent(self) -> None:
         self._allow_small_fixtures(
             "Publications", "Research", "Projects", "News", "Members"
@@ -2123,7 +2148,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "tag": "People",
                 "title": "Older lab news",
                 "summary": "An older update.",
-                "url": "https://example.com/older-news",
+                "url": "https://econai.kaist.ac.kr/projects.html?from=news#sbs-sdf",
             },
             {
                 "publish": "TRUE",
@@ -2209,6 +2234,7 @@ class SheetBuilderTests(unittest.TestCase):
                 encoding="utf-8"
             )
             project_text = (output / "projects.html").read_text(encoding="utf-8")
+            research_text = (output / "research.html").read_text(encoding="utf-8")
             self.assertEqual(site_validator._classes(index_text, "sheet-news-item"), 2)
             self.assertEqual(site_validator._classes(member_text, "sheet-member-item"), 3)
             # The honorary GPU stays at the end without affecting Sheet counts.
@@ -2236,13 +2262,23 @@ class SheetBuilderTests(unittest.TestCase):
             )
             self.assertIn('href="https://example.com/newer-paper"', index_text)
             self.assertIn('href="https://example.com/older-paper"', index_text)
-            self.assertIn('id="sbs-sdf"', project_text)
-            self.assertNotIn("Ongoing Projects", project_text)
-            self.assertNotIn("Completed Projects", project_text)
-            self.assertEqual(site_validator._classes(project_text, "project-card"), 0)
-            self.assertEqual(site_validator._classes(project_text, "project-section"), 0)
-            self.assertNotIn('href="https://example.com/newer-paper"', project_text)
-            self.assertNotIn('href="https://example.com/standalone-project"', project_text)
+            source_research = (source / "research.html").read_text(encoding="utf-8")
+            source_articles = re.findall(r"<article\b.*?</article>", source_research, re.DOTALL)
+            self.assertEqual(len(source_articles), 5)
+            self.assertEqual(re.findall(r"<article\b.*?</article>", research_text, re.DOTALL), source_articles)
+            self.assertIn('id="sbs-sdf"', research_text)
+            self.assertNotIn("Ongoing Projects", research_text)
+            self.assertNotIn("Completed Projects", research_text)
+            self.assertEqual(site_validator._classes(research_text, "research-row"), 0)
+            self.assertEqual(site_validator._classes(research_text, "project-card"), 0)
+            self.assertEqual(site_validator._classes(research_text, "project-section"), 0)
+            self.assertNotIn('href="https://example.com/newer-paper"', research_text)
+            self.assertNotIn('href="https://example.com/standalone-project"', research_text)
+            self.assertIn('href="https://econai.kaist.ac.kr/research.html?from=news#sbs-sdf"', index_text)
+            self.assertEqual(tabs["News"][0]["url"], "https://econai.kaist.ac.kr/projects.html?from=news#sbs-sdf")
+            self.assertIn('rel="canonical" href="https://econai.kaist.ac.kr/research.html"', project_text)
+            self.assertIn("window.location.hash", project_text)
+            self.assertEqual(site_validator._classes(project_text, "project-feature"), 0)
             self.assertIn(
                 '<strong class="publication-lab-author">A Author</strong>',
                 publication_text,
@@ -2271,10 +2307,10 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertEqual(len(set(rendered_footers)), 1)
             self.assertEqual(site_validator.validate(output), [])
 
-            project_path = output / "projects.html"
-            canonical_project = project_path.read_text(encoding="utf-8")
-            project_path.write_text(
-                canonical_project.replace(
+            research_path = output / "research.html"
+            canonical_research = research_path.read_text(encoding="utf-8")
+            research_path.write_text(
+                canonical_research.replace(
                     builder.SITE_FOOTER_META,
                     "Different footer",
                     1,
@@ -2282,10 +2318,19 @@ class SheetBuilderTests(unittest.TestCase):
                 encoding="utf-8",
             )
             self.assertIn(
-                "primary page footers differ from index.html: projects.html",
+                "primary page footers differ from index.html: research.html",
                 site_validator.validate(output),
             )
-            project_path.write_text(canonical_project, encoding="utf-8")
+            research_path.write_text(canonical_research, encoding="utf-8")
+            research_path.write_text(canonical_research.replace(
+                '<a href="contact.html">CONTACT</a>',
+                '<a href="projects.html">PROJECTS</a>', 1,
+            ), encoding="utf-8")
+            self.assertIn(
+                "research.html: primary navigation must use the consolidated Research page",
+                site_validator.validate(output),
+            )
+            research_path.write_text(canonical_research, encoding="utf-8")
 
             metadata["published_rows"]["News"] = 3
             metadata["published_rows"]["Members"] = 4
@@ -2350,7 +2395,7 @@ class SheetBuilderTests(unittest.TestCase):
                 self.assertNotIn(unused, rendered)
             self.assertEqual(site_validator.validate(output), [])
 
-    def test_text_research_build_ignores_legacy_workbook_and_bridge(self) -> None:
+    def test_curated_research_build_ignores_legacy_workbook_and_bridge(self) -> None:
         tabs = self._direct_image_tabs()
         workbook = self._research_workbook(tabs["Research"])
         with tempfile.TemporaryDirectory() as directory:
@@ -2369,9 +2414,11 @@ class SheetBuilderTests(unittest.TestCase):
             bridge.assert_not_called()
             images.assert_not_called()
             research_html = (output / "research.html").read_text()
-            self.assertIn('<h2>Reference Test</h2>', research_html)
-            self.assertIn('<p class="research-question">Question?</p>', research_html)
-            self.assertIn('<p class="research-summary">Summary</p>', research_html)
+            self.assertIn('id="ai-knowledge-reasoning"', research_html)
+            self.assertIn('id="economic-measurement"', research_html)
+            self.assertNotIn('<h2>Reference Test</h2>', research_html)
+            self.assertNotIn('class="research-question"', research_html)
+            self.assertNotIn('class="research-summary"', research_html)
             self.assertNotIn("selected-publications", research_html)
             self.assertNotIn("obsolete-bridge", research_html)
             self.assertFalse((output / "img/sheet-research").exists())
@@ -2792,7 +2839,8 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertNotIn(
                 'src="img/research/slum-detection-figure-5.png"', research_html
             )
-            self.assertIn('<h2>Reference Test</h2>', research_html)
+            self.assertIn('id="economic-measurement"', research_html)
+            self.assertNotIn('<h2>Reference Test</h2>', research_html)
             self.assertFalse((output / "img/sheet-research").exists())
 
     def test_unmatched_cross_tab_publication_references_fail_the_build(self) -> None:
@@ -2891,4 +2939,5 @@ class SheetBuilderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 

@@ -44,7 +44,6 @@ PRIMARY_PAGE_NAMES = (
     "members.html",
     "research.html",
     "publications.html",
-    "projects.html",
     "contact.html",
 )
 SITE_FOOTER_META = "Daejeon, South Korea · 2026 Economic Progress and AI Research Group"
@@ -2657,6 +2656,22 @@ def _safe_prepare_output(source_dir: Path, output_dir: Path) -> None:
     shutil.copytree(source, output)
 
 
+def _canonical_research_url(value: str) -> str:
+    """Keep old portfolio links working while publishing the canonical Research URL."""
+    parsed = urllib.parse.urlsplit(value)
+    if parsed.scheme or parsed.netloc:
+        if parsed.scheme not in {"", "http", "https"} or parsed.netloc.lower() != "econai.kaist.ac.kr":
+            return value
+        if parsed.path != "/projects.html":
+            return value
+        path = "/research.html"
+    elif parsed.path in {"projects.html", "./projects.html", "/projects.html"}:
+        path = parsed.path.replace("projects.html", "research.html")
+    else:
+        return value
+    return urllib.parse.urlunsplit(parsed._replace(path=path))
+
+
 def build_site(
     tabs: Mapping[str, List[Dict[str, str]]],
     source_dir: Path,
@@ -2672,9 +2687,20 @@ def build_site(
     _validate_publication_references(tabs)
     _safe_prepare_output(source_dir, output_dir)
 
+    # Preserve Sheet records while emitting canonical links from their URL fields.
+    tabs = {
+        name: [
+            {
+                key: _canonical_research_url(value)
+                if key in {"url", "project_url", "paper_url"} else value
+                for key, value in row.items()
+            }
+            for row in rows
+        ]
+        for name, rows in tabs.items()
+    }
+
     publications = tabs["Publications"]
-    research = tabs["Research"]
-    projects = tabs["Projects"]
     news = tabs["News"]
     members = tabs["Members"]
     lab_authors = _lab_authors(members)
@@ -2703,13 +2729,7 @@ def build_site(
         output_dir / "research.html",
         "<!-- SHEET:RESEARCH_AREAS:START -->",
         "<!-- SHEET:RESEARCH_AREAS:END -->",
-        render_research_areas(research),
-    )
-    _replace_block(
-        output_dir / "projects.html",
-        "<!-- SHEET:PROJECTS:START -->",
-        "<!-- SHEET:PROJECTS:END -->",
-        "",  # Curated projects live in the template; retire the legacy status lists.
+        "",  # Research now uses the curated portfolio; preserve it across Sheet builds.
     )
     _replace_block(
         output_dir / "index.html",
@@ -2828,4 +2848,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

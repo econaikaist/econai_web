@@ -1,4 +1,9 @@
-/* Projects read as one continuous page, with no cards or hidden descriptions. */
+/* The research portfolio reads as one continuous page, with no cards or hidden descriptions. */
+.projects-page .research-introduction {
+  color: var(--text);
+  line-height: 1.8;
+  margin: 0 0 40px;
+}
 .projects-page .projects-content {
   background: var(--surface);
 }
@@ -102,3 +107,4 @@
 .projects-page .project-publication-link {
   display: inline-block;
 }
+

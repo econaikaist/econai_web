@@ -42,11 +42,6 @@ MARKER_PAIRS = {
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
         SITE_FOOTER_PAIR,
     ),
-    "projects.html": (
-        ("<!-- SHEET:PROJECTS:START -->", "<!-- SHEET:PROJECTS:END -->"),
-        ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
-        SITE_FOOTER_PAIR,
-    ),
     "publications.html": (
         ("<!-- PUBLICATIONS:START -->", "<!-- PUBLICATIONS:END -->"),
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
@@ -71,7 +66,6 @@ REQUIRED_SITEMAP_URLS = {
     f"{SITE_ORIGIN}/members.html",
     f"{SITE_ORIGIN}/research.html",
     f"{SITE_ORIGIN}/publications.html",
-    f"{SITE_ORIGIN}/projects.html",
     f"{SITE_ORIGIN}/contact.html",
     f"{SITE_ORIGIN}/ideological-bias-in-llms/",
     f"{SITE_ORIGIN}/econcausal/",
@@ -241,6 +235,13 @@ def validate(site_dir: Path) -> List[str]:
             errors.append(f"{file_name}: canonical site footer is missing")
         if _classes(text, "desktop-nav") != 1 or _classes(text, "mobile-nav") != 1:
             errors.append(f"{file_name}: canonical navigation is missing")
+        expected_navigation = ["members.html", "research.html", "publications.html", "contact.html"]
+        for navigation in re.findall(r"<nav\b[^>]*>.*?</nav>", text, re.DOTALL):
+            navigation_parser = LinkCollector()
+            navigation_parser.feed(navigation)
+            links = [value for attribute, value in navigation_parser.references if attribute == "href"]
+            if links != expected_navigation:
+                errors.append(f"{file_name}: primary navigation must use the consolidated Research page")
         if "site.css?" not in text:
             errors.append(f"{file_name}: shared site stylesheet is missing")
         if (
@@ -277,16 +278,34 @@ def validate(site_dir: Path) -> List[str]:
 
     publication_text = (site_dir / "publications.html").read_text(encoding="utf-8")
     research_text = (site_dir / "research.html").read_text(encoding="utf-8")
-    project_text = (site_dir / "projects.html").read_text(encoding="utf-8")
     index_text = (site_dir / "index.html").read_text(encoding="utf-8")
     member_text = (site_dir / "members.html").read_text(encoding="utf-8")
 
     if _classes(publication_text, "publication-item") != expected_counts.get("Publications"):
         errors.append("publications.html row count does not match Sheet metadata")
-    if _classes(research_text, "research-row") != expected_counts.get("Research"):
-        errors.append("research.html row count does not match Sheet metadata")
-    if _classes(project_text, "project-card") or _classes(project_text, "project-section"):
-        errors.append("projects.html still contains retired status-based project lists")
+    research_parser = LinkCollector()
+    research_parser.feed(research_text)
+    required_research_ids = {
+        "sbs-sdf", "social-simulation", "economic-behavior",
+        "ai-knowledge-reasoning", "economic-measurement",
+    }
+    if _classes(research_text, "project-feature") != 5 or not required_research_ids.issubset(research_parser.ids):
+        errors.append("research.html is missing the curated research portfolio")
+    if any(_classes(research_text, name) for name in ("research-row", "project-card", "project-section")):
+        errors.append("research.html still contains retired Sheet research or project lists")
+    try:
+        project_text = (site_dir / "projects.html").read_text(encoding="utf-8")
+    except FileNotFoundError:
+        errors.append("missing legacy projects.html redirect")
+    else:
+        redirect_parser = LinkCollector()
+        redirect_parser.feed(project_text)
+        if ("canonical", f"{SITE_ORIGIN}/research.html") not in redirect_parser.link_relations:
+            errors.append("projects.html must declare Research as its canonical page")
+        if "location.replace" not in project_text or "location.hash" not in project_text:
+            errors.append("projects.html must preserve fragments when redirecting to Research")
+        if any(_classes(project_text, name) for name in ("project-feature", "project-card", "project-section")):
+            errors.append("projects.html must redirect instead of duplicating the Research portfolio")
     expected_updates = metadata.get("homepage_publication_updates")
     if not isinstance(expected_updates, int) or not 0 <= expected_updates <= 6:
         errors.append("sheet-build.json has invalid homepage publication count")
@@ -378,4 +397,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
