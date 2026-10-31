@@ -1870,37 +1870,23 @@ def render_publications_page(
         '        <section class="section-band publications-section">',
         '            <div class="container publications-container">',
     ]
-    for preprints, label, section_id in (
-        (False, "Accepted & Published", "accepted-publications"),
-        (True, "Preprints", "preprints"),
-    ):
-        rows = _sort_publications(
-            [row for row in publications if _is_preprint(row) == preprints]
-        )
-        if not rows:
-            continue
-        by_year: Dict[int, List[Dict[str, str]]] = defaultdict(list)
-        for row in rows:
-            by_year[_publication_year(row)].append(row)
+    by_year: Dict[int, List[Dict[str, str]]] = defaultdict(list)
+    for row in _sort_publications(publications):
+        by_year[_publication_year(row)].append(row)
+    for year, year_rows in by_year.items():
+        year_id = f"publications-{year}"
         lines.extend(
             [
-                f'                <section class="publication-category" aria-labelledby="{section_id}">',
-                f'                    <h2 class="publication-category-title" id="{section_id}">{_escape(label)}</h2>',
+                f'                <section class="publication-year-block" aria-labelledby="{year_id}">',
+                f'                    <h2 class="publication-year" id="{year_id}">{year}</h2>',
+                '                    <ol class="publication-list">',
             ]
         )
-        for year, year_rows in by_year.items():
-            year_id = f"{'preprints' if preprints else 'publications'}-{year}"
-            lines.extend(
-                [
-                    f'                <section class="publication-year-block" aria-labelledby="{year_id}">',
-                    f'                    <h3 class="publication-year" id="{year_id}">{year}</h3>',
-                    '                    <ol class="publication-list">',
-                ]
-            )
-            for row in year_rows:
-                lines.extend(_render_publication_item(row, lab_authors))
-            lines.extend(["                    </ol>", "                </section>"])
-        lines.append("                </section>")
+        # Keep current work first within each year without changing the date
+        # ordering used by the homepage or within either publication status.
+        for row in sorted(year_rows, key=lambda item: not _is_preprint(item)):
+            lines.extend(_render_publication_item(row, lab_authors))
+        lines.extend(["                    </ol>", "                </section>"])
     lines.extend(["            </div>", "        </section>"])
     return "\n".join(lines)
 

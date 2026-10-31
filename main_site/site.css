@@ -823,16 +823,6 @@ a {
   max-width: 1060px;
 }
 
-.publication-category + .publication-category {
-  margin-top: 48px;
-}
-
-.publication-category-title {
-  color: var(--ink);
-  font-size: 1.35rem;
-  margin: 0 0 18px;
-}
-
 .publications-container .publication-year-block {
   border-top: 1px solid var(--line);
   display: grid;
@@ -841,7 +831,7 @@ a {
   padding-top: 6px;
 }
 
-.publication-category-title + .publication-year-block {
+.publications-container > .publication-year-block:first-child {
   border-top: 0;
 }
 

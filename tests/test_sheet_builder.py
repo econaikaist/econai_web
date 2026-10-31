@@ -992,7 +992,7 @@ class SheetBuilderTests(unittest.TestCase):
                 "Example image",
             )
 
-    def test_publications_page_sorts_by_date_with_preprints_after_all_accepted(self) -> None:
+    def test_publications_page_groups_by_year_with_current_preprints_first(self) -> None:
         rows = [
             {
                 "date": "2025-12-01",
@@ -1030,15 +1030,37 @@ class SheetBuilderTests(unittest.TestCase):
                 "paper_url": "https://arxiv.org/abs/2701.00001",
             },
             {
-                "date": "2026-09-30",
+                "date": "2026-10-04",
                 "title": "Accepted Workshop With Arxiv Link",
                 "authors": "F Author",
                 "venue": "SocialAgent Workshop (NeurIPS 2026)",
                 "paper_url": "https://arxiv.org/abs/2609.00001",
             },
+            {
+                "date": "2026-10-02",
+                "title": "Earlier 2026 Preprint",
+                "authors": "G Author",
+                "venue": "arXiv",
+                "paper_url": "https://arxiv.org/abs/2610.00002",
+            },
+            {
+                "date": "2026-10-15",
+                "title": "Latest 2026 Preprint",
+                "authors": "H Author",
+                "venue": "arXiv",
+                "paper_url": "https://arxiv.org/abs/2610.00015",
+            },
         ]
 
         publication_page = builder.render_publications_page(rows, set())
+        self.assertNotIn("Accepted &amp; Published", publication_page)
+        self.assertNotIn("publication-category", publication_page)
+        self.assertNotIn('id="preprints"', publication_page)
+        self.assertEqual(publication_page.count('<h2 class="publication-year"'), 3)
+        self.assertLess(
+            publication_page.index('id="publications-2027"'),
+            publication_page.index('id="publications-2026"'),
+        )
         self.assertLess(
             publication_page.index('id="publications-2026"'),
             publication_page.index('id="publications-2025"'),
@@ -1055,19 +1077,25 @@ class SheetBuilderTests(unittest.TestCase):
             publication_page.index("Accepted Workshop With Arxiv Link"),
             publication_page.index("Second 2026 Sheet Row"),
         )
-        self.assertLess(
-            publication_page.index("Second 2025 Sheet Row"),
-            publication_page.index('id="preprints"'),
-        )
-        self.assertLess(
-            publication_page.index('id="preprints"'),
-            publication_page.index("Newest Preprint"),
-        )
+        expected_order = [
+            "Newest Preprint",
+            "Latest 2026 Preprint",
+            "Earlier 2026 Preprint",
+            "Accepted Workshop With Arxiv Link",
+            "Second 2026 Sheet Row",
+            "First 2026 Sheet Row",
+            "First 2025 Sheet Row",
+            "Second 2025 Sheet Row",
+        ]
+        positions = [publication_page.index(title) for title in expected_order]
+        self.assertEqual(positions, sorted(positions))
         self.assertEqual(publication_page.count("Accepted Workshop With Arxiv Link"), 1)
 
         home_latest = builder.render_home_latest(rows)
         self.assertNotIn("Accepted Workshop With Arxiv Link", home_latest)
         self.assertNotIn("Newest Preprint", home_latest)
+        self.assertNotIn("Earlier 2026 Preprint", home_latest)
+        self.assertNotIn("Latest 2026 Preprint", home_latest)
         self.assertLess(
             home_latest.index("Second 2026 Sheet Row"),
             home_latest.index("First 2026 Sheet Row"),

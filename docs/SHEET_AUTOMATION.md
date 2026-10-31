@@ -62,10 +62,11 @@ cell are omitted.
 | `home_image_alt` | Legacy homepage figure description |
 | `home_image_credit` | Legacy homepage figure credit |
 
-The Publications page first lists **Accepted & Published** papers, followed by
-**Preprints**. Each section groups papers by year and sorts by `date` descending
-within each year, regardless of Sheet row order. Equal dates use title order.
-Venues beginning with `arXiv`, `Preprint`, or `Working paper` belong to Preprints;
+The Publications page uses one list grouped by year, newest year first, without
+separate accepted/published or preprint headings. Within each year, preprints
+appear first, followed by accepted and published papers. Both groups sort by
+`date` descending, regardless of Sheet row order; equal dates use title order.
+Venues beginning with `arXiv`, `Preprint`, or `Working paper` identify preprints;
 change the venue to the accepted conference/workshop/journal and update `date`
 when a paper is accepted. An arXiv **link** does not make an accepted paper a
 preprint. List a paper accepted at multiple workshops once, naming both venues.
