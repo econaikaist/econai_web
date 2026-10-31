@@ -9,6 +9,7 @@
 }
 
 .projects-page .project-feature h2 {
+  color: var(--blue);
   font-size: clamp(1.25rem, 2.5vw, 1.6rem);
   font-weight: 800;
   letter-spacing: -0.025em;
