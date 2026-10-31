@@ -1,0 +1,103 @@
+/* Projects read as one continuous page, with no cards or hidden descriptions. */
+.projects-page .projects-content {
+  background: var(--surface);
+}
+
+.projects-page .project-feature {
+  margin-bottom: 48px;
+  scroll-margin-top: 110px;
+}
+
+.projects-page .project-feature h2 {
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.4;
+  margin: 0 0 16px;
+}
+
+.projects-page .project-feature p {
+  color: var(--text);
+  line-height: 1.8;
+  margin: 0 0 16px;
+  overflow-wrap: break-word;
+}
+
+.projects-page .project-feature .project-credit {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.projects-page .project-feature strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.projects-page .project-feature a {
+  color: var(--blue);
+  text-underline-offset: 3px;
+}
+
+.projects-page .project-translation {
+  margin-top: 28px;
+  word-break: keep-all;
+}
+
+.projects-page .project-translation h3 {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.projects-page .project-feature .project-resources {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 20px 0 0;
+}
+
+.projects-page .project-section-header {
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 0;
+}
+
+.projects-page .project-grid {
+  display: block;
+}
+
+.projects-page .project-card,
+.projects-page .project-card:hover {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  display: block;
+  min-height: 0;
+  padding: 24px 0;
+  transform: none;
+}
+
+.projects-page .project-meta {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.projects-page .project-card h3 {
+  margin-top: 10px;
+}
+
+.projects-page .project-card p {
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.projects-page .project-area {
+  display: block;
+  margin-top: 12px;
+  padding-top: 0;
+}
+
+.projects-page .project-publication-link {
+  display: inline-block;
+}
