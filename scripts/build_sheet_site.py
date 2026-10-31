@@ -47,7 +47,7 @@ PRIMARY_PAGE_NAMES = (
     "projects.html",
     "contact.html",
 )
-SITE_FOOTER_META = "Daejeon, ROK · 2026 Economic Progress and AI Research Group"
+SITE_FOOTER_META = "Daejeon, South Korea · 2026 Economic Progress and AI Research Group"
 RESEARCH_IMAGE_ENDPOINT_ENV = "ECONAI_SHEET_IMAGE_ENDPOINT"
 RESEARCH_IMAGE_TOKEN_ENV = "ECONAI_SHEET_IMAGE_TOKEN"
 RESEARCH_IMAGE_SCHEMA_VERSION = 1

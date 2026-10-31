@@ -2234,7 +2234,7 @@ class SheetBuilderTests(unittest.TestCase):
             for page_name in builder.PRIMARY_PAGE_NAMES:
                 page_text = (output / page_name).read_text(encoding="utf-8")
                 self.assertIn(
-                    "Daejeon, ROK · 2026 Economic Progress and AI Research Group",
+                    "Daejeon, South Korea · 2026 Economic Progress and AI Research Group",
                     page_text,
                 )
                 footer_start, footer_end = site_validator.SITE_FOOTER_PAIR
