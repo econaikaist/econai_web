@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&family=Noto+Sans+KR:wght@400..800&display=swap");
 
 :root {
   --blue: #004191;
   --blue-dark: #002d65;
   --blue-soft: #edf4fb;
-  --ink: #20262d;
+  --ink: #172033;
   --text: #4f5c68;
   --muted: #75808b;
   --surface: #ffffff;
@@ -27,10 +27,18 @@ body {
   margin: 0;
   background: var(--surface);
   color: var(--ink);
-  font-family: "Noto Sans KR", Arial, sans-serif;
+  font-family: "Manrope", "Noto Sans KR", Arial, sans-serif;
   font-size: 16px;
+  font-weight: 400;
   line-height: 1.65;
   text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
 img {
@@ -103,11 +111,11 @@ a {
 
 .desktop-nav a {
   align-items: center;
-  color: #343a40;
+  color: var(--ink);
   display: inline-flex;
   font-size: 0.88rem;
-  font-weight: 800;
-  letter-spacing: 0.025em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   position: relative;
   text-decoration: none;
 }
@@ -200,7 +208,7 @@ a {
 .kicker {
   color: var(--blue);
   font-size: 0.77rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.12em;
   margin: 0 0 12px;
   text-transform: uppercase;
@@ -208,7 +216,7 @@ a {
 
 .hero h1 {
   font-size: clamp(2.35rem, 5vw, 4rem);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 1.08;
   margin: 0;
@@ -297,7 +305,7 @@ a {
 
 .section-heading h2 {
   font-size: clamp(1.65rem, 3vw, 2.25rem);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1.2;
   margin: 0;
@@ -345,14 +353,14 @@ a {
   color: var(--blue);
   display: block;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.08em;
   margin-bottom: 42px;
 }
 
 .focus-card h3 {
   font-size: 1.21rem;
-  font-weight: 850;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.4;
   margin: 0;
@@ -399,7 +407,7 @@ a {
 .featured-label {
   color: #a9c8e8;
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -432,7 +440,7 @@ a {
 
 .publication-panel h3 {
   font-size: 1.5rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.025em;
   margin: 0 0 14px;
 }
@@ -685,7 +693,7 @@ a {
 .news-date {
   color: var(--blue);
   font-size: 0.75rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.08em;
   margin: 0;
   text-transform: uppercase;
@@ -703,7 +711,7 @@ a {
 
 .news-content h3 {
   font-size: 1.13rem;
-  font-weight: 850;
+  font-weight: 800;
   letter-spacing: -0.015em;
   line-height: 1.45;
   margin: 0;
@@ -743,7 +751,7 @@ a {
 
 .page-hero h1 {
   font-size: clamp(2.4rem, 5vw, 3.65rem);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.045em;
   line-height: 1.1;
   margin: 0;
@@ -840,7 +848,7 @@ a {
 .publications-container .publication-year {
   color: var(--blue);
   font-size: 1rem;
-  font-weight: 900;
+  font-weight: 800;
   margin: 22px 0 0;
 }
 
@@ -1182,14 +1190,14 @@ a {
 .research-index {
   color: var(--blue);
   font-size: 0.95rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.08em;
   padding-top: 4px;
 }
 
 .research-body h2 {
   font-size: clamp(1.5rem, 3vw, 2.15rem);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1.28;
   margin: 0;
@@ -1198,7 +1206,7 @@ a {
 .research-question {
   color: var(--blue);
   font-size: 0.79rem;
-  font-weight: 850;
+  font-weight: 800;
   line-height: 1.55;
   margin: 14px 0 0;
   max-width: 740px;
@@ -1219,7 +1227,7 @@ a {
 .selected-label {
   color: var(--muted);
   font-size: 0.7rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.09em;
   margin: 0 0 10px;
   text-transform: uppercase;
@@ -1324,7 +1332,7 @@ a {
 
 .project-section-header h2 {
   font-size: 1.6rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.03em;
   margin: 0;
 }
@@ -1367,7 +1375,7 @@ a {
   color: var(--blue);
   display: inline-flex;
   font-size: 0.71rem;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
@@ -1397,7 +1405,7 @@ a {
 
 .project-card h3 {
   font-size: 1.2rem;
-  font-weight: 850;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.42;
   margin: 30px 0 0;
@@ -1457,7 +1465,7 @@ a {
 .footer-school {
   color: var(--blue);
   font-size: 0.84rem;
-  font-weight: 850;
+  font-weight: 800;
   margin: 0;
 }
 
@@ -1732,8 +1740,8 @@ summary:focus-visible {
 .home-page .home-mission h1,
 .home-page .home-news h2 {
   font-size: 1.5rem;
-  font-weight: 750;
-  letter-spacing: -0.025em;
+  font-weight: 800;
+  letter-spacing: -0.035em;
   line-height: 1.35;
   margin: 0;
 }
@@ -1871,8 +1879,8 @@ summary:focus-visible {
 
 .inner-page .compact-page-heading h1 {
   font-size: 1.5rem;
-  font-weight: 750;
-  letter-spacing: -0.025em;
+  font-weight: 800;
+  letter-spacing: -0.035em;
   line-height: 1.35;
   margin: 0;
 }
@@ -1906,8 +1914,8 @@ summary:focus-visible {
 
 .research-text-page .research-row h2 {
   font-size: 1.25rem;
-  font-weight: 750;
-  letter-spacing: -0.015em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   line-height: 1.4;
   margin: 0;
 }
