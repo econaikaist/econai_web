@@ -55,6 +55,17 @@ MARKER_PAIRS = {
 }
 EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel", "data"}
 SITE_ORIGIN = "https://econai.kaist.ac.kr"
+REQUIRED_ICON_LINKS = (
+    ("icon", "favicon.ico"),
+    ("icon", "favicon-16x16.png"),
+    ("icon", "favicon-32x32.png"),
+    ("apple-touch-icon", "apple-touch-icon.png"),
+    ("manifest", "site.webmanifest"),
+)
+REQUIRED_ICON_ASSETS = tuple(name for _, name in REQUIRED_ICON_LINKS) + (
+    "icon-192.png",
+    "icon-512.png",
+)
 REQUIRED_SITEMAP_URLS = {
     f"{SITE_ORIGIN}/",
     f"{SITE_ORIGIN}/members.html",
@@ -128,11 +139,17 @@ class LinkCollector(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.references: List[Tuple[str, str]] = []
+        self.link_relations: List[Tuple[str, str]] = []
         self.ids: List[str] = []
         self.classes: List[str] = []
 
     def handle_starttag(self, tag: str, attrs: Sequence[Tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
+        if tag == "link" and attributes.get("href"):
+            self.link_relations.extend(
+                (relation, attributes["href"] or "")
+                for relation in (attributes.get("rel") or "").split()
+            )
         if attributes.get("id"):
             self.ids.append(attributes["id"] or "")
         if attributes.get("class"):
@@ -201,8 +218,17 @@ def validate(site_dir: Path) -> List[str]:
             continue
         if "Preview" in text or "preview.css" in text:
             errors.append(f"{file_name}: preview-only text or stylesheet remains")
-        if 'rel="icon"' not in text or "favicon.svg" not in text:
-            errors.append(f"{file_name}: EconAI favicon is missing")
+        icon_parser = LinkCollector()
+        icon_parser.feed(text)
+        icon_parser.close()
+        icon_links = {
+            (relation, target.resolve())
+            for relation, href in icon_parser.link_relations
+            if (target := _resolve_local_reference(site_dir, html_path, href)) is not None
+        }
+        for relation, asset in REQUIRED_ICON_LINKS:
+            if (relation, site_dir / asset) not in icon_links:
+                errors.append(f"{file_name}: missing {relation} link to {asset}")
         for start, end in marker_pairs:
             if text.count(start) != 1 or text.count(end) != 1:
                 errors.append(f"{file_name}: invalid marker pair {start} / {end}")
@@ -309,7 +335,7 @@ def validate(site_dir: Path) -> List[str]:
                     f"{html_path.relative_to(site_dir)}: broken local {attribute}={value!r}"
                 )
 
-    for required in ("site.css", "favicon.svg", "banner.png", "img/EconAI@KAIST.svg"):
+    for required in ("site.css", "banner.png", "img/EconAI@KAIST.svg", *REQUIRED_ICON_ASSETS):
         if not (site_dir / required).exists():
             errors.append(f"missing required static asset: {required}")
 
