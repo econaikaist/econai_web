@@ -112,14 +112,6 @@ REQUIRED_COLUMNS = {
         "slug",
         "title",
         "summary",
-        "question",
-        "home_summary",
-        "selected_publication_1",
-        "figure_1_alt",
-        "figure_1_credit",
-        "selected_publication_2",
-        "figure_2_alt",
-        "figure_2_credit",
     },
     "Projects": {
         "publish",
@@ -259,9 +251,6 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
         raise SheetBuildError(
             f"{tab_name}: missing columns: {', '.join(sorted(missing))}"
         )
-    research_image_schema = (
-        _research_image_schema(fieldnames) if tab_name == "Research" else None
-    )
     if tab_name == "Publications":
         _publication_image_schema(fieldnames)
 
@@ -341,32 +330,10 @@ def _read_csv_text(text: str, tab_name: str) -> List[Dict[str, str]]:
             if slug in research_slugs:
                 raise SheetBuildError(f"{tab_name} row {index}: duplicate slug {slug!r}")
             research_slugs.add(slug)
-            for field in (
-                "summary",
-                "question",
-                "home_summary",
-                "selected_publication_1",
-                "selected_publication_2",
-            ):
-                if not row.get(field):
-                    raise SheetBuildError(
-                        f"{tab_name} row {index}: {field} is required"
-                    )
-            if research_image_schema == "legacy_url":
-                for slot in (1, 2):
-                    for field in (
-                        f"figure_{slot}_url",
-                        f"figure_{slot}_alt",
-                        f"figure_{slot}_credit",
-                    ):
-                        if not row.get(field):
-                            raise SheetBuildError(
-                                f"{tab_name} row {index}: {field} is required"
-                            )
-                    _validate_url(
-                        row[f"figure_{slot}_url"],
-                        f"{tab_name} row {index} figure_{slot}_url",
-                    )
+            if not row.get("summary"):
+                raise SheetBuildError(
+                    f"{tab_name} row {index}: summary is required"
+                )
         elif tab_name == "Projects":
             for field in ("summary", "status", "period", "area"):
                 if not row.get(field):
@@ -2115,14 +2082,6 @@ def _validate_publication_references(
     tabs: Mapping[str, List[Dict[str, str]]],
 ) -> None:
     publication_lookup = _publication_lookup(tabs["Publications"])
-    for row in tabs["Research"]:
-        for slot in (1, 2):
-            field = f"selected_publication_{slot}"
-            _resolve_publication(
-                row[field],
-                publication_lookup,
-                f"Research {row['slug']!r} {field}",
-            )
     for row in tabs["News"]:
         for slot in (1, 2):
             field = f"related_publication_{slot}"
@@ -2184,64 +2143,24 @@ def _selected_publication_lines(
     ]
 
 
-def render_research_areas(
-    research_rows: Sequence[Dict[str, str]],
-    publications: Sequence[Dict[str, str]],
-    output_dir: Path,
-    research_images: Mapping[Tuple[str, int], Mapping[str, str]] | None = None,
-) -> str:
-    lookup = _publication_lookup(publications)
+def render_research_areas(research_rows: Sequence[Dict[str, str]]) -> str:
+    """Render the checked Research rows as concise, text-only research themes."""
     lines = ['        <div class="research-rows">']
-    for index, row in enumerate(research_rows, start=1):
-        slug = row["slug"]
-        lines.extend(
-            [
-                f'          <article class="research-row" id="{_escape(slug, quote=True)}">',
-                f'            <div class="research-index">{index:02d}</div>',
-                '            <div class="research-body">',
-                f'              <h2>{_escape(row["title"])}</h2>',
-            ]
-        )
-        lines.append(
-            f'              <p class="research-question">{_escape(row["question"])}</p>'
-        )
-        lines.append(f'              <p class="research-summary">{_escape(row["summary"])}</p>')
-
-        lines.extend(
-            [
-                '              <div class="selected-publications">',
-                '                <p class="selected-label">Selected Publications</p>',
-                "                <ul>",
-            ]
-        )
-        for slot in (1, 2):
-            if research_images is None:
-                figure_url = row[f"figure_{slot}_url"]
-                figure_alt = row[f"figure_{slot}_alt"]
-                figure_credit = row[f"figure_{slot}_credit"]
-            else:
-                image = research_images.get((slug, slot))
-                if image is None:
-                    raise SheetBuildError(
-                        f"Research image asset is missing for {slug!r} slot {slot}"
-                    )
-                figure_url = image["url"]
-                figure_alt = image["alt"]
-                figure_credit = image["credit"]
-            lines.extend(
-                _selected_publication_lines(
-                    row[f"selected_publication_{slot}"],
-                    figure_url,
-                    figure_alt,
-                    figure_credit,
-                    lookup,
-                    output_dir,
-                )
+    for row in research_rows:
+        lines.extend([
+            f'          <article class="research-row" id="{_escape(row["slug"], quote=True)}">',
+            '            <div class="research-body">',
+            f'              <h2>{_escape(row["title"])}</h2>',
+        ])
+        if row.get("question"):
+            lines.append(
+                f'              <p class="research-question">{_escape(row["question"])}</p>'
             )
-        lines.extend(["                </ul>", "              </div>"])
-
-        lines.extend(["            </div>", "          </article>"])
-    lines.append("        </div>")
+        lines.append(
+            f'              <p class="research-summary">{_escape(row["summary"])}</p>'
+        )
+        lines.extend(['            </div>', '          </article>'])
+    lines.append('        </div>')
     return "\n".join(lines)
 
 
@@ -2773,23 +2692,11 @@ def build_site(
     news = tabs["News"]
     members = tabs["Members"]
     lab_authors = _lab_authors(members)
-    research_image_schema = _research_image_schema(research[0].keys())
     member_image_candidates = [
         row
         for row in members
         if row["section"] in MEMBER_CARD_SECTIONS and not row.get("photo")
     ]
-    research_images = None
-    if research_image_schema == "direct_cell":
-        if publication_workbook is not None:
-            research_images = _materialise_research_workbook_images(
-                publication_workbook, research, output_dir
-            )
-        else:
-            # Compatibility for explicit/offline callers without an XLSX export.
-            research_images = _materialise_research_images(
-                research, output_dir, image_endpoint, image_token, timeout
-            )
     member_images = (
         _materialise_member_images(
             publication_workbook or b"",
@@ -2810,12 +2717,7 @@ def build_site(
         output_dir / "research.html",
         "<!-- SHEET:RESEARCH_AREAS:START -->",
         "<!-- SHEET:RESEARCH_AREAS:END -->",
-        render_research_areas(
-            research,
-            publications,
-            output_dir,
-            research_images,
-        ),
+        render_research_areas(research),
     )
     _replace_block(
         output_dir / "projects.html",
@@ -2881,7 +2783,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help=(
             "offline XLSX export used for in-cell images; required with "
-            "--csv-dir when Research, Publications, or Members need embedded images"
+            "--csv-dir when Members need embedded images"
         ),
     )
     parser.add_argument("--timeout", type=float, default=30.0)
@@ -2901,10 +2803,7 @@ def main() -> int:
             blank_member_photo_cells
             and (args.csv_dir is None or args.xlsx_file is not None)
         )
-        workbook_needed = (
-            _research_image_schema(tabs["Research"][0].keys()) == "direct_cell"
-            or member_image_candidates
-        )
+        workbook_needed = member_image_candidates
         if workbook_needed:
             if args.xlsx_file is not None:
                 try:
@@ -2929,8 +2828,6 @@ def main() -> int:
             args.output_dir,
             args.sheet_id,
             "offline_csv" if args.csv_dir else "google_sheet",
-            image_endpoint=os.environ.get(RESEARCH_IMAGE_ENDPOINT_ENV),
-            image_token=os.environ.get(RESEARCH_IMAGE_TOKEN_ENV),
             publication_workbook=publication_workbook,
             timeout=args.timeout,
         )

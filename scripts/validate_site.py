@@ -223,8 +223,11 @@ def validate(site_dir: Path) -> List[str]:
             or "cdn.jsdelivr.net/npm/bootstrap" in text.lower()
         ):
             errors.append(f"{file_name}: legacy Bootstrap page shell remains")
-        if file_name != "index.html" and _classes(text, "page-hero") != 1:
-            errors.append(f"{file_name}: canonical page hero is missing")
+        if file_name != "index.html":
+            if _classes(text, "compact-page-heading") != 1:
+                errors.append(f"{file_name}: compact page heading is missing")
+            if _classes(text, "page-hero"):
+                errors.append(f"{file_name}: removed page banner remains")
 
         footer_start, footer_end = SITE_FOOTER_PAIR
         if text.count(footer_start) == 1 and text.count(footer_end) == 1:
@@ -280,9 +283,10 @@ def validate(site_dir: Path) -> List[str]:
     if "googleusercontent.com" in member_text or "ggpht.com" in member_text:
         errors.append("members.html leaks a temporary Google image URL")
 
-    selected_count = research_text.count('class="selected-figure-frame"')
-    if selected_count and selected_count != research_text.count("loading=\"lazy\""):
-        errors.append("every selected research figure must be lazy-loaded")
+    if any(_classes(research_text, name) for name in (
+        "selected-publications", "selected-figure-frame", "research-index"
+    )):
+        errors.append("research.html still contains removed figures, papers, or numbering")
 
     for html_path in sorted(site_dir.rglob("*.html")):
         text = html_path.read_text(encoding="utf-8")

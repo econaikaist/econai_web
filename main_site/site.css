@@ -1862,3 +1862,84 @@ summary:focus-visible {
     margin-top: 0;
   }
 }
+
+/* Compact headings on the main interior pages. */
+.inner-page .compact-page-heading {
+  background: var(--surface);
+  padding-block: 40px 8px;
+}
+
+.inner-page .compact-page-heading h1 {
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.inner-page #main-content > .section,
+.inner-page #main-content > .section-band,
+.inner-page #main-content > .publications-section {
+  padding-top: 20px;
+}
+
+.inner-page .publications-container {
+  max-width: var(--max-width);
+}
+
+.research-text-page .research-rows {
+  border: 0;
+  max-width: 900px;
+}
+
+.research-text-page .research-row {
+  border: 0;
+  display: block;
+  margin: 0 0 32px;
+  padding: 0;
+  scroll-margin-top: 110px;
+}
+
+.research-text-page .research-row:last-child {
+  margin-bottom: 0;
+}
+
+.research-text-page .research-row h2 {
+  font-size: 1.25rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.research-text-page .research-question,
+.research-text-page .research-summary {
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.75;
+  margin: 12px 0 0;
+  max-width: none;
+}
+
+@media (max-width: 720px) {
+  .inner-page .compact-page-heading {
+    padding-block: 28px 4px;
+  }
+
+  .inner-page #main-content > .section,
+  .inner-page #main-content > .section-band,
+  .inner-page #main-content > .publications-section {
+    padding-top: 18px;
+  }
+
+  .research-text-page .research-row {
+    margin-bottom: 28px;
+  }
+
+  .research-text-page .research-question,
+  .research-text-page .research-summary {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+}

@@ -8,19 +8,20 @@ The production path is:
 
 The existing `https://econai.kaist.ac.kr` URL, KAIST DNS A record, TLS certificate,
 and school server stay unchanged. GitHub Pages, a CNAME change, an inbound webhook,
-and an inbound Google-triggered webhook are not used. Research, Publications, and
-Members images stored directly in Sheet cells are read from the same anonymous
-XLSX workbook export. Normal CLI builds, GitHub validation, and server publishing
-need no Apps Script endpoint, token, or Google owner login. The older private
-Research image bridge remains available only to explicit Python callers that
-provide bridge settings but no workbook; it is not used by normal publishing.
+and an inbound Google-triggered webhook are not used. Member photos stored directly
+in Sheet cells are read from the anonymous XLSX workbook export. Normal CLI builds,
+GitHub validation, and server publishing need no Apps Script endpoint, token, or
+Google owner login. Research and homepage publications are text-only; their legacy
+image columns and embedded images are not read by the publishing path. Historical
+Research image helper functions remain for compatibility and security tests, but
+neither normal builds nor explicit `build_site()` calls invoke them.
 
 Every five minutes the server:
 
 1. refreshes a dedicated, unprivileged checkout of GitHub `main`;
 2. downloads the five Sheet tabs through their public CSV feeds and a matching
-   XLSX workbook export whenever Research, Publications, or Members need images;
-3. matches embedded images to published Sheet rows and validates their metadata,
+   XLSX workbook export whenever Members need embedded photos;
+3. matches member photos to published Sheet rows and validates their metadata,
    drawing anchors, workbook relationships, and image bytes before copying them
    into staging;
 4. builds and validates the complete static site in staging;
@@ -53,10 +54,10 @@ cell are omitted.
 | `title` | Paper title |
 | `authors` | Comma-separated authors |
 | `venue` | Full venue name and emphasized short form, for example `Conference on Language Modeling (COLM 2026)`; use `arXiv` while it is preprint-only |
-| `paper_url` | One canonical full-text or paper landing-page URL. May be blank for an accepted paper whose public link is not yet available; its title is displayed without a link. A public URL is required before selecting it in a Research, News, or Projects publication dropdown. |
+| `paper_url` | One canonical full-text or paper landing-page URL. May be blank for an accepted paper whose public link is not yet available; its title is displayed without a link. A public URL is required before selecting it in a News or Projects publication dropdown. |
 | `project_url` | Optional research group project page |
 | `highlight` | Optional award or presentation label |
-| `research_title` | Optional shorter title used on Research cards |
+| `research_title` | Optional shorter paper title used in linked News announcements |
 | `home_image` | Legacy homepage figure; retained but no longer displayed or required |
 | `home_image_alt` | Legacy homepage figure description |
 | `home_image_credit` | Legacy homepage figure credit |
@@ -87,8 +88,8 @@ announcements; editing a paper's highlight alone does not create a new event dat
 
 Homepage publication images are no longer used or required. Existing `home_image`,
 `home_image_alt`, and `home_image_credit` columns may remain in the Sheet, but
-missing or partial publication images cannot block the homepage build. Research
-and Members images continue to use the anonymous XLSX export as described below.
+missing or partial publication images cannot block the homepage build. Only Member
+photos use the anonymous XLSX export as described below.
 
 ### Research
 
@@ -96,60 +97,33 @@ and Members images continue to use the anonymous XLSX export as described below.
 | --- | --- |
 | `publish` | Checkbox; checked rows are published |
 | `slug` | Stable URL anchor, for example `llm-reasoning` |
-| `title` | Research area title |
-| `summary` | One concise area description |
-| `question` | The question shown above the area summary |
-| `home_summary` | Legacy one-line description; retained but no longer displayed on the homepage |
-| `selected_publication_1`, `selected_publication_2` | Exact paper-title dropdowns sourced from `Publications!C2:C` |
-| `figure_1_image`, `figure_2_image` | Image inserted directly into the cell with **Insert > Image > Insert image in cell** |
-| `figure_1_alt`, `figure_2_alt` | Accessible description of each image |
-| `figure_1_credit`, `figure_2_credit` | Figure number, source, and license/credit line |
+| `title` | Research theme title |
+| `summary` | Brief description of the research theme |
+| `question` | Optional topic sentence shown before the description; it need not be a question |
+| `home_summary` | Legacy field; retained but no longer displayed |
+| `selected_publication_1`, `selected_publication_2` | Legacy paper selections; retained but no longer displayed or validated |
+| `figure_1_image`, `figure_2_image` | Legacy figure cells; retained but no longer used or required |
+| `figure_1_url`, `figure_2_url` | Older legacy figure URL columns; ignored if present |
+| `figure_1_alt`, `figure_2_alt`, `figure_1_credit`, `figure_2_credit` | Legacy figure metadata; ignored |
 
-Checked Research rows populate the dedicated Research page. The
-selected-publication cells use dropdowns sourced from the Publications title
-column with invalid input rejected. The builder also requires an exact,
-case-sensitive match to a checked Publications row. It then automatically reuses
-that publication's paper URL, venue, and optional short title. Figure presentation
-data belongs to Research because it controls the Research cards.
+The Research page displays one text-only section per checked row, in physical Sheet
+order: the title, optional topic sentence, and description. The current themes are
+**AI, Economics, and Social Science**, followed by **AI for Economic Measurement**.
+There are no numbered cards, selected-paper lists, or figures on this page. The
+Research page updates automatically from Sheet edits.
 
-Both direct image cells are required in every checked Research row. Do not enter
-an HTTPS URL, local path, or `=IMAGE()` formula: the source is the actual in-cell
-image object. The builder reads the `Research` worksheet from the anonymous XLSX
-export and requires its published slugs and text metadata to match the CSV. Each
-published row must have exactly one embedded image in each figure column. Missing
-or duplicate images, stale rows, external workbook relationships, unsafe ZIP
-entries, and invalid image bytes fail the build. A failed workbook never falls
-back to old pictures or to the private bridge.
+Only `publish`, `slug`, `title`, and `summary` headers are required. Every checked
+row needs a title, description, and unique lowercase/hyphenated slug. The optional
+`question` column can be omitted or left blank. Existing legacy columns, selected
+papers, and image objects may stay in the Sheet without migration. Missing figures,
+stale selected-paper titles, partial image columns, and unused image URLs do not
+block the build. Research does not trigger an XLSX download or use the old private
+image bridge. Member photo extraction remains independent and keeps its existing
+validation.
 
-The images become content-hashed local files under `img/sheet-research/`; rendered
-HTML contains no temporary Google image URL. `figure_1_alt` and `figure_2_alt`
-provide accessible descriptions. If one is blank, the builder uses the embedded
-image's alternative-text description or title, and rejects a figure with no
-usable alternative text. Credits may be blank. The whole website is validated
-before any new release replaces the current site.
-
-#### Research image schema transition
-
-The builder temporarily accepts one of two complete, mutually exclusive Research
-schemas:
-
-- Legacy mode has both `figure_1_url` and `figure_2_url`. It does not call the
-  image bridge and exists only to keep the current site publishable during the
-  migration.
-- Direct-image mode replaces those headers with `figure_1_image` and
-  `figure_2_image`. Every checked row needs both real in-cell images. The normal
-  builder fetches their XLSX export automatically; no private image bridge
-  configuration is required.
-
-Mixed headers or mixed row-level modes are rejected. Missing images, mismatched
-CSV/XLSX snapshots, failed workbook downloads, or invalid image files fail the
-staged build and leave the previous release live. Offline builds using direct
-images must supply a matching `--xlsx-file` alongside `--csv-dir`.
-
-The historical bridge setup guide remains in
+The historical image helper functions and bridge guide in
 [`deploy/apps-script-research-images/README.md`](../deploy/apps-script-research-images/README.md)
-for explicit callers without an XLSX workbook. When a workbook is supplied, it
-always takes precedence, including when obsolete bridge settings still exist.
+are retained only for explicit helper-level use; they are not part of publishing.
 
 ### Projects
 
@@ -188,12 +162,11 @@ first. All entries use the same compact layout; there is no oversized featured c
 
 ### Publication-reference dropdowns
 
-Research, News, and Projects must cite papers through their Publications-backed
+News and Projects cite papers through their Publications-backed
 dropdown columns; do not copy titles into another free-text column or combine
 multiple titles with `|`. Each dropdown uses **Dropdown (from a range)** with
 `Publications!$C$2:$C` as the range and **Reject input** enabled:
 
-- Research: `selected_publication_1`, `selected_publication_2`
 - News: `related_publication_1`, `related_publication_2`
 - Projects: `related_publication`
 
@@ -206,8 +179,9 @@ publisher does not switch the live symlink, so the last validated website remain
 online.
 
 If a title is renamed in Publications, the dropdown choices update but existing
-selected cells may retain the previous title. Search the Research, News, and
-Projects tabs for the old title and reselect the renamed title from each dropdown.
+selected cells may retain the previous title. Search the News and Projects tabs
+for the old title and reselect the renamed title from each dropdown. Legacy Research
+selections are ignored and do not need to be updated.
 If a reference should not be public yet, either clear that optional reference or
 check the matching Publications row; do not bypass the dropdown with a manually
 entered paper URL in a standalone `url` column. The failed row and title are
@@ -264,9 +238,9 @@ Google credentials. Store only information intended for public display.
 
 ## Safety behavior
 
-The build rejects missing or mixed columns, invalid checkboxes, duplicate or blank
-records, malformed dates, unsafe URLs, broken cross-tab publication references,
-missing local or direct-cell images, invalid image downloads, duplicate HTML IDs,
+The build rejects missing required columns, invalid checkboxes, duplicate or blank
+records, malformed dates, unsafe active URLs, broken News/Projects publication
+references, missing active local assets, invalid member photo data, duplicate HTML IDs,
 and any symlink in the generated site. It also refuses to publish fewer than 20
 publication rows, preventing an accidental mass deletion from replacing the live
 list. A failed build leaves the last validated release live.
@@ -291,7 +265,7 @@ and enables the timer. It does not change DNS, the public URL, or TLS certificat
 
 The normal publisher needs no Research image endpoint or token. Existing
 `/etc/econai-sheet-publisher.env` settings may remain for compatibility, but the
-current CLI uses the XLSX workbook and does not call that bridge. Do not put old
+current CLI uses the XLSX workbook only for member photos and does not call that bridge. Do not put old
 bridge credentials in the Sheet or GitHub. An already installed, running publisher
 picks up builder changes from `main` on its normal polling cycle; changing the
 builder does not require a new server login.
@@ -313,8 +287,8 @@ journalctl -u econai-sheet-publisher.service -n 100 --no-pager
 cat /srv/econai-site/state/status.json
 ```
 
-A workbook, anchor, alternative-text, or image error appears in the service
-journal with its Research, Publications, or Members context. The status file
+A workbook, anchor, or member-photo error appears in the service journal with its
+Members context. Unused Research and publication images are ignored. The status file
 remains the last successful/no-change result, and the `current` symlink and public
 site remain on the previous validated release. Correct the Sheet cell and allow
 the next timer run, or start the service again.

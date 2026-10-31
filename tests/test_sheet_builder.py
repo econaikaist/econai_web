@@ -1267,6 +1267,9 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertIn('class="site-header"', page_source)
             self.assertIn('class="desktop-nav"', page_source)
             self.assertIn('class="mobile-nav"', page_source)
+            if page_name != "index.html":
+                self.assertIn('class="compact-page-heading"', page_source)
+                self.assertNotIn('class="page-hero"', page_source)
             self.assertRegex(page_source, r'site\.css\?v=[^"\s]+')
             self.assertNotIn("fixed-top", page_source)
             self.assertNotIn("bootstrap", page_source.lower())
@@ -2268,17 +2271,70 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertIn("index.html news row count does not match Sheet metadata", errors)
             self.assertIn("members.html row count does not match Sheet metadata", errors)
 
-    def test_research_xlsx_images_build_without_private_bridge(self) -> None:
+    def test_research_accepts_minimal_text_columns_and_optional_question(self) -> None:
+        columns = ("publish", "slug", "title", "summary")
+        rows = [
+            {"publish": "TRUE", "slug": "ai-social-science", "title": "AI and Social Science",
+             "summary": "Understanding AI."},
+            {"publish": "TRUE", "slug": "economic-measurement", "title": "AI for Measurement",
+             "summary": "Measuring economic change."},
+            {"publish": "FALSE", "slug": "hidden", "title": "Hidden", "summary": "Hidden"},
+        ]
+        parsed = builder._read_csv_text(_csv_text(columns, rows), "Research")
+        self.assertEqual([row["slug"] for row in parsed],
+                         ["ai-social-science", "economic-measurement"])
+        rendered = builder.render_research_areas(parsed)
+        self.assertLess(rendered.index("AI and Social Science"), rendered.index("AI for Measurement"))
+        self.assertEqual(site_validator._classes(rendered, "research-row"), 2)
+        self.assertNotIn("research-question", rendered)
+        self.assertNotIn("Hidden", rendered)
+        self.assertNotIn("research-index", rendered)
+        self.assertNotIn("<img", rendered)
+        self.assertNotIn("selected-publications", rendered)
+
+    def test_text_research_escapes_title_topic_and_summary(self) -> None:
+        rendered = builder.render_research_areas([
+            {"slug": "ai-social-science", "title": "AI <script> & economics",
+             "question": "Can AI reason <reliably>?",
+             "summary": "People & agents <interact>."}
+        ])
+        self.assertIn('id="ai-social-science"', rendered)
+        self.assertIn("AI &lt;script&gt; &amp; economics", rendered)
+        self.assertIn("Can AI reason &lt;reliably&gt;?", rendered)
+        self.assertIn("People &amp; agents &lt;interact&gt;.", rendered)
+        self.assertNotIn("<script>", rendered)
+
+    def test_unused_research_images_and_paper_references_cannot_block_build(self) -> None:
+        tabs = self._publication_reference_tabs(research_publication_1="Deleted Paper")
+        row = tabs["Research"][0]
+        row.update(figure_1_url="javascript:unused", figure_2_image="stale cell value",
+                   figure_2_alt="", selected_publication_2="Unchecked Paper",
+                   home_summary="", question="")
+        # Even partial legacy columns are harmless because the page uses text only.
+        row.pop("figure_2_url")
+        tabs["Research"] = builder._read_csv_text(
+            _csv_text(tuple(row.keys()), [row]), "Research"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "site"
+            builder.build_site(tabs, REPOSITORY_ROOT / "main_site", output,
+                               "test-sheet", "offline_csv")
+            rendered = (output / "research.html").read_text()
+            for unused in ("Deleted Paper", "Unchecked Paper", "javascript:unused",
+                           "stale cell value", "selected-publications", "research-question"):
+                self.assertNotIn(unused, rendered)
+            self.assertEqual(site_validator.validate(output), [])
+
+    def test_text_research_build_ignores_legacy_workbook_and_bridge(self) -> None:
         tabs = self._direct_image_tabs()
         workbook = self._research_workbook(tabs["Research"])
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "site"
             with (
-                mock.patch.object(builder, "_fetch_research_image_manifest") as bridge,
-                mock.patch.object(
-                    builder.urllib.request, "urlopen",
-                    side_effect=AssertionError("XLSX images must not need a network bridge"),
-                ),
+                mock.patch.object(builder, "_materialise_research_images") as bridge,
+                mock.patch.object(builder, "_materialise_research_workbook_images") as images,
+                mock.patch.object(builder.urllib.request, "urlopen",
+                                  side_effect=AssertionError("text build must be offline")),
             ):
                 builder.build_site(
                     tabs, REPOSITORY_ROOT / "main_site", output,
@@ -2286,13 +2342,14 @@ class SheetBuilderTests(unittest.TestCase):
                     image_endpoint="obsolete-bridge", image_token="obsolete-token",
                 )
             bridge.assert_not_called()
+            images.assert_not_called()
             research_html = (output / "research.html").read_text()
-            for slot, payload, extension in ((1, TINY_PNG, "png"), (2, TINY_JPEG, "jpg")):
-                digest = hashlib.sha256(payload).hexdigest()[:16]
-                path = f"img/sheet-research/reference-test-{slot}-{digest}.{extension}"
-                self.assertEqual((output / path).read_bytes(), payload)
-                self.assertIn(path, research_html)
+            self.assertIn('<h2>Reference Test</h2>', research_html)
+            self.assertIn('<p class="research-question">Question?</p>', research_html)
+            self.assertIn('<p class="research-summary">Summary</p>', research_html)
+            self.assertNotIn("selected-publications", research_html)
             self.assertNotIn("obsolete-bridge", research_html)
+            self.assertFalse((output / "img/sheet-research").exists())
             self.assertEqual(site_validator.validate(output), [])
 
     def test_research_workbook_preserves_optional_credit_and_image_alt_fallback(self) -> None:
@@ -2384,21 +2441,25 @@ class SheetBuilderTests(unittest.TestCase):
                         self._zip_fixture_files(original | changes), rows, Path(directory)
                     )
 
-    def test_invalid_research_workbook_never_falls_back_to_private_bridge(self) -> None:
+    def test_text_research_build_ignores_missing_or_corrupt_unused_images(self) -> None:
         tabs = self._direct_image_tabs()
-        workbook = self._research_workbook(tabs["Research"], omit_slot=("reference-test", 2))
-        with tempfile.TemporaryDirectory() as directory, mock.patch.object(
-            builder, "_fetch_research_image_manifest"
-        ) as bridge:
-            with self.assertRaisesRegex(builder.SheetBuildError, "missing"):
-                builder.build_site(
-                    tabs, REPOSITORY_ROOT / "main_site", Path(directory) / "site",
-                    "test-sheet", "offline_csv", publication_workbook=workbook,
-                    image_endpoint=self.IMAGE_ENDPOINT, image_token=self.IMAGE_TOKEN,
-                )
-            bridge.assert_not_called()
+        cases = [None, b"invalid XLSX", self._research_workbook(
+            tabs["Research"], omit_slot=("reference-test", 2)
+        )]
+        for workbook in cases:
+            with self.subTest(workbook_type=type(workbook).__name__):
+                with tempfile.TemporaryDirectory() as directory, mock.patch.object(
+                    builder, "_fetch_research_image_manifest"
+                ) as bridge:
+                    output = Path(directory) / "site"
+                    builder.build_site(
+                        tabs, REPOSITORY_ROOT / "main_site", output,
+                        "test-sheet", "offline_csv", publication_workbook=workbook,
+                    )
+                    bridge.assert_not_called()
+                    self.assertEqual(site_validator.validate(output), [])
 
-    def test_live_cli_fetches_workbook_for_research_only_cell_images(self) -> None:
+    def test_live_cli_does_not_fetch_workbook_for_unused_research_images(self) -> None:
         tabs = self._direct_image_tabs()
         args = mock.Mock(
             sheet_id="test-sheet", source_dir=REPOSITORY_ROOT / "main_site",
@@ -2408,85 +2469,37 @@ class SheetBuilderTests(unittest.TestCase):
         with (
             mock.patch.object(builder, "parse_args", return_value=args),
             mock.patch.object(builder, "load_sheet_tabs", return_value=tabs),
-            mock.patch.object(builder, "_fetch_workbook", return_value=b"workbook") as fetch,
+            mock.patch.object(builder, "_fetch_workbook") as fetch,
             mock.patch.object(builder, "build_site") as build,
         ):
             self.assertEqual(builder.main(), 0)
-        fetch.assert_called_once_with("test-sheet", 12.5)
-        self.assertEqual(build.call_args.kwargs["publication_workbook"], b"workbook")
+        fetch.assert_not_called()
+        self.assertIsNone(build.call_args.kwargs["publication_workbook"])
 
-    def test_direct_in_cell_images_are_materialised_without_url_leaks(self) -> None:
+    def test_legacy_research_image_helper_materialises_files_without_url_leaks(self) -> None:
         tabs = self._direct_image_tabs()
         manifest = self._direct_image_manifest()
         fake_urlopen, requests = self._bridge_urlopen(manifest)
-
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            output = Path(temporary_directory) / "output"
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "output"
             with mock.patch.object(builder.urllib.request, "urlopen", fake_urlopen):
-                builder.build_site(
-                    tabs,
-                    REPOSITORY_ROOT / "main_site",
-                    output,
-                    "test-sheet",
-                    "offline_csv",
-                    image_endpoint=self.IMAGE_ENDPOINT,
-                    image_token=self.IMAGE_TOKEN,
-                    timeout=7.5,
+                assets = builder._materialise_research_images(
+                    tabs["Research"], output, self.IMAGE_ENDPOINT, self.IMAGE_TOKEN, 7.5,
                 )
-
-            first_hash = hashlib.sha256(TINY_PNG).hexdigest()[:16]
-            second_hash = hashlib.sha256(TINY_JPEG).hexdigest()[:16]
-            first_candidates = list(
-                (output / "img/sheet-research").glob(
-                    f"reference-test-1-{first_hash}.*"
-                )
-            )
-            second_candidates = list(
-                (output / "img/sheet-research").glob(
-                    f"reference-test-2-{second_hash}.*"
-                )
-            )
-            self.assertEqual(len(first_candidates), 1)
-            self.assertEqual(len(second_candidates), 1)
-            self.assertEqual(first_candidates[0].suffix, ".png")
-            self.assertIn(second_candidates[0].suffix, {".jpg", ".jpeg"})
-            self.assertEqual(first_candidates[0].read_bytes(), TINY_PNG)
-            self.assertEqual(second_candidates[0].read_bytes(), TINY_JPEG)
-
-            research_html = (output / "research.html").read_text(encoding="utf-8")
-            rendered_sources = re.findall(
-                r'<img src="(img/sheet-research/[^"]+)"', research_html
-            )
-            self.assertEqual(
-                set(rendered_sources),
-                {
-                    first_candidates[0].relative_to(output).as_posix(),
-                    second_candidates[0].relative_to(output).as_posix(),
-                },
-            )
-
-            forbidden_values = (
-                self.IMAGE_ENDPOINT,
-                self.IMAGE_TOKEN,
-                self.IMAGE_1_URL,
-                self.IMAGE_2_URL,
-            )
+            for slot, payload, extension in ((1, TINY_PNG, "png"), (2, TINY_JPEG, "jpg")):
+                asset = assets[("reference-test", slot)]
+                digest = hashlib.sha256(payload).hexdigest()[:16]
+                self.assertIn(f"reference-test-{slot}-{digest}", asset["url"])
+                self.assertEqual((output / asset["url"]).read_bytes(), payload)
+                self.assertNotIn("googleusercontent.com", asset["url"])
             for path in output.rglob("*"):
-                if not path.is_file():
-                    continue
-                payload = path.read_bytes()
-                for forbidden in forbidden_values:
-                    self.assertNotIn(forbidden.encode("utf-8"), payload, path)
-            metadata_text = (output / "data/sheet-build.json").read_text(
-                encoding="utf-8"
-            )
-            self.assertNotIn("content_url", metadata_text)
-
+                if path.is_file():
+                    for value in (self.IMAGE_ENDPOINT, self.IMAGE_TOKEN,
+                                  self.IMAGE_1_URL, self.IMAGE_2_URL):
+                        self.assertNotIn(value.encode(), path.read_bytes())
         self.assertEqual([url for url, _, _ in requests][0], self.IMAGE_ENDPOINT)
-        self.assertEqual(
-            set(url for url, _, _ in requests[1:]),
-            {self.IMAGE_1_URL, self.IMAGE_2_URL},
-        )
+        self.assertEqual(set(url for url, _, _ in requests[1:]),
+                         {self.IMAGE_1_URL, self.IMAGE_2_URL})
         self.assertTrue(all(timeout == 7.5 for _, _, timeout in requests))
 
     def test_home_feed_build_ignores_unused_publication_images(self) -> None:
@@ -2583,15 +2596,9 @@ class SheetBuilderTests(unittest.TestCase):
                 with tempfile.TemporaryDirectory() as temporary_directory:
                     output = Path(temporary_directory) / "output"
                     with self.assertRaises(builder.SheetBuildError) as context:
-                        builder.build_site(
-                            tabs,
-                            REPOSITORY_ROOT / "main_site",
-                            output,
-                            "test-sheet",
-                            "offline_csv",
-                            image_endpoint=endpoint,
-                            image_token=token,
-                        )
+                        builder._materialise_research_images(
+                                tabs["Research"], output, endpoint, token, 30.0,
+                            )
                 self.assertRegex(str(context.exception).casefold(), r"image|token")
 
     def test_manifest_mapping_must_exactly_match_published_slots(self) -> None:
@@ -2632,14 +2639,8 @@ class SheetBuilderTests(unittest.TestCase):
                         builder.urllib.request, "urlopen", fake_urlopen
                     ):
                         with self.assertRaises(builder.SheetBuildError) as context:
-                            builder.build_site(
-                                tabs,
-                                REPOSITORY_ROOT / "main_site",
-                                output,
-                                "test-sheet",
-                                "offline_csv",
-                                image_endpoint=self.IMAGE_ENDPOINT,
-                                image_token=self.IMAGE_TOKEN,
+                            builder._materialise_research_images(
+                                tabs["Research"], output, self.IMAGE_ENDPOINT, self.IMAGE_TOKEN, 30.0,
                             )
                 self.assertRegex(str(context.exception).casefold(), expected_word)
 
@@ -2688,14 +2689,8 @@ class SheetBuilderTests(unittest.TestCase):
                         builder.urllib.request, "urlopen", fake_urlopen
                     ):
                         with self.assertRaises(builder.SheetBuildError):
-                            builder.build_site(
-                                tabs,
-                                REPOSITORY_ROOT / "main_site",
-                                output,
-                                "test-sheet",
-                                "offline_csv",
-                                image_endpoint=self.IMAGE_ENDPOINT,
-                                image_token=self.IMAGE_TOKEN,
+                            builder._materialise_research_images(
+                                tabs["Research"], output, self.IMAGE_ENDPOINT, self.IMAGE_TOKEN, 30.0,
                             )
 
     def test_malformed_manifest_entries_are_rejected(self) -> None:
@@ -2721,14 +2716,8 @@ class SheetBuilderTests(unittest.TestCase):
                         builder.urllib.request, "urlopen", fake_urlopen
                     ):
                         with self.assertRaises(builder.SheetBuildError):
-                            builder.build_site(
-                                tabs,
-                                REPOSITORY_ROOT / "main_site",
-                                output,
-                                "test-sheet",
-                                "offline_csv",
-                                image_endpoint=self.IMAGE_ENDPOINT,
-                                image_token=self.IMAGE_TOKEN,
+                            builder._materialise_research_images(
+                                tabs["Research"], output, self.IMAGE_ENDPOINT, self.IMAGE_TOKEN, 30.0,
                             )
 
     def test_malformed_downloaded_image_is_rejected(self) -> None:
@@ -2754,14 +2743,8 @@ class SheetBuilderTests(unittest.TestCase):
                         builder.urllib.request, "urlopen", fake_urlopen
                     ):
                         with self.assertRaises(builder.SheetBuildError):
-                            builder.build_site(
-                                tabs,
-                                REPOSITORY_ROOT / "main_site",
-                                output,
-                                "test-sheet",
-                                "offline_csv",
-                                image_endpoint=self.IMAGE_ENDPOINT,
-                                image_token=self.IMAGE_TOKEN,
+                            builder._materialise_research_images(
+                                tabs["Research"], output, self.IMAGE_ENDPOINT, self.IMAGE_TOKEN, 30.0,
                             )
 
     def test_legacy_research_images_do_not_call_the_image_bridge(self) -> None:
@@ -2781,29 +2764,20 @@ class SheetBuilderTests(unittest.TestCase):
                     "offline_csv",
                 )
             research_html = (output / "research.html").read_text(encoding="utf-8")
-            self.assertIn(
+            self.assertNotIn(
                 'src="img/research/slum-detection-figure-5.png"', research_html
             )
+            self.assertIn('<h2>Reference Test</h2>', research_html)
             self.assertFalse((output / "img/sheet-research").exists())
 
     def test_unmatched_cross_tab_publication_references_fail_the_build(self) -> None:
         cases = (
-            (
-                "Research",
-                "Missing Paper",
-                {"research_publication_1": "Missing Paper"},
-            ),
             (
                 "Projects",
                 "Missing Paper",
                 {"project_publication": "Missing Paper"},
             ),
             ("News", "Missing Paper", {"news_publication_1": "Missing Paper"}),
-            (
-                "Research",
-                "published Paper",
-                {"research_publication_1": "published Paper"},
-            ),
         )
         for tab_name, bad_title, overrides in cases:
             with self.subTest(tab_name=tab_name, bad_title=bad_title):
