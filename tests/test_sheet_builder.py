@@ -905,6 +905,81 @@ class SheetBuilderTests(unittest.TestCase):
             rendered.index("Published Paper 3"),
         )
 
+    def test_home_feed_selects_latest_six_including_workshops_without_urls(self) -> None:
+        rows = [
+            {"date": f"2026-10-{day:02d}", "title": f"Paper {day}",
+             "authors": "A Author", "venue": "COLM 2026",
+             "paper_url": f"https://example.com/paper-{day}"}
+            for day in range(1, 8)
+        ]
+        rows[-1].update(venue="Accepted at NeurIPS 2026 (Workshop)", paper_url="")
+        rows.append({"date": "2026-11-01", "title": "New preprint",
+                     "venue": "arXiv", "paper_url": "https://example.com/preprint"})
+        selected = builder._home_publication_updates(rows, [])
+        self.assertEqual([row["title"] for row in selected],
+                         [f"Paper {day}" for day in range(7, 1, -1)])
+        rendered = builder.render_home_news(rows, [])
+        self.assertIn('<h3>Paper 7</h3>', rendered)
+        self.assertIn("Accepted at", rendered)
+        self.assertNotIn("New preprint", rendered)
+        self.assertNotIn("Paper 1", rendered)
+        self.assertEqual(site_validator._classes(rendered, "home-publication-update"), 6)
+
+    def test_home_feed_merges_publications_and_curated_news_chronologically(self) -> None:
+        publications = [
+            {"date": date, "title": title, "venue": "Example Journal 2026",
+             "paper_url": "https://example.com/paper"}
+            for date, title in [("2026-10-01", "New paper"), ("2026-08-01", "Old paper")]
+        ]
+        news = [{"date": "2026-09-01", "display_date": "Sep 2026",
+                 "tag": "Event", "title": "Research group event"}]
+        rendered = builder.render_home_news(publications, news)
+        self.assertLess(rendered.index("New paper"), rendered.index("Research group event"))
+        self.assertLess(rendered.index("Research group event"), rendered.index("Old paper"))
+        self.assertEqual(site_validator._classes(rendered, "sheet-news-item"), 1)
+        self.assertEqual(site_validator._classes(rendered, "home-publication-update"), 2)
+
+    def test_curated_publication_news_deduplicates_same_month_dates(self) -> None:
+        for publication_date, news_date in [("2026-10-15", "2026-10"),
+                                             ("2026-10", "2026-10-15")]:
+            with self.subTest(publication_date=publication_date, news_date=news_date):
+                publications = [{"date": publication_date, "title": "A paper",
+                                 "venue": "COLM 2026", "paper_url": "https://example.com/paper"}]
+                news = [{"date": news_date, "display_date": "Oct 2026",
+                         "tag": "Publications", "title": "Paper announcement",
+                         "related_publication_1": "A paper"}]
+                self.assertEqual(builder._home_publication_updates(publications, news), [])
+                rendered = builder.render_home_news(publications, news)
+                self.assertEqual(site_validator._classes(rendered, "home-publication-update"), 0)
+                self.assertEqual(site_validator._classes(rendered, "sheet-news-item"), 1)
+                self.assertIn("A paper", rendered)
+
+    def test_older_news_does_not_hide_later_publication_update(self) -> None:
+        publications = [{"date": "2026-11-01", "title": "A paper",
+                         "venue": "Accepted at NeurIPS 2026", "paper_url": "https://example.com/paper"}]
+        news = [{"date": "2026-09-01", "display_date": "Sep 2026",
+                 "tag": "Publication", "title": "Earlier announcement",
+                 "related_publication_1": "A paper"}]
+        self.assertEqual(builder._home_publication_updates(publications, news), publications)
+        rendered = builder.render_home_news(publications, news)
+        self.assertEqual(site_validator._classes(rendered, "home-publication-update"), 1)
+        self.assertLess(rendered.index("Accepted at"), rendered.index("Earlier announcement"))
+
+    def test_home_publication_news_preserves_highlights_and_escapes_content(self) -> None:
+        rows = [{"date": "2026-10-01", "title": 'Paper <script> & "title"',
+                 "venue": "Accepted at NeurIPS 2026 (<track>)",
+                 "paper_url": 'https://example.com/paper?a=1&b="2"',
+                 "project_url": "https://example.com/project?a=1&b=2",
+                 "highlight": "Spotlight <Oral> & presentation"}]
+        rendered = builder.render_home_news(rows, [])
+        self.assertIn('Paper &lt;script&gt; &amp; "title"', rendered)
+        self.assertIn("&lt;track&gt;", rendered)
+        self.assertIn('href="https://example.com/paper?a=1&amp;b=&quot;2&quot;"', rendered)
+        self.assertIn('href="https://example.com/project?a=1&amp;b=2"', rendered)
+        self.assertIn("Spotlight &lt;Oral&gt; &amp; presentation", rendered)
+        self.assertIn("publication-distinction--presentation", rendered)
+        self.assertNotIn("<script>", rendered)
+
     def test_publication_image_formula_urls_are_narrowly_allowlisted(self) -> None:
         formula = 'IMAGE("https://econai.kaist.ac.kr/img/example.png")'
         self.assertEqual(
@@ -1073,7 +1148,7 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertIn("line-height: 1.35", project_link_body)
             self.assertIn("padding: 3px 8px", project_link_body)
 
-    def test_home_latest_renders_accessible_three_slide_carousel(self) -> None:
+    def test_legacy_home_carousel_renderer_and_current_page_shell(self) -> None:
         rows = [
             {
                 "date": f"2026-0{8 - index}-01",
@@ -1140,11 +1215,10 @@ class SheetBuilderTests(unittest.TestCase):
         stylesheet = (REPOSITORY_ROOT / "main_site/site.css").read_text(
             encoding="utf-8"
         )
-        self.assertIn('event.key === "ArrowLeft"', index_source)
-        self.assertIn('event.key === "ArrowRight"', index_source)
-        self.assertIn('dot.setAttribute("aria-current", "true")', index_source)
-        self.assertIn('caption.hidden = captionIndex !== current', index_source)
-        self.assertIn("(index + slides.length) % slides.length", index_source)
+        self.assertNotIn('data-publication-carousel', index_source)
+        self.assertNotIn('<script>', index_source)
+        self.assertIn('<!-- SHEET:HOME_NEWS:START -->', index_source)
+        self.assertIn('<!-- SHEET:HOME_NEWS:END -->', index_source)
         self.assertNotIn("setInterval", index_source)
         self.assertIn("aspect-ratio: 5 / 3", stylesheet)
         self.assertRegex(
@@ -1198,11 +1272,10 @@ class SheetBuilderTests(unittest.TestCase):
             self.assertNotIn("bootstrap", page_source.lower())
 
         self.assertNotIn("Latest Publications", index_source)
-        self.assertIn('<h2 id="recent-work-title">Publications</h2>', index_source)
-        self.assertIn(
-            '<h1 id="hero-title">Economic Progress and AI Research Group</h1>',
-            index_source,
-        )
+        self.assertIn('<h2 id="news-title">Recent news</h2>', index_source)
+        self.assertIn('<h1 id="mission-title">Our mission</h1>', index_source)
+        self.assertNotIn('class="hero"', index_source)
+        self.assertNotIn('SHEET:RESEARCH_FOCUS', index_source)
         self.assertIn('src="img/econai-kaist-logo-transparent.svg"', index_source)
         self.assertNotIn(
             "Economic Analysis with Artificial Intelligence",
@@ -2416,120 +2489,78 @@ class SheetBuilderTests(unittest.TestCase):
         )
         self.assertTrue(all(timeout == 7.5 for _, _, timeout in requests))
 
-    def test_publication_xlsx_images_are_materialised_without_url_leaks(self) -> None:
+    def test_home_feed_build_ignores_unused_publication_images(self) -> None:
         tabs = self._direct_publication_tabs()
+        tabs["Publications"][2]["highlight"] = "Spotlight (Oral Presentation)"
         workbook = self._publication_workbook(tabs["Publications"])
-
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            output = Path(temporary_directory) / "output"
-            with mock.patch.object(
-                builder.urllib.request,
-                "urlopen",
-                side_effect=AssertionError(
-                    "offline XLSX build must not request image URLs"
-                ),
-            ):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "site"
+            with mock.patch.object(builder, "_materialise_publication_images") as images:
                 builder.build_site(
-                    tabs,
-                    REPOSITORY_ROOT / "main_site",
-                    output,
-                    "test-sheet",
-                    "offline_csv",
-                    publication_workbook=workbook,
+                    tabs, REPOSITORY_ROOT / "main_site", output,
+                    "test-sheet", "offline_csv", publication_workbook=workbook,
                 )
-
-            assets = sorted((output / "img/sheet-publications").iterdir())
-            self.assertEqual(len(assets), 3)
-            self.assertEqual(
-                sorted(asset.read_bytes() for asset in assets),
-                sorted((TINY_PNG, TINY_JPEG, TINY_PNG)),
-            )
+            images.assert_not_called()
             index_text = (output / "index.html").read_text(encoding="utf-8")
-            self.assertEqual(
-                site_validator._classes(index_text, "publication-figure-image"),
-                3,
-            )
-            self.assertEqual(
-                site_validator._classes(index_text, "publication-figure-slide"),
-                3,
-            )
-            self.assertIn("Overview of the published paper", index_text)
-            self.assertEqual(
-                site_validator._classes(index_text, "publication-figure-caption"),
-                3,
-            )
-            self.assertEqual(
-                site_validator._classes(index_text, "publication-carousel-dot"),
-                3,
-            )
-            self.assertNotIn("publication-figure-credit", index_text)
-            self.assertNotIn("googleusercontent.com", index_text)
-            self.assertNotIn("ggpht.com", index_text)
-            self.assertEqual(site_validator.validate(output), [])
-
-    def test_direct_publication_images_fail_closed_when_latest_image_is_missing(
-        self,
-    ) -> None:
-        tabs = self._direct_publication_tabs()
-        workbook = self._publication_workbook(
-            tabs["Publications"],
-            omit_image_for="Second Published Paper",
-        )
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            output = Path(temporary_directory) / "output"
-            with self.assertRaisesRegex(
-                builder.SheetBuildError,
-                "latest published papers need home images",
-            ):
-                builder.build_site(
-                    tabs,
-                    REPOSITORY_ROOT / "main_site",
-                    output,
-                    "test-sheet",
-                    "offline_csv",
-                    publication_workbook=workbook,
-                )
-
-    def test_direct_publication_columns_allow_zero_image_migration_state(self) -> None:
-        tabs = self._direct_publication_tabs()
-        workbook = self._publication_workbook(
-            tabs["Publications"],
-            omit_all_images=True,
-        )
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            output = Path(temporary_directory) / "output"
-            builder.build_site(
-                tabs,
-                REPOSITORY_ROOT / "main_site",
-                output,
-                "test-sheet",
-                "offline_csv",
-                publication_workbook=workbook,
-            )
-            index_text = (output / "index.html").read_text(encoding="utf-8")
-            self.assertEqual(
-                site_validator._classes(index_text, "publication-figure-slide"), 0
-            )
+            publications = (output / "publications.html").read_text(encoding="utf-8")
+            for row in tabs["Publications"]:
+                self.assertIn(row["title"], index_text)
+                self.assertIn(row["title"], publications)
+            self.assertIn("Spotlight (Oral Presentation)", index_text)
+            self.assertIn("Spotlight (Oral Presentation)", publications)
             self.assertNotIn("publication-figure-carousel", index_text)
-            self.assertIn("publication-panel-wide", index_text)
             self.assertFalse((output / "img/sheet-publications").exists())
             self.assertEqual(site_validator.validate(output), [])
 
-    def test_direct_publication_images_require_workbook_export(self) -> None:
+    def test_home_feed_build_accepts_partial_publication_image_workbook(self) -> None:
         tabs = self._direct_publication_tabs()
-        with tempfile.TemporaryDirectory() as temporary_directory:
-            output = Path(temporary_directory) / "output"
-            with self.assertRaisesRegex(
-                builder.SheetBuildError,
-                "require an XLSX workbook export",
+        workbook = self._publication_workbook(
+            tabs["Publications"], omit_image_for="Second Published Paper",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "site"
+            builder.build_site(
+                tabs, REPOSITORY_ROOT / "main_site", output,
+                "test-sheet", "offline_csv", publication_workbook=workbook,
+            )
+            self.assertFalse((output / "img/sheet-publications").exists())
+            self.assertEqual(site_validator.validate(output), [])
+
+    def test_home_feed_build_ignores_corrupt_unused_publication_workbook(self) -> None:
+        tabs = self._direct_publication_tabs()
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "site"
+            builder.build_site(
+                tabs, REPOSITORY_ROOT / "main_site", output,
+                "test-sheet", "offline_csv", publication_workbook=b"invalid XLSX",
+            )
+            index_text = (output / "index.html").read_text(encoding="utf-8")
+            self.assertIn("Third Published Paper", index_text)
+            self.assertNotIn("publication-figure-carousel", index_text)
+            self.assertEqual(site_validator.validate(output), [])
+
+    def test_publication_image_columns_do_not_require_workbook(self) -> None:
+        tabs = self._direct_publication_tabs()
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "site"
+            builder.build_site(
+                tabs, REPOSITORY_ROOT / "main_site", output,
+                "test-sheet", "offline_csv",
+            )
+            self.assertEqual(site_validator.validate(output), [])
+            args = mock.Mock(
+                sheet_id="test-sheet", source_dir=REPOSITORY_ROOT / "main_site",
+                output_dir=output, csv_dir=None, xlsx_file=None, timeout=12.5,
+            )
+            with (
+                mock.patch.object(builder, "parse_args", return_value=args),
+                mock.patch.object(builder, "load_sheet_tabs", return_value=tabs),
+                mock.patch.object(builder, "_fetch_workbook") as fetch,
+                mock.patch.object(builder, "build_site") as build,
             ):
-                builder.build_site(
-                    tabs,
-                    REPOSITORY_ROOT / "main_site",
-                    output,
-                    "test-sheet",
-                    "offline_csv",
-                )
+                self.assertEqual(builder.main(), 0)
+            fetch.assert_not_called()
+            self.assertIsNone(build.call_args.kwargs["publication_workbook"])
 
     def test_publication_workbook_rejects_unsafe_zip_entries(self) -> None:
         payload = io.BytesIO()
@@ -2861,3 +2892,4 @@ class SheetBuilderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

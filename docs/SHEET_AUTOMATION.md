@@ -57,9 +57,9 @@ cell are omitted.
 | `project_url` | Optional research group project page |
 | `highlight` | Optional award or presentation label |
 | `research_title` | Optional shorter title used on Research cards |
-| `home_image` | Optional-schema column containing an image inserted with **Insert > Image > Insert image in cell** |
-| `home_image_alt` | Accessible description of the homepage figure |
-| `home_image_credit` | Optional figure number or source/credit line |
+| `home_image` | Legacy homepage figure; retained but no longer displayed or required |
+| `home_image_alt` | Legacy homepage figure description |
+| `home_image_credit` | Legacy homepage figure credit |
 
 The Publications page first lists **Accepted & Published** papers, followed by
 **Preprints**. Each section groups papers by year and sorts by `date` descending
@@ -68,33 +68,27 @@ Venues beginning with `arXiv`, `Preprint`, or `Working paper` belong to Preprint
 change the venue to the accepted conference/workshop/journal and update `date`
 when a paper is accepted. An arXiv **link** does not make an accepted paper a
 preprint. List a paper accepted at multiple workshops once, naming both venues.
-Title links replace redundant Paper buttons. The home page shows the three most
-recent main-conference or journal papers with public links, excluding preprints
-and venues containing `workshop`, so workshop additions do not replace the
-homepage's representative figures.
+Title links replace redundant Paper buttons.
 
-The homepage pairs that three-paper list with one larger 5:3 figure card. Images use
-`object-fit: contain`, so a paper figure is never cropped or distorted. Subtle
-gray previous and next arrows sit over the vertical center of the image. The
-paper title appears below the figure, followed by three small pagination dots;
-the active dot changes opacity with the current slide. The left/right arrow keys
-work while the card has focus. Venues, credits, and the numeric slide count are
-not displayed. Add all three image headers together or omit
-all three. With the headers omitted, or with a complete header set but zero
-embedded or `IMAGE("https://...")` `home_image` cells, the homepage keeps the
-original clean text-only publication panel. This lets the columns be created
-before anyone signs in to upload figures. As soon as any image is inserted in
-the `home_image` column, each of the current latest three eligible homepage papers must
-have a real in-cell image or an allowed HTTPS `IMAGE()` formula and non-empty
-`home_image_alt`; a partial set fails the staged build and keeps the last valid
-release live.
+The homepage starts with the research group's mission and a compact **Recent news**
+feed. The feed combines the six latest accepted or published papers (including
+workshops) with every checked row in News, ordered newest first. Preprints do not
+produce automatic homepage updates. Papers without a public URL still appear as
+plain-text titles. Publication dates retain their Sheet precision, and the visible
+label uses the month and year, or just the year. Venues are shown as entered;
+`highlight` carries awards and oral/spotlight selections.
 
-The server securely reads only the `Publications` worksheet, its drawing anchors,
-and the three matched media files from the anonymous XLSX export. It matches each
-image's exact Sheet row and title, validates the workbook paths, XML, file counts,
-sizes, and image signatures, and writes content-hashed local files under
-`img/sheet-publications/`. The generated homepage never contains a Google image
-URL. `home_image_credit` may be blank and is shown below the venue when provided.
+A curated News row tagged `Publication` or `Publications` replaces an automatic
+update for each referenced paper when its date is the same period or later than
+the paper's date. This avoids repeating grouped acceptance announcements. An older
+announcement does not hide a later publication update. Awards and People news stay
+in the feed independently. Edit or add News rows for custom headlines and new award
+announcements; editing a paper's highlight alone does not create a new event date.
+
+Homepage publication images are no longer used or required. Existing `home_image`,
+`home_image_alt`, and `home_image_credit` columns may remain in the Sheet, but
+missing or partial publication images cannot block the homepage build. Research
+and Members images continue to use the anonymous XLSX export as described below.
 
 ### Research
 
@@ -105,13 +99,13 @@ URL. `home_image_credit` may be blank and is shown below the venue when provided
 | `title` | Research area title |
 | `summary` | One concise area description |
 | `question` | The question shown above the area summary |
-| `home_summary` | One-line version shown on the home page |
+| `home_summary` | Legacy one-line description; retained but no longer displayed on the homepage |
 | `selected_publication_1`, `selected_publication_2` | Exact paper-title dropdowns sourced from `Publications!C2:C` |
 | `figure_1_image`, `figure_2_image` | Image inserted directly into the cell with **Insert > Image > Insert image in cell** |
 | `figure_1_alt`, `figure_2_alt` | Accessible description of each image |
 | `figure_1_credit`, `figure_2_credit` | Figure number, source, and license/credit line |
 
-The first three checked rows become the home-page Research Focus cards. The
+Checked Research rows populate the dedicated Research page. The
 selected-publication cells use dropdowns sourced from the Publications title
 column with invalid input rejected. The builder also requires an exact,
 case-sensitive match to a checked Publications row. It then automatically reuses
@@ -189,7 +183,8 @@ link uses the selected paper's canonical `paper_url`.
 | `related_publication_1`, `related_publication_2` | Optional exact paper-title dropdowns sourced from `Publications!C2:C` |
 | `url` | Optional separate HTTPS or site-relative link |
 
-News is sorted newest first. The first item is automatically featured.
+News is merged with recent publication updates on the homepage and sorted newest
+first. All entries use the same compact layout; there is no oversized featured card.
 
 ### Publication-reference dropdowns
 

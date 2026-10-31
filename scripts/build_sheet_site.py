@@ -2394,6 +2394,88 @@ def render_news(
     return "\n".join(lines)
 
 
+def _home_publication_updates(
+    publications: Sequence[Dict[str, str]], news_rows: Sequence[Dict[str, str]]
+) -> List[Dict[str, str]]:
+    """Select recent papers, keeping a curated announcement when it covers them."""
+    latest = _sort_publications(
+        [row for row in publications if not _is_preprint(row)]
+    )[:6]
+    updates = []
+    for publication in latest:
+        publication_date = publication.get("date") or str(_publication_year(publication))
+        announced = any(
+            row["tag"].strip().casefold() in {"publication", "publications"}
+            and publication["title"] in {
+                row.get("related_publication_1"), row.get("related_publication_2")
+            }
+            and (
+                publication_date.startswith(row["date"])
+                or _date_tuple(row["date"], "News date")
+                >= _publication_sort_tuple(publication)
+            )
+            for row in news_rows
+        )
+        if not announced:
+            updates.append(publication)
+    return updates
+
+
+def render_home_news(
+    publications: Sequence[Dict[str, str]], news_rows: Sequence[Dict[str, str]]
+) -> str:
+    """Merge publication updates and curated news into one chronological feed."""
+    entries = [
+        (_publication_sort_tuple(row), "publication", row)
+        for row in _home_publication_updates(publications, news_rows)
+    ] + [
+        (_date_tuple(row["date"], "News date"), "news", row)
+        for row in news_rows
+    ]
+    entries.sort(key=lambda item: (
+        tuple(-part for part in item[0]), item[1], item[2]["title"].casefold()
+    ))
+    lines = ['        <div class="news-list">']
+    for date, kind, row in entries:
+        if kind == "news":
+            # Reuse the curated renderer without its surrounding list container.
+            lines.extend(render_news([row], publications).splitlines()[1:-1])
+            continue
+        year, month, day = date
+        display_date = (
+            datetime(year, month, day or 1).strftime("%b %Y")
+            if month else str(year)
+        )
+        raw_date = row.get("date") or str(year)
+        title = _escape(row["title"])
+        if row.get("paper_url"):
+            title = (
+                f'<a href="{_escape(row["paper_url"], quote=True)}">{title}</a>'
+            )
+        lines.extend([
+            '          <article class="news-item home-publication-update">',
+            '            <div>',
+            f'              <time class="news-date" datetime="{_escape(raw_date, quote=True)}">{display_date}</time>',
+            '              <span class="news-tag">Publication</span>',
+            '            </div>',
+            '            <div class="news-content">',
+            f'              <h3>{title}</h3>',
+            f'              <p>{_render_venue(row["venue"])}</p>',
+        ])
+        if row.get("highlight"):
+            distinction = _distinction_kind(row["highlight"])
+            lines.append(
+                f'              <p><span class="publication-distinction publication-distinction--{distinction}">{_escape(row["highlight"])}</span></p>'
+            )
+        if row.get("project_url"):
+            lines.append(
+                f'              <div class="news-paper-links"><a href="{_escape(row["project_url"], quote=True)}">Project page →</a></div>'
+            )
+        lines.extend(['            </div>', '          </article>'])
+    lines.append('        </div>')
+    return "\n".join(lines)
+
+
 def _member_name(row: Mapping[str, str]) -> str:
     if row.get("name_ko"):
         return f'{row["name_en"]} | {row["name_ko"]}'
@@ -2692,7 +2774,6 @@ def build_site(
     members = tabs["Members"]
     lab_authors = _lab_authors(members)
     research_image_schema = _research_image_schema(research[0].keys())
-    publication_image_schema = _publication_image_schema(publications[0].keys())
     member_image_candidates = [
         row
         for row in members
@@ -2709,20 +2790,6 @@ def build_site(
             research_images = _materialise_research_images(
                 research, output_dir, image_endpoint, image_token, timeout
             )
-    if publication_image_schema == "direct_cell" and publication_workbook is None:
-        raise SheetBuildError(
-            "Publications direct home images require an XLSX workbook export"
-        )
-    publication_images = (
-        _materialise_publication_images(
-            publication_workbook or b"",
-            publications,
-            output_dir,
-            timeout,
-        )
-        if publication_image_schema == "direct_cell"
-        else None
-    )
     member_images = (
         _materialise_member_images(
             publication_workbook or b"",
@@ -2738,18 +2805,6 @@ def build_site(
         "<!-- PUBLICATIONS:START -->",
         "<!-- PUBLICATIONS:END -->",
         render_publications_page(publications, lab_authors),
-    )
-    _replace_block(
-        output_dir / "index.html",
-        "<!-- SHEET:RESEARCH_FOCUS:START -->",
-        "<!-- SHEET:RESEARCH_FOCUS:END -->",
-        render_home_research(research),
-    )
-    _replace_block(
-        output_dir / "index.html",
-        "<!-- SHEET:LATEST_PUBLICATIONS:START -->",
-        "<!-- SHEET:LATEST_PUBLICATIONS:END -->",
-        render_home_latest(publications, publication_images),
     )
     _replace_block(
         output_dir / "research.html",
@@ -2770,9 +2825,9 @@ def build_site(
     )
     _replace_block(
         output_dir / "index.html",
-        "<!-- SHEET:NEWS:START -->",
-        "<!-- SHEET:NEWS:END -->",
-        render_news(news, publications),
+        "<!-- SHEET:HOME_NEWS:START -->",
+        "<!-- SHEET:HOME_NEWS:END -->",
+        render_home_news(publications, news),
     )
     _replace_block(
         output_dir / "members.html",
@@ -2801,6 +2856,7 @@ def build_site(
         "sheet_id": sheet_id,
         "built_at": datetime.now(timezone.utc).isoformat(),
         "published_rows": {name: len(rows) for name, rows in tabs.items()},
+        "homepage_publication_updates": len(_home_publication_updates(publications, news)),
     }
     metadata_path = output_dir / "data/sheet-build.json"
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
@@ -2847,8 +2903,6 @@ def main() -> int:
         )
         workbook_needed = (
             _research_image_schema(tabs["Research"][0].keys()) == "direct_cell"
-            or _publication_image_schema(tabs["Publications"][0].keys())
-            == "direct_cell"
             or member_image_candidates
         )
         if workbook_needed:
@@ -2891,3 +2945,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

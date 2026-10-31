@@ -23,9 +23,7 @@ SITE_FOOTER_PAIR = (
 )
 MARKER_PAIRS = {
     "index.html": (
-        ("<!-- SHEET:RESEARCH_FOCUS:START -->", "<!-- SHEET:RESEARCH_FOCUS:END -->"),
-        ("<!-- SHEET:LATEST_PUBLICATIONS:START -->", "<!-- SHEET:LATEST_PUBLICATIONS:END -->"),
-        ("<!-- SHEET:NEWS:START -->", "<!-- SHEET:NEWS:END -->"),
+        ("<!-- SHEET:HOME_NEWS:START -->", "<!-- SHEET:HOME_NEWS:END -->"),
         ("<!-- SHEET:FOOTER_AFFILIATIONS:START -->", "<!-- SHEET:FOOTER_AFFILIATIONS:END -->"),
         SITE_FOOTER_PAIR,
     ),
@@ -260,21 +258,15 @@ def validate(site_dir: Path) -> List[str]:
         errors.append("research.html row count does not match Sheet metadata")
     if _classes(project_text, "project-card") != expected_counts.get("Projects"):
         errors.append("projects.html row count does not match Sheet metadata")
-    if _classes(index_text, "focus-card") != min(expected_counts.get("Research", 0), 3):
-        errors.append("index.html research focus count is incorrect")
-    if _classes(index_text, "publication-list") < 1:
-        errors.append("index.html is missing latest publications")
-    carousel_slides = _classes(index_text, "publication-figure-slide")
-    expected_slides = min(expected_counts.get("Publications", 0), 3)
-    if carousel_slides not in {0, expected_slides}:
-        errors.append("index.html publication figure carousel count is incorrect")
-    expected_controls = 2 if carousel_slides else 0
-    if _classes(index_text, "publication-carousel-button") != expected_controls:
-        errors.append("index.html publication figure carousel controls are missing")
-    if _classes(index_text, "publication-figure-caption") != carousel_slides:
-        errors.append("index.html publication carousel title count is incorrect")
-    if _classes(index_text, "publication-carousel-dot") != carousel_slides:
-        errors.append("index.html publication carousel dot count is incorrect")
+    expected_updates = metadata.get("homepage_publication_updates")
+    if not isinstance(expected_updates, int) or not 0 <= expected_updates <= 6:
+        errors.append("sheet-build.json has invalid homepage publication count")
+    elif _classes(index_text, "home-publication-update") != expected_updates:
+        errors.append("index.html publication updates do not match Sheet metadata")
+    if _classes(index_text, "home-mission") != 1:
+        errors.append("index.html is missing the research group mission")
+    if _classes(index_text, "hero") or _classes(index_text, "publication-figure-carousel"):
+        errors.append("index.html still contains the removed hero or publication carousel")
     if "weather-card" in index_text or "open-meteo.com" in index_text:
         errors.append("index.html still contains the removed weather widget")
     if "googleusercontent.com" in index_text or "ggpht.com" in index_text:
@@ -356,3 +348,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

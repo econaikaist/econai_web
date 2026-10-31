@@ -1723,3 +1723,142 @@ summary:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Compact, text-led homepage. Other pages retain their existing layout. */
+.home-page .home-mission {
+  padding-block: 40px 24px;
+}
+
+.home-page .home-mission h1,
+.home-page .home-news h2 {
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.home-page .home-mission-copy {
+  color: var(--text);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 900px;
+}
+
+.home-page .home-mission-copy p {
+  margin: 14px 0 0;
+}
+
+.home-page .home-news {
+  padding-block: 24px 64px;
+}
+
+.home-page .home-news .section-heading {
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.home-page .home-news .section-heading .text-link {
+  align-items: center;
+  display: inline-flex;
+  font-size: 0.85rem;
+  min-height: 44px;
+}
+
+.home-page .news-item,
+.home-page .news-item-featured {
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+  border-left: 0;
+  gap: 22px;
+  grid-template-columns: 108px minmax(0, 1fr);
+  margin: 0;
+  padding: 19px 0;
+}
+
+.home-page .news-date {
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.home-page .news-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.home-page .news-content {
+  min-width: 0;
+}
+
+.home-page .news-content h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.home-page .news-content h3 a {
+  text-decoration: none;
+}
+
+.home-page .news-content h3 a:hover,
+.home-page .news-content h3 a:focus-visible {
+  color: var(--blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.home-page .news-content p {
+  margin-top: 6px;
+}
+
+.home-page .news-paper-links {
+  margin-top: 8px;
+}
+
+.home-page .news-content .publication-distinction {
+  margin-top: 6px;
+}
+
+@media (max-width: 720px) {
+  .home-page .home-mission {
+    padding-block: 28px 18px;
+  }
+
+  .home-page .home-mission-copy {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .home-page .home-news {
+    padding-block: 18px 44px;
+  }
+
+  .home-page .home-news .section-heading {
+    align-items: flex-start;
+    gap: 3px;
+    margin-bottom: 12px;
+  }
+
+  .home-page .news-item,
+  .home-page .news-item-featured {
+    gap: 7px;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 17px 0;
+  }
+
+  .home-page .news-item > div:first-child {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+
+  .home-page .news-tag {
+    margin-top: 0;
+  }
+}
