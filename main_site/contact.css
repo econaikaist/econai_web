@@ -1,0 +1,90 @@
+/* Recruiting information uses the site's continuous, readable text layout. */
+.contact-page .contact-content {
+  background: var(--surface);
+}
+
+.contact-page .contact-content h2 {
+  color: var(--blue);
+  font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.4;
+  margin: 0 0 16px;
+}
+
+.contact-page .contact-content h3 {
+  color: var(--ink);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 28px 0 12px;
+}
+
+.contact-page .contact-content p,
+.contact-page .recruiting-values {
+  color: var(--text);
+  line-height: 1.8;
+  margin: 0 0 16px;
+  overflow-wrap: break-word;
+}
+
+.contact-page .contact-content a {
+  color: var(--blue);
+  text-underline-offset: 3px;
+}
+
+.contact-page .recruiting-values {
+  padding-left: 1.35rem;
+}
+
+.contact-page .recruiting-values li {
+  padding-left: 4px;
+  margin-bottom: 12px;
+}
+
+.contact-page .recruiting-values strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.contact-page .contact-inquiries {
+  margin-top: 40px;
+}
+
+.contact-page .contact-details {
+  margin: 24px 0;
+}
+
+.contact-page .contact-details .frame-card {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 20px 0 0;
+}
+
+.contact-page .contact-details .frame-title {
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+}
+
+.contact-page .contact-details a[href^="mailto:"] {
+  align-items: center;
+  display: inline-flex;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+  .contact-page .contact-inquiries {
+    margin-top: 32px;
+  }
+
+  .contact-page .contact-details {
+    gap: 20px;
+  }
+}
