@@ -2709,7 +2709,7 @@ def build_site(
         output_dir / "projects.html",
         "<!-- SHEET:PROJECTS:START -->",
         "<!-- SHEET:PROJECTS:END -->",
-        render_projects(projects, publications),
+        "",  # Curated projects live in the template; retire the legacy status lists.
     )
     _replace_block(
         output_dir / "index.html",

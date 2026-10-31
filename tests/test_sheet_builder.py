@@ -2236,16 +2236,13 @@ class SheetBuilderTests(unittest.TestCase):
             )
             self.assertIn('href="https://example.com/newer-paper"', index_text)
             self.assertIn('href="https://example.com/older-paper"', index_text)
-            self.assertIn('href="https://example.com/newer-paper"', project_text)
-            self.assertIn('href="https://example.com/standalone-project"', project_text)
-            self.assertIn(
-                '<h3><a href="https://example.com/project-page">Project Page and Paper</a></h3>',
-                project_text,
-            )
-            self.assertIn(
-                '<a class="project-publication-link" href="https://example.com/older-paper">Related publication →</a>',
-                project_text,
-            )
+            self.assertIn('id="sbs-sdf"', project_text)
+            self.assertNotIn("Ongoing Projects", project_text)
+            self.assertNotIn("Completed Projects", project_text)
+            self.assertEqual(site_validator._classes(project_text, "project-card"), 0)
+            self.assertEqual(site_validator._classes(project_text, "project-section"), 0)
+            self.assertNotIn('href="https://example.com/newer-paper"', project_text)
+            self.assertNotIn('href="https://example.com/standalone-project"', project_text)
             self.assertIn(
                 '<strong class="publication-lab-author">A Author</strong>',
                 publication_text,

@@ -285,8 +285,8 @@ def validate(site_dir: Path) -> List[str]:
         errors.append("publications.html row count does not match Sheet metadata")
     if _classes(research_text, "research-row") != expected_counts.get("Research"):
         errors.append("research.html row count does not match Sheet metadata")
-    if _classes(project_text, "project-card") != expected_counts.get("Projects"):
-        errors.append("projects.html row count does not match Sheet metadata")
+    if _classes(project_text, "project-card") or _classes(project_text, "project-section"):
+        errors.append("projects.html still contains retired status-based project lists")
     expected_updates = metadata.get("homepage_publication_updates")
     if not isinstance(expected_updates, int) or not 0 <= expected_updates <= 6:
         errors.append("sheet-build.json has invalid homepage publication count")
