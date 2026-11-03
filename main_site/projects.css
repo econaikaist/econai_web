@@ -108,3 +108,48 @@
   display: inline-block;
 }
 
+
+/* A compact illustration beside the SBS introduction, stacked on small screens. */
+.projects-page .project-overview {
+  align-items: center;
+  display: grid;
+  gap: 24px 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  margin-bottom: 16px;
+}
+
+.projects-page .project-overview > p {
+  margin-bottom: 0;
+}
+
+.projects-page .project-visual {
+  margin: 0;
+  min-width: 0;
+}
+
+.projects-page .project-visual video {
+  aspect-ratio: 16 / 9;
+  background: #fff;
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.projects-page .project-visual figcaption {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+@media (max-width: 880px) {
+  .projects-page .project-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .projects-page .project-visual {
+    justify-self: center;
+    max-width: 420px;
+    width: 100%;
+  }
+}
