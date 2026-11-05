@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="site.css?v=20261031-footer">
-  <link rel="stylesheet" href="projects.css?v=20261104-sbs-graphic">
+  <link rel="stylesheet" href="projects.css?v=20261105-sbs-gif-website">
 </head>
 <body class="inner-page projects-page">
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -59,10 +59,10 @@
             <div class="project-overview">
               <p>This collaboration explores how AI simulations can help us understand public deliberation and design better discussions. econai@kaist developed 10,000 AI personas built on NVIDIA’s Nemotron personas and grounded in data from the Korea Social Integration Survey, then ran their deliberation sessions. By varying group composition, discussion rules, and AI models, the project examines how opinions and arguments evolve.</p>
               <figure class="project-visual">
-                <video controls playsinline loop preload="none" poster="img/sbs-deliberation-poster.webp" width="768" height="432" aria-label="Animation showing 10,000 virtual citizens forming 1,000 discussion rooms of 10 people.">
-                  <source src="img/sbs-deliberation.mp4" type="video/mp4">
-                  <a href="img/sbs-deliberation.mp4">Watch the AI deliberation animation.</a>
-                </video>
+                <picture>
+                  <source media="(prefers-reduced-motion: reduce)" srcset="img/sbs-deliberation-poster.webp">
+                  <img src="img/sbs-deliberation.gif" alt="Animation showing 10,000 virtual citizens forming 1,000 discussion rooms of 10 people." width="576" height="324" decoding="async">
+                </picture>
                 <figcaption>10,000 virtual citizens in 1,000 discussion rooms.</figcaption>
               </figure>
             </div>
@@ -78,6 +78,17 @@
             <p class="project-credit"><strong>econai@kaist 참여 연구진:</strong> 김지희, 장채민, 민준식, 최재우.</p>
             <p class="project-credit"><strong>공동연구:</strong> <a href="https://fpl.kaist.ac.kr/">Future Publics Lab</a>(<a href="https://futures.kaist.ac.kr/ko/?c=184&amp;cidx1=41&amp;gbn=viewok&amp;gp=1&amp;ix=3418&amp;s=">김누리 교수</a>, KAIST), <a href="https://www.kixlab.org/">KIXLAB</a>(<a href="https://juhokim.com/">김주호 교수</a>, KAIST).</p>
           </div>
+          <aside class="project-website" aria-labelledby="sbs-website-title">
+            <a class="project-website-preview" href="https://ai-citizens.org/home" aria-label="Explore AI Citizens — the interactive project website">
+              <img src="img/ai-citizens-website.jpg" alt="AI Citizens website introducing the question of how to distribute the benefits of AI, with an opinion scale from equal distribution to support for low-income people." width="1348" height="926" loading="lazy" decoding="async">
+            </a>
+            <div>
+              <h3 id="sbs-website-title"><a href="https://ai-citizens.org/home">AI Citizens <span aria-hidden="true">↗</span></a></h3>
+              <p>Explore the AI deliberation sessions and how participants’ opinions change on the interactive project website.</p>
+              <p lang="ko">「AI 시민이 토론하다」 웹사이트에서 AI 시민들의 토론과 의견 변화를 살펴보세요.</p>
+              <p class="project-resources"><a href="https://ai-citizens.org/home">ai-citizens.org →</a></p>
+            </div>
+          </aside>
           <p class="project-resources"><a href="https://www.sdf.or.kr/2026/ko">SBS D Forum 2026 →</a></p>
         </article>
 
