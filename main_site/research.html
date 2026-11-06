@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="site.css?v=20261031-footer">
-  <link rel="stylesheet" href="projects.css?v=20261105-sbs-gif-website">
+  <link rel="stylesheet" href="projects.css?v=20261106-crop-map">
 </head>
 <body class="inner-page projects-page">
   <a class="skip-link" href="#main-content">Skip to content</a>
@@ -127,9 +127,24 @@
           <h3>Economic Measurement with Geospatial AI</h3>
           <p>We develop methods for estimating economic indicators and tracking change across places and over time. Work including GeoSEE and GeoChange combines geospatial observations with AI to study local development and regional disparities, including in North Korea, where conventional economic data are limited. These methods also provide a foundation for studying specific sectors, including agriculture.</p>
           <p class="project-credit"><strong>Collaborator:</strong> <a href="https://www.mpi-sp.org/cha">Data Science for Humanity Group</a> (<a href="https://pure.kaist.ac.kr/en/persons/meeyoung-cha/">Prof. Meeyoung Cha</a>, MPI-SP and KAIST).</p>
-          <h3>Agricultural Crop Mapping</h3>
+          <h3 id="agricultural-crop-mapping">Agricultural Crop Mapping</h3>
+          <div class="crop-mapping-overview">
+            <div>
           <p>Working with South Korea’s Ministry of Unification and collaborators at Stanford, we use satellite imagery and AI to map crop types and their distribution in North Korea. Establishing what is grown where provides a foundation for understanding agricultural production in places where reliable statistics are scarce.</p>
           <p>Our longer-term goal is to combine these crop maps with information on crop yields, weather, and growing conditions to improve agricultural production estimates. This would support assessments of food availability and vulnerability to production shocks. Building on that evidence, we aim to study how climate change affects agricultural productivity and food security, and how adaptation can strengthen the resilience of agricultural systems.</p>
+            </div>
+            <figure class="project-visual crop-map-visual">
+              <a href="img/research/hwanghae-crop-map-2025.png" aria-label="View the 2025 Hwanghae crop map at full size">
+                <img src="img/research/hwanghae-crop-map-2025.png" alt="2025 crop map of South and North Hwanghae, with rice in blue, maize in orange, and other crops in gray." width="683" height="565" loading="lazy" decoding="async">
+              </a>
+              <ul class="crop-map-legend" aria-label="Crop types">
+                <li><span class="crop-map-swatch crop-map-rice" aria-hidden="true"></span>Rice</li>
+                <li><span class="crop-map-swatch crop-map-maize" aria-hidden="true"></span>Maize</li>
+                <li><span class="crop-map-swatch crop-map-other" aria-hidden="true"></span>Other crops</li>
+              </ul>
+              <figcaption>Estimated crop distribution in South and North Hwanghae, North Korea, 2025 (10 m resolution).</figcaption>
+            </figure>
+          </div>
           <p class="project-credit"><strong>Collaborators:</strong> <a href="https://lobell-lab.stanford.edu/">Lobell Lab</a> (<a href="https://fse.fsi.stanford.edu/people/david_lobell">Prof. David Lobell</a>, Stanford University) and <a href="https://burney-lab.org/">Burney Research Group</a> (<a href="https://profiles.stanford.edu/jen-burney">Prof. Jennifer Burney</a>, Stanford University).</p>
         </article>
 

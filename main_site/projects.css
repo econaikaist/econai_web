@@ -185,7 +185,57 @@
   margin-top: 12px;
 }
 
+/* Preserve the crop map's native proportions and keep its English legend readable. */
+.projects-page #agricultural-crop-mapping {
+  scroll-margin-top: 110px;
+}
+
+.projects-page .crop-mapping-overview {
+  align-items: start;
+  display: grid;
+  gap: 24px 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  margin-bottom: 16px;
+}
+
+.projects-page .crop-map-visual img {
+  aspect-ratio: auto;
+}
+
+.projects-page .crop-map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  justify-content: center;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.projects-page .crop-map-legend li {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.projects-page .crop-map-swatch {
+  display: inline-block;
+  flex: 0 0 20px;
+  height: 10px;
+}
+
+.projects-page .crop-map-rice { background: #1f6fd1; }
+.projects-page .crop-map-maize { background: #e8a33d; }
+.projects-page .crop-map-other { background: #c4c7cc; }
+
 @media (max-width: 880px) {
+  .projects-page .crop-mapping-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .projects-page .project-overview {
     grid-template-columns: minmax(0, 1fr);
   }
